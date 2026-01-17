@@ -7,6 +7,30 @@ body {
   line-height: 1.6;
 }
 
+.site-nav {
+  max-width: 720px;
+  margin: 0 auto 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.site-nav a {
+  text-decoration: none;
+  color: inherit;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(127,127,127,0.35);
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  background: rgba(127,127,127,0.16);
+  border-color: rgba(127,127,127,0.6);
+  outline: none;
+}
+
 .card {
   max-width: 720px;
   margin: 0 auto;
@@ -33,4 +57,10 @@ body {
     object-fit: cover;
     border: 1px solid rgba(127,127,127,0.3);
   }
+
+.section {
+  max-width: 720px;
+  margin: 24px auto 0;
+  padding: 0 4px;
+}
   
