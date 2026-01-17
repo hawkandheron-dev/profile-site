@@ -19,3 +19,18 @@ body {
   opacity: 0.7;
   margin-top: -8px;
 }
+
+.card {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+  }
+  
+  .avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 999px;
+    object-fit: cover;
+    border: 1px solid rgba(127,127,127,0.3);
+  }
+  
