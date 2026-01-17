@@ -1,0 +1,36 @@
+{
+  "groups": [
+    { "id": "people", "content": "People" },
+    { "id": "councils", "content": "Councils" }
+  ],
+  "items": [
+    {
+      "id": "augustine",
+      "group": "people",
+      "content": "Augustine",
+      "start": "0354-11-13",
+      "end": "0430-08-28"
+    },
+    {
+      "id": "athanasius",
+      "group": "people",
+      "content": "Athanasius",
+      "start": "0296-01-01",
+      "end": "0373-05-02"
+    },
+    {
+      "id": "nicea",
+      "group": "councils",
+      "content": "Council of Nicaea",
+      "start": "0325-05-20",
+      "type": "point"
+    },
+    {
+      "id": "chalcedon",
+      "group": "councils",
+      "content": "Council of Chalcedon",
+      "start": "0451-10-08",
+      "type": "point"
+    }
+  ]
+}

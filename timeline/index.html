@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Timeline</title>
+
+    <!-- vis-timeline CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css"
+    />
+
+    <style>
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        margin: 0;
+      }
+      header {
+        padding: 16px 20px;
+        border-bottom: 1px solid rgba(127, 127, 127, 0.25);
+      }
+      #timeline {
+        height: calc(100vh - 58px);
+      }
+      .hint {
+        opacity: 0.7;
+        font-size: 14px;
+        margin-top: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div><strong>Church History Timeline</strong></div>
+      <div class="hint">Scroll to zoom • drag to pan • click an item</div>
+    </header>
+
+    <div id="timeline"></div>
+
+    <!-- vis-timeline JS (standalone bundle) -->
+    <script src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
