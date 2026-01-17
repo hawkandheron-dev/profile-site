@@ -31,6 +31,20 @@ body {
   outline: none;
 }
 
+.home {
+  max-width: 960px;
+  margin: 0 auto 32px;
+  padding: 0;
+}
+
+.splash {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 18px;
+  border: 1px solid rgba(127,127,127,0.3);
+}
+
 .card {
   max-width: 720px;
   margin: 0 auto;
@@ -62,5 +76,26 @@ body {
   max-width: 720px;
   margin: 24px auto 0;
   padding: 0 4px;
+}
+
+.about-card {
+  margin: 0;
+}
+
+.project-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 16px;
+}
+
+.project-list a {
+  font-weight: 600;
+}
+
+.project-list p {
+  margin: 6px 0 0;
+  opacity: 0.8;
 }
   
