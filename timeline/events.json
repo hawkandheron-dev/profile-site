@@ -2,7 +2,6 @@
   "groups": [
     { "id": "people", "content": "People" },
     { "id": "councils", "content": "Councils & Synods" },
-    { "id": "emperors", "content": "Emperors (Lifespan)" },
     { "id": "roman-emperors", "content": "Roman Emperors (Reign)" },
     { "id": "documents", "content": "Documents" },
     { "id": "events", "content": "Events" },
@@ -764,41 +763,6 @@
       "content": "Council (Synod) of Frankfurt",
       "start": "0794-01-01",
       "type": "point"
-    },
-    {
-      "id": "emperors-nero",
-      "group": "emperors",
-      "content": "Nero",
-      "start": "0037-12-15",
-      "end": "0068-06-09"
-    },
-    {
-      "id": "emperors-diocletian",
-      "group": "emperors",
-      "content": "Diocletian",
-      "start": "0244-12-22",
-      "end": "0316-12-03"
-    },
-    {
-      "id": "emperors-constantine",
-      "group": "emperors",
-      "content": "Constantine the Great",
-      "start": "0272-02-27",
-      "end": "0337-05-22"
-    },
-    {
-      "id": "emperors-julian",
-      "group": "emperors",
-      "content": "Julian",
-      "start": "0331-01-01",
-      "end": "0363-06-26"
-    },
-    {
-      "id": "emperors-theodosius",
-      "group": "emperors",
-      "content": "Theodosius I",
-      "start": "0347-01-11",
-      "end": "0395-01-17"
     },
     {
       "id": "roman-augustus",
