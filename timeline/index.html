@@ -21,26 +21,6 @@
         padding: 16px 0;
         border-bottom: 1px solid rgba(127, 127, 127, 0.25);
       }
-      .header-row {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-      }
-      .add-button {
-        border: 1px solid rgba(127, 127, 127, 0.4);
-        border-radius: 999px;
-        padding: 6px 14px;
-        background: transparent;
-        cursor: pointer;
-        font-weight: 600;
-      }
-      .add-button:hover,
-      .add-button:focus-visible {
-        border-color: rgba(127, 127, 127, 0.7);
-        background: rgba(127, 127, 127, 0.12);
-        outline: none;
-      }
       #timeline {
         height: calc(100vh - 58px);
       }
@@ -81,59 +61,13 @@
         margin: 0 32px 10px 0;
         font-size: 20px;
       }
-      .modal-form {
-        display: grid;
-        gap: 14px;
-      }
-      .modal-field label {
-        display: block;
-        font-size: 14px;
-        margin-bottom: 6px;
+      .modal-date {
+        margin: 0 0 14px;
         opacity: 0.75;
       }
-      .modal-field input,
-      .modal-field textarea {
-        width: 100%;
-        border-radius: 10px;
-        border: 1px solid rgba(127, 127, 127, 0.35);
-        padding: 8px 10px;
-        font: inherit;
-        background: transparent;
-        color: inherit;
-        box-sizing: border-box;
-      }
-      .modal-field input::placeholder,
-      .modal-field textarea::placeholder {
-        color: rgba(127, 127, 127, 0.7);
-        font-style: italic;
-      }
-      .modal-field textarea {
-        resize: vertical;
-        min-height: 80px;
-      }
-      .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 4px;
-      }
-      .modal-actions button {
-        border-radius: 999px;
-        padding: 8px 16px;
-        border: 1px solid rgba(127, 127, 127, 0.4);
-        background: transparent;
-        cursor: pointer;
-        font-weight: 600;
-      }
-      .modal-actions .primary {
-        background: #111;
-        color: #fff;
-        border-color: #111;
-      }
-      .modal-error {
-        font-size: 13px;
-        color: #b00020;
-        min-height: 1em;
+      .modal-description {
+        margin: 0;
+        line-height: 1.6;
       }
       .modal-close {
         position: absolute;
@@ -155,13 +89,8 @@
   </head>
   <body>
     <header>
-      <div class="header-row">
-        <div><strong>Church History Timeline</strong></div>
-        <div class="hint">Scroll to zoom • drag to pan • click an item</div>
-        <button class="add-button" type="button" id="add-person-button">
-          Add a person
-        </button>
-      </div>
+      <div><strong>Church History Timeline</strong></div>
+      <div class="hint">Scroll to zoom • drag to pan • click an item</div>
     </header>
 
     <div id="timeline"></div>
@@ -176,40 +105,9 @@
         <button class="modal-close" type="button" data-modal-close aria-label="Close">
           &times;
         </button>
-        <h2 id="modal-title" class="modal-title">Edit entry</h2>
-        <form id="modal-form" class="modal-form">
-          <div class="modal-field">
-            <label for="field-name">Name</label>
-            <input id="field-name" name="name" type="text" autocomplete="off" />
-          </div>
-          <div class="modal-field">
-            <label for="field-birth">Birth</label>
-            <input
-              id="field-birth"
-              name="birth"
-              type="text"
-              placeholder="e.g., Jan 15 207 AD, Jan 207 AD, or 207 AD"
-            />
-          </div>
-          <div class="modal-field">
-            <label for="field-death">Death</label>
-            <input
-              id="field-death"
-              name="death"
-              type="text"
-              placeholder="e.g., Jan 15 207 AD, Jan 207 AD, or 207 AD"
-            />
-          </div>
-          <div class="modal-field">
-            <label for="field-description">Description</label>
-            <textarea id="field-description" name="description"></textarea>
-          </div>
-          <div id="modal-error" class="modal-error" aria-live="polite"></div>
-          <div class="modal-actions">
-            <button type="button" data-modal-close>Cancel</button>
-            <button type="submit" class="primary">Save</button>
-          </div>
-        </form>
+        <h2 id="modal-title" class="modal-title"></h2>
+        <p id="modal-date" class="modal-date"></p>
+        <p id="modal-description" class="modal-description"></p>
       </div>
     </div>
 
