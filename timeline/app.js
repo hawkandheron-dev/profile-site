@@ -17,6 +17,8 @@ async function main() {
   const fixedWindowStart = new Date(100, 0, 1);
   const fixedWindowEnd = new Date(375, 0, 1);
   const fixedWindowSpan = fixedWindowEnd - fixedWindowStart;
+  const baseGroupHeight = 28;
+  const perItemHeight = 24;
 
   const options = {
     stack: true,
@@ -24,6 +26,7 @@ async function main() {
     zoomable: false,
     zoomMin: fixedWindowSpan,
     zoomMax: fixedWindowSpan,
+    verticalScroll: true,
     maxHeight: "100%",
     tooltip: { followMouse: true },
     // Set an initial window (roughly)
@@ -31,8 +34,7 @@ async function main() {
     end: fixedWindowEnd,
     min: minDate,
     max: maxDate,
-    groupHeightMode: "fixed",
-    groupMinHeight: 56
+    groupHeightMode: "fixed"
   };
 
   let lastFocusedElement = null;
@@ -107,8 +109,22 @@ async function main() {
     return yearLabel ? `${item.name} (${yearLabel})` : item.name;
   }
 
+  const groupCounts = new Map();
+  data.items.forEach((item) => {
+    const count = groupCounts.get(item.group) || 0;
+    groupCounts.set(item.group, count + 1);
+  });
+
   // vis-timeline expects DataSet instances
-  const groups = new vis.DataSet(data.groups);
+  const groups = new vis.DataSet(
+    data.groups.map((group) => {
+      const count = groupCounts.get(group.id) || 0;
+      return {
+        ...group,
+        height: baseGroupHeight + count * perItemHeight
+      };
+    })
+  );
   const items = new vis.DataSet(
     data.items.map((item) => {
       const decorated = {
