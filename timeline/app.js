@@ -114,14 +114,19 @@ async function main() {
     const count = groupCounts.get(item.group) || 0;
     groupCounts.set(item.group, count + 1);
   });
+  const groupHeights = new Map();
+  groupCounts.forEach((count, groupId) => {
+    groupHeights.set(groupId, baseGroupHeight + count * perItemHeight);
+  });
 
   // vis-timeline expects DataSet instances
   const groups = new vis.DataSet(
     data.groups.map((group) => {
-      const count = groupCounts.get(group.id) || 0;
+      const height = groupHeights.get(group.id) || baseGroupHeight;
       return {
         ...group,
-        height: baseGroupHeight + count * perItemHeight
+        height,
+        style: `height: ${height}px;`
       };
     })
   );
@@ -149,6 +154,28 @@ async function main() {
       const year = Number.parseInt(raw, 10);
       if (Number.isNaN(year)) return;
       label.textContent = formatYearAxis(year);
+    });
+  }
+
+  function applyGroupHeights() {
+    const labelNodes = container.querySelectorAll(".vis-labelset .vis-label");
+    labelNodes.forEach((label) => {
+      const groupId = label.getAttribute("data-groupid");
+      if (!groupId) return;
+      const height = groupHeights.get(groupId);
+      if (!height) return;
+      label.style.height = `${height}px`;
+      label.style.minHeight = `${height}px`;
+    });
+
+    const groupNodes = container.querySelectorAll(".vis-itemset .vis-group");
+    groupNodes.forEach((groupNode) => {
+      const groupId = groupNode.getAttribute("data-groupid");
+      if (!groupId) return;
+      const height = groupHeights.get(groupId);
+      if (!height) return;
+      groupNode.style.height = `${height}px`;
+      groupNode.style.minHeight = `${height}px`;
     });
   }
 
@@ -225,8 +252,11 @@ async function main() {
   });
 
   timeline.on("rangechanged", updateAxisLabels);
+  timeline.on("rangechanged", applyGroupHeights);
   timeline.on("changed", updateAxisLabels);
+  timeline.on("changed", applyGroupHeights);
   updateAxisLabels();
+  applyGroupHeights();
 }
 
 main().catch((err) => {
