@@ -23,15 +23,13 @@ async function main() {
     zoomable: false,
     zoomMin: fixedWindowSpan,
     zoomMax: fixedWindowSpan,
-    verticalScroll: true,
     maxHeight: "100%",
     tooltip: { followMouse: true },
     // Set an initial window (roughly)
     start: fixedWindowStart,
     end: fixedWindowEnd,
     min: minDate,
-    max: maxDate,
-    groupHeightMode: "fixed"
+    max: maxDate
   };
 
   let lastFocusedElement = null;
@@ -116,25 +114,7 @@ async function main() {
   };
 
   // vis-timeline expects DataSet instances
-  const groupHeights = {
-    people: 480,
-    councils: 240,
-    emperors: 240,
-    "roman-emperors": 240,
-    documents: 240,
-    events: 240,
-    eras: 240
-  };
-  const groups = new vis.DataSet(
-    data.groups.map((group) => {
-      const height = groupHeights[group.id] || 240;
-      return {
-        ...group,
-        height,
-        style: `height: ${height}px; min-height: ${height}px; max-height: ${height}px;`
-      };
-    })
-  );
+  const groups = new vis.DataSet(data.groups);
   const items = new vis.DataSet(
     data.items.map((item) => {
       const category = item.group || "events";
@@ -150,9 +130,6 @@ async function main() {
   );
 
   const timeline = new vis.Timeline(container, items, groups, options);
-  const groupHeightById = new Map(
-    Object.entries(groupHeights).map(([id, height]) => [id, height])
-  );
 
   function updateAxisLabels() {
     const range = timeline.getWindow();
@@ -167,37 +144,6 @@ async function main() {
       label.textContent = formatYearAxis(year);
     });
   }
-
-  function applyGroupHeights() {
-    const labelNodes = container.querySelectorAll(".vis-labelset .vis-label");
-    labelNodes.forEach((label) => {
-      const groupId = label.getAttribute("data-groupid");
-      if (!groupId) return;
-      const height = groupHeightById.get(groupId);
-      if (!height) return;
-      label.style.setProperty("height", `${height}px`, "important");
-      label.style.setProperty("min-height", `${height}px`, "important");
-      label.style.setProperty("max-height", `${height}px`, "important");
-    });
-
-    const groupNodes = container.querySelectorAll(
-      ".vis-itemset .vis-group, .vis-foreground .vis-group, .vis-background .vis-group"
-    );
-    groupNodes.forEach((groupNode) => {
-      const groupId = groupNode.getAttribute("data-groupid");
-      if (!groupId) return;
-      const height = groupHeightById.get(groupId);
-      if (!height) return;
-      groupNode.style.setProperty("height", `${height}px`, "important");
-      groupNode.style.setProperty("min-height", `${height}px`, "important");
-      groupNode.style.setProperty("max-height", `${height}px`, "important");
-    });
-  }
-
-  const observer = new MutationObserver(() => {
-    requestAnimationFrame(applyGroupHeights);
-  });
-  observer.observe(container, { childList: true, subtree: true });
 
   function openModal(item) {
     if (!item) return;
@@ -272,11 +218,8 @@ async function main() {
   });
 
   timeline.on("rangechanged", updateAxisLabels);
-  timeline.on("rangechanged", () => requestAnimationFrame(applyGroupHeights));
   timeline.on("changed", updateAxisLabels);
-  timeline.on("changed", () => requestAnimationFrame(applyGroupHeights));
   updateAxisLabels();
-  applyGroupHeights();
 }
 
 main().catch((err) => {
