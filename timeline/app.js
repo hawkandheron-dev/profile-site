@@ -126,7 +126,7 @@ async function main() {
       return {
         ...group,
         height,
-        style: `height: ${height}px;`
+        style: `height: ${height}px; min-height: ${height}px;`
       };
     })
   );
@@ -166,6 +166,7 @@ async function main() {
       if (!height) return;
       label.style.height = `${height}px`;
       label.style.minHeight = `${height}px`;
+      label.style.maxHeight = `${height}px`;
     });
 
     const groupNodes = container.querySelectorAll(".vis-itemset .vis-group");
@@ -176,8 +177,14 @@ async function main() {
       if (!height) return;
       groupNode.style.height = `${height}px`;
       groupNode.style.minHeight = `${height}px`;
+      groupNode.style.maxHeight = `${height}px`;
     });
   }
+
+  const observer = new MutationObserver(() => {
+    requestAnimationFrame(applyGroupHeights);
+  });
+  observer.observe(container, { childList: true, subtree: true });
 
   function openModal(item) {
     if (!item) return;
@@ -252,9 +259,9 @@ async function main() {
   });
 
   timeline.on("rangechanged", updateAxisLabels);
-  timeline.on("rangechanged", applyGroupHeights);
+  timeline.on("rangechanged", () => requestAnimationFrame(applyGroupHeights));
   timeline.on("changed", updateAxisLabels);
-  timeline.on("changed", applyGroupHeights);
+  timeline.on("changed", () => requestAnimationFrame(applyGroupHeights));
   updateAxisLabels();
   applyGroupHeights();
 }
