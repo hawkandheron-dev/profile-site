@@ -73,8 +73,9 @@
         background: #fff;
         color: #111;
         border-radius: 16px;
-        padding: 20px 22px 22px;
+        padding: 22px 30px 24px 24px;
         box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+        box-sizing: border-box;
       }
       .modal-title {
         margin: 0 32px 10px 0;
@@ -99,6 +100,12 @@
         font: inherit;
         background: transparent;
         color: inherit;
+        box-sizing: border-box;
+      }
+      .modal-field input::placeholder,
+      .modal-field textarea::placeholder {
+        color: rgba(127, 127, 127, 0.7);
+        font-style: italic;
       }
       .modal-field textarea {
         resize: vertical;
@@ -181,7 +188,7 @@
               id="field-birth"
               name="birth"
               type="text"
-              placeholder="Jan 15 151 AD"
+              placeholder="e.g., Jan 15 207 AD, Jan 207 AD, or 207 AD"
             />
           </div>
           <div class="modal-field">
@@ -190,7 +197,7 @@
               id="field-death"
               name="death"
               type="text"
-              placeholder="151 AD"
+              placeholder="e.g., Jan 15 207 AD, Jan 207 AD, or 207 AD"
             />
           </div>
           <div class="modal-field">
