@@ -14,18 +14,25 @@ async function main() {
   const currentYear = now.getFullYear();
   const minDate = new Date(-49, 0, 1);
   const maxDate = new Date(currentYear, 11, 31);
+  const fixedWindowStart = new Date(100, 0, 1);
+  const fixedWindowEnd = new Date(375, 0, 1);
+  const fixedWindowSpan = fixedWindowEnd - fixedWindowStart;
 
   const options = {
     stack: true,
     horizontalScroll: true,
-    zoomKey: "ctrlKey", // helps avoid accidental zoom; remove if you prefer always-zoom
+    zoomable: false,
+    zoomMin: fixedWindowSpan,
+    zoomMax: fixedWindowSpan,
     maxHeight: "100%",
     tooltip: { followMouse: true },
     // Set an initial window (roughly)
-    start: new Date(200, 0, 1),
-    end: new Date(600, 0, 1),
+    start: fixedWindowStart,
+    end: fixedWindowEnd,
     min: minDate,
-    max: maxDate
+    max: maxDate,
+    groupHeightMode: "fixed",
+    groupMinHeight: 56
   };
 
   let lastFocusedElement = null;
