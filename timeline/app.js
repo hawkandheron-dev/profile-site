@@ -10,10 +10,6 @@ async function main() {
   if (!res.ok) throw new Error(`Failed to load events.json: ${res.status}`);
   const data = await res.json();
 
-  // vis-timeline expects DataSet instances
-  const groups = new vis.DataSet(data.groups);
-  const items = new vis.DataSet(data.items);
-
   const now = new Date();
   const currentYear = now.getFullYear();
   const minDate = new Date(-49, 0, 1);
@@ -32,15 +28,17 @@ async function main() {
     max: maxDate
   };
 
-  const timeline = new vis.Timeline(container, items, groups, options);
-
   let lastFocusedElement = null;
 
-  function formatYearLabel(year) {
+  function formatYearAxis(year) {
     if (year <= 0) {
       return `${1 - year} BC`;
     }
     return `${year} AD`;
+  }
+
+  function toDisplayYear(year) {
+    return year <= 0 ? 1 - year : year;
   }
 
   function precisionFromParts(parts) {
@@ -54,7 +52,7 @@ async function main() {
     const parts = parseDateParts(dateString);
     if (!parts) return "";
     const precision = precisionOverride || precisionFromParts(parts);
-    const yearLabel = formatYearLabel(parts.year);
+    const yearLabel = `${toDisplayYear(parts.year)}`;
     if (precision === "year") return yearLabel;
     const monthNames = [
       "Jan",
@@ -88,6 +86,35 @@ async function main() {
     };
   }
 
+  function buildItemLabel(item) {
+    const startParts = parseDateParts(item.start);
+    const endParts = parseDateParts(item.end);
+    const startYear = startParts ? toDisplayYear(startParts.year) : null;
+    const endYear = endParts ? toDisplayYear(endParts.year) : null;
+    let yearLabel = "";
+    if (endYear && startYear && endYear !== startYear) {
+      yearLabel = `${startYear}-${endYear}`;
+    } else if (startYear) {
+      yearLabel = `${startYear}`;
+    }
+    return yearLabel ? `${item.name} (${yearLabel})` : item.name;
+  }
+
+  // vis-timeline expects DataSet instances
+  const groups = new vis.DataSet(data.groups);
+  const items = new vis.DataSet(
+    data.items.map((item) => {
+      const decorated = {
+        ...item,
+        name: item.name || item.content
+      };
+      decorated.content = buildItemLabel(decorated);
+      return decorated;
+    })
+  );
+
+  const timeline = new vis.Timeline(container, items, groups, options);
+
   function updateAxisLabels() {
     const range = timeline.getWindow();
     const spanYears = (range.end - range.start) / (1000 * 60 * 60 * 24 * 365.25);
@@ -98,13 +125,13 @@ async function main() {
       if (!/^-?\d+$/.test(raw)) return;
       const year = Number.parseInt(raw, 10);
       if (Number.isNaN(year)) return;
-      label.textContent = formatYearLabel(year);
+      label.textContent = formatYearAxis(year);
     });
   }
 
   function openModal(item) {
     if (!item) return;
-    modalTitle.textContent = item.content;
+    modalTitle.textContent = item.name || item.content;
     const startPrecision =
       item?.startPrecision || precisionFromParts(parseDateParts(item?.start));
     const endPrecision =
@@ -129,6 +156,7 @@ async function main() {
     modal.classList.remove("is-open");
     modal.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
+    timeline.setSelection([]);
     if (lastFocusedElement instanceof HTMLElement) {
       lastFocusedElement.focus();
     }
