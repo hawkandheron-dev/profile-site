@@ -17,16 +17,12 @@ async function main() {
   const fixedWindowStart = new Date(100, 0, 1);
   const fixedWindowEnd = new Date(375, 0, 1);
   const fixedWindowSpan = fixedWindowEnd - fixedWindowStart;
-  const baseGroupHeight = 28;
-  const perItemHeight = 24;
-
   const options = {
     stack: true,
     horizontalScroll: true,
     zoomable: false,
     zoomMin: fixedWindowSpan,
     zoomMax: fixedWindowSpan,
-    verticalScroll: true,
     maxHeight: "100%",
     tooltip: { followMouse: true },
     // Set an initial window (roughly)
@@ -34,7 +30,7 @@ async function main() {
     end: fixedWindowEnd,
     min: minDate,
     max: maxDate,
-    groupHeightMode: "fixed"
+    groupHeightMode: "fitItems"
   };
 
   let lastFocusedElement = null;
@@ -109,34 +105,29 @@ async function main() {
     return yearLabel ? `${item.name} (${yearLabel})` : item.name;
   }
 
-  const groupCounts = new Map();
-  data.items.forEach((item) => {
-    const count = groupCounts.get(item.group) || 0;
-    groupCounts.set(item.group, count + 1);
-  });
-  const groupHeights = new Map();
-  groupCounts.forEach((count, groupId) => {
-    groupHeights.set(groupId, baseGroupHeight + count * perItemHeight);
-  });
+  const categoryMeta = {
+    people: { icon: "👤", className: "cat-people" },
+    councils: { icon: "🏛️", className: "cat-councils" },
+    emperors: { icon: "👑", className: "cat-emperors" },
+    "roman-emperors": { icon: "⚔️", className: "cat-roman-emperors" },
+    documents: { icon: "📜", className: "cat-documents" },
+    events: { icon: "📌", className: "cat-events" },
+    eras: { icon: "⏳", className: "cat-eras" }
+  };
 
   // vis-timeline expects DataSet instances
-  const groups = new vis.DataSet(
-    data.groups.map((group) => {
-      const height = groupHeights.get(group.id) || baseGroupHeight;
-      return {
-        ...group,
-        height,
-        style: `height: ${height}px; min-height: ${height}px; max-height: ${height}px;`
-      };
-    })
-  );
+  const groups = new vis.DataSet([{ id: "all", content: "Timeline" }]);
   const items = new vis.DataSet(
     data.items.map((item) => {
+      const category = item.group || "events";
+      const meta = categoryMeta[category] || categoryMeta.events;
       const decorated = {
         ...item,
-        name: item.name || item.content
+        name: item.name || item.content,
+        group: "all",
+        className: meta.className
       };
-      decorated.content = buildItemLabel(decorated);
+      decorated.content = `${meta.icon} ${buildItemLabel(decorated)}`;
       return decorated;
     })
   );
@@ -156,39 +147,6 @@ async function main() {
       label.textContent = formatYearAxis(year);
     });
   }
-
-  function applyGroupHeights() {
-    const labelNodes = container.querySelectorAll(".vis-labelset .vis-label");
-    labelNodes.forEach((label) => {
-      const groupId = label.getAttribute("data-groupid");
-      if (!groupId) return;
-      const height = groupHeights.get(groupId);
-      if (!height) return;
-      label.style.height = `${height}px`;
-      label.style.minHeight = `${height}px`;
-      label.style.maxHeight = `${height}px`;
-      label.style.flexBasis = `${height}px`;
-    });
-
-    const groupNodes = container.querySelectorAll(
-      ".vis-itemset .vis-group, .vis-foreground .vis-group, .vis-background .vis-group"
-    );
-    groupNodes.forEach((groupNode) => {
-      const groupId = groupNode.getAttribute("data-groupid");
-      if (!groupId) return;
-      const height = groupHeights.get(groupId);
-      if (!height) return;
-      groupNode.style.height = `${height}px`;
-      groupNode.style.minHeight = `${height}px`;
-      groupNode.style.maxHeight = `${height}px`;
-      groupNode.style.flexBasis = `${height}px`;
-    });
-  }
-
-  const observer = new MutationObserver(() => {
-    requestAnimationFrame(applyGroupHeights);
-  });
-  observer.observe(container, { childList: true, subtree: true });
 
   function openModal(item) {
     if (!item) return;
@@ -263,11 +221,8 @@ async function main() {
   });
 
   timeline.on("rangechanged", updateAxisLabels);
-  timeline.on("rangechanged", () => requestAnimationFrame(applyGroupHeights));
   timeline.on("changed", updateAxisLabels);
-  timeline.on("changed", () => requestAnimationFrame(applyGroupHeights));
   updateAxisLabels();
-  applyGroupHeights();
 }
 
 main().catch((err) => {
