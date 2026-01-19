@@ -126,7 +126,7 @@ async function main() {
       return {
         ...group,
         height,
-        style: `height: ${height}px; min-height: ${height}px;`
+        style: `height: ${height}px; min-height: ${height}px; max-height: ${height}px;`
       };
     })
   );
@@ -167,9 +167,12 @@ async function main() {
       label.style.height = `${height}px`;
       label.style.minHeight = `${height}px`;
       label.style.maxHeight = `${height}px`;
+      label.style.flexBasis = `${height}px`;
     });
 
-    const groupNodes = container.querySelectorAll(".vis-itemset .vis-group");
+    const groupNodes = container.querySelectorAll(
+      ".vis-itemset .vis-group, .vis-foreground .vis-group, .vis-background .vis-group"
+    );
     groupNodes.forEach((groupNode) => {
       const groupId = groupNode.getAttribute("data-groupid");
       if (!groupId) return;
@@ -178,6 +181,7 @@ async function main() {
       groupNode.style.height = `${height}px`;
       groupNode.style.minHeight = `${height}px`;
       groupNode.style.maxHeight = `${height}px`;
+      groupNode.style.flexBasis = `${height}px`;
     });
   }
 
