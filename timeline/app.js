@@ -23,6 +23,7 @@ async function main() {
     zoomable: false,
     zoomMin: fixedWindowSpan,
     zoomMax: fixedWindowSpan,
+    verticalScroll: true,
     maxHeight: "100%",
     tooltip: { followMouse: true },
     // Set an initial window (roughly)
@@ -30,7 +31,7 @@ async function main() {
     end: fixedWindowEnd,
     min: minDate,
     max: maxDate,
-    groupHeightMode: "fitItems"
+    groupHeightMode: "fixed"
   };
 
   let lastFocusedElement = null;
@@ -116,7 +117,25 @@ async function main() {
   };
 
   // vis-timeline expects DataSet instances
-  const groups = new vis.DataSet([{ id: "all", content: "Timeline" }]);
+  const groupHeights = {
+    people: 480,
+    councils: 240,
+    emperors: 240,
+    "roman-emperors": 240,
+    documents: 240,
+    events: 240,
+    eras: 240
+  };
+  const groups = new vis.DataSet(
+    data.groups.map((group) => {
+      const height = groupHeights[group.id] || 240;
+      return {
+        ...group,
+        height,
+        style: `height: ${height}px; min-height: ${height}px; max-height: ${height}px;`
+      };
+    })
+  );
   const items = new vis.DataSet(
     data.items.map((item) => {
       const category = item.group || "events";
@@ -124,7 +143,6 @@ async function main() {
       const decorated = {
         ...item,
         name: item.name || item.content,
-        group: "all",
         className: meta.className
       };
       decorated.content = `${meta.icon} ${buildItemLabel(decorated)}`;
