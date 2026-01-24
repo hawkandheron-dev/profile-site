@@ -72,14 +72,14 @@ export function stackPeople(people) {
  * Sorted by date, then alphabetically
  *
  * @param {Array} points - Array of point items
- * @param {number} pointWidth - Width of point marker in pixels (for overlap detection)
+ * @param {number} pointWidth - Width of point marker + label in pixels (for overlap detection)
  * @param {number} yearsPerPixel - Current zoom scale
  * @returns {Array} Points with row assignments
  */
-export function stackPoints(points, pointWidth = 40, yearsPerPixel = 1) {
+export function stackPoints(points, pointWidth = 150, yearsPerPixel = 1) {
   if (!points || points.length === 0) return [];
 
-  // Calculate effective year range for each point based on marker width
+  // Calculate effective year range for each point based on callout/label width
   const pointYearWidth = pointWidth * yearsPerPixel;
 
   // Sort by date, then alphabetically

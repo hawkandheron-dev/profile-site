@@ -166,6 +166,17 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     setSelectedItem(null);
   }, []);
 
+  // Handle zoom buttons
+  const handleZoomIn = useCallback(() => {
+    const centerX = dimensions.width / 2;
+    handleZoom(-2, centerX, dimensions.width); // Negative delta = zoom in
+  }, [handleZoom, dimensions.width]);
+
+  const handleZoomOut = useCallback(() => {
+    const centerX = dimensions.width / 2;
+    handleZoom(2, centerX, dimensions.width); // Positive delta = zoom out
+  }, [handleZoom, dimensions.width]);
+
   // Notify viewport changes
   useEffect(() => {
     if (onViewportChange) {
@@ -227,6 +238,12 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
 
       {/* Controls */}
       <div className="timeline-controls">
+        <button onClick={handleZoomIn} title="Zoom in">
+          +
+        </button>
+        <button onClick={handleZoomOut} title="Zoom out">
+          −
+        </button>
         <button onClick={reset} title="Reset view">
           Reset
         </button>

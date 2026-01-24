@@ -100,7 +100,7 @@ export function clamp(value, min, max) {
 /**
  * Calculate new viewport position after zoom
  * Zooms centered on a specific point (usually mouse position)
- * @param {number} zoomDelta - Change in zoom (positive = zoom in)
+ * @param {number} zoomDelta - Change in zoom (positive = zoom out, negative = zoom in)
  * @param {number} mouseX - Mouse X position in pixels
  * @param {number} currentViewportStartYear - Current viewport start
  * @param {number} currentYearsPerPixel - Current scale
@@ -113,7 +113,8 @@ export function calculateZoomAroundPoint(
   currentYearsPerPixel
 ) {
   // Calculate new years per pixel
-  const zoomFactor = Math.pow(1.1, -zoomDelta); // negative because wheel down = zoom in
+  // Positive delta = zoom out (pinch), Negative delta = zoom in (spread)
+  const zoomFactor = Math.pow(1.1, zoomDelta);
   const newYearsPerPixel = currentYearsPerPixel * zoomFactor;
 
   // Calculate the year at mouse position before zoom

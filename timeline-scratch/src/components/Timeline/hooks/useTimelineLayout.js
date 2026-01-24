@@ -31,7 +31,7 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
   }, [data.people]);
 
   const stackedPoints = useMemo(() => {
-    return stackPoints(data.points || [], 40, yearsPerPixel);
+    return stackPoints(data.points || [], 150, yearsPerPixel);
   }, [data.points, yearsPerPixel]);
 
   const stackedPeriods = useMemo(() => {

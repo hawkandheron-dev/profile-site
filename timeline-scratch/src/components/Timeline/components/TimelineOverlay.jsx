@@ -55,6 +55,7 @@ export function TimelineOverlay({
 
       const startX = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const endX = yearToPixel(end, viewportStartYear, yearsPerPixel);
+      const boxWidth = Math.max(endX - startX, 60); // Min width for readability
       const y = laneY + padding + (person.row * rowHeight) + (rowHeight / 2) - 4;
 
       // Sticky behavior: stick to left edge if box extends left
@@ -63,6 +64,9 @@ export function TimelineOverlay({
 
       if (isSticky) {
         labelX = 10; // Stick to left edge with padding
+      } else {
+        // Add margin to the right of the box for non-sticky labels
+        labelX = startX + boxWidth + 8;
       }
 
       // Hide if completely off screen
