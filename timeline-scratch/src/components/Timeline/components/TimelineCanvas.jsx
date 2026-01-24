@@ -138,21 +138,16 @@ export function TimelineCanvas({
 
       const x = yearToPixel(year, viewportStartYear, yearsPerPixel);
       const y = laneY + padding + (point.row * rowHeight) + (rowHeight / 2);
-      const size = 20;
 
-      // Get shape and color
-      const shape = point.shape || 'circle';
-      const color = point.color || '#ff6f00';
+      // Point markers are now rendered inside labels, so we don't draw them on canvas
+      // Just set up hit detection
 
-      // Draw point marker
-      drawPointMarker(ctx, x, y, size, shape, color);
-
-      // Store in hit map (larger hit area for easier clicking)
-      const hitSize = 30;
+      // Store in hit map for clicking (use label area)
+      const hitSize = 80; // Wider to match label width
       hitMapRef.current.set(point.id, {
         type: 'point',
         item: point,
-        bounds: { x: x - hitSize/2, y: y - hitSize/2, width: hitSize, height: hitSize }
+        bounds: { x: x - hitSize/2, y: y - 40, width: hitSize, height: 35 }
       });
     });
   }

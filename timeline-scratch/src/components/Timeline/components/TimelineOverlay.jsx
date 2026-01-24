@@ -157,6 +157,61 @@ export function TimelineOverlay({
     const rowHeight = layout.sizes.pointRowHeight;
     const padding = layout.sizes.lanePadding;
 
+    // Helper to render shape icon
+    const renderShapeIcon = (shape, color, size = 16) => {
+      const half = size / 2;
+      const curve = size * 0.1;
+
+      switch (shape) {
+        case 'diamond':
+          return (
+            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
+              <path
+                d={`M ${half} 0 Q ${half + curve} ${half - curve} ${size} ${half} Q ${half + curve} ${half + curve} ${half} ${size} Q ${half - curve} ${half + curve} 0 ${half} Q ${half - curve} ${half - curve} ${half} 0 Z`}
+                fill={color}
+                stroke="#333"
+                strokeWidth="1"
+              />
+            </svg>
+          );
+        case 'square':
+          return (
+            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
+              <path
+                d={`M 0 ${curve} Q ${half} ${-curve} ${size - curve} 0 Q ${size + curve} ${half} ${size - curve} ${size} Q ${half} ${size + curve} ${curve} ${size} Q ${-curve} ${half} 0 ${curve} Z`}
+                fill={color}
+                stroke="#333"
+                strokeWidth="1"
+              />
+            </svg>
+          );
+        case 'circle':
+          return (
+            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
+              <circle cx={half} cy={half} r={half - 1} fill={color} stroke="#333" strokeWidth="1" />
+            </svg>
+          );
+        case 'triangle':
+          const height = (Math.sqrt(3) / 2) * size;
+          return (
+            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
+              <path
+                d={`M ${half} ${(size - height) / 2} Q ${half + half / 2 + curve} ${size / 2} ${size} ${(size + height) / 2} Q ${half} ${(size + height) / 2 + curve} 0 ${(size + height) / 2} Q ${half - half / 2 - curve} ${size / 2} ${half} ${(size - height) / 2} Z`}
+                fill={color}
+                stroke="#333"
+                strokeWidth="1"
+              />
+            </svg>
+          );
+        default:
+          return (
+            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
+              <circle cx={half} cy={half} r={half - 1} fill={color} stroke="#333" strokeWidth="1" />
+            </svg>
+          );
+      }
+    };
+
     return points.map(point => {
       const year = getYearRange(point.date).start;
 
@@ -179,24 +234,30 @@ export function TimelineOverlay({
           style={{
             position: 'absolute',
             left: `${x}px`,
-            top: `${y - 60}px`,
+            top: `${y - 40}px`,
             transform: 'translateX(-50%)',
             pointerEvents: 'none',
             fontSize: '11px',
             fontWeight: '500',
             color: '#333',
             backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            padding: '4px 8px',
+            padding: '6px 10px',
             borderRadius: '4px',
             border: '1px solid #ccc',
             whiteSpace: 'nowrap',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}
         >
-          <div style={{ fontSize: '10px', opacity: 0.7, marginBottom: '2px' }}>
-            {displayYear} {era}
+          {renderShapeIcon(point.shape || 'circle', point.color || '#ff6f00', 18)}
+          <div>
+            <div style={{ fontSize: '10px', opacity: 0.7, marginBottom: '2px' }}>
+              {displayYear} {era}
+            </div>
+            <div>{point.name}</div>
           </div>
-          <div>{point.name}</div>
         </div>
       );
     });
