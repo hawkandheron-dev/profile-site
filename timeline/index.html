@@ -209,6 +209,21 @@
         transition: all 200ms ease;
         min-height: 28px;
         padding: 6px 10px;
+        min-width: 100px;
+        position: relative;
+      }
+      /* Duration indicator line for short events */
+      .vis-item.has-duration-indicator::after {
+        content: '';
+        position: absolute;
+        bottom: 2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: var(--duration-width, 50%);
+        height: 2px;
+        background: currentColor;
+        opacity: 0.4;
+        pointer-events: none;
       }
       .vis-item:hover {
         transform: scale(1.05);
@@ -218,6 +233,20 @@
       .vis-item:focus-visible {
         outline: 3px solid #0066cc;
         outline-offset: 2px;
+      }
+
+      /* Fix group label positioning */
+      .vis-labelset .vis-label {
+        padding-top: 8px;
+        z-index: 1;
+      }
+      .vis-labelset {
+        overflow: visible !important;
+      }
+
+      /* Ensure timeline content doesn't clip group labels */
+      #timeline .vis-timeline {
+        padding-top: 2px;
       }
 
       /* Mobile optimizations */
