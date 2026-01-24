@@ -108,6 +108,48 @@ export const sampleData = {
       links: [
         { text: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Marcus_Aurelius' }
       ]
+    },
+    {
+      id: 'person-9',
+      name: 'Virgil',
+      startDate: '-0069-10-15',
+      endDate: '-0018-09-21',
+      dateCertainty: 'year only',
+      periodId: 'roman-empire',
+      aboveTimeline: false,
+      preview: 'Ancient Roman poet of the Augustan period.',
+      description: '<p>Publius Vergilius Maro, usually called Virgil, was an ancient Roman poet of the Augustan period. He composed three of the most famous poems in Latin literature: the Eclogues, the Georgics, and the epic Aeneid.</p>',
+      links: [
+        { text: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Virgil' }
+      ]
+    },
+    {
+      id: 'person-10',
+      name: 'Seneca',
+      startDate: '-0003-01-01',
+      endDate: '0065-04-01',
+      dateCertainty: 'circa',
+      periodId: 'roman-empire',
+      aboveTimeline: false,
+      preview: 'Roman Stoic philosopher, statesman, and dramatist.',
+      description: '<p>Lucius Annaeus Seneca, often known simply as Seneca, was a Roman Stoic philosopher, statesman, dramatist, and in one work, satirist, from the post-Augustan age of Latin literature.</p>',
+      links: [
+        { text: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Seneca_the_Younger' }
+      ]
+    },
+    {
+      id: 'person-11',
+      name: 'Pliny the Elder',
+      startDate: '0023-01-01',
+      endDate: '0079-08-25',
+      dateCertainty: 'year only',
+      periodId: 'roman-empire',
+      aboveTimeline: false,
+      preview: 'Roman author, naturalist, and natural philosopher.',
+      description: '<p>Gaius Plinius Secundus, known as Pliny the Elder, was a Roman author, naturalist and natural philosopher, and naval and army commander of the early Roman Empire. He died in the eruption of Mount Vesuvius in AD 79.</p>',
+      links: [
+        { text: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Pliny_the_Elder' }
+      ]
     }
   ],
 
@@ -162,6 +204,48 @@ export const sampleData = {
       description: '<p>The Dacian Wars were two military campaigns fought between the Roman Empire and Dacia during Emperor Trajan\'s rule. The conflicts were triggered by the constant Dacian threat on the Danubian Roman Province of Moesia and also by the increasing need for resources of the economy of the Roman Empire.</p>',
       links: [
         { text: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Dacian_Wars' }
+      ]
+    },
+    {
+      id: 'point-5',
+      name: 'Aeneid Published',
+      date: '-0018-01-01',
+      dateCertainty: 'circa',
+      shape: 'circle',
+      color: '#1976d2',
+      aboveTimeline: false,
+      preview: 'Publication of Virgil\'s epic poem.',
+      description: '<p>The Aeneid is a Latin epic poem that tells the legendary story of Aeneas, a Trojan who travelled to Italy, where he became the ancestor of the Romans. It was written by Virgil and published posthumously.</p>',
+      links: [
+        { text: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Aeneid' }
+      ]
+    },
+    {
+      id: 'point-6',
+      name: 'Colosseum Completed',
+      date: '0080-01-01',
+      dateCertainty: 'year only',
+      shape: 'square',
+      color: '#388e3c',
+      aboveTimeline: false,
+      preview: 'Completion of the Flavian Amphitheatre in Rome.',
+      description: '<p>The Colosseum is an oval amphitheatre in the centre of the city of Rome, Italy. Built of travertine limestone, tuff, and brick-faced concrete, it was the largest amphitheatre ever built at the time and held 50,000 to 80,000 spectators.</p>',
+      links: [
+        { text: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Colosseum' }
+      ]
+    },
+    {
+      id: 'point-7',
+      name: 'Pantheon Rebuilt',
+      date: '0126-01-01',
+      dateCertainty: 'circa',
+      shape: 'square',
+      color: '#388e3c',
+      aboveTimeline: false,
+      preview: 'Hadrian rebuilds the Pantheon in its current form.',
+      description: '<p>The Pantheon is a former Roman temple, now a Catholic church, in Rome, Italy. It was built on the site of an earlier temple commissioned by Marcus Agrippa during the reign of Augustus, and rebuilt by the emperor Hadrian about 126 AD.</p>',
+      links: [
+        { text: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Pantheon,_Rome' }
       ]
     }
   ],
@@ -218,6 +302,48 @@ export const sampleData = {
       links: [
         { text: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Pax_Romana' }
       ]
+    },
+    {
+      id: 'augustan-literature',
+      name: 'Golden Age of Latin Literature',
+      startDate: '-0070-01-01',
+      endDate: '0014-01-01',
+      dateCertainty: 'circa',
+      color: '#c77700',
+      aboveTimeline: false,
+      preview: 'Period of flourishing Latin poetry and prose.',
+      description: '<p>The Golden Age of Latin literature spanned roughly from 70 BC to AD 14, corresponding to the rise of literary standards that would come to characterize the literature of the Roman Empire. This period saw the works of Virgil, Horace, Ovid, and Livy.</p>',
+      links: [
+        { text: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Latin_literature#Golden_Age' }
+      ]
+    },
+    {
+      id: 'silver-age',
+      name: 'Silver Age of Latin',
+      startDate: '0014-01-01',
+      endDate: '0138-01-01',
+      dateCertainty: 'circa',
+      color: '#9e9e9e',
+      aboveTimeline: false,
+      preview: 'Period of Latin literature following the Golden Age.',
+      description: '<p>The Silver Age of Latin literature extends from the death of Augustus (AD 14) to the reign of Hadrian (AD 138). This period included writers like Seneca, Lucan, Tacitus, and Juvenal, known for more ornate and artificial styles.</p>',
+      links: [
+        { text: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Latin_literature#Silver_Age' }
+      ]
+    },
+    {
+      id: 'nerva-antonine',
+      name: 'Nerva-Antonine Dynasty',
+      startDate: '0096-01-01',
+      endDate: '0192-01-01',
+      dateCertainty: 'year only',
+      color: '#6a1b9a',
+      aboveTimeline: false,
+      preview: 'Dynasty of seven Roman emperors, including the Five Good Emperors.',
+      description: '<p>The Nerva–Antonine dynasty was a dynasty of seven Roman emperors who ruled the Roman Empire from AD 96 to 192. These emperors are Nerva, Trajan, Hadrian, Antoninus Pius, Marcus Aurelius, Lucius Verus, and Commodus.</p>',
+      links: [
+        { text: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Nerva%E2%80%93Antonine_dynasty' }
+      ]
     }
   ]
 };
@@ -268,6 +394,38 @@ export const sampleConfig = {
       name: 'Disaster',
       shape: 'triangle',
       color: '#f57c00'
+    },
+    {
+      type: 'point',
+      id: 'cultural',
+      name: 'Cultural Event',
+      shape: 'circle',
+      color: '#1976d2'
+    },
+    {
+      type: 'point',
+      id: 'construction',
+      name: 'Monument',
+      shape: 'square',
+      color: '#388e3c'
+    },
+    {
+      type: 'period',
+      id: 'augustan-literature',
+      name: 'Golden Age of Latin',
+      color: '#c77700'
+    },
+    {
+      type: 'period',
+      id: 'silver-age',
+      name: 'Silver Age of Latin',
+      color: '#9e9e9e'
+    },
+    {
+      type: 'period',
+      id: 'nerva-antonine',
+      name: 'Nerva-Antonine Dynasty',
+      color: '#6a1b9a'
     }
   ]
 };

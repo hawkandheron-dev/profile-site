@@ -194,3 +194,138 @@ export function calculateLaneHeight(items, rowHeight, padding = 10) {
   const maxRow = Math.max(...items.map(item => item.row));
   return (maxRow + 1) * rowHeight + padding * 2;
 }
+
+/**
+ * Stack people and points together in shared lanes
+ * They use the same overlap detection with margin buffer
+ *
+ * @param {Array} people - Array of person items
+ * @param {Array} points - Array of point items
+ * @param {number} pointWidth - Width of point label in pixels
+ * @param {number} yearsPerPixel - Current zoom scale
+ * @param {number} marginYears - Margin buffer in years to prevent overlaps
+ * @returns {Object} { people: [...], points: [...] } with row assignments
+ */
+export function stackPeopleAndPoints(people, points, pointWidth = 150, yearsPerPixel = 1, marginYears = 5) {
+  const allItems = [];
+
+  // Add people to items array
+  if (people && people.length > 0) {
+    people.forEach(person => {
+      const { start, end } = getYearRange(person.startDate, person.endDate);
+      allItems.push({
+        type: 'person',
+        data: person,
+        start: start - marginYears,
+        end: end + marginYears,
+        sortKey: start
+      });
+    });
+  }
+
+  // Add points to items array
+  if (points && points.length > 0) {
+    const pointYearWidth = pointWidth * yearsPerPixel;
+    points.forEach(point => {
+      const year = getYear(point.date);
+      allItems.push({
+        type: 'point',
+        data: point,
+        start: year - pointYearWidth / 2 - marginYears,
+        end: year + pointYearWidth / 2 + marginYears,
+        sortKey: year
+      });
+    });
+  }
+
+  // Sort by chronological order, then by type (people first)
+  allItems.sort((a, b) => {
+    if (a.sortKey !== b.sortKey) return a.sortKey - b.sortKey;
+    if (a.type === 'person' && b.type === 'point') return -1;
+    if (a.type === 'point' && b.type === 'person') return 1;
+    return (a.data.name || '').localeCompare(b.data.name || '');
+  });
+
+  const rows = [];
+
+  // Assign each item to a row
+  allItems.forEach(item => {
+    let rowIndex = 0;
+    let foundRow = false;
+
+    for (let i = 0; i < rows.length; i++) {
+      const overlaps = rows[i].some(rowItem =>
+        rangesOverlap(item.start, item.end, rowItem.start, rowItem.end)
+      );
+
+      if (!overlaps) {
+        rowIndex = i;
+        foundRow = true;
+        break;
+      }
+    }
+
+    if (!foundRow) {
+      rowIndex = rows.length;
+      rows.push([]);
+    }
+
+    rows[rowIndex].push(item);
+    item.data.row = rowIndex;
+  });
+
+  // Separate back into people and points
+  const stackedPeople = allItems
+    .filter(item => item.type === 'person')
+    .map(item => item.data);
+
+  const stackedPoints = allItems
+    .filter(item => item.type === 'point')
+    .map(item => item.data);
+
+  return { people: stackedPeople, points: stackedPoints };
+}
+
+/**
+ * Stack all timeline items with above/below timeline separation
+ * Layout from axis: Periods closest → People/Points further out
+ *
+ * @param {Object} data - Timeline data { people, points, periods }
+ * @param {number} pointWidth - Width for point collision detection
+ * @param {number} yearsPerPixel - Current zoom scale
+ * @returns {Object} Stacked items separated by above/below: { above: {...}, below: {...} }
+ */
+export function stackTimelineItems(data, pointWidth = 150, yearsPerPixel = 1) {
+  const { people = [], points = [], periods = [] } = data;
+
+  // Split items by aboveTimeline (default to true)
+  const abovePeople = people.filter(p => p.aboveTimeline !== false);
+  const belowPeople = people.filter(p => p.aboveTimeline === false);
+
+  const abovePoints = points.filter(p => p.aboveTimeline !== false);
+  const belowPoints = points.filter(p => p.aboveTimeline === false);
+
+  const abovePeriods = periods.filter(p => p.aboveTimeline !== false);
+  const belowPeriods = periods.filter(p => p.aboveTimeline === false);
+
+  // Stack periods separately for each side
+  const abovePeriodsStacked = stackPeriods(abovePeriods);
+  const belowPeriodsStacked = stackPeriods(belowPeriods);
+
+  // Stack people and points together for each side
+  const abovePeoplePoints = stackPeopleAndPoints(abovePeople, abovePoints, pointWidth, yearsPerPixel);
+  const belowPeoplePoints = stackPeopleAndPoints(belowPeople, belowPoints, pointWidth, yearsPerPixel);
+
+  return {
+    above: {
+      periods: abovePeriodsStacked,
+      people: abovePeoplePoints.people,
+      points: abovePeoplePoints.points
+    },
+    below: {
+      periods: belowPeriodsStacked,
+      people: belowPeoplePoints.people,
+      points: belowPeoplePoints.points
+    }
+  };
+}

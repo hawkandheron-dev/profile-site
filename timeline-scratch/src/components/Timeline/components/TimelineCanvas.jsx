@@ -44,46 +44,33 @@ export function TimelineCanvas({
 
     // Draw time axis
     const labelInterval = getYearLabelInterval(yearsPerPixel);
+    const axisY = layout.axisY - panOffsetY;
     drawTimeAxis(
       ctx,
       width,
       height,
-      layout.sizes.axisHeight - 10,
+      axisY,
       viewportStartYear,
       yearsPerPixel,
       labelInterval,
       config.eraLabels
     );
 
-    // Draw each lane
-    const laneOrder = config.laneOrder || ['people', 'periods', 'points'];
-
-    laneOrder.forEach(laneType => {
-      const laneY = layout.lanePositions[laneType] - panOffsetY;
-
-      switch (laneType) {
-        case 'people':
-          renderPeople(ctx, layout.stackedPeople, laneY, layout.sizes.personRowHeight, layout.sizes.lanePadding);
-          break;
-        case 'periods':
-          renderPeriods(ctx, layout.stackedPeriods, laneY, layout.sizes.periodRowHeight, layout.sizes.lanePadding);
-          break;
-        case 'points':
-          renderPoints(ctx, layout.stackedPoints, laneY, layout.sizes.pointRowHeight, layout.sizes.lanePadding);
-          break;
-      }
-    });
+    // Render all items (they already have y positions calculated)
+    renderPeople(ctx, layout.stackedPeople);
+    renderPeriods(ctx, layout.stackedPeriods);
+    renderPoints(ctx, layout.stackedPoints);
   }, [width, height, viewportStartYear, yearsPerPixel, panOffsetY, layout, config, hoveredItem]);
 
   // Render people
-  function renderPeople(ctx, people, laneY, rowHeight, padding) {
+  function renderPeople(ctx, people) {
     people.forEach(person => {
       const { start, end } = getYearRange(person.startDate, person.endDate);
 
       const x = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const width = yearToPixel(end, viewportStartYear, yearsPerPixel) - x;
-      const y = laneY + padding + (person.row * rowHeight);
-      const boxHeight = rowHeight - 8;
+      const y = person.y - panOffsetY;
+      const boxHeight = person.height - 8;
 
       // Min width for readability
       const displayWidth = Math.max(width, 60);
@@ -107,20 +94,33 @@ export function TimelineCanvas({
   }
 
   // Render periods
-  function renderPeriods(ctx, periods, laneY, rowHeight, padding) {
+  function renderPeriods(ctx, periods) {
     periods.forEach(period => {
       const { start, end } = getYearRange(period.startDate, period.endDate);
 
       const x = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const width = yearToPixel(end, viewportStartYear, yearsPerPixel) - x;
-      const y = laneY + padding + (period.row * rowHeight);
-      const bracketHeight = 30;
+      const y = period.y - panOffsetY;
+      const bracketHeight = period.height;
 
       // Get color
       const color = period.color || '#00838f';
 
+      // Determine direction based on above/below
+      // For above timeline, bracket points down; for below, points up
+      const direction = period.aboveTimeline ? 'down' : 'up';
+
       // Draw bracket
-      drawPeriodBracket(ctx, x, width, y, bracketHeight, color);
+      if (direction === 'down') {
+        drawPeriodBracket(ctx, x, width, y, bracketHeight, color);
+      } else {
+        // For upward brackets, flip vertically
+        ctx.save();
+        ctx.translate(0, y + bracketHeight);
+        ctx.scale(1, -1);
+        drawPeriodBracket(ctx, x, width, 0, bracketHeight, color);
+        ctx.restore();
+      }
 
       // Store in hit map
       hitMapRef.current.set(period.id, {
@@ -132,12 +132,12 @@ export function TimelineCanvas({
   }
 
   // Render points
-  function renderPoints(ctx, points, laneY, rowHeight, padding) {
+  function renderPoints(ctx, points) {
     points.forEach(point => {
       const year = getYearRange(point.date).start;
 
       const x = yearToPixel(year, viewportStartYear, yearsPerPixel);
-      const y = laneY + padding + (point.row * rowHeight) + (rowHeight / 2);
+      const y = point.y - panOffsetY + (point.height / 2);
 
       // Point markers are now rendered inside labels, so we don't draw them on canvas
       // Just set up hit detection

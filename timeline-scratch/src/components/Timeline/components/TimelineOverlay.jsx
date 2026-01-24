@@ -16,8 +16,6 @@ export function TimelineOverlay({
   config,
   hoveredItem
 }) {
-  const laneOrder = config.laneOrder || ['people', 'periods', 'points'];
-
   return (
     <div
       className="timeline-overlay"
@@ -46,9 +44,6 @@ export function TimelineOverlay({
 
   function renderPeopleLabels() {
     const people = layout.stackedPeople || [];
-    const laneY = layout.lanePositions.people - panOffsetY;
-    const rowHeight = layout.sizes.personRowHeight;
-    const padding = layout.sizes.lanePadding;
 
     return people.map(person => {
       const { start, end } = getYearRange(person.startDate, person.endDate);
@@ -56,8 +51,8 @@ export function TimelineOverlay({
       const startX = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const endX = yearToPixel(end, viewportStartYear, yearsPerPixel);
       const boxWidth = Math.max(endX - startX, 60); // Min width for readability
-      const boxHeight = rowHeight - 8;
-      const boxY = laneY + padding + (person.row * rowHeight);
+      const boxHeight = person.height - 8;
+      const boxY = person.y - panOffsetY;
 
       // Position label at bottom-left of the box, overlaid
       let labelX = startX + 6; // 6px from left edge of box
@@ -112,9 +107,6 @@ export function TimelineOverlay({
 
   function renderPeriodLabels() {
     const periods = layout.stackedPeriods || [];
-    const laneY = layout.lanePositions.periods - panOffsetY;
-    const rowHeight = layout.sizes.periodRowHeight;
-    const padding = layout.sizes.lanePadding;
 
     return periods.map(period => {
       const { start, end } = getYearRange(period.startDate, period.endDate);
@@ -122,11 +114,27 @@ export function TimelineOverlay({
       const startX = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const endX = yearToPixel(end, viewportStartYear, yearsPerPixel);
       const centerX = (startX + endX) / 2;
-      const y = laneY + padding + (period.row * rowHeight) + 35;
+      const bracketY = period.y - panOffsetY;
 
       // Hide if completely off screen
       if (endX < 0 || startX > width) {
         return null;
+      }
+
+      // Label position: on outer side of bracket, centered on bracket's center point
+      // For above timeline, label goes above bracket; for below, label goes below
+      const labelOffsetY = period.aboveTimeline ? -10 : period.height + 20;
+      let labelX = centerX;
+
+      // Sticky behavior: when center point scrolls off viewport, stick label to edge
+      // but keep it within the bracket bounds
+      const isLeftSticky = centerX < 0 && endX > 0;
+      const isRightSticky = centerX > width && startX < width;
+
+      if (isLeftSticky) {
+        labelX = Math.max(10, startX); // Stick to left edge but not before start
+      } else if (isRightSticky) {
+        labelX = Math.min(width - 10, endX); // Stick to right edge but not after end
       }
 
       return (
@@ -135,14 +143,15 @@ export function TimelineOverlay({
           className="period-label"
           style={{
             position: 'absolute',
-            left: `${centerX}px`,
-            top: `${y}px`,
+            left: `${labelX}px`,
+            top: `${bracketY + labelOffsetY}px`,
             transform: 'translateX(-50%)',
             pointerEvents: 'none',
             fontSize: '13px',
             fontWeight: '600',
             color: period.color || '#00838f',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            zIndex: (isLeftSticky || isRightSticky) ? 10 : 1
           }}
         >
           {period.name}
@@ -153,9 +162,6 @@ export function TimelineOverlay({
 
   function renderPointCallouts() {
     const points = layout.stackedPoints || [];
-    const laneY = layout.lanePositions.points - panOffsetY;
-    const rowHeight = layout.sizes.pointRowHeight;
-    const padding = layout.sizes.lanePadding;
 
     // Helper to render shape icon
     const renderShapeIcon = (shape, color, size = 16) => {
@@ -216,7 +222,7 @@ export function TimelineOverlay({
       const year = getYearRange(point.date).start;
 
       const x = yearToPixel(year, viewportStartYear, yearsPerPixel);
-      const y = laneY + padding + (point.row * rowHeight) + (rowHeight / 2);
+      const y = point.y - panOffsetY + (point.height / 2);
 
       // Hide if off screen
       if (x < -50 || x > width + 50) {

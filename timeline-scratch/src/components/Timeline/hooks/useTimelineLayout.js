@@ -1,17 +1,20 @@
 /**
- * Custom hook for calculating timeline layout
+ * Custom hook for calculating timeline layout with above/below axis support
  */
 
 import { useMemo } from 'react';
-import { stackPeople, stackPoints, stackPeriods, calculateLaneHeight } from '../utils/stacking.js';
+import { stackTimelineItems } from '../utils/stacking.js';
 
 /**
  * Hook for timeline layout calculations
+ * Layout structure: Periods closest to axis, then people/points further out
+ * Items can be above or below the timeline axis
+ *
  * @param {Object} data - Timeline data
  * @param {Array} data.people - Person items
  * @param {Array} data.points - Point items
  * @param {Array} data.periods - Period items
- * @param {Array} laneOrder - Order of lanes (e.g., ["people", "periods", "points"])
+ * @param {Array} laneOrder - Deprecated, kept for compatibility
  * @param {number} yearsPerPixel - Current zoom scale
  * @param {Object} sizes - Size configuration
  * @returns {Object} Layout information
@@ -19,77 +22,120 @@ import { stackPeople, stackPoints, stackPeriods, calculateLaneHeight } from '../
 export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
   const {
     personRowHeight = 40,
-    pointRowHeight = 50,
-    periodRowHeight = 60,
-    lanePadding = 20,
+    pointRowHeight = 40,
+    periodRowHeight = 50,
+    periodBracketHeight = 30,
+    lanePadding = 10,
     axisHeight = 40
   } = sizes;
 
-  // Stack items
-  const stackedPeople = useMemo(() => {
-    return stackPeople(data.people || []);
-  }, [data.people]);
+  // Stack all items with above/below separation
+  const stacked = useMemo(() => {
+    return stackTimelineItems(data, 150, yearsPerPixel);
+  }, [data, yearsPerPixel]);
 
-  const stackedPoints = useMemo(() => {
-    return stackPoints(data.points || [], 150, yearsPerPixel);
-  }, [data.points, yearsPerPixel]);
+  // Calculate layout with positions
+  const layout = useMemo(() => {
+    const above = stacked.above;
+    const below = stacked.below;
 
-  const stackedPeriods = useMemo(() => {
-    return stackPeriods(data.periods || []);
-  }, [data.periods]);
+    // Calculate heights for each section
+    const abovePeriodRows = above.periods.length > 0 ? Math.max(...above.periods.map(p => p.row)) + 1 : 0;
+    const abovePeoplePointRows = Math.max(
+      above.people.length > 0 ? Math.max(...above.people.map(p => p.row)) + 1 : 0,
+      above.points.length > 0 ? Math.max(...above.points.map(p => p.row)) + 1 : 0
+    );
 
-  // Calculate lane heights
-  const laneHeights = useMemo(() => {
+    const belowPeriodRows = below.periods.length > 0 ? Math.max(...below.periods.map(p => p.row)) + 1 : 0;
+    const belowPeoplePointRows = Math.max(
+      below.people.length > 0 ? Math.max(...below.people.map(p => p.row)) + 1 : 0,
+      below.points.length > 0 ? Math.max(...below.points.map(p => p.row)) + 1 : 0
+    );
+
+    // Calculate section heights
+    const abovePeriodHeight = abovePeriodRows * periodBracketHeight + (abovePeriodRows > 0 ? lanePadding : 0);
+    const abovePeoplePointHeight = abovePeoplePointRows * personRowHeight + (abovePeoplePointRows > 0 ? lanePadding : 0);
+    const aboveHeight = abovePeriodHeight + abovePeoplePointHeight;
+
+    const belowPeriodHeight = belowPeriodRows * periodBracketHeight + (belowPeriodRows > 0 ? lanePadding : 0);
+    const belowPeoplePointHeight = belowPeoplePointRows * personRowHeight + (belowPeoplePointRows > 0 ? lanePadding : 0);
+    const belowHeight = belowPeriodHeight + belowPeoplePointHeight;
+
+    // Axis position (centered, but weighted toward content)
+    const axisY = aboveHeight + lanePadding;
+    const totalHeight = aboveHeight + axisHeight + belowHeight + lanePadding * 2;
+
+    // Calculate Y positions for each item
+    // Above axis: grow upward (decreasing Y)
+    const abovePeoplePointY = axisY - abovePeriodHeight - abovePeoplePointHeight;
+    const abovePeriodY = axisY - abovePeriodHeight;
+
+    // Below axis: grow downward (increasing Y)
+    const belowPeriodY = axisY + axisHeight;
+    const belowPeoplePointY = belowPeriodY + belowPeriodHeight;
+
+    // Add y positions to items
+    const peopleWithY = [
+      ...above.people.map(p => ({
+        ...p,
+        y: abovePeoplePointY + p.row * personRowHeight,
+        height: personRowHeight,
+        aboveTimeline: true
+      })),
+      ...below.people.map(p => ({
+        ...p,
+        y: belowPeoplePointY + p.row * personRowHeight,
+        height: personRowHeight,
+        aboveTimeline: false
+      }))
+    ];
+
+    const pointsWithY = [
+      ...above.points.map(p => ({
+        ...p,
+        y: abovePeoplePointY + p.row * pointRowHeight,
+        height: pointRowHeight,
+        aboveTimeline: true
+      })),
+      ...below.points.map(p => ({
+        ...p,
+        y: belowPeoplePointY + p.row * pointRowHeight,
+        height: pointRowHeight,
+        aboveTimeline: false
+      }))
+    ];
+
+    const periodsWithY = [
+      ...above.periods.map(p => ({
+        ...p,
+        y: abovePeriodY + p.row * periodBracketHeight,
+        height: periodBracketHeight,
+        aboveTimeline: true
+      })),
+      ...below.periods.map(p => ({
+        ...p,
+        y: belowPeriodY + p.row * periodBracketHeight,
+        height: periodBracketHeight,
+        aboveTimeline: false
+      }))
+    ];
+
     return {
-      people: calculateLaneHeight(stackedPeople, personRowHeight, lanePadding),
-      points: calculateLaneHeight(stackedPoints, pointRowHeight, lanePadding),
-      periods: calculateLaneHeight(stackedPeriods, periodRowHeight, lanePadding)
+      stackedPeople: peopleWithY,
+      stackedPoints: pointsWithY,
+      stackedPeriods: periodsWithY,
+      axisY,
+      totalHeight,
+      sizes: {
+        personRowHeight,
+        pointRowHeight,
+        periodRowHeight,
+        periodBracketHeight,
+        lanePadding,
+        axisHeight
+      }
     };
-  }, [stackedPeople, stackedPoints, stackedPeriods, personRowHeight, pointRowHeight, periodRowHeight, lanePadding]);
+  }, [stacked, personRowHeight, pointRowHeight, periodRowHeight, periodBracketHeight, lanePadding, axisHeight]);
 
-  // Calculate lane Y positions based on order
-  const lanePositions = useMemo(() => {
-    const positions = {};
-    let currentY = axisHeight;
-
-    laneOrder.forEach(laneType => {
-      positions[laneType] = currentY;
-      currentY += laneHeights[laneType] || 0;
-    });
-
-    return positions;
-  }, [laneOrder, laneHeights, axisHeight]);
-
-  // Calculate total canvas height
-  const totalHeight = useMemo(() => {
-    return axisHeight + laneOrder.reduce((sum, laneType) => {
-      return sum + (laneHeights[laneType] || 0);
-    }, 0);
-  }, [axisHeight, laneOrder, laneHeights]);
-
-  // Calculate max rows in each lane (for debugging/info)
-  const maxRows = useMemo(() => {
-    return {
-      people: stackedPeople.length > 0 ? Math.max(...stackedPeople.map(p => p.row)) + 1 : 0,
-      points: stackedPoints.length > 0 ? Math.max(...stackedPoints.map(p => p.row)) + 1 : 0,
-      periods: stackedPeriods.length > 0 ? Math.max(...stackedPeriods.map(p => p.row)) + 1 : 0
-    };
-  }, [stackedPeople, stackedPoints, stackedPeriods]);
-
-  return {
-    stackedPeople,
-    stackedPoints,
-    stackedPeriods,
-    laneHeights,
-    lanePositions,
-    totalHeight,
-    maxRows,
-    sizes: {
-      personRowHeight,
-      pointRowHeight,
-      periodRowHeight,
-      lanePadding,
-      axisHeight
-    }
-  };
+  return layout;
 }
