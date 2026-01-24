@@ -95,6 +95,8 @@ export function TimelineCanvas({
 
   // Render periods
   function renderPeriods(ctx, periods) {
+    const axisY = layout.axisY - panOffsetY;
+
     periods.forEach(period => {
       const { start, end } = getYearRange(period.startDate, period.endDate);
 
@@ -106,9 +108,27 @@ export function TimelineCanvas({
       // Get color
       const color = period.color || '#00838f';
 
+      // Convert color to rgba for fill
+      const fillColor = hexToRgba(color, 0.15);
+
+      // Draw filled area between bracket and axis
+      if (period.aboveTimeline) {
+        // Above timeline: fill from bracket to axis (below bracket)
+        const fillY = y + bracketHeight;
+        const fillHeight = axisY - fillY;
+        ctx.fillStyle = fillColor;
+        ctx.fillRect(x, fillY, width, fillHeight);
+      } else {
+        // Below timeline: fill from axis to bracket (above bracket)
+        const fillY = axisY + layout.sizes.axisHeight;
+        const fillHeight = y - fillY;
+        ctx.fillStyle = fillColor;
+        ctx.fillRect(x, fillY, width, fillHeight);
+      }
+
       // Determine direction based on above/below
-      // For above timeline, bracket points down; for below, points up
-      const direction = period.aboveTimeline ? 'down' : 'up';
+      // For above timeline, bracket points up (away from axis); for below, points down (away from axis)
+      const direction = period.aboveTimeline ? 'up' : 'down';
 
       // Draw bracket
       if (direction === 'down') {
@@ -150,6 +170,19 @@ export function TimelineCanvas({
         bounds: { x: x - hitSize/2, y: y - 40, width: hitSize, height: 35 }
       });
     });
+  }
+
+  // Convert hex color to rgba
+  function hexToRgba(hex, alpha) {
+    // Remove # if present
+    hex = hex.replace('#', '');
+
+    // Parse hex values
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 
   // Get person color based on period mapping
