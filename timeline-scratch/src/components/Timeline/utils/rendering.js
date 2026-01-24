@@ -183,28 +183,46 @@ export function drawPeriodBracket(ctx, x, width, y, height, color) {
   const midX = x + width / 2;
   const bottomY = y + height;
 
-  // Draw a } shape rotated 90° clockwise (point facing down)
-  // The shape curves DOWNWARD and INWARD from both edges to the center point
+  // A curly brace } rotated 90° clockwise has these segments:
+  // 1. Top-left to shoulder (gentle outward curve)
+  // 2. Shoulder to center point (sharp inward curve)
+  // 3. Center point to shoulder (sharp outward curve)
+  // 4. Shoulder to top-right (gentle outward curve)
+
+  const shoulderY = y + height * 0.3;  // Shoulder height (30% down)
+  const shoulderOffset = width * 0.08;  // How far out the shoulders extend
+
   ctx.beginPath();
 
-  // Start at left edge
+  // Start at left edge, top
   ctx.moveTo(x, y);
 
-  // Curve DOWN and INWARD toward the center point
-  // First control point: down and slightly in
-  // Second control point: further down and more inward
+  // Segment 1: Left edge to left shoulder (gentle outward curve)
   ctx.bezierCurveTo(
-    x + width * 0.15, y + height * 0.35,  // Control 1: curve down and in from left
-    x + width * 0.35, y + height * 0.75,  // Control 2: continue curving inward toward point
-    midX, bottomY                         // End: center bottom point
+    x - shoulderOffset * 0.3, y + height * 0.1,  // Control 1: slightly out and down
+    x - shoulderOffset, y + height * 0.2,        // Control 2: more out (shoulder bulge)
+    x - shoulderOffset, shoulderY                // End: left shoulder point
   );
 
-  // Curve back UP and INWARD from the center point to right edge
-  // Mirror of the left side
+  // Segment 2: Left shoulder to center bottom point (sharp inward S-curve)
   ctx.bezierCurveTo(
-    x + width * 0.65, y + height * 0.75,  // Control 1: curve inward from point
-    x + width * 0.85, y + height * 0.35,  // Control 2: curve up and out
-    x + width, y                          // End: right edge at top
+    x - shoulderOffset, shoulderY + height * 0.15,  // Control 1: continue from shoulder
+    x + width * 0.15, bottomY - height * 0.15,      // Control 2: sharp turn inward
+    midX, bottomY                                    // End: center bottom point
+  );
+
+  // Segment 3: Center bottom point to right shoulder (sharp outward S-curve, mirror)
+  ctx.bezierCurveTo(
+    x + width * 0.85, bottomY - height * 0.15,      // Control 1: sharp turn outward
+    x + width + shoulderOffset, shoulderY + height * 0.15,  // Control 2: continue to shoulder
+    x + width + shoulderOffset, shoulderY           // End: right shoulder point
+  );
+
+  // Segment 4: Right shoulder to right edge (gentle outward curve, mirror)
+  ctx.bezierCurveTo(
+    x + width + shoulderOffset, y + height * 0.2,   // Control 1: shoulder bulge
+    x + width + shoulderOffset * 0.3, y + height * 0.1,  // Control 2: slightly out and up
+    x + width, y                                     // End: right edge at top
   );
 
   ctx.stroke();
