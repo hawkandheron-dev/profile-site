@@ -130,6 +130,7 @@ export function TimelineOverlay({
       // Label position: on outer side of bracket, with margin from bracket point
       // For above timeline, label goes above bracket; for below, label goes below
       const labelMargin = 1;  // Margin between label and bracket point
+      const labelMargin = period.aboveTimeline ? 22 : 15;  // Margin between label and bracket point
       const labelOffsetY = period.aboveTimeline
         ? -labelMargin  // Above bracket, measured from bracket point
         : w + labelMargin;  // Below bracket, measured from bracket top edge
