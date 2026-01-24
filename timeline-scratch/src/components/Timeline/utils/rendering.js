@@ -182,26 +182,30 @@ export function drawPeriodBracket(ctx, x, width, y, height, color) {
 
   const midX = x + width / 2;
   const bottomY = y + height;
-  const topBulgeY = y + height * 0.2;    // Where the top bulge is
-  const midBulgeY = y + height * 0.6;    // Where it curves toward point
 
   // Draw a } shape rotated 90° clockwise (point facing down)
+  // The shape curves DOWNWARD and INWARD from both edges to the center point
   ctx.beginPath();
 
   // Start at left edge
   ctx.moveTo(x, y);
 
-  // Curve outward (upward/away from span)
-  ctx.quadraticCurveTo(x + width * 0.1, y - height * 0.1, x + width * 0.25, topBulgeY);
+  // Curve DOWN and INWARD toward the center point
+  // First control point: down and slightly in
+  // Second control point: further down and more inward
+  ctx.bezierCurveTo(
+    x + width * 0.15, y + height * 0.35,  // Control 1: curve down and in from left
+    x + width * 0.35, y + height * 0.75,  // Control 2: continue curving inward toward point
+    midX, bottomY                         // End: center bottom point
+  );
 
-  // Curve inward toward the center point
-  ctx.quadraticCurveTo(x + width * 0.35, midBulgeY, midX, bottomY);
-
-  // Curve back outward from the center point
-  ctx.quadraticCurveTo(x + width * 0.65, midBulgeY, x + width * 0.75, topBulgeY);
-
-  // Curve outward (upward/away) back to right edge
-  ctx.quadraticCurveTo(x + width * 0.9, y - height * 0.1, x + width, y);
+  // Curve back UP and INWARD from the center point to right edge
+  // Mirror of the left side
+  ctx.bezierCurveTo(
+    x + width * 0.65, y + height * 0.75,  // Control 1: curve inward from point
+    x + width * 0.85, y + height * 0.35,  // Control 2: curve up and out
+    x + width, y                          // End: right edge at top
+  );
 
   ctx.stroke();
 
