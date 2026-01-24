@@ -10,6 +10,7 @@ import {
   drawTimeAxis,
   drawPersonBox,
   drawPeriodBracket,
+  getCurlyBracePath,
   drawPointMarker
 } from '../utils/rendering.js';
 
@@ -111,20 +112,51 @@ export function TimelineCanvas({
       // Convert color to rgba for fill
       const fillColor = hexToRgba(color, 0.15);
 
-      // Draw filled area between bracket and axis
+      // Get the curly brace path
+      const path = getCurlyBracePath(x, width, y, bracketHeight);
+
+      // Draw filled area between bracket and axis using the curly brace curve
+      ctx.fillStyle = fillColor;
+      ctx.beginPath();
+
       if (period.aboveTimeline) {
-        // Above timeline: fill from bracket to axis (below bracket)
-        const fillY = y + bracketHeight;
-        const fillHeight = axisY - fillY;
-        ctx.fillStyle = fillColor;
-        ctx.fillRect(x, fillY, width, fillHeight);
+        // Above timeline: bracket points up, fill from bracket to axis below
+        // Start at left top corner
+        ctx.moveTo(path.x1, path.y1);
+        // Draw left side of bracket curve
+        ctx.quadraticCurveTo(path.qx1, path.qy1, path.qx2, path.qy2);
+        ctx.quadraticCurveTo(path.tc1x, path.tc1y, path.tx1, path.ty1);
+        // Draw right side of bracket curve (reverse direction from center to right)
+        ctx.quadraticCurveTo(path.tc2x, path.tc2y, path.qx4, path.qy4);
+        ctx.quadraticCurveTo(path.qx3, path.qy3, path.x2, path.y2);
+        // Draw line down to axis
+        ctx.lineTo(path.x2, axisY);
+        // Draw along axis
+        ctx.lineTo(path.x1, axisY);
+        // Close path back to start
+        ctx.closePath();
       } else {
-        // Below timeline: fill from axis to bracket (above bracket)
-        const fillY = axisY + layout.sizes.axisHeight;
-        const fillHeight = y - fillY;
-        ctx.fillStyle = fillColor;
-        ctx.fillRect(x, fillY, width, fillHeight);
+        // Below timeline: bracket points down, fill from axis to bracket above
+        const axisBottom = axisY + layout.sizes.axisHeight;
+        // Start at left edge of axis
+        ctx.moveTo(path.x1, axisBottom);
+        // Draw up to bracket left edge
+        ctx.lineTo(path.x1, path.y1);
+        // Draw left side of bracket curve
+        ctx.quadraticCurveTo(path.qx1, path.qy1, path.qx2, path.qy2);
+        ctx.quadraticCurveTo(path.tc1x, path.tc1y, path.tx1, path.ty1);
+        // Draw right side of bracket curve (reverse direction from center to right)
+        ctx.quadraticCurveTo(path.tc2x, path.tc2y, path.qx4, path.qy4);
+        ctx.quadraticCurveTo(path.qx3, path.qy3, path.x2, path.y2);
+        // Draw line down to axis
+        ctx.lineTo(path.x2, axisBottom);
+        // Draw along axis
+        ctx.lineTo(path.x1, axisBottom);
+        // Close path
+        ctx.closePath();
       }
+
+      ctx.fill();
 
       // Determine direction based on above/below
       // For above timeline, bracket points up (away from axis); for below, points down (away from axis)

@@ -165,22 +165,15 @@ export function drawPointMarker(ctx, x, y, size, shape, color) {
 }
 
 /**
- * Draw a period bracket (single } rotated 90° clockwise)
+ * Calculate curly brace path data
  * Uses the mathematical formula from https://gist.github.com/alexhornbake/6005176
- * @param {CanvasRenderingContext2D} ctx - Canvas context
  * @param {number} x - Start X position
  * @param {number} width - Width
  * @param {number} y - Y position (top of bracket)
  * @param {number} height - Bracket height
- * @param {string} color - Color
+ * @returns {Object} Path data with control points and center point
  */
-export function drawPeriodBracket(ctx, x, width, y, height, color) {
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 3;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-
+export function getCurlyBracePath(x, width, y, height) {
   // Endpoints: left edge (x1,y1) to right edge (x2,y2) at top
   const x1 = x;
   const y1 = y;
@@ -213,23 +206,50 @@ export function drawPeriodBracket(ctx, x, width, y, height, color) {
   const qx4 = (x1 - 0.75 * len * dxn) + (1 - q) * w * dyn;
   const qy4 = (y1 - 0.75 * len * dyn) - (1 - q) * w * dxn;
 
+  // T command control points
+  const tc1x = 2 * qx2 - qx1;
+  const tc1y = 2 * qy2 - qy1;
+  const tc2x = 2 * qx4 - qx3;
+  const tc2y = 2 * qy4 - qy3;
+
+  return {
+    x1, y1, x2, y2,
+    qx1, qy1, qx2, qy2,
+    qx3, qy3, qx4, qy4,
+    tc1x, tc1y, tc2x, tc2y,
+    tx1, ty1  // Center point
+  };
+}
+
+/**
+ * Draw a period bracket (single } rotated 90° clockwise)
+ * @param {CanvasRenderingContext2D} ctx - Canvas context
+ * @param {number} x - Start X position
+ * @param {number} width - Width
+ * @param {number} y - Y position (top of bracket)
+ * @param {number} height - Bracket height
+ * @param {string} color - Color
+ */
+export function drawPeriodBracket(ctx, x, width, y, height, color) {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  const path = getCurlyBracePath(x, width, y, height);
+
   ctx.beginPath();
 
   // First half: left edge to center point
-  ctx.moveTo(x1, y1);
-  ctx.quadraticCurveTo(qx1, qy1, qx2, qy2);
-  // T command: smooth tangent curve - control point is reflection of previous control
-  const tc1x = 2 * qx2 - qx1;
-  const tc1y = 2 * qy2 - qy1;
-  ctx.quadraticCurveTo(tc1x, tc1y, tx1, ty1);
+  ctx.moveTo(path.x1, path.y1);
+  ctx.quadraticCurveTo(path.qx1, path.qy1, path.qx2, path.qy2);
+  ctx.quadraticCurveTo(path.tc1x, path.tc1y, path.tx1, path.ty1);
 
   // Second half: right edge to center point
-  ctx.moveTo(x2, y2);
-  ctx.quadraticCurveTo(qx3, qy3, qx4, qy4);
-  // T command: smooth tangent curve - control point is reflection of previous control
-  const tc2x = 2 * qx4 - qx3;
-  const tc2y = 2 * qy4 - qy3;
-  ctx.quadraticCurveTo(tc2x, tc2y, tx1, ty1);
+  ctx.moveTo(path.x2, path.y2);
+  ctx.quadraticCurveTo(path.qx3, path.qy3, path.qx4, path.qy4);
+  ctx.quadraticCurveTo(path.tc2x, path.tc2y, path.tx1, path.ty1);
 
   ctx.stroke();
 

@@ -115,15 +115,25 @@ export function TimelineOverlay({
       const endX = yearToPixel(end, viewportStartYear, yearsPerPixel);
       const centerX = (startX + endX) / 2;
       const bracketY = period.y - panOffsetY;
+      const bracketWidth = endX - startX;
 
       // Hide if completely off screen
       if (endX < 0 || startX > width) {
         return null;
       }
 
-      // Label position: on outer side of bracket, centered on bracket's center point
+      // Calculate bracket center point using curly brace formula
+      // This is the "point" of the bracket where it reaches furthest from the top edge
+      const w = period.height;  // Perpendicular width of the brace
+      const bracketCenterY = bracketY + w;  // The point extends by the full height
+
+      // Label position: on outer side of bracket, with margin from bracket point
       // For above timeline, label goes above bracket; for below, label goes below
-      const labelOffsetY = period.aboveTimeline ? -10 : period.height + 20;
+      const labelMargin = 15;  // Margin between label and bracket point
+      const labelOffsetY = period.aboveTimeline
+        ? -labelMargin  // Above bracket, measured from bracket point
+        : w + labelMargin;  // Below bracket, measured from bracket top edge
+
       let labelX = centerX;
 
       // Sticky behavior: when center point scrolls off viewport, stick label to edge
@@ -149,9 +159,14 @@ export function TimelineOverlay({
             pointerEvents: 'none',
             fontSize: '13px',
             fontWeight: '600',
-            color: period.color || '#00838f',
+            color: '#fff',
+            backgroundColor: period.color || '#00838f',
+            padding: '4px 12px',
+            borderRadius: '4px',
             whiteSpace: 'nowrap',
-            zIndex: (isLeftSticky || isRightSticky) ? 10 : 1
+            zIndex: (isLeftSticky || isRightSticky) ? 10 : 1,
+            WebkitTextStroke: '0.5px rgba(100, 100, 100, 0.3)',
+            textShadow: '0 0 2px rgba(0, 0, 0, 0.3)'
           }}
         >
           {period.name}
