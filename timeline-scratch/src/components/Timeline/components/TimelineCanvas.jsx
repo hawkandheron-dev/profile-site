@@ -113,7 +113,9 @@ export function TimelineCanvas({
       const fillColor = hexToRgba(color, 0.15);
 
       // Get the curly brace path
-      const path = getCurlyBracePath(x, width, y, bracketHeight);
+      const path = period.aboveTimeline
+        ? flipBracePath(getCurlyBracePath(x, width, 0, bracketHeight), y + bracketHeight)
+        : getCurlyBracePath(x, width, y, bracketHeight);
 
       // Draw filled area between bracket and axis using the curly brace curve
       ctx.fillStyle = fillColor;
@@ -181,6 +183,23 @@ export function TimelineCanvas({
         bounds: { x, y, width, height: bracketHeight }
       });
     });
+  }
+
+  function flipBracePath(path, baselineY) {
+    const flip = value => baselineY - value;
+
+    return {
+      ...path,
+      y1: flip(path.y1),
+      y2: flip(path.y2),
+      qy1: flip(path.qy1),
+      qy2: flip(path.qy2),
+      qy3: flip(path.qy3),
+      qy4: flip(path.qy4),
+      tc1y: flip(path.tc1y),
+      tc2y: flip(path.tc2y),
+      ty1: flip(path.ty1)
+    };
   }
 
   // Render points
