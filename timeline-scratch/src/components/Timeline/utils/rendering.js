@@ -165,7 +165,7 @@ export function drawPointMarker(ctx, x, y, size, shape, color) {
 }
 
 /**
- * Draw a period bracket
+ * Draw a period bracket (curly brace)
  * @param {CanvasRenderingContext2D} ctx - Canvas context
  * @param {number} x - Start X position
  * @param {number} width - Width
@@ -178,19 +178,31 @@ export function drawPeriodBracket(ctx, x, width, y, height, color) {
   ctx.strokeStyle = color;
   ctx.lineWidth = 3;
   ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
 
-  const armHeight = height * 0.4;
+  const curlWidth = 8; // How much the brace curves inward
+  const midY = y + height / 2;
 
+  // Left curly brace
   ctx.beginPath();
-  // Left vertical arm
-  ctx.moveTo(x, y);
-  ctx.lineTo(x, y + armHeight);
-  // Horizontal line
-  ctx.moveTo(x, y + armHeight);
-  ctx.lineTo(x + width, y + armHeight);
-  // Right vertical arm
-  ctx.moveTo(x + width, y);
-  ctx.lineTo(x + width, y + armHeight);
+  ctx.moveTo(x + curlWidth, y);
+  ctx.quadraticCurveTo(x, y, x, y + height * 0.3);
+  ctx.lineTo(x, midY - curlWidth);
+  ctx.quadraticCurveTo(x, midY, x - curlWidth, midY);
+  ctx.quadraticCurveTo(x, midY, x, midY + curlWidth);
+  ctx.lineTo(x, y + height * 0.7);
+  ctx.quadraticCurveTo(x, y + height, x + curlWidth, y + height);
+  ctx.stroke();
+
+  // Right curly brace
+  ctx.beginPath();
+  ctx.moveTo(x + width - curlWidth, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + height * 0.3);
+  ctx.lineTo(x + width, midY - curlWidth);
+  ctx.quadraticCurveTo(x + width, midY, x + width + curlWidth, midY);
+  ctx.quadraticCurveTo(x + width, midY, x + width, midY + curlWidth);
+  ctx.lineTo(x + width, y + height * 0.7);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - curlWidth, y + height);
   ctx.stroke();
 
   ctx.restore();

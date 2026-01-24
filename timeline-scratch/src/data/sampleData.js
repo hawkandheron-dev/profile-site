@@ -254,6 +254,20 @@ export const sampleConfig = {
       id: 'pax-romana',
       name: 'Pax Romana',
       color: '#00838f'
+    },
+    {
+      type: 'point',
+      id: 'battle',
+      name: 'Battle',
+      shape: 'diamond',
+      color: '#d32f2f'
+    },
+    {
+      type: 'point',
+      id: 'disaster',
+      name: 'Disaster',
+      shape: 'triangle',
+      color: '#f57c00'
     }
   ]
 };

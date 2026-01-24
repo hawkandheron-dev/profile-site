@@ -237,26 +237,21 @@ export function TimelineOverlay({
             top: `${y - 40}px`,
             transform: 'translateX(-50%)',
             pointerEvents: 'none',
-            fontSize: '11px',
-            fontWeight: '500',
             color: '#333',
             backgroundColor: 'rgba(255, 255, 255, 0.95)',
             padding: '6px 10px',
             borderRadius: '4px',
             border: '1px solid #ccc',
             whiteSpace: 'nowrap',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
           }}
         >
-          {renderShapeIcon(point.shape || 'circle', point.color || '#ff6f00', 18)}
-          <div>
-            <div style={{ fontSize: '10px', opacity: 0.7, marginBottom: '2px' }}>
-              {displayYear} {era}
-            </div>
-            <div>{point.name}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+            {renderShapeIcon(point.shape || 'circle', point.color || '#ff6f00', 14)}
+            <div style={{ fontSize: '12px', fontWeight: '600' }}>{point.name}</div>
+          </div>
+          <div style={{ fontSize: '10px', opacity: 0.7, paddingLeft: '20px' }}>
+            {displayYear} {era}
           </div>
         </div>
       );
