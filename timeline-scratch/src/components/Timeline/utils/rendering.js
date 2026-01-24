@@ -165,7 +165,7 @@ export function drawPointMarker(ctx, x, y, size, shape, color) {
 }
 
 /**
- * Draw a period bracket (single downward-facing curly brace)
+ * Draw a period bracket (downward-facing brace with S-curves)
  * @param {CanvasRenderingContext2D} ctx - Canvas context
  * @param {number} x - Start X position
  * @param {number} width - Width
@@ -182,26 +182,26 @@ export function drawPeriodBracket(ctx, x, width, y, height, color) {
 
   const midX = x + width / 2;
   const bottomY = y + height;
-  const controlOffset = width * 0.25; // How much to curve inward
+  const midY = y + height / 2;
 
-  // Draw single downward-facing curly brace
+  // Classic brace shape: two S-curves meeting at bottom center
   ctx.beginPath();
 
-  // Start at top-left
+  // Left side: Start at top-left
   ctx.moveTo(x, y);
 
-  // Curve down from left toward center-bottom
+  // First curve: slight outward bulge from top
   ctx.bezierCurveTo(
-    x + controlOffset, y,                    // Control point 1 (top-left area)
-    x + controlOffset, bottomY - height * 0.3, // Control point 2 (moving toward bottom)
-    midX, bottomY                             // End point (bottom center - the point)
+    x - width * 0.08, y + height * 0.15,  // Control 1: curve outward (left)
+    x + width * 0.15, midY - height * 0.1, // Control 2: start curving inward
+    midX, bottomY                          // End at bottom center point
   );
 
-  // Curve up from center-bottom toward right
+  // Right side: curve back up to top-right
   ctx.bezierCurveTo(
-    x + width - controlOffset, bottomY - height * 0.3, // Control point 1 (moving toward top)
-    x + width - controlOffset, y,                      // Control point 2 (top-right area)
-    x + width, y                                        // End point (top-right)
+    x + width * 0.85, midY - height * 0.1, // Control 1: continue curve inward
+    x + width + width * 0.08, y + height * 0.15, // Control 2: curve outward (right)
+    x + width, y                           // End at top-right
   );
 
   ctx.stroke();
