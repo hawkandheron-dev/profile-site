@@ -112,8 +112,11 @@ export function TimelineCanvas({
       // Convert color to rgba for fill
       const fillColor = hexToRgba(color, 0.15);
 
+      const braceY = period.aboveTimeline ? y + bracketHeight : y;
+      const braceHeight = period.aboveTimeline ? -bracketHeight : bracketHeight;
+
       // Get the curly brace path
-      const path = getCurlyBracePath(x, width, y, bracketHeight);
+      const path = getCurlyBracePath(x, width, braceY, braceHeight);
 
       // Draw filled area between bracket and axis using the curly brace curve
       ctx.fillStyle = fillColor;
@@ -163,16 +166,7 @@ export function TimelineCanvas({
       const direction = period.aboveTimeline ? 'up' : 'down';
 
       // Draw bracket
-      if (direction === 'down') {
-        drawPeriodBracket(ctx, x, width, y, bracketHeight, color);
-      } else {
-        // For upward brackets, flip vertically
-        ctx.save();
-        ctx.translate(0, y + bracketHeight);
-        ctx.scale(1, -1);
-        drawPeriodBracket(ctx, x, width, 0, bracketHeight, color);
-        ctx.restore();
-      }
+      drawPeriodBracket(ctx, x, width, braceY, braceHeight, color);
 
       // Store in hit map
       hitMapRef.current.set(period.id, {
