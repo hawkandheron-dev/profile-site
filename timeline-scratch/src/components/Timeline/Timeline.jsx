@@ -230,7 +230,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
           Reset
         </button>
         <div className="zoom-info">
-          Zoom: {(1 / yearsPerPixel).toFixed(2)}x
+          Zoom: {yearsPerPixel > 0 ? (1 / yearsPerPixel).toFixed(2) : '1.00'}x
         </div>
       </div>
     </div>
