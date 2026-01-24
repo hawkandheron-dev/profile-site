@@ -18,6 +18,19 @@ async function main() {
   const fixedWindowStart = new Date(100, 0, 1);
   const fixedWindowEnd = new Date(375, 0, 1);
   const fixedWindowSpan = fixedWindowEnd - fixedWindowStart;
+
+  // Fixed group heights based on max concurrent events analysis
+  // people: 18, councils: 1, roman-emperors: 9, documents: 3, events: 1, eras: 4
+  const itemHeight = 32; // Base height per item
+  const groupHeights = {
+    people: 18 * itemHeight + 20,
+    councils: 1 * itemHeight + 20,
+    "roman-emperors": 9 * itemHeight + 20,
+    documents: 3 * itemHeight + 20,
+    events: 1 * itemHeight + 20,
+    eras: 4 * itemHeight + 20
+  };
+
   const options = {
     stack: true,
     horizontalScroll: true,
@@ -30,7 +43,8 @@ async function main() {
     start: fixedWindowStart,
     end: fixedWindowEnd,
     min: minDate,
-    max: maxDate
+    max: maxDate,
+    groupHeightMode: 'fixed'
   };
 
   let lastFocusedElement = null;
@@ -114,8 +128,14 @@ async function main() {
     eras: { icon: "⏳", className: "cat-eras" }
   };
 
-  // vis-timeline expects DataSet instances
-  const groups = new vis.DataSet(data.groups);
+  // vis-timeline expects DataSet instances with fixed heights
+  const groups = new vis.DataSet(
+    data.groups.map((group) => ({
+      ...group,
+      height: groupHeights[group.id] || itemHeight + 20
+    }))
+  );
+
   const items = new vis.DataSet(
     data.items.map((item) => {
       const category = item.group || "events";
@@ -126,6 +146,23 @@ async function main() {
         className: meta.className
       };
       decorated.content = `${meta.icon} ${buildItemLabel(decorated)}`;
+
+      // Add duration indicator for short events
+      // Calculate duration in years
+      const startParts = parseDateParts(item.start);
+      const endParts = parseDateParts(item.end || item.start);
+      if (startParts && endParts) {
+        const durationYears = Math.abs(endParts.year - startParts.year);
+        // If event is shorter than ~10 years, it will need min-width expansion
+        // Add indicator class to show actual duration
+        if (durationYears < 10) {
+          decorated.className += " has-duration-indicator";
+          // Store actual width for the indicator line
+          const actualWidthPercent = (durationYears / 10) * 100;
+          decorated.style = `--duration-width: ${actualWidthPercent}%`;
+        }
+      }
+
       return decorated;
     })
   );
