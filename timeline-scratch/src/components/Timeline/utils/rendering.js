@@ -165,7 +165,7 @@ export function drawPointMarker(ctx, x, y, size, shape, color) {
 }
 
 /**
- * Draw a period bracket (downward-facing brace with S-curves)
+ * Draw a period bracket (single } rotated 90° clockwise)
  * @param {CanvasRenderingContext2D} ctx - Canvas context
  * @param {number} x - Start X position
  * @param {number} width - Width
@@ -182,27 +182,26 @@ export function drawPeriodBracket(ctx, x, width, y, height, color) {
 
   const midX = x + width / 2;
   const bottomY = y + height;
-  const midY = y + height / 2;
+  const topBulgeY = y + height * 0.2;    // Where the top bulge is
+  const midBulgeY = y + height * 0.6;    // Where it curves toward point
 
-  // Classic brace shape: two S-curves meeting at bottom center
+  // Draw a } shape rotated 90° clockwise (point facing down)
   ctx.beginPath();
 
-  // Left side: Start at top-left
+  // Start at left edge
   ctx.moveTo(x, y);
 
-  // First curve: slight outward bulge from top
-  ctx.bezierCurveTo(
-    x - width * 0.08, y + height * 0.15,  // Control 1: curve outward (left)
-    x + width * 0.15, midY - height * 0.1, // Control 2: start curving inward
-    midX, bottomY                          // End at bottom center point
-  );
+  // Curve outward (upward/away from span)
+  ctx.quadraticCurveTo(x + width * 0.1, y - height * 0.1, x + width * 0.25, topBulgeY);
 
-  // Right side: curve back up to top-right
-  ctx.bezierCurveTo(
-    x + width * 0.85, midY - height * 0.1, // Control 1: continue curve inward
-    x + width + width * 0.08, y + height * 0.15, // Control 2: curve outward (right)
-    x + width, y                           // End at top-right
-  );
+  // Curve inward toward the center point
+  ctx.quadraticCurveTo(x + width * 0.35, midBulgeY, midX, bottomY);
+
+  // Curve back outward from the center point
+  ctx.quadraticCurveTo(x + width * 0.65, midBulgeY, x + width * 0.75, topBulgeY);
+
+  // Curve outward (upward/away) back to right edge
+  ctx.quadraticCurveTo(x + width * 0.9, y - height * 0.1, x + width, y);
 
   ctx.stroke();
 
