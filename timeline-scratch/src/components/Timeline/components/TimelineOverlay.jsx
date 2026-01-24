@@ -56,17 +56,17 @@ export function TimelineOverlay({
       const startX = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const endX = yearToPixel(end, viewportStartYear, yearsPerPixel);
       const boxWidth = Math.max(endX - startX, 60); // Min width for readability
-      const y = laneY + padding + (person.row * rowHeight) + (rowHeight / 2) - 4;
+      const boxHeight = rowHeight - 8;
+      const boxY = laneY + padding + (person.row * rowHeight);
 
-      // Sticky behavior: stick to left edge if box extends left
-      let labelX = startX;
+      // Position label at bottom-left of the box, overlaid
+      let labelX = startX + 6; // 6px from left edge of box
+      const labelY = boxY + boxHeight - 22; // 22px from bottom of box
+
+      // Sticky behavior: stick to left edge if box extends left of viewport
       const isSticky = startX < 0 && endX > 0;
-
       if (isSticky) {
         labelX = 10; // Stick to left edge with padding
-      } else {
-        // Add margin to the right of the box for non-sticky labels
-        labelX = startX + boxWidth + 8;
       }
 
       // Hide if completely off screen
@@ -88,16 +88,18 @@ export function TimelineOverlay({
       return (
         <div
           key={person.id}
-          className={`person-label ${isSticky ? 'sticky' : ''}`}
+          className="person-label"
           style={{
             position: 'absolute',
             left: `${labelX}px`,
-            top: `${y}px`,
+            top: `${labelY}px`,
             pointerEvents: 'none',
             fontSize: '12px',
             fontWeight: '500',
             color: '#fff',
-            textShadow: '0 1px 3px rgba(0,0,0,0.5)',
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            padding: '3px 8px',
+            borderRadius: '4px',
             whiteSpace: 'nowrap',
             zIndex: isSticky ? 10 : 1
           }}
@@ -177,7 +179,7 @@ export function TimelineOverlay({
           style={{
             position: 'absolute',
             left: `${x}px`,
-            top: `${y - 35}px`,
+            top: `${y - 60}px`,
             transform: 'translateX(-50%)',
             pointerEvents: 'none',
             fontSize: '11px',
