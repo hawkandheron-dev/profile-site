@@ -166,6 +166,7 @@ export function drawPointMarker(ctx, x, y, size, shape, color) {
 
 /**
  * Draw a period bracket (single } rotated 90° clockwise)
+ * Uses the mathematical formula from https://gist.github.com/alexhornbake/6005176
  * @param {CanvasRenderingContext2D} ctx - Canvas context
  * @param {number} x - Start X position
  * @param {number} width - Width
@@ -180,50 +181,55 @@ export function drawPeriodBracket(ctx, x, width, y, height, color) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  const midX = x + width / 2;
-  const bottomY = y + height;
+  // Endpoints: left edge (x1,y1) to right edge (x2,y2) at top
+  const x1 = x;
+  const y1 = y;
+  const x2 = x + width;
+  const y2 = y;
+  const w = height;  // Perpendicular width of the brace
+  const q = 0.6;     // Quality/expressiveness factor
 
-  // A curly brace } rotated 90° clockwise has these segments:
-  // 1. Top-left to shoulder (gentle outward curve)
-  // 2. Shoulder to center point (sharp inward curve)
-  // 3. Center point to shoulder (sharp outward curve)
-  // 4. Shoulder to top-right (gentle outward curve)
+  // Calculate direction vector
+  const dx = x1 - x2;
+  const dy = y1 - y2;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  const dxn = dx / len;  // Normalized
+  const dyn = dy / len;
 
-  const shoulderY = y + height * 0.3;  // Shoulder height (30% down)
-  const shoulderOffset = width * 0.08;  // How far out the shoulders extend
+  // Calculate control points using perpendicular offsets
+  // First curve (left side)
+  const qx1 = x1 + q * w * dyn;
+  const qy1 = y1 - q * w * dxn;
+  const qx2 = (x1 - 0.25 * len * dxn) + (1 - q) * w * dyn;
+  const qy2 = (y1 - 0.25 * len * dyn) - (1 - q) * w * dxn;
+
+  // Center point
+  const tx1 = (x1 - 0.5 * len * dxn) + w * dyn;
+  const ty1 = (y1 - 0.5 * len * dyn) - w * dxn;
+
+  // Second curve (right side)
+  const qx3 = x2 + q * w * dyn;
+  const qy3 = y2 - q * w * dxn;
+  const qx4 = (x1 - 0.75 * len * dxn) + (1 - q) * w * dyn;
+  const qy4 = (y1 - 0.75 * len * dyn) - (1 - q) * w * dxn;
 
   ctx.beginPath();
 
-  // Start at left edge, top
-  ctx.moveTo(x, y);
+  // First half: left edge to center point
+  ctx.moveTo(x1, y1);
+  ctx.quadraticCurveTo(qx1, qy1, qx2, qy2);
+  // T command: smooth tangent curve - control point is reflection of previous control
+  const tc1x = 2 * qx2 - qx1;
+  const tc1y = 2 * qy2 - qy1;
+  ctx.quadraticCurveTo(tc1x, tc1y, tx1, ty1);
 
-  // Segment 1: Left edge to left shoulder (gentle outward curve)
-  ctx.bezierCurveTo(
-    x - shoulderOffset * 0.3, y + height * 0.1,  // Control 1: slightly out and down
-    x - shoulderOffset, y + height * 0.2,        // Control 2: more out (shoulder bulge)
-    x - shoulderOffset, shoulderY                // End: left shoulder point
-  );
-
-  // Segment 2: Left shoulder to center bottom point (sharp inward S-curve)
-  ctx.bezierCurveTo(
-    x - shoulderOffset, shoulderY + height * 0.15,  // Control 1: continue from shoulder
-    x + width * 0.15, bottomY - height * 0.15,      // Control 2: sharp turn inward
-    midX, bottomY                                    // End: center bottom point
-  );
-
-  // Segment 3: Center bottom point to right shoulder (sharp outward S-curve, mirror)
-  ctx.bezierCurveTo(
-    x + width * 0.85, bottomY - height * 0.15,      // Control 1: sharp turn outward
-    x + width + shoulderOffset, shoulderY + height * 0.15,  // Control 2: continue to shoulder
-    x + width + shoulderOffset, shoulderY           // End: right shoulder point
-  );
-
-  // Segment 4: Right shoulder to right edge (gentle outward curve, mirror)
-  ctx.bezierCurveTo(
-    x + width + shoulderOffset, y + height * 0.2,   // Control 1: shoulder bulge
-    x + width + shoulderOffset * 0.3, y + height * 0.1,  // Control 2: slightly out and up
-    x + width, y                                     // End: right edge at top
-  );
+  // Second half: right edge to center point
+  ctx.moveTo(x2, y2);
+  ctx.quadraticCurveTo(qx3, qy3, qx4, qy4);
+  // T command: smooth tangent curve - control point is reflection of previous control
+  const tc2x = 2 * qx4 - qx3;
+  const tc2y = 2 * qy4 - qy3;
+  ctx.quadraticCurveTo(tc2x, tc2y, tx1, ty1);
 
   ctx.stroke();
 
