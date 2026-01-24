@@ -165,7 +165,7 @@ export function drawPointMarker(ctx, x, y, size, shape, color) {
 }
 
 /**
- * Draw a period bracket (curly brace)
+ * Draw a period bracket (single downward-facing curly brace)
  * @param {CanvasRenderingContext2D} ctx - Canvas context
  * @param {number} x - Start X position
  * @param {number} width - Width
@@ -180,29 +180,30 @@ export function drawPeriodBracket(ctx, x, width, y, height, color) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  const curlWidth = 8; // How much the brace curves inward
-  const midY = y + height / 2;
+  const midX = x + width / 2;
+  const bottomY = y + height;
+  const controlOffset = width * 0.25; // How much to curve inward
 
-  // Left curly brace
+  // Draw single downward-facing curly brace
   ctx.beginPath();
-  ctx.moveTo(x + curlWidth, y);
-  ctx.quadraticCurveTo(x, y, x, y + height * 0.3);
-  ctx.lineTo(x, midY - curlWidth);
-  ctx.quadraticCurveTo(x, midY, x - curlWidth, midY);
-  ctx.quadraticCurveTo(x, midY, x, midY + curlWidth);
-  ctx.lineTo(x, y + height * 0.7);
-  ctx.quadraticCurveTo(x, y + height, x + curlWidth, y + height);
-  ctx.stroke();
 
-  // Right curly brace
-  ctx.beginPath();
-  ctx.moveTo(x + width - curlWidth, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + height * 0.3);
-  ctx.lineTo(x + width, midY - curlWidth);
-  ctx.quadraticCurveTo(x + width, midY, x + width + curlWidth, midY);
-  ctx.quadraticCurveTo(x + width, midY, x + width, midY + curlWidth);
-  ctx.lineTo(x + width, y + height * 0.7);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - curlWidth, y + height);
+  // Start at top-left
+  ctx.moveTo(x, y);
+
+  // Curve down from left toward center-bottom
+  ctx.bezierCurveTo(
+    x + controlOffset, y,                    // Control point 1 (top-left area)
+    x + controlOffset, bottomY - height * 0.3, // Control point 2 (moving toward bottom)
+    midX, bottomY                             // End point (bottom center - the point)
+  );
+
+  // Curve up from center-bottom toward right
+  ctx.bezierCurveTo(
+    x + width - controlOffset, bottomY - height * 0.3, // Control point 1 (moving toward top)
+    x + width - controlOffset, y,                      // Control point 2 (top-right area)
+    x + width, y                                        // End point (top-right)
+  );
+
   ctx.stroke();
 
   ctx.restore();
