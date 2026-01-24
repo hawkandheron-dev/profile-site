@@ -10,6 +10,7 @@ import { TimelineCanvas } from './components/TimelineCanvas.jsx';
 import { TimelineOverlay } from './components/TimelineOverlay.jsx';
 import { TimelineModal } from './components/TimelineModal.jsx';
 import { TimelineLegend } from './components/TimelineLegend.jsx';
+import { getYear } from './utils/dateUtils.js';
 import './Timeline.css';
 
 export function Timeline({ data, config, onViewportChange, onItemClick }) {
@@ -33,8 +34,8 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
   };
 
   // Parse initial viewport
-  const initialStartYear = parseInt(defaultConfig.initialViewport.startDate.split('-')[0]);
-  const initialEndYear = parseInt(defaultConfig.initialViewport.endDate.split('-')[0]);
+  const initialStartYear = getYear(defaultConfig.initialViewport.startDate);
+  const initialEndYear = getYear(defaultConfig.initialViewport.endDate);
   const initialYearsPerPixel = (initialEndYear - initialStartYear) / dimensions.width;
 
   // Zoom and pan state
