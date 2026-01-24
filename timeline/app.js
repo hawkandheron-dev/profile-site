@@ -1,5 +1,6 @@
 async function main() {
   const container = document.getElementById("timeline");
+  const loadingIndicator = document.getElementById("timeline-loading");
   const modal = document.getElementById("event-modal");
   const modalTitle = document.getElementById("modal-title");
   const modalDate = document.getElementById("modal-date");
@@ -220,9 +221,22 @@ async function main() {
   timeline.on("rangechanged", updateAxisLabels);
   timeline.on("changed", updateAxisLabels);
   updateAxisLabels();
+
+  // Hide loading indicator and show timeline
+  loadingIndicator.style.display = "none";
+  container.style.display = "block";
 }
 
 main().catch((err) => {
   console.error(err);
-  document.body.innerHTML = `<pre style="padding:16px;color:#b00;">${err.stack || err}</pre>`;
+  const loadingIndicator = document.getElementById("timeline-loading");
+  if (loadingIndicator) {
+    loadingIndicator.innerHTML = `
+      <div style="text-align: center; padding: 20px; max-width: 500px;">
+        <div style="font-size: 18px; color: #d32f2f; margin-bottom: 12px;">Failed to load timeline</div>
+        <div style="color: #666; margin-bottom: 16px;">${err.message || 'An error occurred while loading the timeline data.'}</div>
+        <button onclick="location.reload()" style="padding: 10px 20px; border: 1px solid #ccc; background: #fff; border-radius: 6px; cursor: pointer; font-size: 14px;">Retry</button>
+      </div>
+    `;
+  }
 });
