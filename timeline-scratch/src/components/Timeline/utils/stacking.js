@@ -288,8 +288,8 @@ export function stackPeopleAndPoints(people, points, pointWidth = 150, yearsPerP
 
 /**
  * Stack all timeline items with above/below timeline separation
- * Layout from axis: Periods closest → People/Points further out
- * Points and people are stacked together with margin between them
+ * Layout from axis: Periods (with points inside) → People further out
+ * Points are placed within the period bracket area
  *
  * @param {Object} data - Timeline data { people, points, periods }
  * @param {number} pointWidth - Width for point collision detection
@@ -309,25 +309,27 @@ export function stackTimelineItems(data, pointWidth = 150, yearsPerPixel = 1) {
   const abovePeriods = periods.filter(p => p.aboveTimeline !== false);
   const belowPeriods = periods.filter(p => p.aboveTimeline === false);
 
-  // Stack periods separately for each side
+  // Stack each type separately
+  // Points will be positioned within the period area in the layout hook
   const abovePeriodsStacked = stackPeriods(abovePeriods);
   const belowPeriodsStacked = stackPeriods(belowPeriods);
 
-  // Stack people and points together with increased margin to prevent overlap
-  // Using 15 years margin (increased from 5) to give more space between items
-  const abovePeoplePoints = stackPeopleAndPoints(abovePeople, abovePoints, pointWidth, yearsPerPixel, 15);
-  const belowPeoplePoints = stackPeopleAndPoints(belowPeople, belowPoints, pointWidth, yearsPerPixel, 15);
+  const abovePeopleStacked = stackPeople(abovePeople);
+  const belowPeopleStacked = stackPeople(belowPeople);
+
+  const abovePointsStacked = stackPoints(abovePoints, pointWidth, yearsPerPixel);
+  const belowPointsStacked = stackPoints(belowPoints, pointWidth, yearsPerPixel);
 
   return {
     above: {
       periods: abovePeriodsStacked,
-      people: abovePeoplePoints.people,
-      points: abovePeoplePoints.points
+      people: abovePeopleStacked,
+      points: abovePointsStacked
     },
     below: {
       periods: belowPeriodsStacked,
-      people: belowPeoplePoints.people,
-      points: belowPeoplePoints.points
+      people: belowPeopleStacked,
+      points: belowPointsStacked
     }
   };
 }

@@ -98,6 +98,7 @@ export function TimelineCanvas({
   }
 
   // Render periods
+  // Periods now have bracketHeight (for the curly brace) and height (total including points area)
   function renderPeriods(ctx, periods, axisY) {
     periods.forEach(period => {
       const { start, end } = getYearRange(period.startDate, period.endDate);
@@ -105,7 +106,8 @@ export function TimelineCanvas({
       const x = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const width = yearToPixel(end, viewportStartYear, yearsPerPixel) - x;
       const y = period.y - panOffsetY;
-      const bracketHeight = period.height;
+      // Use bracketHeight for the actual bracket, falling back to height for backwards compatibility
+      const bracketHeight = period.bracketHeight || period.height;
 
       // Get color
       const color = period.color || '#00838f';
