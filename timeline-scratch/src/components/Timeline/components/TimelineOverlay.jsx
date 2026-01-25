@@ -59,6 +59,42 @@ export function TimelineOverlay({
     return luminance > 0.6 ? '#000' : '#fff';
   };
 
+  const getLabelBackground = (backgroundColor, alpha = 0.85) => {
+    if (!backgroundColor) {
+      return `rgba(0, 0, 0, ${alpha})`;
+    }
+
+    const normalized = backgroundColor.trim().toLowerCase();
+    let r;
+    let g;
+    let b;
+
+    if (normalized.startsWith('#')) {
+      let hex = normalized.slice(1);
+      if (hex.length === 3) {
+        hex = hex.split('').map((value) => value + value).join('');
+      }
+      if (hex.length === 6) {
+        r = parseInt(hex.slice(0, 2), 16);
+        g = parseInt(hex.slice(2, 4), 16);
+        b = parseInt(hex.slice(4, 6), 16);
+      }
+    } else if (normalized.startsWith('rgb')) {
+      const matches = normalized.match(/\d+(\.\d+)?/g);
+      if (matches && matches.length >= 3) {
+        r = Number(matches[0]);
+        g = Number(matches[1]);
+        b = Number(matches[2]);
+      }
+    }
+
+    if ([r, g, b].some((value) => Number.isNaN(value) || value === undefined)) {
+      return backgroundColor;
+    }
+
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
   return (
     <div
       className="timeline-overlay"
@@ -192,6 +228,7 @@ export function TimelineOverlay({
 
       const labelBackground = period.color || '#00838f';
       const labelTextColor = getLabelTextColor(labelBackground);
+      const labelBackgroundColor = getLabelBackground(labelBackground);
 
       return (
         <div
@@ -206,7 +243,7 @@ export function TimelineOverlay({
             fontSize: '13px',
             fontWeight: '600',
             color: labelTextColor,
-            backgroundColor: labelBackground,
+            backgroundColor: labelBackgroundColor,
             padding: '4px 12px',
             borderRadius: '4px',
             whiteSpace: 'nowrap',
