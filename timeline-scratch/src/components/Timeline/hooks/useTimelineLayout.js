@@ -74,11 +74,18 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
     const belowPeriodY = axisY + axisHeight;
     const belowPeoplePointY = belowPeriodY + belowPeriodHeight;
 
+    // Calculate max rows for reversing above-timeline items
+    const maxAbovePeopleRow = above.people.length > 0 ? Math.max(...above.people.map(p => p.row)) : 0;
+    const maxAbovePointsRow = above.points.length > 0 ? Math.max(...above.points.map(p => p.row)) : 0;
+    const maxAbovePeriodsRow = above.periods.length > 0 ? Math.max(...above.periods.map(p => p.row)) : 0;
+
     // Add y positions to items
+    // Above timeline: reverse stacking so row 0 is at bottom (closest to axis)
+    // Below timeline: row 0 is at top (closest to axis), stacking downward
     const peopleWithY = [
       ...above.people.map(p => ({
         ...p,
-        y: abovePeoplePointY + p.row * personRowHeight,
+        y: abovePeoplePointY + (maxAbovePeopleRow - p.row) * personRowHeight,
         height: personRowHeight,
         aboveTimeline: true
       })),
@@ -93,7 +100,7 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
     const pointsWithY = [
       ...above.points.map(p => ({
         ...p,
-        y: abovePeoplePointY + p.row * pointRowHeight,
+        y: abovePeoplePointY + (maxAbovePointsRow - p.row) * pointRowHeight,
         height: pointRowHeight,
         aboveTimeline: true
       })),
@@ -108,7 +115,7 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
     const periodsWithY = [
       ...above.periods.map(p => ({
         ...p,
-        y: abovePeriodY + p.row * periodBracketHeight,
+        y: abovePeriodY + (maxAbovePeriodsRow - p.row) * periodBracketHeight,
         height: periodBracketHeight,
         aboveTimeline: true
       })),

@@ -46,6 +46,10 @@ export function TimelineCanvas({
     // Draw time axis
     const labelInterval = getYearLabelInterval(yearsPerPixel);
     const axisY = layout.axisY - panOffsetY;
+
+    // Render periods BEFORE axis so year labels appear on top of period fills
+    renderPeriods(ctx, layout.stackedPeriods, axisY);
+
     drawTimeAxis(
       ctx,
       width,
@@ -57,9 +61,8 @@ export function TimelineCanvas({
       config.eraLabels
     );
 
-    // Render all items (they already have y positions calculated)
+    // Render all other items (they already have y positions calculated)
     renderPeople(ctx, layout.stackedPeople);
-    renderPeriods(ctx, layout.stackedPeriods);
     renderPoints(ctx, layout.stackedPoints);
   }, [width, height, viewportStartYear, yearsPerPixel, panOffsetY, layout, config, hoveredItem]);
 
@@ -95,9 +98,7 @@ export function TimelineCanvas({
   }
 
   // Render periods
-  function renderPeriods(ctx, periods) {
-    const axisY = layout.axisY - panOffsetY;
-
+  function renderPeriods(ctx, periods, axisY) {
     periods.forEach(period => {
       const { start, end } = getYearRange(period.startDate, period.endDate);
 
@@ -139,11 +140,11 @@ export function TimelineCanvas({
         // Close path back to start
         ctx.closePath();
       } else {
-        // Below timeline: bracket points down, fill from axis to bracket above
-        const axisBottom = axisY + layout.sizes.axisHeight;
-        // Start at left edge of axis
-        ctx.moveTo(path.x1, axisBottom);
-        // Draw up to bracket left edge
+        // Below timeline: bracket points down, fill from axis line to bracket
+        // The fill reaches the axis line itself (behind year labels)
+        // Start at left edge of axis line
+        ctx.moveTo(path.x1, axisY);
+        // Draw down to bracket left edge
         ctx.lineTo(path.x1, path.y1);
         // Draw left side of bracket curve
         ctx.quadraticCurveTo(path.qx1, path.qy1, path.qx2, path.qy2);
@@ -151,19 +152,15 @@ export function TimelineCanvas({
         // Draw right side of bracket curve (reverse direction from center to right)
         ctx.quadraticCurveTo(path.tc2x, path.tc2y, path.qx4, path.qy4);
         ctx.quadraticCurveTo(path.qx3, path.qy3, path.x2, path.y2);
-        // Draw line down to axis
-        ctx.lineTo(path.x2, axisBottom);
+        // Draw line back up to axis
+        ctx.lineTo(path.x2, axisY);
         // Draw along axis
-        ctx.lineTo(path.x1, axisBottom);
+        ctx.lineTo(path.x1, axisY);
         // Close path
         ctx.closePath();
       }
 
       ctx.fill();
-
-      // Determine direction based on above/below
-      // For above timeline, bracket points up (away from axis); for below, points down (away from axis)
-      const direction = period.aboveTimeline ? 'up' : 'down';
 
       // Draw bracket
       drawPeriodBracket(ctx, x, width, braceY, braceHeight, color);

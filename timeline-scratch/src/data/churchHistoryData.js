@@ -14,7 +14,7 @@ const rawData = {
     { id: "eras", content: "Eras & Movements" }
   ],
   items: [
-    { id: "jesus", group: "people", content: "Jesus", start: "0001-01-01", end: "0033-01-01" },
+    { id: "jesus", group: "people", content: "Jesus", start: "-0003-01-01", end: "0033-01-01" },
     { id: "john-evangelist", group: "people", content: "John the Evangelist", start: "0006-01-01", end: "0100-01-01" },
     { id: "paul", group: "people", content: "Paul", start: "0005-01-01", end: "0065-01-01" },
     { id: "peter", group: "people", content: "Peter", start: "0001-01-01", end: "0066-01-01" },
@@ -181,8 +181,20 @@ const colorMap = {
   councils: '#4caf50',
   'roman-emperors': '#d32f2f',
   documents: '#f9a825',
-  events: '#ff6f00',
-  eras: '#00acc1'
+  events: '#ff6f00'
+};
+
+// Distinct colors for each church age/era
+const eraColorMap = {
+  'era-apostolic': '#00acc1',        // Cyan
+  'era-ante-nicene': '#7b1fa2',      // Purple
+  'era-first-four-councils': '#1976d2', // Blue
+  'era-monks-missionaries': '#388e3c',  // Green
+  'era-cluniac-reforms': '#f57c00',     // Orange
+  'era-scholastics': '#c2185b',         // Pink
+  'era-proto-reformers': '#5d4037',     // Brown
+  'era-reformers': '#0097a7',           // Teal
+  'era-dissent-discovery': '#7c4dff'    // Deep Purple
 };
 
 // Shape mappings for point events
@@ -201,27 +213,41 @@ function transformData() {
   rawData.items.forEach(item => {
     const isPoint = item.type === 'point' || !item.end;
 
-    if (item.group === 'people' || item.group === 'roman-emperors') {
-      // People and emperors are rendered as spans
+    if (item.group === 'people') {
+      // People are rendered as spans above the timeline
       people.push({
         id: item.id,
         name: item.content,
         startDate: item.start,
         endDate: item.end,
         dateCertainty: 'year only',
-        periodId: item.group === 'roman-emperors' ? 'roman-emperors' : getEraForDate(item.start),
+        periodId: getEraForDate(item.start),
         preview: `${item.content}`,
-        color: colorMap[item.group]
+        color: colorMap[item.group],
+        aboveTimeline: true
+      });
+    } else if (item.group === 'roman-emperors') {
+      // Roman emperors are rendered below the timeline
+      people.push({
+        id: item.id,
+        name: item.content,
+        startDate: item.start,
+        endDate: item.end,
+        dateCertainty: 'year only',
+        periodId: 'roman-emperors',
+        preview: `${item.content}`,
+        color: colorMap[item.group],
+        aboveTimeline: false
       });
     } else if (item.group === 'eras') {
-      // Eras are rendered as periods
+      // Eras are rendered as periods with distinct colors
       periods.push({
         id: item.id,
         name: item.content,
         startDate: item.start,
         endDate: item.end,
         dateCertainty: 'year only',
-        color: colorMap.eras,
+        color: eraColorMap[item.id] || '#00acc1',
         preview: item.content
       });
     } else if (isPoint) {
@@ -289,13 +315,37 @@ export const churchHistoryConfig = {
       type: 'period',
       id: 'era-ante-nicene',
       name: 'Ante-Nicene Age',
-      color: '#00acc1'
+      color: '#7b1fa2'
     },
     {
       type: 'period',
       id: 'era-first-four-councils',
       name: 'First Four Councils',
-      color: '#00acc1'
+      color: '#1976d2'
+    },
+    {
+      type: 'period',
+      id: 'era-monks-missionaries',
+      name: 'Monks & Missionaries',
+      color: '#388e3c'
+    },
+    {
+      type: 'period',
+      id: 'era-scholastics',
+      name: 'Scholastics & Monastics',
+      color: '#c2185b'
+    },
+    {
+      type: 'period',
+      id: 'era-proto-reformers',
+      name: 'Proto-Reformers & Mystics',
+      color: '#5d4037'
+    },
+    {
+      type: 'period',
+      id: 'era-reformers',
+      name: 'Reformers & Humanists',
+      color: '#0097a7'
     },
     {
       type: 'point',

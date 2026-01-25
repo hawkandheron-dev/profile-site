@@ -123,15 +123,21 @@ export function TimelineOverlay({
       }
 
       // Show year range if available
+      // Format: "Name (birth-death)" with no spaces around dash
+      // Only show BC for BC years, omit AD for AD years
       const startYear = start <= 0 ? Math.abs(start - 1) + 1 : start;
       const endYear = end <= 0 ? Math.abs(end - 1) + 1 : end;
-      const [bcLabel, adLabel] = config.eraLabels === 'BC/AD' ? ['BC', 'AD'] : ['BCE', 'CE'];
-      const startEra = start <= 0 ? bcLabel : adLabel;
-      const endEra = end <= 0 ? bcLabel : adLabel;
+      const bcLabel = config.eraLabels === 'BC/AD' ? 'BC' : 'BCE';
+      const startIsBC = start <= 0;
+      const endIsBC = end <= 0;
+
+      // Format: "X BC" for BC years, just "X" for AD years
+      const startStr = startIsBC ? `${startYear} ${bcLabel}` : `${startYear}`;
+      const endStr = endIsBC ? `${endYear} ${bcLabel}` : `${endYear}`;
 
       const yearRange = startYear !== endYear
-        ? `(${startYear} ${startEra} - ${endYear} ${endEra})`
-        : `(${startYear} ${startEra})`;
+        ? `(${startStr}-${endStr})`
+        : `(${startStr})`;
 
       return (
         <div
