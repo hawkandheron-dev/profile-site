@@ -40,15 +40,17 @@
 }
 
 .timeline-controls button.icon-button {
-  padding: 8px;
+  padding: 6px 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   color: #333;
 }
 
 .timeline-controls button.icon-button .icon {
   display: flex;
+  flex-shrink: 0;
 }
 
 .timeline-controls button:hover {

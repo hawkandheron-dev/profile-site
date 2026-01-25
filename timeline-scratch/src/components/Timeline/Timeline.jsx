@@ -240,13 +240,16 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
       {/* Controls */}
       <div className="timeline-controls">
         <button onClick={handleZoomIn} title="Zoom in" className="icon-button">
-          <Icon name="plus" size={18} />
+          <Icon name="plus" size={16} />
+          <span>Zoom in</span>
         </button>
         <button onClick={handleZoomOut} title="Zoom out" className="icon-button">
-          <Icon name="minus" size={18} />
+          <Icon name="minus" size={16} />
+          <span>Zoom out</span>
         </button>
         <button onClick={reset} title="Reset view" className="icon-button">
-          <Icon name="quatrefoil" size={18} />
+          <Icon name="quatrefoil" size={16} />
+          <span>Reset</span>
         </button>
         <div className="zoom-info">
           <Icon name="diamond" size={14} />
