@@ -16,6 +16,49 @@ export function TimelineOverlay({
   config,
   hoveredItem
 }) {
+  const getLabelTextColor = (backgroundColor) => {
+    if (!backgroundColor) {
+      return '#fff';
+    }
+
+    const normalized = backgroundColor.trim().toLowerCase();
+    let r;
+    let g;
+    let b;
+
+    if (normalized.startsWith('#')) {
+      let hex = normalized.slice(1);
+      if (hex.length === 3) {
+        hex = hex.split('').map((value) => value + value).join('');
+      }
+      if (hex.length === 6) {
+        r = parseInt(hex.slice(0, 2), 16);
+        g = parseInt(hex.slice(2, 4), 16);
+        b = parseInt(hex.slice(4, 6), 16);
+      }
+    } else if (normalized.startsWith('rgb')) {
+      const matches = normalized.match(/\d+(\.\d+)?/g);
+      if (matches && matches.length >= 3) {
+        r = Number(matches[0]);
+        g = Number(matches[1]);
+        b = Number(matches[2]);
+      }
+    }
+
+    if ([r, g, b].some((value) => Number.isNaN(value) || value === undefined)) {
+      return '#fff';
+    }
+
+    const toLinear = (value) => {
+      const channel = value / 255;
+      return channel <= 0.03928 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
+    };
+
+    const luminance = 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+
+    return luminance > 0.6 ? '#000' : '#fff';
+  };
+
   return (
     <div
       className="timeline-overlay"
@@ -147,6 +190,9 @@ export function TimelineOverlay({
         labelX = Math.min(width - 10, endX); // Stick to right edge but not after end
       }
 
+      const labelBackground = period.color || '#00838f';
+      const labelTextColor = getLabelTextColor(labelBackground);
+
       return (
         <div
           key={period.id}
@@ -159,13 +205,12 @@ export function TimelineOverlay({
             pointerEvents: 'none',
             fontSize: '13px',
             fontWeight: '600',
-            color: '#fff',
-            backgroundColor: period.color || '#00838f',
+            color: labelTextColor,
+            backgroundColor: labelBackground,
             padding: '4px 12px',
             borderRadius: '4px',
             whiteSpace: 'nowrap',
             zIndex: (isLeftSticky || isRightSticky) ? 10 : 1,
-            WebkitTextStroke: '1px #000',
             textShadow: '0 0 2px rgba(0, 0, 0, 0.3)'
           }}
         >
