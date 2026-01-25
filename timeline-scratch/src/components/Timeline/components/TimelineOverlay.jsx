@@ -98,6 +98,10 @@ export function TimelineOverlay({
   function renderPeopleLabels() {
     const people = layout.stackedPeople || [];
 
+    // Calculate visible years to determine if we should show year ranges
+    const visibleYears = width * yearsPerPixel;
+    const showYearRange = visibleYears <= 300;
+
     return people.map(person => {
       const { start, end } = getYearRange(person.startDate, person.endDate);
 
@@ -122,22 +126,23 @@ export function TimelineOverlay({
         return null;
       }
 
-      // Show year range if available
-      // Format: "Name (birth-death)" with no spaces around dash
-      // Only show BC for BC years, omit AD for AD years
-      const startYear = start <= 0 ? Math.abs(start - 1) + 1 : start;
-      const endYear = end <= 0 ? Math.abs(end - 1) + 1 : end;
-      const bcLabel = config.eraLabels === 'BC/AD' ? 'BC' : 'BCE';
-      const startIsBC = start <= 0;
-      const endIsBC = end <= 0;
+      // Format year range (only shown when zoomed in enough)
+      let yearRange = '';
+      if (showYearRange) {
+        const startYear = start <= 0 ? Math.abs(start - 1) + 1 : start;
+        const endYear = end <= 0 ? Math.abs(end - 1) + 1 : end;
+        const bcLabel = config.eraLabels === 'BC/AD' ? 'BC' : 'BCE';
+        const startIsBC = start <= 0;
+        const endIsBC = end <= 0;
 
-      // Format: "X BC" for BC years, just "X" for AD years
-      const startStr = startIsBC ? `${startYear} ${bcLabel}` : `${startYear}`;
-      const endStr = endIsBC ? `${endYear} ${bcLabel}` : `${endYear}`;
+        // Format: "X BC" for BC years, just "X" for AD years
+        const startStr = startIsBC ? `${startYear} ${bcLabel}` : `${startYear}`;
+        const endStr = endIsBC ? `${endYear} ${bcLabel}` : `${endYear}`;
 
-      const yearRange = startYear !== endYear
-        ? `(${startStr}-${endStr})`
-        : `(${startStr})`;
+        yearRange = startYear !== endYear
+          ? ` (${startStr}-${endStr})`
+          : ` (${startStr})`;
+      }
 
       return (
         <div

@@ -288,7 +288,8 @@ export function stackPeopleAndPoints(people, points, pointWidth = 150, yearsPerP
 
 /**
  * Stack all timeline items with above/below timeline separation
- * Layout from axis: Periods closest → People/Points further out
+ * Layout from axis: Periods closest → Points → People further out
+ * Points and people are now stacked separately to prevent overlap
  *
  * @param {Object} data - Timeline data { people, points, periods }
  * @param {number} pointWidth - Width for point collision detection
@@ -312,20 +313,23 @@ export function stackTimelineItems(data, pointWidth = 150, yearsPerPixel = 1) {
   const abovePeriodsStacked = stackPeriods(abovePeriods);
   const belowPeriodsStacked = stackPeriods(belowPeriods);
 
-  // Stack people and points together for each side
-  const abovePeoplePoints = stackPeopleAndPoints(abovePeople, abovePoints, pointWidth, yearsPerPixel);
-  const belowPeoplePoints = stackPeopleAndPoints(belowPeople, belowPoints, pointWidth, yearsPerPixel);
+  // Stack people and points SEPARATELY to prevent visual overlap
+  // Points have callouts that extend vertically, so they need their own space
+  const abovePeopleStacked = stackPeople(abovePeople);
+  const belowPeopleStacked = stackPeople(belowPeople);
+  const abovePointsStacked = stackPoints(abovePoints, pointWidth, yearsPerPixel);
+  const belowPointsStacked = stackPoints(belowPoints, pointWidth, yearsPerPixel);
 
   return {
     above: {
       periods: abovePeriodsStacked,
-      people: abovePeoplePoints.people,
-      points: abovePeoplePoints.points
+      people: abovePeopleStacked,
+      points: abovePointsStacked
     },
     below: {
       periods: belowPeriodsStacked,
-      people: belowPeoplePoints.people,
-      points: belowPeoplePoints.points
+      people: belowPeopleStacked,
+      points: belowPointsStacked
     }
   };
 }

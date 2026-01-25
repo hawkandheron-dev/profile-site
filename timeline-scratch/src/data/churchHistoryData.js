@@ -166,8 +166,8 @@ const rawData = {
     { id: "era-apostolic", group: "eras", content: "The Apostolic Age", start: "0001-01-01", end: "0100-01-01" },
     { id: "era-ante-nicene", group: "eras", content: "The Ante-Nicene Age", start: "0100-01-01", end: "0325-01-01" },
     { id: "era-first-four-councils", group: "eras", content: "The First Four Councils", start: "0325-01-01", end: "0451-01-01" },
-    { id: "era-monks-missionaries", group: "eras", content: "Monks & Missionaries", start: "0500-01-01", end: "1000-01-01" },
-    { id: "era-cluniac-reforms", group: "eras", content: "The Cluniac Reforms", start: "0950-01-01", end: "1130-01-01" },
+    { id: "era-monks-missionaries", group: "eras", content: "Monks & Missionaries", start: "0450-01-01", end: "1000-01-01" },
+    { id: "era-cluniac-reforms", group: "eras", content: "The Cluniac Reforms", start: "0950-01-01", end: "1130-01-01", belowTimeline: true },
     { id: "era-scholastics", group: "eras", content: "Scholastics & Monastics", start: "1000-01-01", end: "1300-01-01" },
     { id: "era-proto-reformers", group: "eras", content: "Proto-Reformers & Mystics", start: "1300-01-01", end: "1500-01-01" },
     { id: "era-reformers", group: "eras", content: "Reformers & Humanists", start: "1500-01-01", end: "1650-01-01" },
@@ -215,15 +215,19 @@ function transformData() {
 
     if (item.group === 'people') {
       // People are rendered as spans above the timeline
+      // Color is based on their era
+      const eraId = getEraForDate(item.start);
+      const eraInfo = getEraInfo(eraId);
       people.push({
         id: item.id,
         name: item.content,
         startDate: item.start,
         endDate: item.end,
         dateCertainty: 'year only',
-        periodId: getEraForDate(item.start),
+        periodId: eraId,
+        periodName: eraInfo.name,
         preview: `${item.content}`,
-        color: colorMap[item.group],
+        color: eraColorMap[eraId] || '#5b7ee8',
         aboveTimeline: true
       });
     } else if (item.group === 'roman-emperors') {
@@ -248,7 +252,8 @@ function transformData() {
         endDate: item.end,
         dateCertainty: 'year only',
         color: eraColorMap[item.id] || '#00acc1',
-        preview: item.content
+        preview: item.content,
+        aboveTimeline: item.belowTimeline !== true
       });
     } else if (isPoint) {
       // Point events (councils, documents, events)
@@ -279,6 +284,23 @@ function transformData() {
   });
 
   return { people, points, periods };
+}
+
+// Era information lookup
+const eraInfoMap = {
+  'era-apostolic': { name: 'The Apostolic Age', start: 1, end: 100 },
+  'era-ante-nicene': { name: 'The Ante-Nicene Age', start: 100, end: 325 },
+  'era-first-four-councils': { name: 'The First Four Councils', start: 325, end: 451 },
+  'era-monks-missionaries': { name: 'Monks & Missionaries', start: 450, end: 1000 },
+  'era-scholastics': { name: 'Scholastics & Monastics', start: 1000, end: 1300 },
+  'era-proto-reformers': { name: 'Proto-Reformers & Mystics', start: 1300, end: 1500 },
+  'era-reformers': { name: 'Reformers & Humanists', start: 1500, end: 1650 },
+  'era-dissent-discovery': { name: 'Dissent & Discovery', start: 1650, end: 1800 }
+};
+
+// Helper to get era info
+function getEraInfo(eraId) {
+  return eraInfoMap[eraId] || { name: 'Unknown Era', start: 0, end: 0 };
 }
 
 // Helper to determine which era a date falls into
