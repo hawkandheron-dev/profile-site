@@ -143,6 +143,46 @@
   white-space: nowrap;
 }
 
+/* Preferred section styling */
+.preferred-section {
+  border-bottom: 3px solid #c9c4b8;
+  padding-bottom: 40px;
+  margin-bottom: 50px;
+}
+
+.variant-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  margin: 24px 0 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.variant-label:first-of-type {
+  margin-top: 0;
+}
+
+/* Inverted icon cards */
+.icon-card-inverted {
+  background: #2a2520;
+  border-color: #2a2520;
+}
+
+.icon-card-inverted:hover {
+  background: #3a352d;
+  border-color: #3a352d;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.icon-card-inverted .icon-preview {
+  color: #fff;
+}
+
+.icon-card-inverted .icon-name {
+  color: #bbb;
+}
+
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   .icon-sticker-sheet {
@@ -208,5 +248,31 @@
 
   .icon-name {
     color: #999;
+  }
+
+  .preferred-section {
+    border-bottom-color: #4a4540;
+  }
+
+  .variant-label {
+    color: #888;
+  }
+
+  .icon-card-inverted {
+    background: #e8e4dc;
+    border-color: #e8e4dc;
+  }
+
+  .icon-card-inverted:hover {
+    background: #f5f2ea;
+    border-color: #f5f2ea;
+  }
+
+  .icon-card-inverted .icon-preview {
+    color: #1a1917;
+  }
+
+  .icon-card-inverted .icon-name {
+    color: #555;
   }
 }

@@ -1,6 +1,40 @@
 import { useState, useEffect } from 'react';
 import './IconStickerSheet.css';
 
+// Preferred icon set - curated selection for primary use
+const preferredIcons = [
+  // Classical
+  { id: "amphora", name: "Amphora", collection: "classical" },
+  { id: "kantharos", name: "Kantharos", collection: "classical" },
+  { id: "olive-branch", name: "Olive Branch", collection: "classical" },
+  { id: "acanthus-leaf", name: "Acanthus Leaf", collection: "classical" },
+  // Medieval
+  { id: "shield-heater", name: "Heater Shield", collection: "medieval" },
+  { id: "crown", name: "Crown", collection: "medieval" },
+  { id: "quatrefoil", name: "Quatrefoil", collection: "medieval" },
+  { id: "trefoil", name: "Trefoil", collection: "medieval" },
+  { id: "sword", name: "Sword", collection: "medieval" },
+  { id: "tower", name: "Tower", collection: "medieval" },
+  { id: "chalice", name: "Chalice", collection: "medieval" },
+  // Renaissance
+  { id: "dagger", name: "Dagger", collection: "renaissance" },
+  { id: "reference-mark", name: "Reference Mark", collection: "renaissance" },
+  // Universal
+  { id: "arrow-left", name: "Arrow Left", collection: "universal" },
+  { id: "arrow-right", name: "Arrow Right", collection: "universal" },
+  { id: "arrow-up", name: "Arrow Up", collection: "universal" },
+  { id: "arrow-down", name: "Arrow Down", collection: "universal" },
+  { id: "close-x", name: "Close", collection: "universal" },
+  { id: "plus", name: "Plus", collection: "universal" },
+  { id: "minus", name: "Minus", collection: "universal" },
+  { id: "book", name: "Book", collection: "universal" },
+  // Basic shapes
+  { id: "diamond", name: "Diamond", collection: "universal" },
+  { id: "square", name: "Square", collection: "universal" },
+  { id: "circle", name: "Circle", collection: "universal" },
+  { id: "triangle", name: "Triangle", collection: "universal" },
+];
+
 // Icon manifest data embedded (from icons/index.json v2.0.0)
 const iconManifest = {
   collections: {
@@ -94,13 +128,17 @@ const iconManifest = {
         { id: "home", name: "Home" },
         { id: "scroll", name: "Scroll" },
         { id: "quill", name: "Quill" },
-        { id: "book", name: "Book" }
+        { id: "book", name: "Book" },
+        { id: "diamond", name: "Diamond" },
+        { id: "square", name: "Square" },
+        { id: "circle", name: "Circle" },
+        { id: "triangle", name: "Triangle" }
       ]
     }
   }
 };
 
-function IconCard({ collection, iconId, name }) {
+function IconCard({ collection, iconId, name, inverted = false }) {
   const [svgContent, setSvgContent] = useState(null);
 
   useEffect(() => {
@@ -110,14 +148,53 @@ function IconCard({ collection, iconId, name }) {
       .catch(err => console.error(`Failed to load icon: ${collection}/${iconId}`, err));
   }, [collection, iconId]);
 
+  const cardClass = inverted ? "icon-card icon-card-inverted" : "icon-card";
+
   return (
-    <div className="icon-card" title={name}>
+    <div className={cardClass} title={name}>
       <div
         className="icon-preview"
         dangerouslySetInnerHTML={{ __html: svgContent || '' }}
       />
       <span className="icon-name">{name}</span>
     </div>
+  );
+}
+
+function PreferredSection() {
+  return (
+    <section className="collection-section preferred-section">
+      <div className="collection-header">
+        <h2>Preferred Set</h2>
+        <span className="collection-period">Curated selection for primary use</span>
+        <span className="collection-count">{preferredIcons.length} icons</span>
+      </div>
+
+      <h3 className="variant-label">Standard</h3>
+      <div className="icon-grid">
+        {preferredIcons.map(icon => (
+          <IconCard
+            key={icon.id}
+            collection={icon.collection}
+            iconId={icon.id}
+            name={icon.name}
+          />
+        ))}
+      </div>
+
+      <h3 className="variant-label">Inverted</h3>
+      <div className="icon-grid">
+        {preferredIcons.map(icon => (
+          <IconCard
+            key={`${icon.id}-inverted`}
+            collection={icon.collection}
+            iconId={icon.id}
+            name={icon.name}
+            inverted={true}
+          />
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -144,11 +221,13 @@ function CollectionSection({ collectionKey, collection }) {
 }
 
 export function IconStickerSheet() {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState('preferred');
 
   const collections = Object.entries(iconManifest.collections);
   const filteredCollections = activeFilter === 'all'
     ? collections
+    : activeFilter === 'preferred'
+    ? []
     : collections.filter(([key]) => key === activeFilter);
 
   const totalIcons = collections.reduce((sum, [, col]) => sum + col.icons.length, 0);
@@ -161,6 +240,12 @@ export function IconStickerSheet() {
           {totalIcons} period-styled SVG icons inspired by Greek scrolls, medieval manuscripts, and early printing
         </p>
         <div className="filter-tabs">
+          <button
+            className={`filter-tab ${activeFilter === 'preferred' ? 'active' : ''}`}
+            onClick={() => setActiveFilter('preferred')}
+          >
+            Preferred
+          </button>
           <button
             className={`filter-tab ${activeFilter === 'all' ? 'active' : ''}`}
             onClick={() => setActiveFilter('all')}
@@ -179,6 +264,9 @@ export function IconStickerSheet() {
         </div>
       </div>
       <div className="collections-container">
+        {(activeFilter === 'preferred' || activeFilter === 'all') && (
+          <PreferredSection />
+        )}
         {filteredCollections.map(([key, collection]) => (
           <CollectionSection
             key={key}
