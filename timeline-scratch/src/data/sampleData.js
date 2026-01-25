@@ -110,6 +110,19 @@ export const sampleData = {
       ]
     },
     {
+      id: 'person-12',
+      name: 'Commodus',
+      startDate: '0161-08-31',
+      endDate: '0192-12-31',
+      dateCertainty: 'year only',
+      periodId: 'roman-empire',
+      preview: 'Roman emperor, son of Marcus Aurelius.',
+      description: '<p>Commodus was Roman emperor from 180 to 192. His reign is often considered the end of the Pax Romana and the beginning of a period of decline within the Roman Empire.</p>',
+      links: [
+        { text: 'Wikipedia', url: 'https://en.wikipedia.org/wiki/Commodus' }
+      ]
+    },
+    {
       id: 'person-9',
       name: 'Virgil',
       startDate: '-0069-10-15',
