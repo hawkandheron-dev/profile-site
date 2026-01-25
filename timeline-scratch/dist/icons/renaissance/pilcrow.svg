@@ -1,10 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Paragraph mark / pilcrow -->
-  <path d="M10 4 C6 4 4 6 4 9 C4 12 6 14 10 14"/>
-  <path d="M10 4 L10 22"/>
-  <path d="M14 4 L14 22"/>
-  <path d="M10 4 L16 4"/>
-  <!-- Decorative serifs -->
-  <path d="M8 22 L12 22"/>
-  <path d="M12 22 L16 22"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Pilcrow with filled bowl (historical form) -->
+  <!-- Filled bowl -->
+  <path d="M10 4 C5 4 3 7 3 10 C3 13 5 15 10 15 L10 4 Z" fill="currentColor" stroke="none"/>
+  <!-- Vertical stems -->
+  <path d="M10 4 L10 22" fill="none"/>
+  <path d="M14 4 L14 22" fill="none"/>
+  <!-- Top bar -->
+  <path d="M10 4 L17 4" fill="none"/>
+  <!-- Serifs at bottom -->
+  <path d="M8 22 L12 22" fill="none"/>
+  <path d="M12 22 L16 22" fill="none"/>
 </svg>

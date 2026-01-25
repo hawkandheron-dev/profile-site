@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Pelican in her piety (vulning herself to feed young) -->
+  <!-- Body -->
+  <ellipse cx="12" cy="14" rx="5" ry="4"/>
+  <!-- Neck curved down to breast -->
+  <path d="M8 11 C6 10 5 8 6 6 C7 4 9 4 10 5"/>
+  <!-- Head -->
+  <circle cx="10" cy="5" r="2"/>
+  <!-- Beak pointed at breast -->
+  <path d="M10 7 L12 11"/>
+  <!-- Eye -->
+  <circle cx="9.5" cy="4.5" r="0.5" fill="currentColor"/>
+  <!-- Blood drops -->
+  <path d="M12 11 L11 13"/>
+  <path d="M12 11 L13 13"/>
+  <path d="M12 11 L12 12.5"/>
+  <!-- Nest with chicks -->
+  <path d="M8 18 C7 20 9 21 12 21 C15 21 17 20 16 18"/>
+  <!-- Baby heads -->
+  <circle cx="10" cy="19" r="1"/>
+  <circle cx="14" cy="19" r="1"/>
+  <path d="M10 19 L10 18"/>
+  <path d="M14 19 L14 18"/>
+  <!-- Wing -->
+  <path d="M14 12 C17 11 18 13 17 15"/>
+</svg>

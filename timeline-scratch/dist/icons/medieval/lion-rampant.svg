@@ -1,21 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Heraldic lion rampant (standing on hind legs) -->
-  <!-- Head -->
-  <circle cx="16" cy="5" r="3"/>
-  <path d="M18 4 L20 2"/>
-  <path d="M17 3 L18 1"/>
-  <!-- Mane -->
-  <path d="M14 3 C13 4 13 6 14 7"/>
-  <!-- Body -->
-  <path d="M14 7 C12 8 10 10 10 14"/>
-  <!-- Front legs (raised) -->
-  <path d="M14 8 L18 6 L20 8"/>
-  <path d="M13 10 L16 10 L17 12"/>
-  <!-- Hind legs -->
-  <path d="M10 14 L8 18 L6 20"/>
-  <path d="M10 14 L12 18 L14 20"/>
-  <!-- Tail -->
-  <path d="M10 14 C6 14 4 10 6 8 C7 7 8 8 8 9"/>
-  <!-- Tongue -->
-  <path d="M18 6 L20 7" stroke-width="1"/>
+  <!-- Heraldic lion rampant - proper stylization -->
+  <!-- Head with crown of mane -->
+  <circle cx="17" cy="5" r="2.5"/>
+  <path d="M15 3 C14 2 14 1 15 1"/>
+  <path d="M17 2 C17 1 18 0.5 19 1"/>
+  <path d="M19 3 C20 2 21 2 21 3"/>
+  <!-- Extended tongue (langued) -->
+  <path d="M19 5.5 L21 6.5 L21 7"/>
+  <!-- Open jaw -->
+  <path d="M18.5 6.5 C19 7 19.5 7 20 6.5"/>
+  <!-- Body - curved, stylized -->
+  <path d="M15 7 C13 8 11 10 10 14 C9 17 10 18 11 18"/>
+  <!-- Front legs raised (armed with claws) -->
+  <path d="M15 8 L18 5"/>
+  <path d="M18 5 L19 4 M18 5 L19.5 5 M18 5 L19 6"/>
+  <path d="M14 10 L17 8"/>
+  <path d="M17 8 L18 7 M17 8 L18.5 8 M17 8 L18 9"/>
+  <!-- Hind leg (standing, armed) -->
+  <path d="M10 15 L8 19 L6 21"/>
+  <path d="M6 21 L5 20 M6 21 L5 21.5 M6 21 L6.5 22"/>
+  <!-- Second hind leg suggested -->
+  <path d="M11 16 L12 20"/>
+  <!-- Tail curved up and over with tuft -->
+  <path d="M10 14 C7 13 5 11 5 8 C5 6 6 5 7 5"/>
+  <path d="M7 5 C6 4 6 3 7 3 C8 3 8 4 7.5 5"/>
 </svg>

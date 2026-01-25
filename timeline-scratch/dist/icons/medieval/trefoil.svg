@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Three-lobed shamrock/trefoil -->
-  <circle cx="12" cy="7" r="4"/>
-  <circle cx="7" cy="15" r="4"/>
-  <circle cx="17" cy="15" r="4"/>
+  <!-- Trefoil with optical correction (top lobe slightly larger) -->
+  <circle cx="12" cy="6.5" r="4.2"/>
+  <circle cx="6.5" cy="15" r="4"/>
+  <circle cx="17.5" cy="15" r="4"/>
   <!-- Stem -->
   <path d="M12 18 L12 22"/>
   <path d="M10 22 L14 22"/>

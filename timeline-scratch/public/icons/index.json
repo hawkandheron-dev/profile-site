@@ -1,13 +1,13 @@
 {
   "name": "Antiquarian Icon Set",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Historical ornaments and functional icons inspired by Greek scrolls, medieval manuscripts, woodcuts, and early printing",
   "format": "svg",
   "viewBox": "0 0 24 24",
   "styling": {
     "stroke": "currentColor",
     "fill": "none or currentColor",
-    "strokeWidth": "1.5 or 2"
+    "strokeWidth": "1.5"
   },
   "collections": {
     "classical": {
@@ -24,7 +24,11 @@
         { "id": "acanthus-leaf", "name": "Acanthus Leaf", "tags": ["ornament", "botanical", "corinthian"] },
         { "id": "olive-branch", "name": "Olive Branch", "tags": ["peace", "athena", "botanical"] },
         { "id": "serpent", "name": "Serpent", "tags": ["snake", "wisdom", "medicine"] },
-        { "id": "chi-rho", "name": "Chi-Rho", "tags": ["christian", "monogram", "symbol"] }
+        { "id": "chi-rho", "name": "Chi-Rho", "tags": ["christian", "monogram", "symbol"] },
+        { "id": "fasces", "name": "Fasces", "tags": ["roman", "authority", "republic"] },
+        { "id": "gorgoneion", "name": "Gorgoneion", "tags": ["medusa", "apotropaic", "protection"] },
+        { "id": "kantharos", "name": "Kantharos", "tags": ["cup", "dionysus", "drinking"] },
+        { "id": "thyrsus", "name": "Thyrsus", "tags": ["dionysus", "staff", "pine"] }
       ]
     },
     "medieval": {
@@ -45,7 +49,15 @@
         { "id": "eagle-displayed", "name": "Eagle Displayed", "tags": ["heraldry", "bird", "imperial"] },
         { "id": "sword", "name": "Sword", "tags": ["weapon", "knight", "justice"] },
         { "id": "chalice", "name": "Chalice", "tags": ["grail", "cup", "religious"] },
-        { "id": "dragon", "name": "Dragon", "tags": ["beast", "wyvern", "heraldry"] }
+        { "id": "dragon", "name": "Dragon/Wyvern", "tags": ["beast", "wyvern", "heraldry"] },
+        { "id": "raven", "name": "Raven", "tags": ["bird", "heraldry", "odin"] },
+        { "id": "boar-head", "name": "Boar's Head", "tags": ["heraldry", "beast", "courage"] },
+        { "id": "crescent", "name": "Crescent", "tags": ["moon", "heraldry", "cadency"] },
+        { "id": "mullet", "name": "Mullet", "tags": ["star", "heraldry", "cadency"] },
+        { "id": "tower", "name": "Tower", "tags": ["castle", "heraldry", "fortification"] },
+        { "id": "rose", "name": "Heraldic Rose", "tags": ["tudor", "heraldry", "flower"] },
+        { "id": "agnus-dei", "name": "Agnus Dei", "tags": ["lamb", "christian", "religious"] },
+        { "id": "pelican", "name": "Pelican in Piety", "tags": ["bird", "christian", "sacrifice"] }
       ]
     },
     "renaissance": {
@@ -65,7 +77,9 @@
         { "id": "vine-divider", "name": "Vine Divider", "tags": ["rule", "separator", "ornament"] },
         { "id": "anchor-aldine", "name": "Aldine Anchor", "tags": ["printer", "manutius", "dolphin"] },
         { "id": "woodcut-sun", "name": "Woodcut Sun", "tags": ["face", "celestial", "illustration"] },
-        { "id": "skull-memento", "name": "Memento Mori Skull", "tags": ["death", "vanitas", "reminder"] }
+        { "id": "skull-memento", "name": "Memento Mori Skull", "tags": ["death", "vanitas", "reminder"] },
+        { "id": "reference-mark", "name": "Reference Mark", "tags": ["typography", "annotation", "symbol"] },
+        { "id": "manicule-left", "name": "Manicule (Left)", "tags": ["pointing", "hand", "index"] }
       ]
     },
     "universal": {
@@ -84,7 +98,7 @@
         { "id": "profile", "name": "Profile", "tags": ["ui", "user", "person", "account"] },
         { "id": "menu", "name": "Menu", "tags": ["ui", "hamburger", "navigation"] },
         { "id": "search", "name": "Search", "tags": ["ui", "find", "magnifier", "spyglass"] },
-        { "id": "star", "name": "Star", "tags": ["ui", "favorite", "rating"] },
+        { "id": "star", "name": "Star (Hexagram)", "tags": ["ui", "favorite", "rating"] },
         { "id": "heart", "name": "Heart", "tags": ["ui", "love", "like", "favorite"] },
         { "id": "bullet", "name": "Bullet", "tags": ["ui", "list", "point"] },
         { "id": "home", "name": "Home", "tags": ["ui", "house", "main"] },

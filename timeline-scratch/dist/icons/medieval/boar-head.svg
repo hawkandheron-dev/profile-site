@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Heraldic boar's head couped -->
+  <!-- Head outline -->
+  <path d="M4 12 C4 8 6 4 12 4 C18 4 22 8 22 12 C22 16 18 20 12 20 C8 20 4 16 4 12"/>
+  <!-- Snout -->
+  <ellipse cx="20" cy="14" rx="2" ry="3"/>
+  <circle cx="20" cy="13" r="0.5" fill="currentColor"/>
+  <circle cx="20" cy="15" r="0.5" fill="currentColor"/>
+  <!-- Eye -->
+  <circle cx="14" cy="10" r="1.5"/>
+  <!-- Ear -->
+  <path d="M8 6 C6 4 4 4 4 6 C4 8 6 8 8 8"/>
+  <!-- Tusks -->
+  <path d="M18 16 C20 18 22 18 23 16"/>
+  <path d="M16 18 C17 20 19 21 21 20"/>
+  <!-- Bristles on neck -->
+  <path d="M6 10 L4 8"/>
+  <path d="M6 12 L3 11"/>
+  <path d="M6 14 L4 15"/>
+</svg>

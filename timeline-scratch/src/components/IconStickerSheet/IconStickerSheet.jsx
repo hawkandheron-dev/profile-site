@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './IconStickerSheet.css';
 
-// Icon manifest data embedded (from icons/index.json)
+// Icon manifest data embedded (from icons/index.json v2.0.0)
 const iconManifest = {
   collections: {
     classical: {
@@ -17,7 +17,11 @@ const iconManifest = {
         { id: "acanthus-leaf", name: "Acanthus Leaf" },
         { id: "olive-branch", name: "Olive Branch" },
         { id: "serpent", name: "Serpent" },
-        { id: "chi-rho", name: "Chi-Rho" }
+        { id: "chi-rho", name: "Chi-Rho" },
+        { id: "fasces", name: "Fasces" },
+        { id: "gorgoneion", name: "Gorgoneion" },
+        { id: "kantharos", name: "Kantharos" },
+        { id: "thyrsus", name: "Thyrsus" }
       ]
     },
     medieval: {
@@ -37,7 +41,15 @@ const iconManifest = {
         { id: "eagle-displayed", name: "Eagle Displayed" },
         { id: "sword", name: "Sword" },
         { id: "chalice", name: "Chalice" },
-        { id: "dragon", name: "Dragon" }
+        { id: "dragon", name: "Dragon/Wyvern" },
+        { id: "raven", name: "Raven" },
+        { id: "boar-head", name: "Boar's Head" },
+        { id: "crescent", name: "Crescent" },
+        { id: "mullet", name: "Mullet" },
+        { id: "tower", name: "Tower" },
+        { id: "rose", name: "Heraldic Rose" },
+        { id: "agnus-dei", name: "Agnus Dei" },
+        { id: "pelican", name: "Pelican in Piety" }
       ]
     },
     renaissance: {
@@ -56,7 +68,9 @@ const iconManifest = {
         { id: "vine-divider", name: "Vine Divider" },
         { id: "anchor-aldine", name: "Aldine Anchor" },
         { id: "woodcut-sun", name: "Woodcut Sun" },
-        { id: "skull-memento", name: "Memento Mori" }
+        { id: "skull-memento", name: "Memento Mori" },
+        { id: "reference-mark", name: "Reference Mark" },
+        { id: "manicule-left", name: "Manicule (Left)" }
       ]
     },
     universal: {
@@ -74,7 +88,7 @@ const iconManifest = {
         { id: "profile", name: "Profile" },
         { id: "menu", name: "Menu" },
         { id: "search", name: "Search" },
-        { id: "star", name: "Star" },
+        { id: "star", name: "Star (Hexagram)" },
         { id: "heart", name: "Heart" },
         { id: "bullet", name: "Bullet" },
         { id: "home", name: "Home" },
@@ -113,6 +127,7 @@ function CollectionSection({ collectionKey, collection }) {
       <div className="collection-header">
         <h2>{collection.name}</h2>
         <span className="collection-period">{collection.period}</span>
+        <span className="collection-count">{collection.icons.length} icons</span>
       </div>
       <div className="icon-grid">
         {collection.icons.map(icon => (
@@ -136,12 +151,14 @@ export function IconStickerSheet() {
     ? collections
     : collections.filter(([key]) => key === activeFilter);
 
+  const totalIcons = collections.reduce((sum, [, col]) => sum + col.icons.length, 0);
+
   return (
     <div className="icon-sticker-sheet">
       <div className="sheet-header">
         <h1>Antiquarian Icon Set</h1>
         <p className="sheet-description">
-          55 period-styled SVG icons inspired by Greek scrolls, medieval manuscripts, and early printing
+          {totalIcons} period-styled SVG icons inspired by Greek scrolls, medieval manuscripts, and early printing
         </p>
         <div className="filter-tabs">
           <button
