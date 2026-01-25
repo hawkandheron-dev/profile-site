@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Three horizontal rules (menu) with period styling -->
+  <path d="M4 6 L20 6"/>
+  <path d="M4 12 L20 12"/>
+  <path d="M4 18 L20 18"/>
+  <!-- Small ornaments at line ends -->
+  <circle cx="4" cy="6" r="0.75" fill="currentColor"/>
+  <circle cx="20" cy="6" r="0.75" fill="currentColor"/>
+  <circle cx="4" cy="12" r="0.75" fill="currentColor"/>
+  <circle cx="20" cy="12" r="0.75" fill="currentColor"/>
+  <circle cx="4" cy="18" r="0.75" fill="currentColor"/>
+  <circle cx="20" cy="18" r="0.75" fill="currentColor"/>
+</svg>

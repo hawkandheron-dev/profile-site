@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Calligraphic X with slight flair -->
+  <path d="M4 4 C5 5 18 18 20 20"/>
+  <path d="M20 4 C19 5 6 18 4 20"/>
+  <!-- Optional serifs for woodcut feel -->
+  <path d="M3 4 L5 4 M4 3 L4 5"/>
+  <path d="M19 4 L21 4 M20 3 L20 5"/>
+  <path d="M3 20 L5 20 M4 19 L4 21"/>
+  <path d="M19 20 L21 20 M20 19 L20 21"/>
+</svg>

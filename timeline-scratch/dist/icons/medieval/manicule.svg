@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Pointing hand (index finger extended) -->
+  <!-- Cuff -->
+  <path d="M2 14 L2 20 L6 20 L6 14"/>
+  <path d="M3 14 L3 12 C3 11 4 10 5 10 L6 10"/>
+  <!-- Palm and thumb -->
+  <path d="M6 10 L6 18 C6 19 7 20 8 20 L9 20"/>
+  <path d="M6 14 C7 13 8 13 9 14 L9 20"/>
+  <!-- Fingers (curled) -->
+  <path d="M9 18 C10 17 11 17 11 18 L11 20 L9 20"/>
+  <path d="M11 17 C12 16 13 16 13 17 L13 20 L11 20"/>
+  <!-- Index finger (pointing) -->
+  <path d="M6 12 L20 12"/>
+  <path d="M20 12 L22 11 L22 13 L20 12"/>
+  <!-- Sleeve detail -->
+  <path d="M2 16 L5 16"/>
+</svg>
