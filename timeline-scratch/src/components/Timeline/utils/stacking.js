@@ -288,8 +288,8 @@ export function stackPeopleAndPoints(people, points, pointWidth = 150, yearsPerP
 
 /**
  * Stack all timeline items with above/below timeline separation
- * Layout from axis: Periods closest → Points → People further out
- * Points and people are now stacked separately to prevent overlap
+ * Layout from axis: Periods closest → People/Points further out
+ * Points and people are stacked together with margin between them
  *
  * @param {Object} data - Timeline data { people, points, periods }
  * @param {number} pointWidth - Width for point collision detection
@@ -313,23 +313,21 @@ export function stackTimelineItems(data, pointWidth = 150, yearsPerPixel = 1) {
   const abovePeriodsStacked = stackPeriods(abovePeriods);
   const belowPeriodsStacked = stackPeriods(belowPeriods);
 
-  // Stack people and points SEPARATELY to prevent visual overlap
-  // Points have callouts that extend vertically, so they need their own space
-  const abovePeopleStacked = stackPeople(abovePeople);
-  const belowPeopleStacked = stackPeople(belowPeople);
-  const abovePointsStacked = stackPoints(abovePoints, pointWidth, yearsPerPixel);
-  const belowPointsStacked = stackPoints(belowPoints, pointWidth, yearsPerPixel);
+  // Stack people and points together with increased margin to prevent overlap
+  // Using 15 years margin (increased from 5) to give more space between items
+  const abovePeoplePoints = stackPeopleAndPoints(abovePeople, abovePoints, pointWidth, yearsPerPixel, 15);
+  const belowPeoplePoints = stackPeopleAndPoints(belowPeople, belowPoints, pointWidth, yearsPerPixel, 15);
 
   return {
     above: {
       periods: abovePeriodsStacked,
-      people: abovePeopleStacked,
-      points: abovePointsStacked
+      people: abovePeoplePoints.people,
+      points: abovePeoplePoints.points
     },
     below: {
       periods: belowPeriodsStacked,
-      people: belowPeopleStacked,
-      points: belowPointsStacked
+      people: belowPeoplePoints.people,
+      points: belowPeoplePoints.points
     }
   };
 }

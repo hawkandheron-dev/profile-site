@@ -39,45 +39,47 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
     const above = stacked.above;
     const below = stacked.below;
 
-    // Calculate row counts for each section
+    // Calculate heights for each section
+    // People and points share rows (stacked together)
     const abovePeriodRows = above.periods.length > 0 ? Math.max(...above.periods.map(p => p.row)) + 1 : 0;
-    const abovePeopleRows = above.people.length > 0 ? Math.max(...above.people.map(p => p.row)) + 1 : 0;
-    const abovePointRows = above.points.length > 0 ? Math.max(...above.points.map(p => p.row)) + 1 : 0;
+    const abovePeoplePointRows = Math.max(
+      above.people.length > 0 ? Math.max(...above.people.map(p => p.row)) + 1 : 0,
+      above.points.length > 0 ? Math.max(...above.points.map(p => p.row)) + 1 : 0
+    );
 
     const belowPeriodRows = below.periods.length > 0 ? Math.max(...below.periods.map(p => p.row)) + 1 : 0;
-    const belowPeopleRows = below.people.length > 0 ? Math.max(...below.people.map(p => p.row)) + 1 : 0;
-    const belowPointRows = below.points.length > 0 ? Math.max(...below.points.map(p => p.row)) + 1 : 0;
+    const belowPeoplePointRows = Math.max(
+      below.people.length > 0 ? Math.max(...below.people.map(p => p.row)) + 1 : 0,
+      below.points.length > 0 ? Math.max(...below.points.map(p => p.row)) + 1 : 0
+    );
 
     // Calculate section heights
-    // Layout order from axis outward: periods → points → people
     const abovePeriodHeight = abovePeriodRows * periodBracketHeight + (abovePeriodRows > 0 ? lanePadding : 0);
-    const abovePointHeight = abovePointRows * pointRowHeight + (abovePointRows > 0 ? lanePadding : 0);
-    const abovePeopleHeight = abovePeopleRows * personRowHeight + (abovePeopleRows > 0 ? lanePadding : 0);
-    const aboveHeight = abovePeriodHeight + abovePointHeight + abovePeopleHeight;
+    const abovePeoplePointHeight = abovePeoplePointRows * personRowHeight + (abovePeoplePointRows > 0 ? lanePadding : 0);
+    const aboveHeight = abovePeriodHeight + abovePeoplePointHeight;
 
     const belowPeriodHeight = belowPeriodRows * periodBracketHeight + (belowPeriodRows > 0 ? lanePadding : 0);
-    const belowPointHeight = belowPointRows * pointRowHeight + (belowPointRows > 0 ? lanePadding : 0);
-    const belowPeopleHeight = belowPeopleRows * personRowHeight + (belowPeopleRows > 0 ? lanePadding : 0);
-    const belowHeight = belowPeriodHeight + belowPointHeight + belowPeopleHeight;
+    const belowPeoplePointHeight = belowPeoplePointRows * personRowHeight + (belowPeoplePointRows > 0 ? lanePadding : 0);
+    const belowHeight = belowPeriodHeight + belowPeoplePointHeight;
 
     // Axis position (centered, but weighted toward content)
     const axisY = aboveHeight + lanePadding;
     const totalHeight = aboveHeight + axisHeight + belowHeight + lanePadding * 2;
 
-    // Calculate Y positions for each section
-    // Above axis layout: people (furthest) → points → periods (closest to axis)
-    const abovePeopleY = axisY - abovePeriodHeight - abovePointHeight - abovePeopleHeight;
-    const abovePointY = axisY - abovePeriodHeight - abovePointHeight;
+    // Calculate Y positions for each item
+    // Above axis: grow upward (decreasing Y)
+    const abovePeoplePointY = axisY - abovePeriodHeight - abovePeoplePointHeight;
     const abovePeriodY = axisY - abovePeriodHeight;
 
-    // Below axis layout: periods (closest to axis) → points → people (furthest)
+    // Below axis: grow downward (increasing Y)
     const belowPeriodY = axisY + axisHeight;
-    const belowPointY = belowPeriodY + belowPeriodHeight;
-    const belowPeopleY = belowPointY + belowPointHeight;
+    const belowPeoplePointY = belowPeriodY + belowPeriodHeight;
 
     // Calculate max rows for reversing above-timeline items
-    const maxAbovePeopleRow = above.people.length > 0 ? Math.max(...above.people.map(p => p.row)) : 0;
-    const maxAbovePointsRow = above.points.length > 0 ? Math.max(...above.points.map(p => p.row)) : 0;
+    const maxAbovePeoplePointRow = Math.max(
+      above.people.length > 0 ? Math.max(...above.people.map(p => p.row)) : 0,
+      above.points.length > 0 ? Math.max(...above.points.map(p => p.row)) : 0
+    );
     const maxAbovePeriodsRow = above.periods.length > 0 ? Math.max(...above.periods.map(p => p.row)) : 0;
 
     // Add y positions to items
@@ -86,13 +88,13 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
     const peopleWithY = [
       ...above.people.map(p => ({
         ...p,
-        y: abovePeopleY + (maxAbovePeopleRow - p.row) * personRowHeight,
+        y: abovePeoplePointY + (maxAbovePeoplePointRow - p.row) * personRowHeight,
         height: personRowHeight,
         aboveTimeline: true
       })),
       ...below.people.map(p => ({
         ...p,
-        y: belowPeopleY + p.row * personRowHeight,
+        y: belowPeoplePointY + p.row * personRowHeight,
         height: personRowHeight,
         aboveTimeline: false
       }))
@@ -101,13 +103,13 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
     const pointsWithY = [
       ...above.points.map(p => ({
         ...p,
-        y: abovePointY + (maxAbovePointsRow - p.row) * pointRowHeight,
+        y: abovePeoplePointY + (maxAbovePeoplePointRow - p.row) * pointRowHeight,
         height: pointRowHeight,
         aboveTimeline: true
       })),
       ...below.points.map(p => ({
         ...p,
-        y: belowPointY + p.row * pointRowHeight,
+        y: belowPeoplePointY + p.row * pointRowHeight,
         height: pointRowHeight,
         aboveTimeline: false
       }))
