@@ -311,9 +311,26 @@ export function TimelineOverlay({
         return null;
       }
 
-      const displayYear = year <= 0 ? Math.abs(year - 1) + 1 : year;
+      // Format date display - support date ranges for documents
       const [bcLabel, adLabel] = config.eraLabels === 'BC/AD' ? ['BC', 'AD'] : ['BCE', 'CE'];
-      const era = year <= 0 ? bcLabel : adLabel;
+      const formatYear = (yr) => {
+        const displayYr = yr <= 0 ? Math.abs(yr - 1) + 1 : yr;
+        const era = yr <= 0 ? bcLabel : adLabel;
+        // Only show era label for BC years
+        return yr <= 0 ? `${displayYr} ${era}` : `${displayYr}`;
+      };
+
+      let dateDisplay;
+      if (point.endDate) {
+        // Date range (e.g., documents with early/late dates)
+        const endYear = getYearRange(point.endDate).start;
+        dateDisplay = `${formatYear(year)}-${formatYear(endYear)}`;
+      } else {
+        // Single date
+        const displayYear = year <= 0 ? Math.abs(year - 1) + 1 : year;
+        const era = year <= 0 ? bcLabel : adLabel;
+        dateDisplay = `${displayYear} ${era}`;
+      }
 
       return (
         <div
@@ -339,7 +356,7 @@ export function TimelineOverlay({
             <div style={{ fontSize: '12px', fontWeight: '600' }}>{point.name}</div>
           </div>
           <div style={{ fontSize: '10px', opacity: 0.7, paddingLeft: '20px' }}>
-            {displayYear} {era}
+            {dateDisplay}
           </div>
         </div>
       );

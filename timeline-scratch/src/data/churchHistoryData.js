@@ -255,8 +255,22 @@ function transformData() {
         preview: item.content,
         aboveTimeline: item.belowTimeline !== true
       });
+    } else if (item.group === 'documents') {
+      // Documents are always points, positioned at early date
+      // If they have a date range, store both for the label
+      points.push({
+        id: item.id,
+        name: item.content,
+        date: item.start,
+        endDate: item.end || null, // Store end date for range display
+        dateCertainty: 'year only',
+        shape: shapeMap[item.group] || 'circle',
+        color: colorMap[item.group] || '#888888',
+        preview: item.content,
+        aboveTimeline: false // Documents below timeline
+      });
     } else if (isPoint) {
-      // Point events (councils, documents, events)
+      // Point events (councils, events)
       points.push({
         id: item.id,
         name: item.content,
@@ -265,10 +279,10 @@ function transformData() {
         shape: shapeMap[item.group] || 'circle',
         color: colorMap[item.group] || '#888888',
         preview: item.content,
-        aboveTimeline: item.group !== 'documents'
+        aboveTimeline: true
       });
     } else {
-      // Range items that aren't people or eras (like document ranges)
+      // Range items that aren't people, eras, or documents
       // Treat as periods
       periods.push({
         id: item.id,
