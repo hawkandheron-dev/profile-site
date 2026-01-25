@@ -10,6 +10,7 @@ import { TimelineCanvas } from './components/TimelineCanvas.jsx';
 import { TimelineOverlay } from './components/TimelineOverlay.jsx';
 import { TimelineModal } from './components/TimelineModal.jsx';
 import { TimelineLegend } from './components/TimelineLegend.jsx';
+import { Icon } from './components/Icon.jsx';
 import { getYear } from './utils/dateUtils.js';
 import './Timeline.css';
 
@@ -238,17 +239,21 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
 
       {/* Controls */}
       <div className="timeline-controls">
-        <button onClick={handleZoomIn} title="Zoom in">
-          +
+        <button onClick={handleZoomIn} title="Zoom in" className="icon-button">
+          <Icon name="plus" size={16} />
+          <span>Zoom in</span>
         </button>
-        <button onClick={handleZoomOut} title="Zoom out">
-          −
+        <button onClick={handleZoomOut} title="Zoom out" className="icon-button">
+          <Icon name="minus" size={16} />
+          <span>Zoom out</span>
         </button>
-        <button onClick={reset} title="Reset view">
-          Reset
+        <button onClick={reset} title="Reset view" className="icon-button">
+          <Icon name="quatrefoil" size={16} />
+          <span>Reset</span>
         </button>
         <div className="zoom-info">
-          Zoom: {yearsPerPixel > 0 ? (1 / yearsPerPixel).toFixed(2) : '1.00'}x
+          <Icon name="diamond" size={14} />
+          <span>{yearsPerPixel > 0 ? (1 / yearsPerPixel).toFixed(2) : '1.00'}x</span>
         </div>
       </div>
     </div>

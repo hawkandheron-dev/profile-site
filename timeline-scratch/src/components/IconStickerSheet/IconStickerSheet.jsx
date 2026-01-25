@@ -1,0 +1,280 @@
+import { useState, useEffect } from 'react';
+import './IconStickerSheet.css';
+
+// Preferred icon set - curated selection for primary use
+const preferredIcons = [
+  // Classical
+  { id: "amphora", name: "Amphora", collection: "classical" },
+  { id: "kantharos", name: "Kantharos", collection: "classical" },
+  { id: "olive-branch", name: "Olive Branch", collection: "classical" },
+  { id: "acanthus-leaf", name: "Acanthus Leaf", collection: "classical" },
+  // Medieval
+  { id: "shield-heater", name: "Heater Shield", collection: "medieval" },
+  { id: "crown", name: "Crown", collection: "medieval" },
+  { id: "quatrefoil", name: "Quatrefoil", collection: "medieval" },
+  { id: "trefoil", name: "Trefoil", collection: "medieval" },
+  { id: "sword", name: "Sword", collection: "medieval" },
+  { id: "tower", name: "Tower", collection: "medieval" },
+  { id: "chalice", name: "Chalice", collection: "medieval" },
+  // Renaissance
+  { id: "dagger", name: "Dagger", collection: "renaissance" },
+  { id: "reference-mark", name: "Reference Mark", collection: "renaissance" },
+  // Universal
+  { id: "arrow-left", name: "Arrow Left", collection: "universal" },
+  { id: "arrow-right", name: "Arrow Right", collection: "universal" },
+  { id: "arrow-up", name: "Arrow Up", collection: "universal" },
+  { id: "arrow-down", name: "Arrow Down", collection: "universal" },
+  { id: "close-x", name: "Close", collection: "universal" },
+  { id: "plus", name: "Plus", collection: "universal" },
+  { id: "minus", name: "Minus", collection: "universal" },
+  { id: "book", name: "Book", collection: "universal" },
+  // Basic shapes
+  { id: "diamond", name: "Diamond", collection: "universal" },
+  { id: "square", name: "Square", collection: "universal" },
+  { id: "circle", name: "Circle", collection: "universal" },
+  { id: "triangle", name: "Triangle", collection: "universal" },
+];
+
+// Icon manifest data embedded (from icons/index.json v2.0.0)
+const iconManifest = {
+  collections: {
+    classical: {
+      name: "Classical (Greek/Roman)",
+      period: "800 BCE - 476 CE",
+      icons: [
+        { id: "laurel-wreath", name: "Laurel Wreath" },
+        { id: "meander", name: "Meander (Greek Key)" },
+        { id: "amphora", name: "Amphora" },
+        { id: "column-ionic", name: "Ionic Column" },
+        { id: "lyre", name: "Lyre" },
+        { id: "helmet-corinthian", name: "Corinthian Helmet" },
+        { id: "acanthus-leaf", name: "Acanthus Leaf" },
+        { id: "olive-branch", name: "Olive Branch" },
+        { id: "serpent", name: "Serpent" },
+        { id: "chi-rho", name: "Chi-Rho" },
+        { id: "fasces", name: "Fasces" },
+        { id: "gorgoneion", name: "Gorgoneion" },
+        { id: "kantharos", name: "Kantharos" },
+        { id: "thyrsus", name: "Thyrsus" }
+      ]
+    },
+    medieval: {
+      name: "Medieval (Manuscripts & Heraldry)",
+      period: "500 - 1500 CE",
+      icons: [
+        { id: "fleur-de-lis", name: "Fleur-de-lis" },
+        { id: "manicule", name: "Manicule" },
+        { id: "cross-maltese", name: "Maltese Cross" },
+        { id: "cross-celtic", name: "Celtic Cross" },
+        { id: "shield-heater", name: "Heater Shield" },
+        { id: "shield-plessy", name: "Plessy Shield" },
+        { id: "crown", name: "Crown" },
+        { id: "quatrefoil", name: "Quatrefoil" },
+        { id: "trefoil", name: "Trefoil" },
+        { id: "lion-rampant", name: "Lion Rampant" },
+        { id: "eagle-displayed", name: "Eagle Displayed" },
+        { id: "sword", name: "Sword" },
+        { id: "chalice", name: "Chalice" },
+        { id: "dragon", name: "Dragon/Wyvern" },
+        { id: "raven", name: "Raven" },
+        { id: "boar-head", name: "Boar's Head" },
+        { id: "crescent", name: "Crescent" },
+        { id: "mullet", name: "Mullet" },
+        { id: "tower", name: "Tower" },
+        { id: "rose", name: "Heraldic Rose" },
+        { id: "agnus-dei", name: "Agnus Dei" },
+        { id: "pelican", name: "Pelican in Piety" }
+      ]
+    },
+    renaissance: {
+      name: "Renaissance (Early Print)",
+      period: "1400 - 1600 CE",
+      icons: [
+        { id: "fleuron-leaf", name: "Fleuron (Leaf)" },
+        { id: "fleuron-flower", name: "Fleuron (Flower)" },
+        { id: "pilcrow", name: "Pilcrow" },
+        { id: "section-mark", name: "Section Mark" },
+        { id: "asterism", name: "Asterism" },
+        { id: "dagger", name: "Dagger" },
+        { id: "double-dagger", name: "Double Dagger" },
+        { id: "printers-fist", name: "Printer's Fist" },
+        { id: "ornament-bracket", name: "Ornamental Bracket" },
+        { id: "vine-divider", name: "Vine Divider" },
+        { id: "anchor-aldine", name: "Aldine Anchor" },
+        { id: "woodcut-sun", name: "Woodcut Sun" },
+        { id: "skull-memento", name: "Memento Mori" },
+        { id: "reference-mark", name: "Reference Mark" },
+        { id: "manicule-left", name: "Manicule (Left)" }
+      ]
+    },
+    universal: {
+      name: "Universal (Functional)",
+      period: "Timeless",
+      icons: [
+        { id: "close-x", name: "Close (X)" },
+        { id: "arrow-up", name: "Arrow Up" },
+        { id: "arrow-down", name: "Arrow Down" },
+        { id: "arrow-left", name: "Arrow Left" },
+        { id: "arrow-right", name: "Arrow Right" },
+        { id: "plus", name: "Plus" },
+        { id: "minus", name: "Minus" },
+        { id: "check", name: "Check" },
+        { id: "profile", name: "Profile" },
+        { id: "menu", name: "Menu" },
+        { id: "search", name: "Search" },
+        { id: "star", name: "Star (Hexagram)" },
+        { id: "heart", name: "Heart" },
+        { id: "bullet", name: "Bullet" },
+        { id: "home", name: "Home" },
+        { id: "scroll", name: "Scroll" },
+        { id: "quill", name: "Quill" },
+        { id: "book", name: "Book" },
+        { id: "diamond", name: "Diamond" },
+        { id: "square", name: "Square" },
+        { id: "circle", name: "Circle" },
+        { id: "triangle", name: "Triangle" }
+      ]
+    }
+  }
+};
+
+function IconCard({ collection, iconId, name, inverted = false }) {
+  const [svgContent, setSvgContent] = useState(null);
+
+  useEffect(() => {
+    fetch(`/icons/${collection}/${iconId}.svg`)
+      .then(res => res.text())
+      .then(text => setSvgContent(text))
+      .catch(err => console.error(`Failed to load icon: ${collection}/${iconId}`, err));
+  }, [collection, iconId]);
+
+  const cardClass = inverted ? "icon-card icon-card-inverted" : "icon-card";
+
+  return (
+    <div className={cardClass} title={name}>
+      <div
+        className="icon-preview"
+        dangerouslySetInnerHTML={{ __html: svgContent || '' }}
+      />
+      <span className="icon-name">{name}</span>
+    </div>
+  );
+}
+
+function PreferredSection() {
+  return (
+    <section className="collection-section preferred-section">
+      <div className="collection-header">
+        <h2>Preferred Set</h2>
+        <span className="collection-period">Curated selection for primary use</span>
+        <span className="collection-count">{preferredIcons.length} icons</span>
+      </div>
+
+      <h3 className="variant-label">Standard</h3>
+      <div className="icon-grid">
+        {preferredIcons.map(icon => (
+          <IconCard
+            key={icon.id}
+            collection={icon.collection}
+            iconId={icon.id}
+            name={icon.name}
+          />
+        ))}
+      </div>
+
+      <h3 className="variant-label">Inverted</h3>
+      <div className="icon-grid">
+        {preferredIcons.map(icon => (
+          <IconCard
+            key={`${icon.id}-inverted`}
+            collection={icon.collection}
+            iconId={icon.id}
+            name={icon.name}
+            inverted={true}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function CollectionSection({ collectionKey, collection }) {
+  return (
+    <section className="collection-section">
+      <div className="collection-header">
+        <h2>{collection.name}</h2>
+        <span className="collection-period">{collection.period}</span>
+        <span className="collection-count">{collection.icons.length} icons</span>
+      </div>
+      <div className="icon-grid">
+        {collection.icons.map(icon => (
+          <IconCard
+            key={icon.id}
+            collection={collectionKey}
+            iconId={icon.id}
+            name={icon.name}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function IconStickerSheet() {
+  const [activeFilter, setActiveFilter] = useState('preferred');
+
+  const collections = Object.entries(iconManifest.collections);
+  const filteredCollections = activeFilter === 'all'
+    ? collections
+    : activeFilter === 'preferred'
+    ? []
+    : collections.filter(([key]) => key === activeFilter);
+
+  const totalIcons = collections.reduce((sum, [, col]) => sum + col.icons.length, 0);
+
+  return (
+    <div className="icon-sticker-sheet">
+      <div className="sheet-header">
+        <h1>Antiquarian Icon Set</h1>
+        <p className="sheet-description">
+          {totalIcons} period-styled SVG icons inspired by Greek scrolls, medieval manuscripts, and early printing
+        </p>
+        <div className="filter-tabs">
+          <button
+            className={`filter-tab ${activeFilter === 'preferred' ? 'active' : ''}`}
+            onClick={() => setActiveFilter('preferred')}
+          >
+            Preferred
+          </button>
+          <button
+            className={`filter-tab ${activeFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setActiveFilter('all')}
+          >
+            All
+          </button>
+          {collections.map(([key, col]) => (
+            <button
+              key={key}
+              className={`filter-tab ${activeFilter === key ? 'active' : ''}`}
+              onClick={() => setActiveFilter(key)}
+            >
+              {col.name.split(' ')[0]}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="collections-container">
+        {(activeFilter === 'preferred' || activeFilter === 'all') && (
+          <PreferredSection />
+        )}
+        {filteredCollections.map(([key, collection]) => (
+          <CollectionSection
+            key={key}
+            collectionKey={key}
+            collection={collection}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}

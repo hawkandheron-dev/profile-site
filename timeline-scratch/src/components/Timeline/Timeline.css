@@ -39,6 +39,20 @@
   transition: all 0.2s ease;
 }
 
+.timeline-controls button.icon-button {
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #333;
+}
+
+.timeline-controls button.icon-button .icon {
+  display: flex;
+  flex-shrink: 0;
+}
+
 .timeline-controls button:hover {
   background: #f0f0f0;
   border-color: #999;
@@ -49,10 +63,17 @@
 }
 
 .zoom-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
   color: #666;
   font-weight: 500;
   min-width: 80px;
+}
+
+.zoom-info .icon {
+  opacity: 0.6;
 }
 
 /* Dark mode */
