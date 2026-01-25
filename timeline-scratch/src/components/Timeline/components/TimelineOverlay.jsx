@@ -16,15 +16,11 @@ export function TimelineOverlay({
   config,
   hoveredItem
 }) {
-  const getLabelTextColor = (backgroundColor) => {
-    if (!backgroundColor) {
-      return '#fff';
-    }
+  const parseColor = (color) => {
+    if (!color) return null;
 
-    const normalized = backgroundColor.trim().toLowerCase();
-    let r;
-    let g;
-    let b;
+    const normalized = color.trim().toLowerCase();
+    let r, g, b;
 
     if (normalized.startsWith('#')) {
       let hex = normalized.slice(1);
@@ -46,53 +42,31 @@ export function TimelineOverlay({
     }
 
     if ([r, g, b].some((value) => Number.isNaN(value) || value === undefined)) {
-      return '#fff';
+      return null;
     }
+
+    return { r, g, b };
+  };
+
+  const getLabelTextColor = (backgroundColor) => {
+    const rgb = parseColor(backgroundColor);
+    if (!rgb) return '#fff';
 
     const toLinear = (value) => {
       const channel = value / 255;
       return channel <= 0.03928 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
     };
 
-    const luminance = 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+    const luminance = 0.2126 * toLinear(rgb.r) + 0.7152 * toLinear(rgb.g) + 0.0722 * toLinear(rgb.b);
 
     return luminance > 0.6 ? '#000' : '#fff';
   };
 
   const getLabelBackground = (backgroundColor, alpha = 0.85) => {
-    if (!backgroundColor) {
-      return `rgba(0, 0, 0, ${alpha})`;
-    }
+    const rgb = parseColor(backgroundColor);
+    if (!rgb) return backgroundColor || `rgba(0, 0, 0, ${alpha})`;
 
-    const normalized = backgroundColor.trim().toLowerCase();
-    let r;
-    let g;
-    let b;
-
-    if (normalized.startsWith('#')) {
-      let hex = normalized.slice(1);
-      if (hex.length === 3) {
-        hex = hex.split('').map((value) => value + value).join('');
-      }
-      if (hex.length === 6) {
-        r = parseInt(hex.slice(0, 2), 16);
-        g = parseInt(hex.slice(2, 4), 16);
-        b = parseInt(hex.slice(4, 6), 16);
-      }
-    } else if (normalized.startsWith('rgb')) {
-      const matches = normalized.match(/\d+(\.\d+)?/g);
-      if (matches && matches.length >= 3) {
-        r = Number(matches[0]);
-        g = Number(matches[1]);
-        b = Number(matches[2]);
-      }
-    }
-
-    if ([r, g, b].some((value) => Number.isNaN(value) || value === undefined)) {
-      return backgroundColor;
-    }
-
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
   };
 
   return (
