@@ -70,9 +70,9 @@ export function Icon({ name, size = 24, color = 'currentColor', className = '' }
   }
 
   // Process SVG to apply size and color
+  // Insert width/height after <svg tag, replace currentColor
   const processedSvg = svgContent
-    .replace(/width="[^"]*"/, `width="${size}"`)
-    .replace(/height="[^"]*"/, `height="${size}"`)
+    .replace(/<svg([^>]*)>/, `<svg$1 width="${size}" height="${size}">`)
     .replace(/currentColor/g, color);
 
   return (
@@ -119,8 +119,7 @@ export function ShapeIcon({ shape, color, size = 18 }) {
 
   // Process SVG to use fill instead of stroke for colored shapes
   const processedSvg = svgContent
-    .replace(/width="[^"]*"/, `width="${size}"`)
-    .replace(/height="[^"]*"/, `height="${size}"`)
+    .replace(/<svg([^>]*)>/, `<svg$1 width="${size}" height="${size}">`)
     .replace(/fill="none"/g, `fill="${color}"`)
     .replace(/stroke="currentColor"/g, `stroke="#333"`)
     .replace(/stroke-width="[^"]*"/g, `stroke-width="1"`);
