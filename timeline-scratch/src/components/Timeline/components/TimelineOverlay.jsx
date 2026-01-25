@@ -165,7 +165,7 @@ export function TimelineOverlay({
             borderRadius: '4px',
             whiteSpace: 'nowrap',
             zIndex: (isLeftSticky || isRightSticky) ? 10 : 1,
-            WebkitTextStroke: '0.5px rgba(60, 60, 60, 0.7)',
+            WebkitTextStroke: '1px #000',
             textShadow: '0 0 2px rgba(0, 0, 0, 0.3)'
           }}
         >
