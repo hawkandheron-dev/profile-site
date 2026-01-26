@@ -103,17 +103,8 @@ export function TimelineOverlay({
     const visibleYears = width * yearsPerPixel;
     const showYearRange = visibleYears <= 300;
 
-    // For emperors, hide short reigns when zoomed out
-    const minEmperorReignToShow = visibleYears > 200 ? 10 : visibleYears > 100 ? 5 : 0;
-
     return people.map(person => {
       const { start, end } = getYearRange(person.startDate, person.endDate);
-      const reignLength = end - start;
-
-      // Hide short-reign emperors when zoomed out
-      if (person.isEmperor && reignLength < minEmperorReignToShow) {
-        return null;
-      }
 
       const startX = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const endX = yearToPixel(end, viewportStartYear, yearsPerPixel);
