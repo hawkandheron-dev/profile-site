@@ -121,34 +121,9 @@ export function TimelineOverlay({
       const boxHeight = person.height - 8;
       const boxY = person.y - panOffsetY;
 
-      // Position label - stagger vertically based on row to avoid overlap
-      // Even rows: label at bottom, Odd rows: label at top
+      // Position label at bottom-left of the box
       let labelX = startX + 6; // 6px from left edge of box
-      const row = person.row || 0;
-
-      // For emperors, use 5 vertical positions with labels extending outside boxes
-      let labelY;
-      if (person.isEmperor) {
-        // 5 stagger positions to spread labels out vertically
-        const rowPosition = row % 5;
-        if (rowPosition === 0) {
-          labelY = boxY + boxHeight - 22; // Inside at bottom
-        } else if (rowPosition === 1) {
-          labelY = boxY - 24; // Above the box
-        } else if (rowPosition === 2) {
-          labelY = boxY + (boxHeight / 2) - 10; // Inside at middle
-        } else if (rowPosition === 3) {
-          labelY = boxY + boxHeight + 4; // Below the box
-        } else {
-          labelY = boxY + 4; // Inside at top
-        }
-      } else {
-        // For regular people, alternate between bottom and top
-        const isOddRow = row % 2 === 1;
-        labelY = isOddRow
-          ? boxY + 4  // Top of box for odd rows
-          : boxY + boxHeight - 22; // Bottom of box for even rows
-      }
+      const labelY = boxY + boxHeight - 22; // 22px from bottom of box
 
       // Sticky behavior: stick to left edge if box extends left of viewport
       const isSticky = startX < 0 && endX > 0;
