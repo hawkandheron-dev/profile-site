@@ -204,6 +204,34 @@ const shapeMap = {
   events: 'reference'
 };
 
+// Helper to parse year from date string (handles BC years with negative prefix)
+function parseYearFromDate(dateStr) {
+  if (!dateStr) return null;
+  const year = parseInt(dateStr.substring(0, 5), 10);
+  // Convert from astronomical year to historical year for BC dates
+  // Astronomical: 0 = 1 BC, -1 = 2 BC, etc.
+  if (year <= 0) {
+    return year - 1; // -0030 becomes -31, which we'll display as 31 BC
+  }
+  return year;
+}
+
+// Helper to format reign years for display
+function formatReignYears(startYear, endYear) {
+  const formatYear = (year) => {
+    if (year < 0) {
+      return `${Math.abs(year)} BC`;
+    }
+    return `${year} AD`;
+  };
+
+  if (startYear === null || endYear === null) {
+    return '';
+  }
+
+  return `Reigned ${formatYear(startYear)}-${formatYear(endYear)}`;
+}
+
 // Transform the data to Timeline component format
 function transformData() {
   const people = [];
@@ -232,6 +260,11 @@ function transformData() {
       });
     } else if (item.group === 'roman-emperors') {
       // Roman emperors are rendered below the timeline
+      // Parse reign years for preview
+      const reignStart = parseYearFromDate(item.start);
+      const reignEnd = parseYearFromDate(item.end);
+      const reignPreview = formatReignYears(reignStart, reignEnd);
+
       people.push({
         id: item.id,
         name: item.content,
@@ -239,7 +272,7 @@ function transformData() {
         endDate: item.end,
         dateCertainty: 'year only',
         periodId: 'roman-emperors',
-        preview: `${item.content}`,
+        preview: reignPreview,
         color: colorMap[item.group],
         aboveTimeline: false,
         isEmperor: true
