@@ -218,18 +218,30 @@ function parseYearFromDate(dateStr) {
 
 // Helper to format reign years for display
 function formatReignYears(startYear, endYear) {
-  const formatYear = (year) => {
-    if (year < 0) {
-      return `${Math.abs(year)} BC`;
-    }
-    return `${year} AD`;
-  };
-
   if (startYear === null || endYear === null) {
     return '';
   }
 
-  return `Reigned ${formatYear(startYear)}-${formatYear(endYear)}`;
+  const startIsBC = startYear < 0;
+  const endIsBC = endYear < 0;
+  const hasBC = startIsBC || endIsBC;
+
+  const formatYear = (year, forceEra = false) => {
+    if (year < 0) {
+      return `${Math.abs(year)} BC`;
+    }
+    // Only show AD if there's a BC date involved
+    if (forceEra) {
+      return `${year} AD`;
+    }
+    return `${year}`;
+  };
+
+  // If either date is BC, show era labels on both
+  const startStr = formatYear(startYear, hasBC && !startIsBC);
+  const endStr = formatYear(endYear, hasBC && !endIsBC);
+
+  return `Reigned ${startStr}-${endStr}`;
 }
 
 // Transform the data to Timeline component format

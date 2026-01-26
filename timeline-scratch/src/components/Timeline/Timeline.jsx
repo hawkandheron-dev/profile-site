@@ -9,9 +9,10 @@ import { useTimelineLayout } from './hooks/useTimelineLayout.js';
 import { TimelineCanvas } from './components/TimelineCanvas.jsx';
 import { TimelineOverlay } from './components/TimelineOverlay.jsx';
 import { TimelineModal } from './components/TimelineModal.jsx';
+import { YearSummaryModal } from './components/YearSummaryModal.jsx';
 import { TimelineLegend } from './components/TimelineLegend.jsx';
 import { Icon } from './components/Icon.jsx';
-import { getYear } from './utils/dateUtils.js';
+import { getYear, getYearRange } from './utils/dateUtils.js';
 import './Timeline.css';
 
 export function Timeline({ data, config, onViewportChange, onItemClick }) {
@@ -28,6 +29,9 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     documents: true,
     events: true
   });
+  // Cursor line and year summary state
+  const [pinnedYear, setPinnedYear] = useState(null);
+  const [yearSummaryOpen, setYearSummaryOpen] = useState(false);
 
   // Default config
   const defaultConfig = {
@@ -141,7 +145,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     handleZoom(e.deltaY / 100, mouseX, dimensions.width);
   }, [handleZoom, dimensions.width]);
 
-  // Handle mouse down for pan
+  // Handle mouse down for pan or blank click
   const handleMouseDown = useCallback((e) => {
     if (e.button !== 0) return; // Only left click
 
@@ -151,6 +155,9 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     const rect = container.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    // Store click position to detect if it was a click vs drag
+    containerRef.current._clickStart = { x, y, time: Date.now() };
 
     startPan(x, y);
     container.style.cursor = 'grabbing';
@@ -174,13 +181,28 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
   }, [isPanning, updatePan, dimensions, layout.totalHeight]);
 
   // Handle mouse up
-  const handleMouseUp = useCallback(() => {
+  const handleMouseUp = useCallback((e) => {
     const container = containerRef.current;
     if (!container) return;
 
+    // Check if this was a click (minimal movement and short duration)
+    const clickStart = container._clickStart;
+    if (clickStart && !hoveredItem) {
+      const dx = Math.abs(mousePos.x - clickStart.x);
+      const dy = Math.abs(mousePos.y - clickStart.y);
+      const duration = Date.now() - clickStart.time;
+
+      // If minimal movement and short duration, treat as click
+      if (dx < 5 && dy < 5 && duration < 300) {
+        setPinnedYear(cursorYear);
+        setYearSummaryOpen(true);
+      }
+    }
+    container._clickStart = null;
+
     endPan();
     container.style.cursor = 'grab';
-  }, [endPan]);
+  }, [endPan, hoveredItem, mousePos, cursorYear]);
 
   // Handle item hover
   const handleItemHover = useCallback((type, item) => {
@@ -208,6 +230,65 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
       ...prev,
       [filterKey]: !prev[filterKey]
     }));
+  }, []);
+
+  // Calculate cursor year from mouse X position
+  const cursorYear = useMemo(() => {
+    return Math.round(viewportStartYear + mousePos.x * yearsPerPixel);
+  }, [viewportStartYear, mousePos.x, yearsPerPixel]);
+
+  // Check if cursor is over an item (to hide the year line)
+  const isOverItem = hoveredItem !== null;
+
+  // Get the hovered period (for highlighting related items)
+  const hoveredPeriod = useMemo(() => {
+    if (hoveredItem?.type === 'period') {
+      return hoveredItem.item;
+    }
+    return null;
+  }, [hoveredItem]);
+
+  // Calculate year summary data for a given year
+  const getYearSummary = useCallback((year) => {
+    const { people = [], points = [], periods = [] } = filteredData;
+
+    // Find periods that contain this year
+    const activePeriods = periods.filter(p => {
+      const start = getYear(p.startDate);
+      const end = getYear(p.endDate);
+      return year >= start && year <= end;
+    });
+
+    // Find people alive in this year
+    const alivePeople = people.filter(p => {
+      const start = getYear(p.startDate);
+      const end = getYear(p.endDate);
+      return year >= start && year <= end;
+    });
+
+    // Find points that occurred in this exact year
+    const yearPoints = points.filter(p => {
+      const pointYear = getYear(p.date);
+      return pointYear === year;
+    });
+
+    return { year, activePeriods, alivePeople, yearPoints };
+  }, [filteredData]);
+
+  // Handle click on blank space (for year summary)
+  const handleBlankClick = useCallback((e) => {
+    // Only handle if not over an item and not panning
+    if (!hoveredItem && !isPanning) {
+      setPinnedYear(cursorYear);
+      setYearSummaryOpen(true);
+    }
+  }, [hoveredItem, isPanning, cursorYear]);
+
+  // Close year summary modal
+  const handleYearSummaryClose = useCallback(() => {
+    setYearSummaryOpen(false);
+    // Clear pinned year only if cursor has moved to a different position
+    // This is handled by checking in the render
   }, []);
 
   // Handle zoom buttons
@@ -243,6 +324,40 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
+      {/* Cursor year line - behind all elements */}
+      {!isOverItem && !isPanning && (
+        <div
+          className="cursor-year-line"
+          style={{
+            position: 'absolute',
+            left: `${mousePos.x}px`,
+            top: 0,
+            width: '1px',
+            height: '100%',
+            backgroundColor: 'rgba(100, 100, 100, 0.5)',
+            pointerEvents: 'none',
+            zIndex: 1
+          }}
+        />
+      )}
+
+      {/* Pinned year line - stays visible when modal open */}
+      {yearSummaryOpen && pinnedYear !== null && (
+        <div
+          className="pinned-year-line"
+          style={{
+            position: 'absolute',
+            left: `${(pinnedYear - viewportStartYear) / yearsPerPixel}px`,
+            top: 0,
+            width: '2px',
+            height: '100%',
+            backgroundColor: 'rgba(25, 118, 210, 0.7)',
+            pointerEvents: 'none',
+            zIndex: 1
+          }}
+        />
+      )}
+
       <TimelineCanvas
         width={dimensions.width}
         height={dimensions.height}
@@ -252,6 +367,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
         layout={layout}
         config={defaultConfig}
         hoveredItem={hoveredItem}
+        hoveredPeriod={hoveredPeriod}
         onItemHover={handleItemHover}
         onItemClick={handleItemClickInternal}
       />
@@ -265,7 +381,31 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
         layout={layout}
         config={defaultConfig}
         hoveredItem={hoveredItem}
+        hoveredPeriod={hoveredPeriod}
       />
+
+      {/* Cursor year display - follows cursor */}
+      {!isOverItem && !isPanning && (
+        <div
+          className="cursor-year-display"
+          style={{
+            position: 'absolute',
+            left: `${mousePos.x + 12}px`,
+            top: `${mousePos.y - 10}px`,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            color: '#fff',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            fontWeight: '500',
+            pointerEvents: 'none',
+            zIndex: 200,
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {cursorYear <= 0 ? `${Math.abs(cursorYear - 1)} BC` : `${cursorYear} AD`}
+        </div>
+      )}
 
       <TimelineLegend
         legend={defaultConfig.legend}
@@ -281,6 +421,16 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
         config={defaultConfig}
         onClose={handleModalClose}
       />
+
+      {/* Year Summary Modal */}
+      {yearSummaryOpen && pinnedYear !== null && (
+        <YearSummaryModal
+          year={pinnedYear}
+          summary={getYearSummary(pinnedYear)}
+          config={defaultConfig}
+          onClose={handleYearSummaryClose}
+        />
+      )}
 
       {/* Controls */}
       <div className="timeline-controls">

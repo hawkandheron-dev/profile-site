@@ -15,8 +15,37 @@ export function TimelineOverlay({
   panOffsetY,
   layout,
   config,
-  hoveredItem
+  hoveredItem,
+  hoveredPeriod
 }) {
+  // Get hovered period date range for highlighting
+  const hoveredPeriodRange = hoveredPeriod ? getYearRange(hoveredPeriod.startDate, hoveredPeriod.endDate) : null;
+
+  // Check if an item falls within the hovered period
+  const isInHoveredPeriod = (startYear, endYear) => {
+    if (!hoveredPeriodRange) return true; // No period hovered, all items are "in"
+    return startYear <= hoveredPeriodRange.end && endYear >= hoveredPeriodRange.start;
+  };
+
+  // Get opacity for a person based on period highlighting
+  const getPersonOpacity = (person) => {
+    if (!hoveredPeriod) return 1;
+    const { start, end } = getYearRange(person.startDate, person.endDate);
+    return isInHoveredPeriod(start, end) ? 1 : 0.3;
+  };
+
+  // Get opacity for a point based on period highlighting
+  const getPointOpacity = (point) => {
+    if (!hoveredPeriod) return 1;
+    const year = getYearRange(point.date).start;
+    return isInHoveredPeriod(year, year) ? 1 : 0.3;
+  };
+
+  // Get opacity for a period label
+  const getPeriodOpacity = (period) => {
+    if (!hoveredPeriod) return 1;
+    return hoveredPeriod.id === period.id ? 1 : 0.3;
+  };
   const parseColor = (color) => {
     if (!color) return null;
 
@@ -164,7 +193,9 @@ export function TimelineOverlay({
             zIndex: isSticky ? 10 : 1,
             display: 'flex',
             alignItems: 'center',
-            gap: '4px'
+            gap: '4px',
+            opacity: getPersonOpacity(person),
+            transition: 'opacity 0.15s ease'
           }}
         >
           {person.isEmperor && (
@@ -241,7 +272,9 @@ export function TimelineOverlay({
             borderRadius: '4px',
             whiteSpace: 'nowrap',
             zIndex: (isLeftSticky || isRightSticky) ? 10 : 1,
-            textShadow: '0 0 2px rgba(0, 0, 0, 0.3)'
+            textShadow: '0 0 2px rgba(0, 0, 0, 0.3)',
+            opacity: getPeriodOpacity(period),
+            transition: 'opacity 0.15s ease'
           }}
         >
           {period.name}
@@ -301,7 +334,9 @@ export function TimelineOverlay({
             borderRadius: '4px',
             border: '1px solid #ccc',
             whiteSpace: 'nowrap',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            opacity: getPointOpacity(point),
+            transition: 'opacity 0.15s ease'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>

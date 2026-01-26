@@ -23,11 +23,22 @@ export function TimelineCanvas({
   layout,
   config,
   hoveredItem,
+  hoveredPeriod,
   onItemHover,
   onItemClick
 }) {
   const canvasRef = useRef(null);
   const hitMapRef = useRef(new Map()); // For click detection
+
+  // Get hovered period date range for highlighting
+  const hoveredPeriodRange = hoveredPeriod ? getYearRange(hoveredPeriod.startDate, hoveredPeriod.endDate) : null;
+
+  // Check if an item falls within the hovered period
+  const isInHoveredPeriod = (startYear, endYear) => {
+    if (!hoveredPeriodRange) return true; // No period hovered, all items are "in"
+    // Item overlaps with period if item start <= period end AND item end >= period start
+    return startYear <= hoveredPeriodRange.end && endYear >= hoveredPeriodRange.start;
+  };
 
   // Render canvas
   useEffect(() => {
@@ -64,7 +75,7 @@ export function TimelineCanvas({
     // Render all other items (they already have y positions calculated)
     renderPeople(ctx, layout.stackedPeople);
     renderPoints(ctx, layout.stackedPoints);
-  }, [width, height, viewportStartYear, yearsPerPixel, panOffsetY, layout, config, hoveredItem]);
+  }, [width, height, viewportStartYear, yearsPerPixel, panOffsetY, layout, config, hoveredItem, hoveredPeriod]);
 
   // Render people
   function renderPeople(ctx, people) {
@@ -72,12 +83,12 @@ export function TimelineCanvas({
       const { start, end } = getYearRange(person.startDate, person.endDate);
 
       const x = yearToPixel(start, viewportStartYear, yearsPerPixel);
-      const width = yearToPixel(end, viewportStartYear, yearsPerPixel) - x;
+      const boxWidth = yearToPixel(end, viewportStartYear, yearsPerPixel) - x;
       const y = person.y - panOffsetY;
       const boxHeight = person.height - 8;
 
       // Min width for readability
-      const displayWidth = Math.max(width, 60);
+      const displayWidth = Math.max(boxWidth, 60);
 
       // Get color
       const color = getPersonColor(person, config);
@@ -85,8 +96,19 @@ export function TimelineCanvas({
       // Check if hovered
       const isHovered = hoveredItem?.id === person.id && hoveredItem?.type === 'person';
 
+      // Apply opacity based on period highlighting
+      const inPeriod = isInHoveredPeriod(start, end);
+      const opacity = hoveredPeriod ? (inPeriod ? 1.0 : 0.3) : 1.0;
+
+      // Save context state for opacity
+      ctx.save();
+      ctx.globalAlpha = opacity;
+
       // Draw box
       drawPersonBox(ctx, x, displayWidth, y, boxHeight, color, isHovered);
+
+      // Restore context
+      ctx.restore();
 
       // Store in hit map for click detection
       hitMapRef.current.set(person.id, {
@@ -104,7 +126,7 @@ export function TimelineCanvas({
       const { start, end } = getYearRange(period.startDate, period.endDate);
 
       const x = yearToPixel(start, viewportStartYear, yearsPerPixel);
-      const width = yearToPixel(end, viewportStartYear, yearsPerPixel) - x;
+      const periodWidth = yearToPixel(end, viewportStartYear, yearsPerPixel) - x;
       const y = period.y - panOffsetY;
       // Use bracketHeight for the actual bracket, falling back to height for backwards compatibility
       const bracketHeight = period.bracketHeight || period.height;
@@ -112,14 +134,22 @@ export function TimelineCanvas({
       // Get color
       const color = period.color || '#00838f';
 
-      // Convert color to rgba for fill
-      const fillColor = hexToRgba(color, 0.15);
+      // Apply opacity based on period highlighting
+      const isThisPeriodHovered = hoveredPeriod?.id === period.id;
+      const opacity = hoveredPeriod ? (isThisPeriodHovered ? 1.0 : 0.3) : 1.0;
+
+      ctx.save();
+      ctx.globalAlpha = opacity;
+
+      // Convert color to rgba for fill (slightly stronger when hovered)
+      const fillAlpha = isThisPeriodHovered ? 0.25 : 0.15;
+      const fillColor = hexToRgba(color, fillAlpha);
 
       const braceY = period.aboveTimeline ? y + bracketHeight : y;
       const braceHeight = period.aboveTimeline ? -bracketHeight : bracketHeight;
 
       // Get the curly brace path
-      const path = getCurlyBracePath(x, width, braceY, braceHeight);
+      const path = getCurlyBracePath(x, periodWidth, braceY, braceHeight);
 
       // Draw filled area between bracket and axis using the curly brace curve
       ctx.fillStyle = fillColor;
@@ -165,13 +195,16 @@ export function TimelineCanvas({
       ctx.fill();
 
       // Draw bracket
-      drawPeriodBracket(ctx, x, width, braceY, braceHeight, color);
+      drawPeriodBracket(ctx, x, periodWidth, braceY, braceHeight, color);
+
+      // Restore context
+      ctx.restore();
 
       // Store in hit map
       hitMapRef.current.set(period.id, {
         type: 'period',
         item: period,
-        bounds: { x, y, width, height: bracketHeight }
+        bounds: { x, y, width: periodWidth, height: bracketHeight }
       });
     });
   }
