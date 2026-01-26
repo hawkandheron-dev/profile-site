@@ -32,6 +32,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
   // Cursor line and year summary state
   const [pinnedYear, setPinnedYear] = useState(null);
   const [yearSummaryOpen, setYearSummaryOpen] = useState(false);
+  const [isOverControls, setIsOverControls] = useState(false);
 
   // Default config
   const defaultConfig = {
@@ -192,7 +193,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
 
     // Check if this was a click (minimal movement and short duration)
     const clickStart = container._clickStart;
-    if (clickStart && !hoveredItem) {
+    if (clickStart && !hoveredItem && !isOverControls) {
       const dx = Math.abs(mousePos.x - clickStart.x);
       const dy = Math.abs(mousePos.y - clickStart.y);
       const duration = Date.now() - clickStart.time;
@@ -207,7 +208,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
 
     endPan();
     container.style.cursor = 'grab';
-  }, [endPan, hoveredItem, mousePos, cursorYear]);
+  }, [endPan, hoveredItem, mousePos, cursorYear, isOverControls]);
 
   // Handle item hover
   const handleItemHover = useCallback((type, item) => {
@@ -325,7 +326,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
       onMouseLeave={handleMouseUp}
     >
       {/* Cursor year line - behind all elements */}
-      {!isOverItem && !isPanning && !yearSummaryOpen && (
+      {!isOverItem && !isPanning && !yearSummaryOpen && !isOverControls && (
         <div
           className="cursor-year-line"
           style={{
@@ -385,7 +386,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
       />
 
       {/* Cursor year display - follows cursor */}
-      {!isOverItem && !isPanning && !yearSummaryOpen && (
+      {!isOverItem && !isPanning && !yearSummaryOpen && !isOverControls && (
         <div
           className="cursor-year-display"
           style={{
@@ -433,7 +434,11 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
       )}
 
       {/* Controls */}
-      <div className="timeline-controls">
+      <div
+        className="timeline-controls"
+        onMouseEnter={() => setIsOverControls(true)}
+        onMouseLeave={() => setIsOverControls(false)}
+      >
         <button onClick={handleZoomIn} title="Zoom in" className="icon-button">
           <Icon name="plus" size={16} />
           <span>Zoom in</span>
