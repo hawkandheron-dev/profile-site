@@ -4,6 +4,7 @@
 
 import { yearToPixel } from '../utils/coordinates.js';
 import { getYearRange } from '../utils/dateUtils.js';
+import { Icon, ShapeIcon } from './Icon.jsx';
 import './TimelineOverlay.css';
 
 export function TimelineOverlay({
@@ -160,10 +161,17 @@ export function TimelineOverlay({
             padding: '3px 8px',
             borderRadius: '4px',
             whiteSpace: 'nowrap',
-            zIndex: isSticky ? 10 : 1
+            zIndex: isSticky ? 10 : 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
           }}
         >
-          {person.name} <span style={{ opacity: 0.9, fontSize: '11px' }}>{yearRange}</span>
+          {person.isEmperor && (
+            <Icon name="crown" size={12} color="#ffd700" />
+          )}
+          <span>{person.name}</span>
+          <span style={{ opacity: 0.9, fontSize: '11px' }}>{yearRange}</span>
         </div>
       );
     });
@@ -245,61 +253,6 @@ export function TimelineOverlay({
   function renderPointCallouts() {
     const points = layout.stackedPoints || [];
 
-    // Helper to render shape icon
-    const renderShapeIcon = (shape, color, size = 16) => {
-      const half = size / 2;
-      const curve = size * 0.1;
-
-      switch (shape) {
-        case 'diamond':
-          return (
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
-              <path
-                d={`M ${half} 0 Q ${half + curve} ${half - curve} ${size} ${half} Q ${half + curve} ${half + curve} ${half} ${size} Q ${half - curve} ${half + curve} 0 ${half} Q ${half - curve} ${half - curve} ${half} 0 Z`}
-                fill={color}
-                stroke="#333"
-                strokeWidth="1"
-              />
-            </svg>
-          );
-        case 'square':
-          return (
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
-              <path
-                d={`M 0 ${curve} Q ${half} ${-curve} ${size - curve} 0 Q ${size + curve} ${half} ${size - curve} ${size} Q ${half} ${size + curve} ${curve} ${size} Q ${-curve} ${half} 0 ${curve} Z`}
-                fill={color}
-                stroke="#333"
-                strokeWidth="1"
-              />
-            </svg>
-          );
-        case 'circle':
-          return (
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
-              <circle cx={half} cy={half} r={half - 1} fill={color} stroke="#333" strokeWidth="1" />
-            </svg>
-          );
-        case 'triangle':
-          const height = (Math.sqrt(3) / 2) * size;
-          return (
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
-              <path
-                d={`M ${half} ${(size - height) / 2} Q ${half + half / 2 + curve} ${size / 2} ${size} ${(size + height) / 2} Q ${half} ${(size + height) / 2 + curve} 0 ${(size + height) / 2} Q ${half - half / 2 - curve} ${size / 2} ${half} ${(size - height) / 2} Z`}
-                fill={color}
-                stroke="#333"
-                strokeWidth="1"
-              />
-            </svg>
-          );
-        default:
-          return (
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
-              <circle cx={half} cy={half} r={half - 1} fill={color} stroke="#333" strokeWidth="1" />
-            </svg>
-          );
-      }
-    };
-
     return points.map(point => {
       const year = getYearRange(point.date).start;
 
@@ -352,7 +305,7 @@ export function TimelineOverlay({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-            {renderShapeIcon(point.shape || 'circle', point.color || '#ff6f00', 14)}
+            <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={14} />
             <div style={{ fontSize: '12px', fontWeight: '600' }}>{point.name}</div>
           </div>
           <div style={{ fontSize: '10px', opacity: 0.7, paddingLeft: '20px' }}>

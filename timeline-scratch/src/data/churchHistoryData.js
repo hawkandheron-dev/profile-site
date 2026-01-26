@@ -197,11 +197,11 @@ const eraColorMap = {
   'era-dissent-discovery': '#7c4dff'    // Deep Purple
 };
 
-// Shape mappings for point events
+// Shape/icon mappings for point events
 const shapeMap = {
-  councils: 'diamond',
-  documents: 'circle',
-  events: 'triangle'
+  councils: 'cross',
+  documents: 'book',
+  events: 'reference'
 };
 
 // Transform the data to Timeline component format
@@ -241,7 +241,8 @@ function transformData() {
         periodId: 'roman-emperors',
         preview: `${item.content}`,
         color: colorMap[item.group],
-        aboveTimeline: false
+        aboveTimeline: false,
+        isEmperor: true
       });
     } else if (item.group === 'eras') {
       // Eras are rendered as periods with distinct colors
@@ -267,7 +268,8 @@ function transformData() {
         shape: shapeMap[item.group] || 'circle',
         color: colorMap[item.group] || '#888888',
         preview: item.content,
-        aboveTimeline: false // Documents below timeline
+        aboveTimeline: false, // Documents below timeline
+        itemType: 'documents'
       });
     } else if (isPoint) {
       // Point events (councils, events)
@@ -275,11 +277,13 @@ function transformData() {
         id: item.id,
         name: item.content,
         date: item.start,
+        endDate: item.end || null, // Store end date for range display if any
         dateCertainty: 'year only',
         shape: shapeMap[item.group] || 'circle',
         color: colorMap[item.group] || '#888888',
         preview: item.content,
-        aboveTimeline: true
+        aboveTimeline: true,
+        itemType: item.group // 'councils' or 'events'
       });
     } else {
       // Range items that aren't people, eras, or documents
@@ -342,79 +346,50 @@ export const churchHistoryConfig = {
   laneOrder: ['people', 'points', 'periods'],
   legend: [
     {
-      type: 'period',
-      id: 'era-apostolic',
-      name: 'Apostolic Age',
-      color: '#00acc1'
+      type: 'people',
+      id: 'people',
+      name: 'People',
+      color: '#5b7ee8',
+      filterKey: 'people'
     },
     {
-      type: 'period',
-      id: 'era-ante-nicene',
-      name: 'Ante-Nicene Age',
-      color: '#7b1fa2'
+      type: 'people',
+      id: 'roman-emperors',
+      name: 'Emperors',
+      color: '#d32f2f',
+      filterKey: 'emperors',
+      isEmperor: true
     },
     {
-      type: 'period',
-      id: 'era-first-four-councils',
-      name: 'First Four Councils',
-      color: '#1976d2'
-    },
-    {
-      type: 'period',
-      id: 'era-monks-missionaries',
-      name: 'Monks & Missionaries',
-      color: '#388e3c'
-    },
-    {
-      type: 'period',
-      id: 'era-scholastics',
-      name: 'Scholastics & Monastics',
-      color: '#c2185b'
-    },
-    {
-      type: 'period',
-      id: 'era-proto-reformers',
-      name: 'Proto-Reformers & Mystics',
-      color: '#5d4037'
-    },
-    {
-      type: 'period',
-      id: 'era-reformers',
-      name: 'Reformers & Humanists',
-      color: '#0097a7'
+      type: 'bracket',
+      id: 'periods',
+      name: 'Period',
+      color: '#00838f',
+      filterKey: 'periods'
     },
     {
       type: 'point',
       id: 'councils',
       name: 'Councils',
-      shape: 'diamond',
-      color: '#4caf50'
+      shape: 'cross',
+      color: '#4caf50',
+      filterKey: 'councils'
     },
     {
       type: 'point',
       id: 'documents',
       name: 'Documents',
-      shape: 'circle',
-      color: '#f9a825'
+      shape: 'book',
+      color: '#f9a825',
+      filterKey: 'documents'
     },
     {
       type: 'point',
       id: 'events',
-      name: 'Historical Events',
-      shape: 'triangle',
-      color: '#ff6f00'
-    },
-    {
-      type: 'period',
-      id: 'people',
-      name: 'Church Figures',
-      color: '#5b7ee8'
-    },
-    {
-      type: 'period',
-      id: 'roman-emperors',
-      name: 'Roman Emperors',
-      color: '#d32f2f'
+      name: 'Events',
+      shape: 'reference',
+      color: '#ff6f00',
+      filterKey: 'events'
     }
   ]
 };

@@ -3,7 +3,7 @@
  * Combines Canvas rendering, overlays, and interactivity
  */
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useZoomPan } from './hooks/useZoomPan.js';
 import { useTimelineLayout } from './hooks/useTimelineLayout.js';
 import { TimelineCanvas } from './components/TimelineCanvas.jsx';
@@ -20,6 +20,14 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [filters, setFilters] = useState({
+    people: true,
+    emperors: true,
+    periods: true,
+    councils: true,
+    documents: true,
+    events: true
+  });
 
   // Default config
   const defaultConfig = {
@@ -62,9 +70,36 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     maxYear: 2100
   });
 
+  // Filter data based on active filters
+  const filteredData = useMemo(() => {
+    const { people = [], points = [], periods = [] } = data;
+
+    const filteredPeople = people.filter(person => {
+      if (person.isEmperor) {
+        return filters.emperors;
+      }
+      return filters.people;
+    });
+
+    const filteredPoints = points.filter(point => {
+      if (point.itemType === 'councils') return filters.councils;
+      if (point.itemType === 'documents') return filters.documents;
+      if (point.itemType === 'events') return filters.events;
+      return true; // Default show if no itemType
+    });
+
+    const filteredPeriods = filters.periods ? periods : [];
+
+    return {
+      people: filteredPeople,
+      points: filteredPoints,
+      periods: filteredPeriods
+    };
+  }, [data, filters]);
+
   // Layout calculation
   const layout = useTimelineLayout(
-    data,
+    filteredData,
     defaultConfig.laneOrder,
     yearsPerPixel,
     {
@@ -167,6 +202,14 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     setSelectedItem(null);
   }, []);
 
+  // Handle filter toggle
+  const handleFilterToggle = useCallback((filterKey) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterKey]: !prev[filterKey]
+    }));
+  }, []);
+
   // Handle zoom buttons
   const handleZoomIn = useCallback(() => {
     const centerX = dimensions.width / 2;
@@ -227,6 +270,8 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
       <TimelineLegend
         legend={defaultConfig.legend}
         isVisible={true}
+        filters={filters}
+        onFilterToggle={handleFilterToggle}
       />
 
       <TimelineModal

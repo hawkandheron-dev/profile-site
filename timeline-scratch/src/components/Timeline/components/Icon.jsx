@@ -32,6 +32,7 @@ const iconMap = {
   'trefoil': { collection: 'medieval', id: 'trefoil' },
   'dagger': { collection: 'renaissance', id: 'dagger' },
   'reference': { collection: 'renaissance', id: 'reference-mark' },
+  'cross': { collection: 'medieval', id: 'cross-maltese' },
 };
 
 // Cache for loaded SVG content
