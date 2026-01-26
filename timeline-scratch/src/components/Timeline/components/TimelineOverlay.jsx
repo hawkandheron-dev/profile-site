@@ -103,8 +103,17 @@ export function TimelineOverlay({
     const visibleYears = width * yearsPerPixel;
     const showYearRange = visibleYears <= 300;
 
+    // For emperors, hide short reigns when zoomed out
+    const minEmperorReignToShow = visibleYears > 200 ? 10 : visibleYears > 100 ? 5 : 0;
+
     return people.map(person => {
       const { start, end } = getYearRange(person.startDate, person.endDate);
+      const reignLength = end - start;
+
+      // Hide short-reign emperors when zoomed out
+      if (person.isEmperor && reignLength < minEmperorReignToShow) {
+        return null;
+      }
 
       const startX = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const endX = yearToPixel(end, viewportStartYear, yearsPerPixel);
@@ -112,9 +121,30 @@ export function TimelineOverlay({
       const boxHeight = person.height - 8;
       const boxY = person.y - panOffsetY;
 
-      // Position label at bottom-left of the box, overlaid
+      // Position label - stagger vertically based on row to avoid overlap
+      // Even rows: label at bottom, Odd rows: label at top
       let labelX = startX + 6; // 6px from left edge of box
-      const labelY = boxY + boxHeight - 22; // 22px from bottom of box
+      const row = person.row || 0;
+      const isOddRow = row % 2 === 1;
+
+      // For emperors, use more aggressive staggering based on row
+      let labelY;
+      if (person.isEmperor) {
+        // Stagger emperor labels: row 0 at bottom, row 1 at top, row 2 at middle, etc.
+        const rowPosition = row % 3;
+        if (rowPosition === 0) {
+          labelY = boxY + boxHeight - 22; // Bottom
+        } else if (rowPosition === 1) {
+          labelY = boxY + 4; // Top
+        } else {
+          labelY = boxY + (boxHeight / 2) - 10; // Middle
+        }
+      } else {
+        // For regular people, alternate between bottom and top
+        labelY = isOddRow
+          ? boxY + 4  // Top of box for odd rows
+          : boxY + boxHeight - 22; // Bottom of box for even rows
+      }
 
       // Sticky behavior: stick to left edge if box extends left of viewport
       const isSticky = startX < 0 && endX > 0;
