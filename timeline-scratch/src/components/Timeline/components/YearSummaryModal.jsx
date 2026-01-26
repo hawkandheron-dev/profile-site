@@ -77,13 +77,13 @@ export function YearSummaryModal({ year, summary, config, onClose }) {
           <div className="summary-section">
             <h3 className="summary-section-title">
               <Icon name="crown" size={16} color="#ffd700" />
-              <span style={{ marginLeft: '6px' }}>Reigning Emperor{emperors.length > 1 ? 's' : ''}</span>
+              <span style={{ marginLeft: '6px' }}>Reigning Emperor(s)</span>
             </h3>
             <ul className="summary-list">
               {emperors.map(person => (
                 <li key={person.id} className="summary-item">
                   <Icon name="crown" size={12} color="#ffd700" />
-                  <span style={{ marginLeft: '6px' }}><strong>{person.name}</strong>{person.location && <span> in <em>{person.location}</em></span>}</span>
+                  <span style={{ marginLeft: '6px' }}><strong>{person.name}</strong>{person.location && <span>{'\u00A0'}in <em>{person.location}</em></span>}</span>
                 </li>
               ))}
             </ul>
@@ -101,7 +101,7 @@ export function YearSummaryModal({ year, summary, config, onClose }) {
                     className="summary-color-dot"
                     style={{ backgroundColor: person.color }}
                   />
-                  <strong>{person.name}</strong>{person.location && <span> in <em>{person.location}</em></span>}
+                  <strong>{person.name}</strong>{person.location && <span>{'\u00A0'}in <em>{person.location}</em></span>}
                 </li>
               ))}
             </ul>
