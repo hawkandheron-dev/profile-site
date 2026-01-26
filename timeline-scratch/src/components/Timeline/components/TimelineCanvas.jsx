@@ -200,11 +200,22 @@ export function TimelineCanvas({
       // Restore context
       ctx.restore();
 
-      // Store in hit map
+      // Store in hit map - cover the entire highlighted area (from bracket to axis)
+      let hitBoundsY, hitBoundsHeight;
+      if (period.aboveTimeline) {
+        // For above timeline: bounds from bracket top to axis
+        hitBoundsY = y;
+        hitBoundsHeight = axisY - y;
+      } else {
+        // For below timeline: bounds from axis to bracket bottom
+        hitBoundsY = axisY;
+        hitBoundsHeight = (y + bracketHeight) - axisY;
+      }
+
       hitMapRef.current.set(period.id, {
         type: 'period',
         item: period,
-        bounds: { x, y, width: periodWidth, height: bracketHeight }
+        bounds: { x, y: hitBoundsY, width: periodWidth, height: hitBoundsHeight }
       });
     });
   }
