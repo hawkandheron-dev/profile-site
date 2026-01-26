@@ -180,6 +180,11 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     }
   }, [isPanning, updatePan, dimensions, layout.totalHeight]);
 
+  // Calculate cursor year from mouse X position (needs to be before handleMouseUp)
+  const cursorYear = useMemo(() => {
+    return Math.round(viewportStartYear + mousePos.x * yearsPerPixel);
+  }, [viewportStartYear, mousePos.x, yearsPerPixel]);
+
   // Handle mouse up
   const handleMouseUp = useCallback((e) => {
     const container = containerRef.current;
@@ -231,11 +236,6 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
       [filterKey]: !prev[filterKey]
     }));
   }, []);
-
-  // Calculate cursor year from mouse X position
-  const cursorYear = useMemo(() => {
-    return Math.round(viewportStartYear + mousePos.x * yearsPerPixel);
-  }, [viewportStartYear, mousePos.x, yearsPerPixel]);
 
   // Check if cursor is over an item (to hide the year line)
   const isOverItem = hoveredItem !== null;
