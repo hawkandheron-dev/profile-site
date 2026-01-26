@@ -201,21 +201,16 @@ export function TimelineCanvas({
       ctx.restore();
 
       // Store in hit map - cover the entire highlighted area (from bracket to axis)
-      let hitBoundsY, hitBoundsHeight;
-      if (period.aboveTimeline) {
-        // For above timeline: bounds from bracket top to axis
-        hitBoundsY = y;
-        hitBoundsHeight = axisY - y;
-      } else {
-        // For below timeline: bounds from axis to bracket bottom
-        hitBoundsY = axisY;
-        hitBoundsHeight = (y + bracketHeight) - axisY;
-      }
+      // Use the path coordinates to get accurate bounds that match the drawn fill
+      // For above: fill goes from y (bracket top) to axisY
+      // For below: fill goes from axisY to y + bracketHeight (bracket bottom)
+      const fillMinY = Math.min(y, axisY);
+      const fillMaxY = Math.max(y + bracketHeight, axisY);
 
       hitMapRef.current.set(period.id, {
         type: 'period',
         item: period,
-        bounds: { x, y: hitBoundsY, width: periodWidth, height: hitBoundsHeight }
+        bounds: { x, y: fillMinY, width: periodWidth, height: fillMaxY - fillMinY }
       });
     });
   }
