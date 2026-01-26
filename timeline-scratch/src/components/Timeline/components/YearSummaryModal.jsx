@@ -83,7 +83,7 @@ export function YearSummaryModal({ year, summary, config, onClose }) {
               {emperors.map(person => (
                 <li key={person.id} className="summary-item">
                   <Icon name="crown" size={12} color="#ffd700" />
-                  <span style={{ marginLeft: '6px' }}>{person.name}</span>
+                  <span style={{ marginLeft: '6px' }}>{person.name}{person.location ? ` in ${person.location}` : ''}</span>
                 </li>
               ))}
             </ul>
@@ -93,7 +93,7 @@ export function YearSummaryModal({ year, summary, config, onClose }) {
         {/* People Alive */}
         {otherPeople.length > 0 && (
           <div className="summary-section">
-            <h3 className="summary-section-title">People Alive ({otherPeople.length})</h3>
+            <h3 className="summary-section-title">Who's where? ({otherPeople.length})</h3>
             <ul className="summary-list summary-list-compact">
               {otherPeople.map(person => (
                 <li key={person.id} className="summary-item">
@@ -101,7 +101,7 @@ export function YearSummaryModal({ year, summary, config, onClose }) {
                     className="summary-color-dot"
                     style={{ backgroundColor: person.color }}
                   />
-                  {person.name}
+                  {person.name}{person.location ? ` in ${person.location}` : ''}
                 </li>
               ))}
             </ul>

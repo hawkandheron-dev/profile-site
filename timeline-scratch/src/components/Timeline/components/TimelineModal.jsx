@@ -88,6 +88,10 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose }) {
           <p className="modal-date">{dateString}</p>
         )}
 
+        {item.location && (
+          <p className="modal-location">{item.location}</p>
+        )}
+
         {item.periodName && (
           <p className="modal-period">Era: {item.periodName}</p>
         )}
