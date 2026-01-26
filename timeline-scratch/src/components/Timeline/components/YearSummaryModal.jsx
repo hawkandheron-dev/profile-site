@@ -83,7 +83,7 @@ export function YearSummaryModal({ year, summary, config, onClose }) {
               {emperors.map(person => (
                 <li key={person.id} className="summary-item">
                   <Icon name="crown" size={12} color="#ffd700" />
-                  <span style={{ marginLeft: '6px' }}>{person.name}{person.location ? ` in ${person.location}` : ''}</span>
+                  <span style={{ marginLeft: '6px' }}><strong>{person.name}</strong>{person.location ? <> in <em>{person.location}</em></> : ''}</span>
                 </li>
               ))}
             </ul>
@@ -101,7 +101,7 @@ export function YearSummaryModal({ year, summary, config, onClose }) {
                     className="summary-color-dot"
                     style={{ backgroundColor: person.color }}
                   />
-                  {person.name}{person.location ? ` in ${person.location}` : ''}
+                  <strong>{person.name}</strong>{person.location ? <> in <em>{person.location}</em></> : ''}
                 </li>
               ))}
             </ul>

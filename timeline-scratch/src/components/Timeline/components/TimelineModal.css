@@ -175,7 +175,8 @@
 
 /* Year Summary Modal Styles */
 .year-summary-modal {
-  max-width: 500px;
+  max-width: 800px;
+  width: min(90vw, 800px);
 }
 
 .summary-section {

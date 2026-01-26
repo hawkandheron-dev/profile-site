@@ -325,7 +325,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
       onMouseLeave={handleMouseUp}
     >
       {/* Cursor year line - behind all elements */}
-      {!isOverItem && !isPanning && (
+      {!isOverItem && !isPanning && !yearSummaryOpen && (
         <div
           className="cursor-year-line"
           style={{
@@ -385,7 +385,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
       />
 
       {/* Cursor year display - follows cursor */}
-      {!isOverItem && !isPanning && (
+      {!isOverItem && !isPanning && !yearSummaryOpen && (
         <div
           className="cursor-year-display"
           style={{
