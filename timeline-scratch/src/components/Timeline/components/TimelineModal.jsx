@@ -109,36 +109,6 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen || !item) return null;
-
-  // Format date based on item type
-  let dateString = '';
-  if (itemType === 'person') {
-    dateString = formatDateRange(
-      item.startDate,
-      item.endDate,
-      item.startCertainty || 'year only',
-      item.endCertainty || 'year only',
-      config.eraLabels
-    );
-  } else if (itemType === 'point') {
-    dateString = formatDateRange(
-      item.date,
-      null,
-      item.dateCertainty || 'year only',
-      null,
-      config.eraLabels
-    );
-  } else if (itemType === 'period') {
-    dateString = formatDateRange(
-      item.startDate,
-      item.endDate,
-      item.dateCertainty || 'year only',
-      item.dateCertainty || 'year only',
-      config.eraLabels
-    );
-  }
-
   const connections = useMemo(() => {
     if (itemType !== 'person' || !item?.connections?.length || !itemIndex) return [];
     return item.connections
@@ -198,6 +168,36 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
     if (!entry) return;
     onSelectItem?.(entry.type, entry.item);
   }, [itemIndex, onSelectItem]);
+
+  if (!isOpen || !item) return null;
+
+  // Format date based on item type
+  let dateString = '';
+  if (itemType === 'person') {
+    dateString = formatDateRange(
+      item.startDate,
+      item.endDate,
+      item.startCertainty || 'year only',
+      item.endCertainty || 'year only',
+      config.eraLabels
+    );
+  } else if (itemType === 'point') {
+    dateString = formatDateRange(
+      item.date,
+      null,
+      item.dateCertainty || 'year only',
+      null,
+      config.eraLabels
+    );
+  } else if (itemType === 'period') {
+    dateString = formatDateRange(
+      item.startDate,
+      item.endDate,
+      item.dateCertainty || 'year only',
+      item.dateCertainty || 'year only',
+      config.eraLabels
+    );
+  }
 
   return (
     <div className="timeline-modal" onClick={onClose}>
