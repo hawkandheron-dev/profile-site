@@ -214,23 +214,20 @@ export function TimelineOverlay({
       const centerX = (startX + endX) / 2;
       const bracketY = period.y - panOffsetY;
       const bracketWidth = endX - startX;
+      const bracketHeight = period.bracketHeight ?? period.height;
 
       // Hide if completely off screen
       if (endX < 0 || startX > width) {
         return null;
       }
 
-      // Calculate bracket center point using curly brace formula
-      // This is the "point" of the bracket where it reaches furthest from the top edge
-      const w = period.height;  // Perpendicular width of the brace
-      const bracketCenterY = bracketY + w;  // The point extends by the full height
-
       // Label position: on outer side of bracket, with margin from bracket point
       // For above timeline, label goes above bracket; for below, label goes below
       const labelMargin = 1;  // Margin between label and bracket point
-      const labelOffsetY = period.aboveTimeline
-        ? -labelMargin  // Above bracket, measured from bracket point
-        : w + labelMargin;  // Below bracket, measured from bracket top edge
+      const bracketPointY = period.aboveTimeline
+        ? bracketY
+        : bracketY + bracketHeight;
+      const labelOffsetY = period.aboveTimeline ? -labelMargin : labelMargin;
 
       let labelX = centerX;
 
@@ -256,7 +253,7 @@ export function TimelineOverlay({
           style={{
             position: 'absolute',
             left: `${labelX}px`,
-            top: `${bracketY + labelOffsetY}px`,
+            top: `${bracketPointY + labelOffsetY}px`,
             transform: period.aboveTimeline ? 'translate(-50%, -100%)' : 'translateX(-50%)',
             pointerEvents: 'none',
             fontSize: '13px',
