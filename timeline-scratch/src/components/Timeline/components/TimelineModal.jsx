@@ -349,6 +349,27 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
             </ul>
           </div>
         )}
+
+        {itemType === 'person' && item.sources && item.sources.length > 0 && (
+          <div className="modal-links">
+            <h3>Sources</h3>
+            <ul className="modal-reference-list">
+              {item.sources.map((source) => {
+                const metaParts = [source.source, source.year].filter(Boolean);
+                const metaText = metaParts.length ? ` (${metaParts.join(', ')})` : '';
+                return (
+                  <li key={source.id}>
+                    <a href={source.url} target="_blank" rel="noopener noreferrer">
+                      {source.title}
+                    </a>
+                    {metaText && <span>{metaText}</span>}
+                    {source.notes && <div>{source.notes}</div>}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

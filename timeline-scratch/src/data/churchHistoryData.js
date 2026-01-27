@@ -23,25 +23,35 @@ const rawData = {
     { id: "ignatius-antioch", group: "people", content: "Ignatius of Antioch", start: "0035-01-01", end: "0107-01-01", location: "Antioch" },
     { id: "polycarp", group: "people", content: "Polycarp", start: "0069-01-01", end: "0155-01-01", location: "Smyrna" },
     { id: "justin-martyr", group: "people", content: "Justin Martyr", start: "0100-01-01", end: "0165-01-01", location: "Rome" },
+    { id: "clement-alexandria", group: "people", content: "Clement of Alexandria", start: "0150-01-01", end: "0215-01-01", location: "Alexandria" },
+    { id: "tatians", group: "people", content: "Tatian", start: "0120-01-01", end: "0180-01-01", location: "Rome" },
     { id: "irenaeus", group: "people", content: "Irenaeus of Lyons", start: "0130-01-01", end: "0202-01-01", location: "Lyons, Gaul" },
     { id: "tertullian", group: "people", content: "Tertullian", start: "0155-01-01", end: "0240-01-01", location: "Carthage" },
     { id: "hippolytus", group: "people", content: "Hippolytus of Rome", start: "0170-01-01", end: "0235-01-01", location: "Rome" },
     { id: "perpetua", group: "people", content: "Perpetua", start: "0185-01-01", end: "0203-01-01", location: "Carthage" },
     { id: "origen", group: "people", content: "Origen", start: "0185-01-01", end: "0254-01-01", location: "Alexandria" },
+    { id: "gregory-thaumaturgus", group: "people", content: "Gregory Thaumaturgus", start: "0213-01-01", end: "0270-01-01", location: "Neocaesarea, Pontus" },
     { id: "dionysius-alexandria", group: "people", content: "Dionysius of Alexandria", start: "0210-01-01", end: "0264-01-01", location: "Alexandria" },
     { id: "cyprian", group: "people", content: "Cyprian", start: "0210-01-01", end: "0258-01-01", location: "Carthage" },
     { id: "anthony-great", group: "people", content: "Anthony the Great", start: "0251-01-01", end: "0356-01-01", location: "Egyptian Desert" },
     { id: "lucian-antioch", group: "people", content: "Lucian of Antioch", start: "0250-01-01", end: "0312-01-01", location: "Antioch" },
     { id: "alexander-alexandria", group: "people", content: "Alexander of Alexandria", start: "0280-01-01", end: "0328-01-01", location: "Alexandria" },
     { id: "athanasius", group: "people", content: "Athanasius", start: "0296-01-01", end: "0373-01-01", location: "Alexandria" },
+    { id: "macrina-younger", group: "people", content: "Macrina the Younger", start: "0327-01-01", end: "0379-07-19", location: "Cappadocia / Pontus" },
     { id: "basil-great", group: "people", content: "Basil the Great", start: "0330-01-01", end: "0379-01-01", location: "Caesarea, Cappadocia" },
+    { id: "gregory-nazianzus", group: "people", content: "Gregory of Nazianzus", start: "0330-01-01", end: "0389-01-01", location: "Arianzus, Cappadocia" },
     { id: "gregory-nyssa", group: "people", content: "Gregory of Nyssa", start: "0335-01-01", end: "0395-01-01", location: "Nyssa, Cappadocia" },
     { id: "ambrose-milan", group: "people", content: "Ambrose of Milan", start: "0339-01-01", end: "0397-01-01", location: "Milan" },
     { id: "jerome", group: "people", content: "Jerome", start: "0347-01-01", end: "0420-01-01", location: "Bethlehem" },
     { id: "john-chrysostom", group: "people", content: "John Chrysostom", start: "0349-01-01", end: "0407-01-01", location: "Constantinople" },
     { id: "arsenius-great", group: "people", content: "Arsenius the Great", start: "0350-01-01", end: "0445-01-01", location: "Egyptian Desert" },
     { id: "augustine", group: "people", content: "Augustine of Hippo", start: "0354-01-01", end: "0430-01-01", location: "Hippo Regius" },
+    { id: "didymus-blind", group: "people", content: "Didymus the Blind", start: "0313-01-01", end: "0398-01-01", location: "Alexandria" },
+    { id: "rufinus-aquileia", group: "people", content: "Rufinus of Aquileia", start: "0345-01-01", end: "0411-01-01", location: "Aquileia / Sicily" },
+    { id: "olympias", group: "people", content: "Olympias the Deaconess", start: "0365-01-01", end: "0408-07-25", location: "Constantinople / Nicomedia" },
+    { id: "theophilus-alexandria", group: "people", content: "Theophilus of Alexandria", start: "0355-01-01", end: "0412-10-15", location: "Alexandria" },
     { id: "cyril-alexandria", group: "people", content: "Cyril of Alexandria", start: "0376-01-01", end: "0444-01-01", location: "Alexandria" },
+    { id: "nestorius", group: "people", content: "Nestorius of Constantinople", start: "0381-01-01", end: "0451-01-01", location: "Constantinople / Egypt" },
     { id: "patrick", group: "people", content: "Patrick", start: "0385-01-01", end: "0461-01-01", location: "Ireland" },
     { id: "prosper-aquitaine", group: "people", content: "Prosper of Aquitaine", start: "0390-01-01", end: "0455-01-01", location: "Aquitaine" },
     { id: "pope-leo-1", group: "people", content: "Pope Leo I", start: "0400-01-01", end: "0461-01-01", location: "Rome" },
@@ -107,6 +117,10 @@ const rawData = {
     { id: "bartolome-las-casas", group: "people", content: "Bartolome de las Casas", start: "1474-01-01", end: "1566-01-01", location: "Hispaniola" },
     { id: "thomas-more", group: "people", content: "Thomas More", start: "1478-01-01", end: "1535-01-01", location: "London, England" },
     { id: "martin-luther", group: "people", content: "Martin Luther", start: "1483-01-01", end: "1546-01-01", location: "Wittenberg, Germany" },
+    { id: "huldrych-zwingli", group: "people", content: "Huldrych Zwingli", start: "1484-01-01", end: "1531-10-11", location: "Zurich, Switzerland" },
+    { id: "ignatius-loyola", group: "people", content: "Ignatius of Loyola", start: "1491-10-23", end: "1556-07-31", location: "Rome" },
+    { id: "peter-faber", group: "people", content: "Peter Faber", start: "1506-04-13", end: "1546-08-01", location: "Paris / Rome" },
+    { id: "francis-xavier", group: "people", content: "Francis Xavier", start: "1506-04-07", end: "1552-12-03", location: "India / Japan / China" },
     { id: "john-calvin", group: "people", content: "John Calvin", start: "1509-01-01", end: "1564-01-01", location: "Geneva, Switzerland" },
     { id: "teresa-avila", group: "people", content: "Teresa of Avila", start: "1515-01-01", end: "1582-01-01", location: "Ávila, Spain" },
     { id: "john-cross", group: "people", content: "John of the Cross", start: "1542-01-01", end: "1591-01-01", location: "Segovia, Spain" },
@@ -117,6 +131,26 @@ const rawData = {
     { id: "isaac-newton", group: "people", content: "Sir Isaac Newton", start: "1642-01-01", end: "1727-01-01", location: "Cambridge, England" },
     { id: "charles-wesley", group: "people", content: "Charles Wesley", start: "1707-01-01", end: "1788-01-01", location: "England" },
     { id: "john-wesley", group: "people", content: "John Wesley", start: "1703-01-01", end: "1791-01-01", location: "England" },
+    { id: "pope-damasus-1", group: "people", content: "Pope Damasus I", start: "0305-01-01", end: "0384-01-01", location: "Rome" },
+    { id: "monica", group: "people", content: "Monica of Hippo", start: "0331-01-01", end: "0387-01-01", location: "North Africa" },
+    { id: "alypius", group: "people", content: "Alypius of Thagaste", start: "0354-01-01", end: "0430-01-01", location: "North Africa" },
+    { id: "possidius", group: "people", content: "Possidius", start: "0350-01-01", end: "0437-01-01", location: "Calama, Numidia" },
+    { id: "pope-cornelius", group: "people", content: "Pope Cornelius", start: "0180-01-01", end: "0253-01-01", location: "Rome" },
+    { id: "pope-stephen-1", group: "people", content: "Pope Stephen I", start: "0200-01-01", end: "0257-01-01", location: "Rome" },
+    { id: "germanus-auxerre", group: "people", content: "Germanus of Auxerre", start: "0378-01-01", end: "0448-01-01", location: "Auxerre, Gaul" },
+    { id: "augustine-canterbury", group: "people", content: "Augustine of Canterbury", start: "0534-01-01", end: "0604-01-01", location: "Canterbury" },
+    { id: "leander-seville", group: "people", content: "Leander of Seville", start: "0534-01-01", end: "0600-01-01", location: "Seville" },
+    { id: "pope-martin-1", group: "people", content: "Pope Martin I", start: "0590-01-01", end: "0655-01-01", location: "Rome" },
+    { id: "pope-gregory-ii", group: "people", content: "Pope Gregory II", start: "0669-01-01", end: "0731-01-01", location: "Rome" },
+    { id: "charlemagne", group: "people", content: "Charlemagne", start: "0742-01-01", end: "0814-01-01", location: "Aachen, Francia" },
+    { id: "peter-abelard", group: "people", content: "Peter Abelard", start: "1079-01-01", end: "1142-01-01", location: "Paris, France" },
+    { id: "pope-eugenius-iii", group: "people", content: "Pope Eugenius III", start: "1080-01-01", end: "1153-01-01", location: "Rome" },
+    { id: "clare-assisi", group: "people", content: "Clare of Assisi", start: "1194-01-01", end: "1253-01-01", location: "Assisi, Italy" },
+    { id: "bonaventure", group: "people", content: "Bonaventure", start: "1221-01-01", end: "1274-01-01", location: "Paris, France" },
+    { id: "pico-mirandola", group: "people", content: "Giovanni Pico della Mirandola", start: "1463-01-01", end: "1494-01-01", location: "Florence, Italy" },
+    { id: "philipp-melanchthon", group: "people", content: "Philipp Melanchthon", start: "1497-01-01", end: "1560-01-01", location: "Wittenberg, Germany" },
+    { id: "william-farel", group: "people", content: "William Farel", start: "1489-01-01", end: "1565-01-01", location: "Geneva, Switzerland" },
+    { id: "george-whitefield", group: "people", content: "George Whitefield", start: "1714-01-01", end: "1770-01-01", location: "England" },
     // Councils
     { id: "council-nicaea", group: "councils", content: "Council of Nicaea", start: "0325-01-01", type: "point", location: "Nicaea" },
     { id: "council-constantinople-1", group: "councils", content: "First Council of Constantinople", start: "0381-01-01", type: "point", location: "Constantinople" },
@@ -176,18 +210,479 @@ const rawData = {
 };
 
 const knownConnections = [
-  { type: 'known', people: ['jesus', 'peter'] },
-  { type: 'known', people: ['jesus', 'john-evangelist'] },
-  { type: 'known', people: ['peter', 'paul'] },
+  { type: 'known', people: ['john-evangelist', 'polycarp'] },
+  { type: 'known', people: ['john-evangelist', 'papias'] },
   { type: 'known', people: ['ignatius-antioch', 'polycarp'] },
+  { type: 'known', people: ['papias', 'polycarp'] },
   { type: 'known', people: ['polycarp', 'irenaeus'] },
+  { type: 'known', people: ['justin-martyr', 'tatians'] },
+  { type: 'known', people: ['clement-alexandria', 'origen'] },
+  { type: 'known', people: ['origen', 'gregory-thaumaturgus'] },
   { type: 'known', people: ['origen', 'dionysius-alexandria'] },
-  { type: 'known', people: ['anthony-great', 'athanasius'] },
+  { type: 'known', people: ['pope-cornelius', 'cyprian'] },
+  { type: 'known', people: ['pope-stephen-1', 'cyprian'] },
   { type: 'known', people: ['alexander-alexandria', 'athanasius'] },
+  { type: 'known', people: ['anthony-great', 'athanasius'] },
+  { type: 'known', people: ['athanasius', 'basil-great'] },
+  { type: 'known', people: ['macrina-younger', 'basil-great'] },
+  { type: 'known', people: ['macrina-younger', 'gregory-nyssa'] },
+  { type: 'known', people: ['basil-great', 'gregory-nazianzus'] },
   { type: 'known', people: ['basil-great', 'gregory-nyssa'] },
+  { type: 'known', people: ['gregory-nazianzus', 'gregory-nyssa'] },
   { type: 'known', people: ['ambrose-milan', 'augustine'] },
-  { type: 'known', people: ['jerome', 'augustine'] }
+  { type: 'known', people: ['pope-damasus-1', 'jerome'] },
+  { type: 'known', people: ['didymus-blind', 'jerome'] },
+  { type: 'known', people: ['didymus-blind', 'rufinus-aquileia'] },
+  { type: 'known', people: ['jerome', 'rufinus-aquileia'] },
+  { type: 'known', people: ['jerome', 'augustine'] },
+  { type: 'known', people: ['monica', 'augustine'] },
+  { type: 'known', people: ['augustine', 'alypius'] },
+  { type: 'known', people: ['possidius', 'augustine'] },
+  { type: 'known', people: ['john-chrysostom', 'olympias'] },
+  { type: 'known', people: ['theophilus-alexandria', 'john-chrysostom'] },
+  { type: 'known', people: ['cyril-alexandria', 'nestorius'] },
+  { type: 'known', people: ['germanus-auxerre', 'patrick'] },
+  { type: 'known', people: ['pope-gregory-great', 'augustine-canterbury'] },
+  { type: 'known', people: ['leander-seville', 'isidore-seville'] },
+  { type: 'known', people: ['maximus-confessor', 'pope-martin-1'] },
+  { type: 'known', people: ['pope-gregory-ii', 'boniface'] },
+  { type: 'known', people: ['willibrord', 'boniface'] },
+  { type: 'known', people: ['alcuin-york', 'charlemagne'] },
+  { type: 'known', people: ['paulinus-aquileia', 'alcuin-york'] },
+  { type: 'known', people: ['alcuin-york', 'rabanus-maurus'] },
+  { type: 'known', people: ['photios-constantinople', 'cyril-methodius'] },
+  { type: 'known', people: ['dunstan', 'oswald-worcester'] },
+  { type: 'known', people: ['herluin-bec', 'lanfranc'] },
+  { type: 'known', people: ['herluin-bec', 'anselm'] },
+  { type: 'known', people: ['lanfranc', 'anselm'] },
+  { type: 'known', people: ['bernard-clairvaux', 'hildegard-bingen'] },
+  { type: 'known', people: ['pope-eugenius-iii', 'bernard-clairvaux'] },
+  { type: 'known', people: ['pope-eugenius-iii', 'hildegard-bingen'] },
+  { type: 'known', people: ['dominich', 'francis-assisi'] },
+  { type: 'known', people: ['francis-assisi', 'clare-assisi'] },
+  { type: 'known', people: ['william-moerbeke', 'thomas-aquinas'] },
+  { type: 'known', people: ['bonaventure', 'thomas-aquinas'] },
+  { type: 'known', people: ['savonarola', 'pico-mirandola'] },
+  { type: 'known', people: ['desiderius-erasmus', 'thomas-more'] },
+  { type: 'known', people: ['desiderius-erasmus', 'martin-luther'] },
+  { type: 'known', people: ['martin-luther', 'philipp-melanchthon'] },
+  { type: 'known', people: ['martin-luther', 'huldrych-zwingli'] },
+  { type: 'known', people: ['william-farel', 'john-calvin'] },
+  { type: 'known', people: ['ignatius-loyola', 'peter-faber'] },
+  { type: 'known', people: ['ignatius-loyola', 'francis-xavier'] },
+  { type: 'known', people: ['peter-faber', 'francis-xavier'] },
+  { type: 'known', people: ['teresa-avila', 'john-cross'] },
+  { type: 'known', people: ['john-owen', 'john-bunyan'] },
+  { type: 'known', people: ['john-wesley', 'charles-wesley'] },
+  { type: 'known', people: ['john-wesley', 'george-whitefield'] },
+  { type: 'known', people: ['charles-wesley', 'george-whitefield'] },
 ];
+
+const sources = [
+  {
+    id: 'src-irenaeus-ah-3-3',
+    source: 'Early Christian Writings / ANF',
+    title: 'Irenaeus – Against Heresies 3.3 (succession list incl. Clement)',
+    year: '~180',
+    url: 'https://www.earlychristianwritings.com/text/irenaeus-book3.html',
+    figures: ['peter', 'clement-rome'],
+    notes: 'Mentions Clement in apostolic succession tradition.'
+  },
+  {
+    id: 'src-tertullian-prescription-32',
+    source: 'CCEL',
+    title: 'Tertullian – Prescription Against Heretics ch. 32 (Polycarp/John; Clement/Peter)',
+    year: '~200',
+    url: 'https://www.ccel.org/ccel/schaff/anf03.v.iii.ii.xxxii.html',
+    figures: ['john-evangelist', 'polycarp', 'peter', 'clement-rome'],
+    notes: 'Names Polycarp as placed by John and Clement ordained by Peter (as recorded by churches).'
+  },
+  {
+    id: 'src-ignatius-to-polycarp',
+    source: 'New Advent (Church Fathers)',
+    title: 'Ignatius – Epistle to Polycarp',
+    year: '~110',
+    url: 'https://www.newadvent.org/fathers/0109.htm',
+    figures: ['ignatius-antioch', 'polycarp'],
+    notes: 'Personal letter addressed to Polycarp.'
+  },
+  {
+    id: 'src-catholicculture-ignatius-polycarp',
+    source: 'CatholicCulture.org',
+    title: 'St. Ignatius of Antioch — Letter to Polycarp (commentary)',
+    year: '2019',
+    url: 'https://www.catholicculture.org/commentary/st-ignatius-antioch-letter-to-polycarp/',
+    figures: ['ignatius-antioch', 'polycarp'],
+    notes: 'Commentary pointing to direct correspondence; also notes Polycarp’s role in transmitting Ignatius’ letters.'
+  },
+  {
+    id: 'src-newadvent-irenaeus-fragments',
+    source: 'New Advent (Church Fathers)',
+    title: 'Irenaeus – Fragments (mentions Polycarp)',
+    year: '',
+    url: 'https://www.newadvent.org/fathers/0134.htm',
+    figures: ['polycarp', 'irenaeus'],
+    notes: 'Primary/translation source for Irenaeus describing his connection to Polycarp.'
+  },
+  {
+    id: 'src-eusebius-eh-v-20',
+    source: 'New Advent (Church Fathers)',
+    title: 'Eusebius – Ecclesiastical History V.20 (Irenaeus on Polycarp)',
+    year: '~325',
+    url: 'https://www.newadvent.org/fathers/250105.htm',
+    figures: ['polycarp', 'irenaeus'],
+    notes: 'Preserves Irenaeus’ recollection of Polycarp.'
+  },
+  {
+    id: 'src-eusebius-papias',
+    source: 'CatholicLibrary.org',
+    title: 'Eusebius on Papias as hearer of John and companion of Polycarp',
+    year: '~325',
+    url: 'https://www.catholiclibrary.org/library/view?docId=Fathers-EN/eusebius_ChurchHistory.html',
+    figures: ['john-evangelist', 'papias', 'polycarp'],
+    notes: 'Traditional report tying Papias to John and Polycarp.'
+  },
+  {
+    id: 'src-dionysius-ce',
+    source: 'New Advent (Catholic Encyclopedia)',
+    title: 'Dionysius of Alexandria',
+    year: '1909',
+    url: 'https://www.newadvent.org/cathen/05011a.htm',
+    figures: ['origen', 'dionysius-alexandria'],
+    notes: 'Notes Dionysius studied under Origen.'
+  },
+  {
+    id: 'src-britannica-gregory-thaumaturgus',
+    source: 'Britannica',
+    title: 'St. Gregory Thaumaturgus',
+    year: '2026',
+    url: 'https://www.britannica.com/biography/Saint-Gregory-Thaumaturgus',
+    figures: ['origen', 'gregory-thaumaturgus'],
+    notes: 'Useful for dates + the Origen connection framing (as commonly presented).'
+  },
+  {
+    id: 'src-cna-gregory-thaumaturgus',
+    source: 'Catholic News Agency',
+    title: 'St. Gregory Thaumaturgus (mentions meeting Origen & becoming his disciple)',
+    year: '2025',
+    url: 'https://www.catholicnewsagency.com/resource/55582/st-gregory-thaumaturgus',
+    figures: ['origen', 'gregory-thaumaturgus'],
+    notes: 'Explicitly ties Gregory to Origen as disciple in the Caesarea narrative.'
+  },
+  {
+    id: 'src-cyprian-ep56',
+    source: 'New Advent (Church Fathers)',
+    title: 'Cyprian – Epistle 56 (to Cornelius)',
+    year: '~252',
+    url: 'https://www.newadvent.org/fathers/050656.htm',
+    figures: ['cyprian', 'pope-cornelius'],
+    notes: 'Direct correspondence.'
+  },
+  {
+    id: 'src-cyprian-to-pompey',
+    source: 'Early Church Texts',
+    title: 'Cyprian – To Pompey on baptism of heretics (context: dispute with Stephen)',
+    year: '~256',
+    url: 'https://earlychurchtexts.com/public/cyprian_to_pompey_on_heretical_baptism.htm',
+    figures: ['cyprian', 'pope-stephen-1'],
+    notes: 'Primary letter in the rebaptism controversy.'
+  },
+  {
+    id: 'src-athanasius-ce',
+    source: 'New Advent (Catholic Encyclopedia)',
+    title: 'St. Athanasius (mentions service under Alexander)',
+    year: '1907',
+    url: 'https://www.newadvent.org/cathen/02035a.htm',
+    figures: ['alexander-alexandria', 'athanasius'],
+    notes: 'Mentions Athanasius as deacon/assistant to Alexander.'
+  },
+  {
+    id: 'src-newadvent-basil-letter-66',
+    source: 'New Advent (Church Fathers)',
+    title: 'Basil Letter 66 (to Athanasius)',
+    year: '',
+    url: 'https://www.newadvent.org/fathers/3202066.htm',
+    figures: ['basil-great', 'athanasius'],
+    notes: 'Concrete anchor for Basil ↔ Athanasius correspondence.'
+  },
+  {
+    id: 'src-basil-letters',
+    source: 'New Advent (Church Fathers)',
+    title: 'Letters of Basil (collection; includes letters to Athanasius)',
+    year: '~370',
+    url: 'https://www.newadvent.org/fathers/3202.htm',
+    figures: ['basil-great', 'athanasius'],
+    notes: 'Epistolary relationship.'
+  },
+  {
+    id: 'src-oca-macrina-wiki',
+    source: 'Wikipedia',
+    title: 'Macrina the Younger (siblings incl. Basil & Gregory of Nyssa)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Macrina_the_Younger',
+    figures: ['macrina-younger', 'basil-great', 'gregory-nyssa'],
+    notes: 'Family/influence scaffold for Macrina ↔ Basil/Gregory of Nyssa.'
+  },
+  {
+    id: 'src-gregory-nyssa-fm',
+    source: 'Franciscan Media',
+    title: 'Gregory of Nyssa (raised by older brother Basil)',
+    year: '',
+    url: 'https://www.franciscanmedia.org/saint-of-the-day/saint-gregory-of-nyssa/',
+    figures: ['basil-great', 'gregory-nyssa'],
+    notes: 'States Basil raised Gregory.'
+  },
+  {
+    id: 'src-confessions-book5',
+    source: 'New Advent (Church Fathers)',
+    title: 'Augustine – Confessions Book V (encounter with Ambrose)',
+    year: '~400',
+    url: 'https://www.newadvent.org/fathers/110105.htm',
+    figures: ['ambrose-milan', 'augustine'],
+    notes: 'Primary narrative of Augustine’s relationship to Ambrose.'
+  },
+  {
+    id: 'src-confessions-book6',
+    source: 'New Advent (Church Fathers)',
+    title: 'Augustine – Confessions Book VI (Monica & Alypius; Milan period)',
+    year: '~400',
+    url: 'https://www.newadvent.org/fathers/110106.htm',
+    figures: ['augustine', 'monica', 'alypius'],
+    notes: 'Primary narrative of these relationships.'
+  },
+  {
+    id: 'src-possidius-vita',
+    source: 'Tertullian.org',
+    title: 'Possidius – Life of Augustine',
+    year: '~430',
+    url: 'https://www.tertullian.org/fathers/possidius_life_of_augustine_1_trans.htm',
+    figures: ['possidius', 'augustine'],
+    notes: 'Biographer and close associate.'
+  },
+  {
+    id: 'src-jerome-britannica',
+    source: 'Britannica',
+    title: 'St. Jerome (work under Damasus; biblical revision)',
+    year: '',
+    url: 'https://www.britannica.com/biography/Saint-Jerome',
+    figures: ['pope-damasus-1', 'jerome'],
+    notes: 'Describes Jerome’s work for Damasus.'
+  },
+  {
+    id: 'src-wikipedia-didymus-blind',
+    source: 'Wikipedia',
+    title: 'Didymus the Blind (overview; pupils incl. Jerome & Rufinus)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Didymus_the_Blind',
+    figures: ['didymus-blind', 'jerome', 'rufinus-aquileia'],
+    notes: 'Convenient summary of pupil relationships; replace with stronger sources later if desired.'
+  },
+  {
+    id: 'src-newadvent-augustine-to-jerome',
+    source: 'New Advent (Church Fathers)',
+    title: 'Augustine Letter 82 / Jerome 116 (Augustine → Jerome)',
+    year: '',
+    url: 'https://www.newadvent.org/fathers/1102082.htm',
+    figures: ['augustine', 'jerome'],
+    notes: 'Direct evidence of Augustine–Jerome correspondence (one example).'
+  },
+  {
+    id: 'src-svspress-letters-olympia',
+    source: 'SVS Press',
+    title: 'St John Chrysostom: Letters to Saint Olympia (ed./trans.)',
+    year: '2022',
+    url: 'https://svspress.com/saint-john-chrysostom-letters-to-saint-olympia/',
+    figures: ['john-chrysostom', 'olympias'],
+    notes: 'Published collection attesting the correspondence/spiritual direction relationship.'
+  },
+  {
+    id: 'src-newadvent-theophilus',
+    source: 'New Advent (Catholic Encyclopedia)',
+    title: 'Theophilus of Alexandria',
+    year: '',
+    url: 'https://www.newadvent.org/cathen/14625b.htm',
+    figures: ['theophilus-alexandria', 'john-chrysostom'],
+    notes: 'Covers Theophilus’ involvement in the Chrysostom controversy (incl. deposition).'
+  },
+  {
+    id: 'src-newadvent-council-ephesus',
+    source: 'New Advent (Church Fathers)',
+    title: 'Council of Ephesus (A.D. 431) documents incl. Cyril letters re: Nestorius)',
+    year: '',
+    url: 'https://www.newadvent.org/fathers/3810.htm',
+    figures: ['cyril-alexandria', 'nestorius'],
+    notes: 'Primary/translation material for the Cyril–Nestorius conflict context.'
+  },
+  {
+    id: 'src-gregory-mission-chi',
+    source: 'Christian History Institute',
+    title: 'Gregory sends Augustine to evangelize England',
+    year: '',
+    url: 'https://christianhistoryinstitute.org/study/module/gregory-the-great-evangelizes-england',
+    figures: ['pope-gregory-great', 'augustine-canterbury'],
+    notes: 'Narrative of mission and letters.'
+  },
+  {
+    id: 'src-maximus-oca',
+    source: 'OCA',
+    title: 'St. Maximus the Confessor (with Pope Martin)',
+    year: '',
+    url: 'https://www.oca.org/saints/lives/2024/01/21/100271-venerable-maximus-the-confessor',
+    figures: ['maximus-confessor', 'pope-martin-1'],
+    notes: 'Notes collaboration in anti-Monothelite struggle.'
+  },
+  {
+    id: 'src-boniface-ce',
+    source: 'New Advent (Catholic Encyclopedia)',
+    title: 'St. Boniface (work with Willibrord; commission by Gregory II)',
+    year: '1907',
+    url: 'https://www.newadvent.org/cathen/02656a.htm',
+    figures: ['willibrord', 'boniface', 'pope-gregory-ii'],
+    notes: 'Describes collaboration and papal commissioning.'
+  },
+  {
+    id: 'src-alcuin-britannica',
+    source: 'Britannica',
+    title: 'Alcuin (adviser to Charlemagne)',
+    year: '',
+    url: 'https://www.britannica.com/biography/Alcuin',
+    figures: ['alcuin-york', 'charlemagne'],
+    notes: 'Court relationship.'
+  },
+  {
+    id: 'src-rabanus-britannica',
+    source: 'Britannica',
+    title: 'Rabanus Maurus (student of Alcuin)',
+    year: '',
+    url: 'https://www.britannica.com/biography/Rabanus-Maurus',
+    figures: ['alcuin-york', 'rabanus-maurus'],
+    notes: 'Teacher-student.'
+  },
+  {
+    id: 'src-photios-oca',
+    source: 'OCA',
+    title: 'St. Photius (missions involving Cyril & Methodius)',
+    year: '',
+    url: 'https://www.oca.org/saints/lives/2024/02/06/100427-saint-photius-the-great-patriarch-of-constantinople',
+    figures: ['photios-constantinople', 'cyril-methodius'],
+    notes: 'Mentions Photius guiding missions involving Cyril & Methodius.'
+  },
+  {
+    id: 'src-eugenius-newadvent',
+    source: 'New Advent (Catholic Encyclopedia)',
+    title: 'Pope Eugenius III (disciple of Bernard)',
+    year: '1909',
+    url: 'https://www.newadvent.org/cathen/05599a.htm',
+    figures: ['pope-eugenius-iii', 'bernard-clairvaux'],
+    notes: 'Describes the disciple relationship and Bernard’s letters.'
+  },
+  {
+    id: 'src-poor-clares-britannica',
+    source: 'Britannica',
+    title: 'Poor Clares (cofounded by Clare and Francis)',
+    year: '',
+    url: 'https://www.britannica.com/topic/Poor-Clares',
+    figures: ['francis-assisi', 'clare-assisi'],
+    notes: 'States cofounded order.'
+  },
+  {
+    id: 'src-moerbeke-pims',
+    source: 'PIMS',
+    title: 'William of Moerbeke and translation activity (Aquinas circle)',
+    year: '',
+    url: 'https://pims.ca/wp-content/uploads/2017/02/Moerbeke-translation.pdf',
+    figures: ['william-moerbeke', 'thomas-aquinas'],
+    notes: 'Translator relationship (mechanics vary by scholarly account).'
+  },
+  {
+    id: 'src-pico-sep',
+    source: 'Stanford Encyclopedia of Philosophy',
+    title: 'Giovanni Pico della Mirandola',
+    year: '',
+    url: 'https://plato.stanford.edu/entries/pico-della-mirandola/',
+    figures: ['pico-mirandola', 'savonarola'],
+    notes: 'Notes Pico’s late-life turn toward Savonarola’s influence.'
+  },
+  {
+    id: 'src-erasmus-more-letter',
+    source: 'OurCivilisation.com',
+    title: 'Erasmus letter to Thomas More (preface to Praise of Folly)',
+    year: '1509',
+    url: 'https://www.ourcivilisation.com/smartboard/shop/erasmus/moore.htm',
+    figures: ['desiderius-erasmus', 'thomas-more'],
+    notes: 'Primary evidence of friendship.'
+  },
+  {
+    id: 'src-lutheranreformation-marburg',
+    source: 'LutheranReformation.org',
+    title: 'The Marburg Colloquy (Oct 1–4, 1529)',
+    year: '2017',
+    url: 'https://lutheranreformation.org/history/the-marburg-colloquy/',
+    figures: ['martin-luther', 'huldrych-zwingli'],
+    notes: 'Summary of the Luther–Zwingli encounter and dispute over the Lord’s Supper.'
+  },
+  {
+    id: 'src-calvin-farel-ligonier',
+    source: 'Ligonier',
+    title: 'William Farel (persuaded Calvin to stay in Geneva)',
+    year: '',
+    url: 'https://www.ligonier.org/learn/articles/william-farel',
+    figures: ['william-farel', 'john-calvin'],
+    notes: 'Narrative of decisive collaboration.'
+  },
+  {
+    id: 'src-melanchthon-britannica',
+    source: 'Britannica',
+    title: 'Philipp Melanchthon (partnership with Luther)',
+    year: '',
+    url: 'https://www.britannica.com/biography/Philipp-Melanchthon',
+    figures: ['martin-luther', 'philipp-melanchthon'],
+    notes: 'Mentions partnership.'
+  },
+  {
+    id: 'src-scu-roommates-paris',
+    source: 'Santa Clara Magazine',
+    title: 'Three Roommates in Paris',
+    year: '2006',
+    url: 'https://magazine.scu.edu/magazines/summer-2006/three-roommates-in-paris/',
+    figures: ['ignatius-loyola', 'francis-xavier', 'peter-faber'],
+    notes: 'Roommates at Paris (Ignatius, Xavier, Favre); early relationship context.'
+  },
+  {
+    id: 'src-jesuits-xavier',
+    source: 'Jesuits.org',
+    title: 'Heroes of the Ignatian Tradition: Francis Xavier',
+    year: '',
+    url: 'https://www.jesuits.org/stories/heroes-of-the-ignatian-tradition-francis-xavier/',
+    figures: ['ignatius-loyola', 'francis-xavier'],
+    notes: 'States they met at the University of Paris; links friendship to early Jesuit founding.'
+  },
+  {
+    id: 'src-teresa-john-cross-aleteia',
+    source: 'Aleteia',
+    title: 'Teresa of Avila and John of the Cross reform collaboration',
+    year: '',
+    url: 'https://aleteia.org/2018/12/14/teresa-of-avila-and-john-of-the-cross-a-very-thorny-friendship/',
+    figures: ['teresa-avila', 'john-cross'],
+    notes: 'Collaboration within Carmelite reform.'
+  },
+];
+
+function buildSourceMap(sourcesList) {
+  const map = new Map();
+
+  sourcesList.forEach((source) => {
+    if (!source?.figures?.length) return;
+    source.figures.forEach((figureId) => {
+      if (!map.has(figureId)) {
+        map.set(figureId, []);
+      }
+      map.get(figureId).push(source);
+    });
+  });
+
+  return map;
+}
 
 function buildConnectionMap(connections) {
   const map = new Map();
@@ -289,6 +784,7 @@ function transformData() {
   const points = [];
   const periods = [];
   const connectionMap = buildConnectionMap(knownConnections);
+  const sourcesByPerson = buildSourceMap(sources);
 
   rawData.items.forEach(item => {
     const isPoint = item.type === 'point' || !item.end;
@@ -310,7 +806,8 @@ function transformData() {
         color: eraColorMap[eraId] || '#5b7ee8',
         aboveTimeline: true,
         location: item.location,
-        connections: connectionMap.get(item.id) || []
+        connections: connectionMap.get(item.id) || [],
+        sources: sourcesByPerson.get(item.id) || []
       });
     } else if (item.group === 'roman-emperors') {
       // Roman emperors are rendered below the timeline

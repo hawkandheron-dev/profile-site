@@ -8,25 +8,35 @@ clement-rome,Clement of Rome,0035-01-01,0099-01-01,Rome
 ignatius-antioch,Ignatius of Antioch,0035-01-01,0107-01-01,Antioch
 polycarp,Polycarp,0069-01-01,0155-01-01,Smyrna
 justin-martyr,Justin Martyr,0100-01-01,0165-01-01,Rome
+clement-alexandria,Clement of Alexandria,0150-01-01,0215-01-01,Alexandria
+tatians,Tatian,0120-01-01,0180-01-01,Rome
 irenaeus,Irenaeus of Lyons,0130-01-01,0202-01-01,"Lyons, Gaul"
 tertullian,Tertullian,0155-01-01,0240-01-01,Carthage
 hippolytus,Hippolytus of Rome,0170-01-01,0235-01-01,Rome
 perpetua,Perpetua,0185-01-01,0203-01-01,Carthage
 origen,Origen,0185-01-01,0254-01-01,Alexandria
+gregory-thaumaturgus,Gregory Thaumaturgus,0213-01-01,0270-01-01,"Neocaesarea, Pontus"
 dionysius-alexandria,Dionysius of Alexandria,0210-01-01,0264-01-01,Alexandria
 cyprian,Cyprian,0210-01-01,0258-01-01,Carthage
 anthony-great,Anthony the Great,0251-01-01,0356-01-01,Egyptian Desert
 lucian-antioch,Lucian of Antioch,0250-01-01,0312-01-01,Antioch
 alexander-alexandria,Alexander of Alexandria,0280-01-01,0328-01-01,Alexandria
 athanasius,Athanasius,0296-01-01,0373-01-01,Alexandria
+macrina-younger,Macrina the Younger,0327-01-01,0379-07-19,Cappadocia / Pontus
 basil-great,Basil the Great,0330-01-01,0379-01-01,"Caesarea, Cappadocia"
+gregory-nazianzus,Gregory of Nazianzus,0330-01-01,0389-01-01,"Arianzus, Cappadocia"
 gregory-nyssa,Gregory of Nyssa,0335-01-01,0395-01-01,"Nyssa, Cappadocia"
 ambrose-milan,Ambrose of Milan,0339-01-01,0397-01-01,Milan
 jerome,Jerome,0347-01-01,0420-01-01,Bethlehem
 john-chrysostom,John Chrysostom,0349-01-01,0407-01-01,Constantinople
 arsenius-great,Arsenius the Great,0350-01-01,0445-01-01,Egyptian Desert
 augustine,Augustine of Hippo,0354-01-01,0430-01-01,Hippo Regius
+didymus-blind,Didymus the Blind,0313-01-01,0398-01-01,Alexandria
+rufinus-aquileia,Rufinus of Aquileia,0345-01-01,0411-01-01,Aquileia / Sicily
+olympias,Olympias the Deaconess,0365-01-01,0408-07-25,Constantinople / Nicomedia
+theophilus-alexandria,Theophilus of Alexandria,0355-01-01,0412-10-15,Alexandria
 cyril-alexandria,Cyril of Alexandria,0376-01-01,0444-01-01,Alexandria
+nestorius,Nestorius of Constantinople,0381-01-01,0451-01-01,Constantinople / Egypt
 patrick,Patrick,0385-01-01,0461-01-01,Ireland
 prosper-aquitaine,Prosper of Aquitaine,0390-01-01,0455-01-01,Aquitaine
 pope-leo-1,Pope Leo I,0400-01-01,0461-01-01,Rome
@@ -92,6 +102,10 @@ nicholas-copernicus,Nicholas Copernicus,1473-01-01,1543-01-01,"Frauenburg, Polan
 bartolome-las-casas,Bartolome de las Casas,1474-01-01,1566-01-01,Hispaniola
 thomas-more,Thomas More,1478-01-01,1535-01-01,"London, England"
 martin-luther,Martin Luther,1483-01-01,1546-01-01,"Wittenberg, Germany"
+huldrych-zwingli,Huldrych Zwingli,1484-01-01,1531-10-11,"Zurich, Switzerland"
+ignatius-loyola,Ignatius of Loyola,1491-10-23,1556-07-31,Rome
+peter-faber,Peter Faber,1506-04-13,1546-08-01,Paris / Rome
+francis-xavier,Francis Xavier,1506-04-07,1552-12-03,India / Japan / China
 john-calvin,John Calvin,1509-01-01,1564-01-01,"Geneva, Switzerland"
 teresa-avila,Teresa of Avila,1515-01-01,1582-01-01,"Ávila, Spain"
 john-cross,John of the Cross,1542-01-01,1591-01-01,"Segovia, Spain"
@@ -102,3 +116,23 @@ thomas-traherne,Thomas Traherne,1636-01-01,1674-01-01,"Herefordshire, England"
 isaac-newton,Sir Isaac Newton,1642-01-01,1727-01-01,"Cambridge, England"
 charles-wesley,Charles Wesley,1707-01-01,1788-01-01,England
 john-wesley,John Wesley,1703-01-01,1791-01-01,England
+pope-damasus-1,Pope Damasus I,0305-01-01,0384-01-01,Rome
+monica,Monica of Hippo,0331-01-01,0387-01-01,North Africa
+alypius,Alypius of Thagaste,0354-01-01,0430-01-01,North Africa
+possidius,Possidius,0350-01-01,0437-01-01,"Calama, Numidia"
+pope-cornelius,Pope Cornelius,0180-01-01,0253-01-01,Rome
+pope-stephen-1,Pope Stephen I,0200-01-01,0257-01-01,Rome
+germanus-auxerre,Germanus of Auxerre,0378-01-01,0448-01-01,"Auxerre, Gaul"
+augustine-canterbury,Augustine of Canterbury,0534-01-01,0604-01-01,Canterbury
+leander-seville,Leander of Seville,0534-01-01,0600-01-01,Seville
+pope-martin-1,Pope Martin I,0590-01-01,0655-01-01,Rome
+pope-gregory-ii,Pope Gregory II,0669-01-01,0731-01-01,Rome
+charlemagne,Charlemagne,0742-01-01,0814-01-01,"Aachen, Francia"
+peter-abelard,Peter Abelard,1079-01-01,1142-01-01,"Paris, France"
+pope-eugenius-iii,Pope Eugenius III,1080-01-01,1153-01-01,Rome
+clare-assisi,Clare of Assisi,1194-01-01,1253-01-01,"Assisi, Italy"
+bonaventure,Bonaventure,1221-01-01,1274-01-01,"Paris, France"
+pico-mirandola,Giovanni Pico della Mirandola,1463-01-01,1494-01-01,"Florence, Italy"
+philipp-melanchthon,Philipp Melanchthon,1497-01-01,1560-01-01,"Wittenberg, Germany"
+william-farel,William Farel,1489-01-01,1565-01-01,"Geneva, Switzerland"
+george-whitefield,George Whitefield,1714-01-01,1770-01-01,England
