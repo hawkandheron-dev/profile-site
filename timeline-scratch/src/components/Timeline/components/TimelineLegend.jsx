@@ -5,7 +5,7 @@
 import { Icon, ShapeIcon } from './Icon.jsx';
 import './TimelineLegend.css';
 
-export function TimelineLegend({ legend, isVisible = true, filters = {}, onFilterToggle }) {
+export function TimelineLegend({ legend, isVisible = true, filters = {}, onFilterToggle, onMouseEnter, onMouseLeave }) {
   if (!isVisible || !legend || legend.length === 0) return null;
 
   const handleToggle = (filterKey) => {
@@ -15,7 +15,7 @@ export function TimelineLegend({ legend, isVisible = true, filters = {}, onFilte
   };
 
   return (
-    <div className="timeline-legend">
+    <div className="timeline-legend" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
       <h3 className="legend-title">Legend</h3>
       <div className="legend-items">
         {legend.map(item => {
