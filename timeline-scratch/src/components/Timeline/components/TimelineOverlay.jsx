@@ -177,14 +177,14 @@ export function TimelineOverlay({
             fontWeight: '600',
             color: '#fff',
             backgroundColor: 'rgba(0, 0, 0, 0.75)',
-            padding: '6px 8px',
+            padding: '4px 8px',
             borderRadius: '4px',
             whiteSpace: 'nowrap',
             zIndex: isSticky ? 10 : 1,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'flex-start',
-            gap: '2px',
+            gap: '0px',
             opacity: getPersonOpacity(person),
             transition: 'opacity 0.15s ease'
           }}
@@ -195,7 +195,7 @@ export function TimelineOverlay({
             )}
             {person.name}
           </span>
-          <span style={{ opacity: 0.85, fontSize: '11px', fontWeight: '500' }}>
+          <span style={{ opacity: 0.85, fontSize: '10px', fontWeight: '500' }}>
             {yearRange}
           </span>
         </div>
