@@ -454,6 +454,8 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
           summary={getYearSummary(pinnedYear)}
           config={defaultConfig}
           onClose={handleYearSummaryClose}
+          itemIndex={itemIndex}
+          onSelectItem={handleModalItemSelect}
         />
       )}
 

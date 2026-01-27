@@ -263,13 +263,13 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
 
         {connections.length > 0 && (
           <div className="modal-links">
-            <h3>Known connections</h3>
-            <ul className="modal-reference-list">
+            <h3>Connections</h3>
+            <ul className="modal-reference-list modal-pill-list">
               {connections.map(connection => (
-                <li key={connection.id}>
+                <li key={connection.id} className="modal-pill-item">
                   <button
                     type="button"
-                    className="modal-reference"
+                    className="modal-pill"
                     data-item-id={connection.id}
                     data-item-type={connection.itemType}
                     onClick={handleReferenceClick}
