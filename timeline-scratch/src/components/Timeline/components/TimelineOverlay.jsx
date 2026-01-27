@@ -4,6 +4,7 @@
 
 import { yearToPixel } from '../utils/coordinates.js';
 import { getYearRange } from '../utils/dateUtils.js';
+import { Icon, ShapeIcon } from './Icon.jsx';
 import './TimelineOverlay.css';
 
 export function TimelineOverlay({
@@ -14,8 +15,37 @@ export function TimelineOverlay({
   panOffsetY,
   layout,
   config,
-  hoveredItem
+  hoveredItem,
+  hoveredPeriod
 }) {
+  // Get hovered period date range for highlighting
+  const hoveredPeriodRange = hoveredPeriod ? getYearRange(hoveredPeriod.startDate, hoveredPeriod.endDate) : null;
+
+  // Check if an item falls within the hovered period
+  const isInHoveredPeriod = (startYear, endYear) => {
+    if (!hoveredPeriodRange) return true; // No period hovered, all items are "in"
+    return startYear <= hoveredPeriodRange.end && endYear >= hoveredPeriodRange.start;
+  };
+
+  // Get opacity for a person based on period highlighting
+  const getPersonOpacity = (person) => {
+    if (!hoveredPeriod) return 1;
+    const { start, end } = getYearRange(person.startDate, person.endDate);
+    return isInHoveredPeriod(start, end) ? 1 : 0.3;
+  };
+
+  // Get opacity for a point based on period highlighting
+  const getPointOpacity = (point) => {
+    if (!hoveredPeriod) return 1;
+    const year = getYearRange(point.date).start;
+    return isInHoveredPeriod(year, year) ? 1 : 0.3;
+  };
+
+  // Get opacity for a period label
+  const getPeriodOpacity = (period) => {
+    if (!hoveredPeriod) return 1;
+    return hoveredPeriod.id === period.id ? 1 : 0.3;
+  };
   const parseColor = (color) => {
     if (!color) return null;
 
@@ -98,6 +128,10 @@ export function TimelineOverlay({
   function renderPeopleLabels() {
     const people = layout.stackedPeople || [];
 
+    // Calculate visible years to determine if we should show year ranges
+    const visibleYears = width * yearsPerPixel;
+    const showYearRange = visibleYears <= 300;
+
     return people.map(person => {
       const { start, end } = getYearRange(person.startDate, person.endDate);
 
@@ -107,7 +141,7 @@ export function TimelineOverlay({
       const boxHeight = person.height - 8;
       const boxY = person.y - panOffsetY;
 
-      // Position label at bottom-left of the box, overlaid
+      // Position label at bottom-left of the box
       let labelX = startX + 6; // 6px from left edge of box
       const labelY = boxY + boxHeight - 22; // 22px from bottom of box
 
@@ -122,16 +156,23 @@ export function TimelineOverlay({
         return null;
       }
 
-      // Show year range if available
-      const startYear = start <= 0 ? Math.abs(start - 1) + 1 : start;
-      const endYear = end <= 0 ? Math.abs(end - 1) + 1 : end;
-      const [bcLabel, adLabel] = config.eraLabels === 'BC/AD' ? ['BC', 'AD'] : ['BCE', 'CE'];
-      const startEra = start <= 0 ? bcLabel : adLabel;
-      const endEra = end <= 0 ? bcLabel : adLabel;
+      // Format year range (only shown when zoomed in enough)
+      let yearRange = '';
+      if (showYearRange) {
+        const startYear = start <= 0 ? Math.abs(start - 1) + 1 : start;
+        const endYear = end <= 0 ? Math.abs(end - 1) + 1 : end;
+        const bcLabel = config.eraLabels === 'BC/AD' ? 'BC' : 'BCE';
+        const startIsBC = start <= 0;
+        const endIsBC = end <= 0;
 
-      const yearRange = startYear !== endYear
-        ? `(${startYear} ${startEra} - ${endYear} ${endEra})`
-        : `(${startYear} ${startEra})`;
+        // Format: "X BC" for BC years, just "X" for AD years
+        const startStr = startIsBC ? `${startYear} ${bcLabel}` : `${startYear}`;
+        const endStr = endIsBC ? `${endYear} ${bcLabel}` : `${endYear}`;
+
+        yearRange = startYear !== endYear
+          ? ` (${startStr}-${endStr})`
+          : ` (${startStr})`;
+      }
 
       return (
         <div
@@ -149,10 +190,19 @@ export function TimelineOverlay({
             padding: '3px 8px',
             borderRadius: '4px',
             whiteSpace: 'nowrap',
-            zIndex: isSticky ? 10 : 1
+            zIndex: isSticky ? 10 : 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            opacity: getPersonOpacity(person),
+            transition: 'opacity 0.15s ease'
           }}
         >
-          {person.name} <span style={{ opacity: 0.9, fontSize: '11px' }}>{yearRange}</span>
+          {person.isEmperor && (
+            <Icon name="crown" size={12} color="#ffd700" />
+          )}
+          <span>{person.name}</span>
+          <span style={{ opacity: 0.9, fontSize: '11px' }}>{yearRange}</span>
         </div>
       );
     });
@@ -222,7 +272,9 @@ export function TimelineOverlay({
             borderRadius: '4px',
             whiteSpace: 'nowrap',
             zIndex: (isLeftSticky || isRightSticky) ? 10 : 1,
-            textShadow: '0 0 2px rgba(0, 0, 0, 0.3)'
+            textShadow: '0 0 2px rgba(0, 0, 0, 0.3)',
+            opacity: getPeriodOpacity(period),
+            transition: 'opacity 0.15s ease'
           }}
         >
           {period.name}
@@ -233,61 +285,6 @@ export function TimelineOverlay({
 
   function renderPointCallouts() {
     const points = layout.stackedPoints || [];
-
-    // Helper to render shape icon
-    const renderShapeIcon = (shape, color, size = 16) => {
-      const half = size / 2;
-      const curve = size * 0.1;
-
-      switch (shape) {
-        case 'diamond':
-          return (
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
-              <path
-                d={`M ${half} 0 Q ${half + curve} ${half - curve} ${size} ${half} Q ${half + curve} ${half + curve} ${half} ${size} Q ${half - curve} ${half + curve} 0 ${half} Q ${half - curve} ${half - curve} ${half} 0 Z`}
-                fill={color}
-                stroke="#333"
-                strokeWidth="1"
-              />
-            </svg>
-          );
-        case 'square':
-          return (
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
-              <path
-                d={`M 0 ${curve} Q ${half} ${-curve} ${size - curve} 0 Q ${size + curve} ${half} ${size - curve} ${size} Q ${half} ${size + curve} ${curve} ${size} Q ${-curve} ${half} 0 ${curve} Z`}
-                fill={color}
-                stroke="#333"
-                strokeWidth="1"
-              />
-            </svg>
-          );
-        case 'circle':
-          return (
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
-              <circle cx={half} cy={half} r={half - 1} fill={color} stroke="#333" strokeWidth="1" />
-            </svg>
-          );
-        case 'triangle':
-          const height = (Math.sqrt(3) / 2) * size;
-          return (
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
-              <path
-                d={`M ${half} ${(size - height) / 2} Q ${half + half / 2 + curve} ${size / 2} ${size} ${(size + height) / 2} Q ${half} ${(size + height) / 2 + curve} 0 ${(size + height) / 2} Q ${half - half / 2 - curve} ${size / 2} ${half} ${(size - height) / 2} Z`}
-                fill={color}
-                stroke="#333"
-                strokeWidth="1"
-              />
-            </svg>
-          );
-        default:
-          return (
-            <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
-              <circle cx={half} cy={half} r={half - 1} fill={color} stroke="#333" strokeWidth="1" />
-            </svg>
-          );
-      }
-    };
 
     return points.map(point => {
       const year = getYearRange(point.date).start;
@@ -300,9 +297,26 @@ export function TimelineOverlay({
         return null;
       }
 
-      const displayYear = year <= 0 ? Math.abs(year - 1) + 1 : year;
+      // Format date display - support date ranges for documents
       const [bcLabel, adLabel] = config.eraLabels === 'BC/AD' ? ['BC', 'AD'] : ['BCE', 'CE'];
-      const era = year <= 0 ? bcLabel : adLabel;
+      const formatYear = (yr) => {
+        const displayYr = yr <= 0 ? Math.abs(yr - 1) + 1 : yr;
+        const era = yr <= 0 ? bcLabel : adLabel;
+        // Only show era label for BC years
+        return yr <= 0 ? `${displayYr} ${era}` : `${displayYr}`;
+      };
+
+      let dateDisplay;
+      if (point.endDate) {
+        // Date range (e.g., documents with early/late dates)
+        const endYear = getYearRange(point.endDate).start;
+        dateDisplay = `${formatYear(year)}-${formatYear(endYear)}`;
+      } else {
+        // Single date
+        const displayYear = year <= 0 ? Math.abs(year - 1) + 1 : year;
+        const era = year <= 0 ? bcLabel : adLabel;
+        dateDisplay = `${displayYear} ${era}`;
+      }
 
       return (
         <div
@@ -320,15 +334,17 @@ export function TimelineOverlay({
             borderRadius: '4px',
             border: '1px solid #ccc',
             whiteSpace: 'nowrap',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            opacity: getPointOpacity(point),
+            transition: 'opacity 0.15s ease'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-            {renderShapeIcon(point.shape || 'circle', point.color || '#ff6f00', 14)}
+            <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={14} />
             <div style={{ fontSize: '12px', fontWeight: '600' }}>{point.name}</div>
           </div>
           <div style={{ fontSize: '10px', opacity: 0.7, paddingLeft: '20px' }}>
-            {displayYear} {era}
+            {dateDisplay}
           </div>
         </div>
       );

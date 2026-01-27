@@ -8,6 +8,7 @@ import { getYear, getYearRange, rangesOverlap } from './dateUtils.js';
  * Stack people using stair-step ascending pattern
  * Sorted by birth date, then alphabetically
  * Placed in lowest available row, ascending vertically (earliest births higher up)
+ * Emperors use forced cascading through 5 rows for visual clarity
  *
  * @param {Array} people - Array of person items
  * @returns {Array} People with row assignments
@@ -15,8 +16,26 @@ import { getYear, getYearRange, rangesOverlap } from './dateUtils.js';
 export function stackPeople(people) {
   if (!people || people.length === 0) return [];
 
-  // Sort by start date (birth), then alphabetically
-  const sorted = [...people].sort((a, b) => {
+  // Separate emperors from other people for different stacking strategies
+  const emperors = people.filter(p => p.isEmperor);
+  const nonEmperors = people.filter(p => !p.isEmperor);
+
+  // Sort emperors by start date for cascading
+  const sortedEmperors = [...emperors].sort((a, b) => {
+    const aStart = getYear(a.startDate);
+    const bStart = getYear(b.startDate);
+    if (aStart !== bStart) return aStart - bStart;
+    return (a.name || '').localeCompare(b.name || '');
+  });
+
+  // Assign emperors to cascading rows (0, 1, 2, 3, 4, 0, 1, 2, ...)
+  const emperorsWithRows = sortedEmperors.map((emperor, index) => ({
+    ...emperor,
+    row: index % 5
+  }));
+
+  // Sort non-emperors by start date, then alphabetically
+  const sortedNonEmperors = [...nonEmperors].sort((a, b) => {
     const aStart = getYear(a.startDate);
     const bStart = getYear(b.startDate);
 
@@ -29,8 +48,8 @@ export function stackPeople(people) {
   // Track occupied rows: array of arrays, each containing year ranges
   const rows = [];
 
-  // Assign each person to a row
-  const withRows = sorted.map(person => {
+  // Assign each non-emperor person to a row using overlap detection
+  const nonEmperorsWithRows = sortedNonEmperors.map(person => {
     const { start, end } = getYearRange(person.startDate, person.endDate);
 
     // Find the first (lowest index = visually higher) row where this person fits
@@ -64,7 +83,7 @@ export function stackPeople(people) {
     };
   });
 
-  return withRows;
+  return [...nonEmperorsWithRows, ...emperorsWithRows];
 }
 
 /**
@@ -288,7 +307,8 @@ export function stackPeopleAndPoints(people, points, pointWidth = 150, yearsPerP
 
 /**
  * Stack all timeline items with above/below timeline separation
- * Layout from axis: Periods closest → People/Points further out
+ * Layout from axis: Periods (with points inside) → People further out
+ * Points are placed within the period bracket area
  *
  * @param {Object} data - Timeline data { people, points, periods }
  * @param {number} pointWidth - Width for point collision detection
@@ -308,24 +328,27 @@ export function stackTimelineItems(data, pointWidth = 150, yearsPerPixel = 1) {
   const abovePeriods = periods.filter(p => p.aboveTimeline !== false);
   const belowPeriods = periods.filter(p => p.aboveTimeline === false);
 
-  // Stack periods separately for each side
+  // Stack each type separately
+  // Points will be positioned within the period area in the layout hook
   const abovePeriodsStacked = stackPeriods(abovePeriods);
   const belowPeriodsStacked = stackPeriods(belowPeriods);
 
-  // Stack people and points together for each side
-  const abovePeoplePoints = stackPeopleAndPoints(abovePeople, abovePoints, pointWidth, yearsPerPixel);
-  const belowPeoplePoints = stackPeopleAndPoints(belowPeople, belowPoints, pointWidth, yearsPerPixel);
+  const abovePeopleStacked = stackPeople(abovePeople);
+  const belowPeopleStacked = stackPeople(belowPeople);
+
+  const abovePointsStacked = stackPoints(abovePoints, pointWidth, yearsPerPixel);
+  const belowPointsStacked = stackPoints(belowPoints, pointWidth, yearsPerPixel);
 
   return {
     above: {
       periods: abovePeriodsStacked,
-      people: abovePeoplePoints.people,
-      points: abovePeoplePoints.points
+      people: abovePeopleStacked,
+      points: abovePointsStacked
     },
     below: {
       periods: belowPeriodsStacked,
-      people: belowPeoplePoints.people,
-      points: belowPeoplePoints.points
+      people: belowPeopleStacked,
+      points: belowPointsStacked
     }
   };
 }

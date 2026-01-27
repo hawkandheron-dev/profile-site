@@ -4,6 +4,7 @@
 
 import { useEffect } from 'react';
 import { formatDateRange } from '../utils/dateUtils.js';
+import { Icon } from './Icon.jsx';
 import './TimelineModal.css';
 
 export function TimelineModal({ isOpen, item, itemType, config, onClose }) {
@@ -76,10 +77,23 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose }) {
           />
         )}
 
-        <h2 className="modal-title">{item.name}</h2>
+        <h2 className="modal-title">
+          {item.isEmperor && (
+            <Icon name="crown" size={24} color="#ffd700" className="emperor-crown" />
+          )}
+          {item.name}
+        </h2>
 
         {dateString && (
           <p className="modal-date">{dateString}</p>
+        )}
+
+        {item.location && (
+          <p className="modal-location">{item.location}</p>
+        )}
+
+        {item.periodName && (
+          <p className="modal-period">Era: {item.periodName}</p>
         )}
 
         {item.description && (

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+  <!-- Decorative bullet point (fleuron-style) -->
+  <path d="M12 6 C14 6 16 8 16 12 C16 16 14 18 12 18 C10 18 8 16 8 12 C8 8 10 6 12 6"/>
+  <!-- Inner decoration -->
+  <path d="M12 9 C13 9 14 10 14 12 C14 14 13 15 12 15 C11 15 10 14 10 12 C10 10 11 9 12 9" fill="none" stroke="currentColor" stroke-width="1"/>
+</svg>

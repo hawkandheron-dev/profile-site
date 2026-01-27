@@ -58,6 +58,37 @@
   line-height: 1.3;
 }
 
+.legend-toggle {
+  display: flex;
+  align-items: center;
+  margin-right: -2px;
+}
+
+.legend-toggle input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: #1976d2;
+}
+
+.legend-bracket {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.legend-emperor-icon {
+  display: flex;
+  align-items: center;
+}
+
+.legend-item-inactive {
+  opacity: 0.6;
+}
+
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   .timeline-legend {

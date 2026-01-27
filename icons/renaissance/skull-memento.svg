@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Memento mori skull (woodcut style) -->
+  <!-- Cranium -->
+  <path d="M6 10 C6 5 9 3 12 3 C15 3 18 5 18 10 L18 14 C18 15 17 16 16 16 L8 16 C7 16 6 15 6 14 L6 10"/>
+  <!-- Eye sockets -->
+  <ellipse cx="9" cy="10" rx="2" ry="2.5"/>
+  <ellipse cx="15" cy="10" rx="2" ry="2.5"/>
+  <!-- Nose cavity -->
+  <path d="M12 12 L11 15 L13 15 L12 12"/>
+  <!-- Teeth -->
+  <path d="M8 16 L8 18 M10 16 L10 19 M12 16 L12 19 M14 16 L14 19 M16 16 L16 18"/>
+  <!-- Jaw suggestion -->
+  <path d="M7 18 C7 20 9 21 12 21 C15 21 17 20 17 18"/>
+</svg>

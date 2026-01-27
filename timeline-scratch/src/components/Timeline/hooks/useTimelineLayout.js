@@ -35,87 +35,106 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
   }, [data, yearsPerPixel]);
 
   // Calculate layout with positions
+  // Layout: People (outer) → Period brackets → Points inside period area → Axis
   const layout = useMemo(() => {
     const above = stacked.above;
     const below = stacked.below;
 
-    // Calculate heights for each section
+    // Calculate row counts for each section
     const abovePeriodRows = above.periods.length > 0 ? Math.max(...above.periods.map(p => p.row)) + 1 : 0;
-    const abovePeoplePointRows = Math.max(
-      above.people.length > 0 ? Math.max(...above.people.map(p => p.row)) + 1 : 0,
-      above.points.length > 0 ? Math.max(...above.points.map(p => p.row)) + 1 : 0
-    );
+    const abovePeopleRows = above.people.length > 0 ? Math.max(...above.people.map(p => p.row)) + 1 : 0;
+    const abovePointRows = above.points.length > 0 ? Math.max(...above.points.map(p => p.row)) + 1 : 0;
 
     const belowPeriodRows = below.periods.length > 0 ? Math.max(...below.periods.map(p => p.row)) + 1 : 0;
-    const belowPeoplePointRows = Math.max(
-      below.people.length > 0 ? Math.max(...below.people.map(p => p.row)) + 1 : 0,
-      below.points.length > 0 ? Math.max(...below.points.map(p => p.row)) + 1 : 0
-    );
+    const belowPeopleRows = below.people.length > 0 ? Math.max(...below.people.map(p => p.row)) + 1 : 0;
+    const belowPointRows = below.points.length > 0 ? Math.max(...below.points.map(p => p.row)) + 1 : 0;
 
-    // Calculate section heights
-    const abovePeriodHeight = abovePeriodRows * periodBracketHeight + (abovePeriodRows > 0 ? lanePadding : 0);
-    const abovePeoplePointHeight = abovePeoplePointRows * personRowHeight + (abovePeoplePointRows > 0 ? lanePadding : 0);
-    const aboveHeight = abovePeriodHeight + abovePeoplePointHeight;
+    // Points live inside the period area, so period height includes space for points
+    // Period area = bracket height + points area
+    const abovePointsAreaHeight = abovePointRows * pointRowHeight;
+    const belowPointsAreaHeight = belowPointRows * pointRowHeight;
 
-    const belowPeriodHeight = belowPeriodRows * periodBracketHeight + (belowPeriodRows > 0 ? lanePadding : 0);
-    const belowPeoplePointHeight = belowPeoplePointRows * personRowHeight + (belowPeoplePointRows > 0 ? lanePadding : 0);
-    const belowHeight = belowPeriodHeight + belowPeoplePointHeight;
+    // Total period area height (bracket + points inside)
+    const abovePeriodTotalHeight = abovePeriodRows * periodBracketHeight + abovePointsAreaHeight + (abovePeriodRows > 0 ? lanePadding : 0);
+    const belowPeriodTotalHeight = belowPeriodRows * periodBracketHeight + belowPointsAreaHeight + (belowPeriodRows > 0 ? lanePadding : 0);
 
-    // Axis position (centered, but weighted toward content)
+    // People area height
+    const abovePeopleHeight = abovePeopleRows * personRowHeight + (abovePeopleRows > 0 ? lanePadding : 0);
+    const belowPeopleHeight = belowPeopleRows * personRowHeight + (belowPeopleRows > 0 ? lanePadding : 0);
+
+    // Total heights
+    const aboveHeight = abovePeriodTotalHeight + abovePeopleHeight;
+    const belowHeight = belowPeriodTotalHeight + belowPeopleHeight;
+
+    // Axis position
     const axisY = aboveHeight + lanePadding;
     const totalHeight = aboveHeight + axisHeight + belowHeight + lanePadding * 2;
 
-    // Calculate Y positions for each item
-    // Above axis: grow upward (decreasing Y)
-    const abovePeoplePointY = axisY - abovePeriodHeight - abovePeoplePointHeight;
-    const abovePeriodY = axisY - abovePeriodHeight;
+    // Calculate Y positions for each section
+    // Above timeline (from axis going up): points → period brackets → people
+    const abovePointsY = axisY - abovePointsAreaHeight; // Points closest to axis
+    const abovePeriodY = axisY - abovePointsAreaHeight - (abovePeriodRows * periodBracketHeight); // Brackets above points
+    const abovePeopleY = abovePeriodY - abovePeopleHeight; // People above brackets
 
-    // Below axis: grow downward (increasing Y)
-    const belowPeriodY = axisY + axisHeight;
-    const belowPeoplePointY = belowPeriodY + belowPeriodHeight;
+    // Below timeline (from axis going down): points → period brackets → people
+    const belowPointsY = axisY + axisHeight; // Points closest to axis
+    const belowPeriodY = belowPointsY + belowPointsAreaHeight; // Brackets below points
+    const belowPeopleY = belowPeriodY + (belowPeriodRows * periodBracketHeight) + lanePadding; // People below brackets
+
+    // Calculate max rows for reversing above-timeline items
+    const maxAbovePeopleRow = above.people.length > 0 ? Math.max(...above.people.map(p => p.row)) : 0;
+    const maxAbovePointsRow = above.points.length > 0 ? Math.max(...above.points.map(p => p.row)) : 0;
+    const maxAbovePeriodsRow = above.periods.length > 0 ? Math.max(...above.periods.map(p => p.row)) : 0;
 
     // Add y positions to items
+    // Above timeline: reverse stacking so row 0 is at bottom (closest to axis)
+    // Below timeline: row 0 is at top (closest to axis), stacking downward
     const peopleWithY = [
       ...above.people.map(p => ({
         ...p,
-        y: abovePeoplePointY + p.row * personRowHeight,
+        y: abovePeopleY + (maxAbovePeopleRow - p.row) * personRowHeight,
         height: personRowHeight,
         aboveTimeline: true
       })),
       ...below.people.map(p => ({
         ...p,
-        y: belowPeoplePointY + p.row * personRowHeight,
+        y: belowPeopleY + p.row * personRowHeight,
         height: personRowHeight,
         aboveTimeline: false
       }))
     ];
 
+    // Points are positioned within the period area (between bracket and axis)
     const pointsWithY = [
       ...above.points.map(p => ({
         ...p,
-        y: abovePeoplePointY + p.row * pointRowHeight,
+        y: abovePointsY + (maxAbovePointsRow - p.row) * pointRowHeight,
         height: pointRowHeight,
         aboveTimeline: true
       })),
       ...below.points.map(p => ({
         ...p,
-        y: belowPeoplePointY + p.row * pointRowHeight,
+        y: belowPointsY + p.row * pointRowHeight,
         height: pointRowHeight,
         aboveTimeline: false
       }))
     ];
 
+    // Periods - the bracket is positioned at the outer edge
+    // but the total height includes the points area
     const periodsWithY = [
       ...above.periods.map(p => ({
         ...p,
-        y: abovePeriodY + p.row * periodBracketHeight,
-        height: periodBracketHeight,
+        y: abovePeriodY + (maxAbovePeriodsRow - p.row) * periodBracketHeight,
+        height: periodBracketHeight + abovePointsAreaHeight, // Extended to include points area
+        bracketHeight: periodBracketHeight, // Original bracket height for drawing
         aboveTimeline: true
       })),
       ...below.periods.map(p => ({
         ...p,
         y: belowPeriodY + p.row * periodBracketHeight,
-        height: periodBracketHeight,
+        height: periodBracketHeight + belowPointsAreaHeight, // Extended to include points area
+        bracketHeight: periodBracketHeight, // Original bracket height for drawing
         aboveTimeline: false
       }))
     ];
