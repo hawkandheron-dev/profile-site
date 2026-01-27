@@ -139,7 +139,7 @@ export function TimelineOverlay({
 
       // Position label at bottom-left of the box
       let labelX = startX + 6; // 6px from left edge of box
-      const labelY = boxY + boxHeight - 34; // space for two-line label
+      const labelY = boxY + boxHeight - 28; // space for two-line label
 
       // Sticky behavior: stick to left edge if box extends left of viewport
       const isSticky = startX < 0 && endX > 0;
