@@ -122,7 +122,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     defaultConfig.laneOrder,
     yearsPerPixel,
     {
-      personRowHeight: 40,
+      personRowHeight: 52,
       pointRowHeight: 50,
       periodRowHeight: 60,
       lanePadding: 20,

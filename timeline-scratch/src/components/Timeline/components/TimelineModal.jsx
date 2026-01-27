@@ -274,7 +274,14 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
                     data-item-type={connection.itemType}
                     onClick={handleReferenceClick}
                   >
-                    {connection.item.name}
+                    <span
+                      className="summary-color-dot"
+                      style={{ backgroundColor: connection.item.color }}
+                    />
+                    <strong>{connection.item.name}</strong>
+                    {connection.item.location && (
+                      <span>{'\u00A0'}in <em>{connection.item.location}</em></span>
+                    )}
                   </button>
                 </li>
               ))}
