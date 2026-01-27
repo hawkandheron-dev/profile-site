@@ -175,6 +175,45 @@ const rawData = {
   ]
 };
 
+const knownConnections = [
+  { type: 'known', people: ['jesus', 'peter'] },
+  { type: 'known', people: ['jesus', 'john-evangelist'] },
+  { type: 'known', people: ['peter', 'paul'] },
+  { type: 'known', people: ['ignatius-antioch', 'polycarp'] },
+  { type: 'known', people: ['polycarp', 'irenaeus'] },
+  { type: 'known', people: ['origen', 'dionysius-alexandria'] },
+  { type: 'known', people: ['anthony-great', 'athanasius'] },
+  { type: 'known', people: ['alexander-alexandria', 'athanasius'] },
+  { type: 'known', people: ['basil-great', 'gregory-nyssa'] },
+  { type: 'known', people: ['ambrose-milan', 'augustine'] },
+  { type: 'known', people: ['jerome', 'augustine'] }
+];
+
+function buildConnectionMap(connections) {
+  const map = new Map();
+
+  const addConnection = (fromId, toId, type = 'known') => {
+    if (!fromId || !toId || fromId === toId) return;
+    if (!map.has(fromId)) {
+      map.set(fromId, []);
+    }
+    const entries = map.get(fromId);
+    if (entries.some(entry => entry.id === toId && entry.type === type)) return;
+    entries.push({ id: toId, type });
+  };
+
+  connections.forEach(({ type = 'known', people = [] }) => {
+    for (let i = 0; i < people.length; i += 1) {
+      for (let j = i + 1; j < people.length; j += 1) {
+        addConnection(people[i], people[j], type);
+        addConnection(people[j], people[i], type);
+      }
+    }
+  });
+
+  return map;
+}
+
 // Color mappings for different categories
 const colorMap = {
   people: '#5b7ee8',
@@ -249,6 +288,7 @@ function transformData() {
   const people = [];
   const points = [];
   const periods = [];
+  const connectionMap = buildConnectionMap(knownConnections);
 
   rawData.items.forEach(item => {
     const isPoint = item.type === 'point' || !item.end;
@@ -269,7 +309,8 @@ function transformData() {
         preview: `${item.content}`,
         color: eraColorMap[eraId] || '#5b7ee8',
         aboveTimeline: true,
-        location: item.location
+        location: item.location,
+        connections: connectionMap.get(item.id) || []
       });
     } else if (item.group === 'roman-emperors') {
       // Roman emperors are rendered below the timeline

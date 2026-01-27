@@ -173,6 +173,36 @@
   text-decoration: underline;
 }
 
+.modal-reference-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.modal-reference-list li {
+  margin-bottom: 8px;
+}
+
+.modal-reference {
+  background: none;
+  border: none;
+  color: #0066cc;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.modal-reference:hover {
+  color: #004499;
+}
+
+.modal-reference:focus-visible {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* Year Summary Modal Styles */
 .year-summary-modal {
   max-width: 800px;
@@ -279,5 +309,13 @@
   .modal-close:hover {
     background-color: rgba(255, 255, 255, 0.1);
     color: #fff;
+  }
+
+  .modal-reference {
+    color: #6aaefc;
+  }
+
+  .modal-reference:hover {
+    color: #9ac7ff;
   }
 }
