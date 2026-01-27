@@ -2,11 +2,11 @@
  * Modal component for displaying year summary (people alive, periods active, points)
  */
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { Icon } from './Icon.jsx';
 import './TimelineModal.css';
 
-export function YearSummaryModal({ year, summary, config, onClose }) {
+export function YearSummaryModal({ year, summary, config, onClose, itemIndex, onSelectItem }) {
   // Handle escape key
   useEffect(() => {
     function handleEscape(e) {
@@ -37,6 +37,19 @@ export function YearSummaryModal({ year, summary, config, onClose }) {
   // Separate emperors from other people
   const emperors = alivePeople.filter(p => p.isEmperor);
   const otherPeople = alivePeople.filter(p => !p.isEmperor);
+
+  const handleReferenceClick = useCallback((event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    const button = target.closest('[data-item-id]');
+    if (!button || !itemIndex) return;
+    const id = button.getAttribute('data-item-id');
+    if (!id) return;
+    const entry = itemIndex.get(id);
+    if (!entry) return;
+    onSelectItem?.(entry.type, entry.item);
+    onClose();
+  }, [itemIndex, onSelectItem, onClose]);
 
   return (
     <div className="timeline-modal" onClick={onClose}>
@@ -97,11 +110,19 @@ export function YearSummaryModal({ year, summary, config, onClose }) {
             <ul className="summary-list summary-list-compact">
               {otherPeople.map(person => (
                 <li key={person.id} className="summary-item">
-                  <span
-                    className="summary-color-dot"
-                    style={{ backgroundColor: person.color }}
-                  />
-                  <strong>{person.name}</strong>{person.location && <span>{'\u00A0'}in <em>{person.location}</em></span>}
+                  <button
+                    type="button"
+                    className="summary-pill"
+                    data-item-id={person.id}
+                    data-item-type="person"
+                    onClick={handleReferenceClick}
+                  >
+                    <span
+                      className="summary-color-dot"
+                      style={{ backgroundColor: person.color }}
+                    />
+                    <strong>{person.name}</strong>{person.location && <span>{'\u00A0'}in <em>{person.location}</em></span>}
+                  </button>
                 </li>
               ))}
             </ul>
