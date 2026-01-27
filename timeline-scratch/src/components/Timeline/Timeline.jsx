@@ -414,6 +414,8 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
         isVisible={true}
         filters={filters}
         onFilterToggle={handleFilterToggle}
+        onMouseEnter={() => setIsOverControls(true)}
+        onMouseLeave={() => setIsOverControls(false)}
       />
 
       <TimelineModal
