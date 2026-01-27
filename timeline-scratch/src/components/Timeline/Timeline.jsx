@@ -192,8 +192,9 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     if (!container) return;
 
     // Check if this was a click (minimal movement and short duration)
+    // Don't trigger if any modal is open or hovering over controls
     const clickStart = container._clickStart;
-    if (clickStart && !hoveredItem && !isOverControls) {
+    if (clickStart && !hoveredItem && !isOverControls && !selectedItem && !yearSummaryOpen) {
       const dx = Math.abs(mousePos.x - clickStart.x);
       const dy = Math.abs(mousePos.y - clickStart.y);
       const duration = Date.now() - clickStart.time;
@@ -208,7 +209,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
 
     endPan();
     container.style.cursor = 'grab';
-  }, [endPan, hoveredItem, mousePos, cursorYear, isOverControls]);
+  }, [endPan, hoveredItem, mousePos, cursorYear, isOverControls, selectedItem, yearSummaryOpen]);
 
   // Handle item hover
   const handleItemHover = useCallback((type, item) => {
