@@ -3,8 +3,9 @@
  */
 
 import { useEffect, useMemo, useCallback } from 'react';
-import { formatDateRange } from '../utils/dateUtils.js';
+import { formatDateRange, getYear } from '../utils/dateUtils.js';
 import { Icon } from './Icon.jsx';
+import { getWorksForAuthor } from '../../../data/works.js';
 import './TimelineModal.css';
 
 function linkifyDescription(description, itemIndex, currentItemId) {
@@ -157,6 +158,22 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
     return linkifyDescription(item.description, itemIndex, item.id);
   }, [item, itemIndex]);
 
+  const worksForPerson = useMemo(() => {
+    if (itemType !== 'person') return [];
+    return getWorksForAuthor(item?.name);
+  }, [itemType, item?.name]);
+
+  const searchQuery = useMemo(() => {
+    if (itemType !== 'person') return '';
+    const startYear = getYear(item?.startDate);
+    const endYear = getYear(item?.endDate);
+    const formatYear = (year) => {
+      if (!year && year !== 0) return '?';
+      return year <= 0 ? Math.abs(year - 1) + 1 : year;
+    };
+    return `${item?.name} (${formatYear(startYear)}-${formatYear(endYear)})`;
+  }, [itemType, item?.name, item?.startDate, item?.endDate]);
+
   const handleReferenceClick = useCallback((event) => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
@@ -199,8 +216,17 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
     );
   }
 
+  const handleModalWheel = useCallback((event) => {
+    event.stopPropagation();
+  }, []);
+
   return (
-    <div className="timeline-modal" onClick={onClose}>
+    <div
+      className="timeline-modal"
+      onClick={onClose}
+      onWheel={handleModalWheel}
+      onTouchMove={handleModalWheel}
+    >
       <div className="modal-backdrop" />
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <button
@@ -219,12 +245,25 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
           />
         )}
 
-        <h2 className="modal-title">
-          {item.isEmperor && (
-            <Icon name="crown" size={24} color="#ffd700" className="emperor-crown" />
+        <div className="modal-header">
+          <h2 className="modal-title">
+            {item.isEmperor && (
+              <Icon name="crown" size={24} color="#ffd700" className="emperor-crown" />
+            )}
+            {item.name}
+          </h2>
+          {searchQuery && (
+            <a
+              className="modal-search-link"
+              href={`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Search for ${searchQuery}`}
+            >
+              🔎
+            </a>
           )}
-          {item.name}
-        </h2>
+        </div>
 
         {dateString && (
           <p className="modal-date">{dateString}</p>
@@ -259,6 +298,25 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
             onClick={handleReferenceClick}
             dangerouslySetInnerHTML={{ __html: descriptionHtml }}
           />
+        )}
+
+        {worksForPerson.length > 0 && (
+          <div className="modal-links modal-works">
+            <h3>Works</h3>
+            <ul className="modal-reference-list">
+              {worksForPerson.map((work) => (
+                <li key={work.name}>
+                  {work.url ? (
+                    <a href={work.url} target="_blank" rel="noopener noreferrer">
+                      {work.name}
+                    </a>
+                  ) : (
+                    work.name
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
 
         {connections.length > 0 && (
