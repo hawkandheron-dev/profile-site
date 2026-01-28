@@ -85,7 +85,7 @@ export function TimelineCanvas({
       const x = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const boxWidth = yearToPixel(end, viewportStartYear, yearsPerPixel) - x;
       const y = person.y - panOffsetY;
-      const boxHeight = person.height - 8;
+      const boxHeight = person.height - 14;
 
       // Min width for readability
       const displayWidth = Math.max(boxWidth, 60);
