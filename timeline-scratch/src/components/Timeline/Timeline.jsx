@@ -102,13 +102,27 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     };
   }, [data, filters]);
 
+  const itemIndex = useMemo(() => {
+    const map = new Map();
+    data.people?.forEach(person => {
+      map.set(person.id, { type: 'person', item: person });
+    });
+    data.points?.forEach(point => {
+      map.set(point.id, { type: 'point', item: point });
+    });
+    data.periods?.forEach(period => {
+      map.set(period.id, { type: 'period', item: period });
+    });
+    return map;
+  }, [data]);
+
   // Layout calculation
   const layout = useTimelineLayout(
     filteredData,
     defaultConfig.laneOrder,
     yearsPerPixel,
     {
-      personRowHeight: 40,
+      personRowHeight: 56,
       pointRowHeight: 50,
       periodRowHeight: 60,
       lanePadding: 20,
@@ -222,6 +236,11 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
 
   // Handle item click
   const handleItemClickInternal = useCallback((type, item) => {
+    setSelectedItem({ type, item });
+    onItemClick?.(type, item);
+  }, [onItemClick]);
+
+  const handleModalItemSelect = useCallback((type, item) => {
     setSelectedItem({ type, item });
     onItemClick?.(type, item);
   }, [onItemClick]);
@@ -424,6 +443,8 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
         itemType={selectedItem?.type}
         config={defaultConfig}
         onClose={handleModalClose}
+        itemIndex={itemIndex}
+        onSelectItem={handleModalItemSelect}
       />
 
       {/* Year Summary Modal */}
@@ -433,6 +454,8 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
           summary={getYearSummary(pinnedYear)}
           config={defaultConfig}
           onClose={handleYearSummaryClose}
+          itemIndex={itemIndex}
+          onSelectItem={handleModalItemSelect}
         />
       )}
 

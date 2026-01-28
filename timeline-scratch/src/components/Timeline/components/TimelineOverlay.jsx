@@ -128,10 +128,6 @@ export function TimelineOverlay({
   function renderPeopleLabels() {
     const people = layout.stackedPeople || [];
 
-    // Calculate visible years to determine if we should show year ranges
-    const visibleYears = width * yearsPerPixel;
-    const showYearRange = visibleYears <= 300;
-
     return people.map(person => {
       const { start, end } = getYearRange(person.startDate, person.endDate);
 
@@ -143,7 +139,7 @@ export function TimelineOverlay({
 
       // Position label at bottom-left of the box
       let labelX = startX + 6; // 6px from left edge of box
-      const labelY = boxY + boxHeight - 22; // 22px from bottom of box
+      const labelY = boxY + 6; // align top padding with left padding
 
       // Sticky behavior: stick to left edge if box extends left of viewport
       const isSticky = startX < 0 && endX > 0;
@@ -156,23 +152,17 @@ export function TimelineOverlay({
         return null;
       }
 
-      // Format year range (only shown when zoomed in enough)
-      let yearRange = '';
-      if (showYearRange) {
-        const startYear = start <= 0 ? Math.abs(start - 1) + 1 : start;
-        const endYear = end <= 0 ? Math.abs(end - 1) + 1 : end;
-        const bcLabel = config.eraLabels === 'BC/AD' ? 'BC' : 'BCE';
-        const startIsBC = start <= 0;
-        const endIsBC = end <= 0;
-
-        // Format: "X BC" for BC years, just "X" for AD years
-        const startStr = startIsBC ? `${startYear} ${bcLabel}` : `${startYear}`;
-        const endStr = endIsBC ? `${endYear} ${bcLabel}` : `${endYear}`;
-
-        yearRange = startYear !== endYear
-          ? ` (${startStr}-${endStr})`
-          : ` (${startStr})`;
-      }
+      const startYear = start <= 0 ? Math.abs(start - 1) + 1 : start;
+      const endYear = end <= 0 ? Math.abs(end - 1) + 1 : end;
+      const bcLabel = config.eraLabels === 'BC/AD' ? 'BC' : 'BCE';
+      const startIsBC = start <= 0;
+      const endIsBC = end <= 0;
+      const hasBC = startIsBC || endIsBC;
+      const startSuffix = startIsBC ? ` ${bcLabel}` : hasBC ? ' AD' : '';
+      const endSuffix = endIsBC ? ` ${bcLabel}` : hasBC ? ' AD' : '';
+      const yearRange = startYear !== endYear
+        ? `${startYear}${startSuffix}–${endYear}${endSuffix}`
+        : `${startYear}${startSuffix}`;
 
       return (
         <div
@@ -184,25 +174,30 @@ export function TimelineOverlay({
             top: `${labelY}px`,
             pointerEvents: 'none',
             fontSize: '12px',
-            fontWeight: '500',
+            fontWeight: '600',
             color: '#fff',
             backgroundColor: 'rgba(0, 0, 0, 0.75)',
-            padding: '3px 8px',
+            padding: '4px 8px',
             borderRadius: '4px',
             whiteSpace: 'nowrap',
             zIndex: isSticky ? 10 : 1,
             display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            gap: '0px',
             opacity: getPersonOpacity(person),
             transition: 'opacity 0.15s ease'
           }}
         >
-          {person.isEmperor && (
-            <Icon name="crown" size={12} color="#ffd700" />
-          )}
-          <span>{person.name}</span>
-          <span style={{ opacity: 0.9, fontSize: '11px' }}>{yearRange}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            {person.isEmperor && (
+              <Icon name="crown" size={12} color="#ffd700" />
+            )}
+            {person.name}
+          </span>
+          <span style={{ opacity: 0.85, fontSize: '10px', fontWeight: '500' }}>
+            {yearRange}
+          </span>
         </div>
       );
     });
@@ -219,23 +214,20 @@ export function TimelineOverlay({
       const centerX = (startX + endX) / 2;
       const bracketY = period.y - panOffsetY;
       const bracketWidth = endX - startX;
+      const bracketHeight = period.bracketHeight ?? period.height;
 
       // Hide if completely off screen
       if (endX < 0 || startX > width) {
         return null;
       }
 
-      // Calculate bracket center point using curly brace formula
-      // This is the "point" of the bracket where it reaches furthest from the top edge
-      const w = period.height;  // Perpendicular width of the brace
-      const bracketCenterY = bracketY + w;  // The point extends by the full height
-
       // Label position: on outer side of bracket, with margin from bracket point
       // For above timeline, label goes above bracket; for below, label goes below
       const labelMargin = 1;  // Margin between label and bracket point
-      const labelOffsetY = period.aboveTimeline
-        ? -labelMargin  // Above bracket, measured from bracket point
-        : w + labelMargin;  // Below bracket, measured from bracket top edge
+      const bracketPointY = period.aboveTimeline
+        ? bracketY
+        : bracketY + bracketHeight;
+      const labelOffsetY = period.aboveTimeline ? -labelMargin : labelMargin;
 
       let labelX = centerX;
 
@@ -261,7 +253,7 @@ export function TimelineOverlay({
           style={{
             position: 'absolute',
             left: `${labelX}px`,
-            top: `${bracketY + labelOffsetY}px`,
+            top: `${bracketPointY + labelOffsetY}px`,
             transform: period.aboveTimeline ? 'translate(-50%, -100%)' : 'translateX(-50%)',
             pointerEvents: 'none',
             fontSize: '13px',
