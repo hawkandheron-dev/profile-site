@@ -5,6 +5,7 @@ async function main() {
   const modalTitle = document.getElementById("modal-title");
   const modalDate = document.getElementById("modal-date");
   const modalDescription = document.getElementById("modal-description");
+  const modalSearchLink = document.getElementById("modal-search-link");
   const modalClose = modal.querySelector(".modal-close");
 
   const res = await fetch("./events.json", { cache: "no-store" });
@@ -119,6 +120,14 @@ async function main() {
     return yearLabel ? `${item.name} (${yearLabel})` : item.name;
   }
 
+  function buildPeopleSearchQuery(item) {
+    const startParts = parseDateParts(item.start);
+    const endParts = parseDateParts(item.end);
+    const startYear = startParts ? toDisplayYear(startParts.year) : "?";
+    const endYear = endParts ? toDisplayYear(endParts.year) : "?";
+    return `${item.name} (${startYear}-${endYear})`;
+  }
+
   const categoryMeta = {
     people: { icon: "👤", className: "cat-people" },
     councils: { icon: "🏛️", className: "cat-councils" },
@@ -186,6 +195,18 @@ async function main() {
   function openModal(item) {
     if (!item) return;
     modalTitle.textContent = item.name || item.content;
+    if (modalSearchLink) {
+      if (item.group === "people") {
+        const query = buildPeopleSearchQuery(item);
+        modalSearchLink.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+        modalSearchLink.hidden = false;
+        modalSearchLink.setAttribute("aria-label", `Search for ${query}`);
+      } else {
+        modalSearchLink.hidden = true;
+        modalSearchLink.removeAttribute("aria-label");
+        modalSearchLink.removeAttribute("href");
+      }
+    }
     const startPrecision =
       item?.startPrecision || precisionFromParts(parseDateParts(item?.start));
     const endPrecision =
