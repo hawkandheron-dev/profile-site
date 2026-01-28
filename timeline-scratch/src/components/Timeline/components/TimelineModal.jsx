@@ -195,6 +195,10 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
     onSelectItem?.(entry.type, entry.item);
   }, [itemIndex, onSelectItem]);
 
+  const handleModalWheel = useCallback((event) => {
+    event.stopPropagation();
+  }, []);
+
   if (!isOpen || !item) return null;
 
   // Format date based on item type
@@ -224,10 +228,6 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
       config.eraLabels
     );
   }
-
-  const handleModalWheel = useCallback((event) => {
-    event.stopPropagation();
-  }, []);
 
   return (
     <div
