@@ -7,6 +7,7 @@
   z-index: 1000;
   animation: modalFadeIn 0.2s ease-out;
   touch-action: none;
+  cursor: auto;
 }
 
 @keyframes modalFadeIn {
@@ -40,6 +41,7 @@
   padding: 32px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
   animation: modalSlideIn 0.2s ease-out;
+  user-select: text;
 }
 
 @keyframes modalSlideIn {
@@ -93,6 +95,7 @@
 
 .modal-title {
   margin: 0 0 12px;
+  padding-right: 48px;
   font-size: 26px;
   font-weight: 600;
   line-height: 1.3;
@@ -100,26 +103,20 @@
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.modal-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .modal-search-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.12);
   color: inherit;
   text-decoration: none;
-  font-size: 18px;
+  font-size: 16px;
   transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
@@ -198,12 +195,14 @@
 
 .modal-links li {
   margin-bottom: 8px;
+  font-size: 14px;
+  color: #333;
 }
 
 .modal-links a {
   color: #0066cc;
-  text-decoration: none;
-  font-size: 14px;
+  text-decoration: underline;
+  font: inherit;
   transition: color 0.2s ease;
 }
 
@@ -395,6 +394,10 @@
 
   .modal-links h3 {
     color: #f5f5f5;
+  }
+
+  .modal-links li {
+    color: #ddd;
   }
 
   .modal-search-link {

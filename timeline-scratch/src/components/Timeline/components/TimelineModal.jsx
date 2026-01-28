@@ -112,10 +112,12 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
 
     document.addEventListener('keydown', handleEscape);
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-open');
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = '';
+      document.body.classList.remove('modal-open');
     };
   }, [isOpen, onClose]);
 
@@ -257,13 +259,11 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
           />
         )}
 
-        <div className="modal-header">
-          <h2 className="modal-title">
-            {item.isEmperor && (
-              <Icon name="crown" size={24} color="#ffd700" className="emperor-crown" />
-            )}
-            {item.name}
-          </h2>
+        <h2 className="modal-title">
+          {item.isEmperor && (
+            <Icon name="crown" size={24} color="#ffd700" className="emperor-crown" />
+          )}
+          {item.name}
           {searchQuery && (
             <a
               className="modal-search-link"
@@ -275,7 +275,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
               🔎
             </a>
           )}
-        </div>
+        </h2>
 
         {dateString && (
           <p className="modal-date">{dateString}</p>
