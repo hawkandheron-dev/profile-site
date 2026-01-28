@@ -11,83 +11,92 @@ import './TimelineModal.css';
 function linkifyDescription(description, itemIndex, currentItemId) {
   if (!description || !itemIndex) return description;
 
-  const entries = Array.from(itemIndex.values())
-    .map(({ item: entryItem, type }) => ({
-      id: entryItem.id,
-      name: entryItem.name,
-      type
-    }))
-    .filter(entry => entry.name && entry.id !== currentItemId)
-    .map(entry => ({ ...entry, lowerName: entry.name.toLowerCase() }))
-    .sort((a, b) => b.name.length - a.name.length);
+  try {
+    const entries = Array.from(itemIndex.values())
+      .map(({ item: entryItem, type }) => ({
+        id: entryItem.id,
+        name: entryItem.name,
+        type
+      }))
+      .filter(entry => entry.name && entry.id !== currentItemId)
+      .map(entry => ({ ...entry, lowerName: entry.name.toLowerCase() }))
+      .sort((a, b) => b.name.length - a.name.length);
 
-  if (entries.length === 0) return description;
+    if (entries.length === 0) return description;
 
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(`<div>${description}</div>`, 'text/html');
-  const root = doc.body.firstChild;
-  if (!root) return description;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<div>${description}</div>`, 'text/html');
+    const root = doc.body.firstChild;
+    if (!root) return description;
 
-  const textNodes = [];
-  const walker = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  while (walker.nextNode()) {
-    const node = walker.currentNode;
-    if (!node?.parentElement) continue;
-    if (node.parentElement.closest('a, button')) continue;
-    if (!node.textContent?.trim()) continue;
-    textNodes.push(node);
-  }
-
-  const isWordChar = (char) => /[A-Za-z0-9]/.test(char);
-
-  textNodes.forEach(node => {
-    const text = node.textContent;
-    const lowerText = text.toLowerCase();
-    let position = 0;
-    const fragment = doc.createDocumentFragment();
-
-    while (position < text.length) {
-      let bestMatch = null;
-
-      entries.forEach(entry => {
-        const index = lowerText.indexOf(entry.lowerName, position);
-        if (index === -1) return;
-
-        const beforeChar = index > 0 ? text[index - 1] : '';
-        const afterChar = text[index + entry.name.length] || '';
-        if ((beforeChar && isWordChar(beforeChar)) || (afterChar && isWordChar(afterChar))) {
-          return;
-        }
-
-        if (!bestMatch || index < bestMatch.index || (index === bestMatch.index && entry.name.length > bestMatch.entry.name.length)) {
-          bestMatch = { index, entry };
-        }
-      });
-
-      if (!bestMatch) {
-        fragment.appendChild(doc.createTextNode(text.slice(position)));
-        break;
-      }
-
-      if (bestMatch.index > position) {
-        fragment.appendChild(doc.createTextNode(text.slice(position, bestMatch.index)));
-      }
-
-      const button = doc.createElement('button');
-      button.setAttribute('type', 'button');
-      button.className = 'modal-reference';
-      button.textContent = text.slice(bestMatch.index, bestMatch.index + bestMatch.entry.name.length);
-      button.setAttribute('data-item-id', bestMatch.entry.id);
-      button.setAttribute('data-item-type', bestMatch.entry.type);
-      fragment.appendChild(button);
-
-      position = bestMatch.index + bestMatch.entry.name.length;
+    const textNodes = [];
+    const walker = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (!node?.parentElement) continue;
+      if (node.parentElement.closest('a, button')) continue;
+      if (!node.textContent?.trim()) continue;
+      textNodes.push(node);
     }
 
-    node.replaceWith(fragment);
-  });
+    const isWordChar = (char) => /[A-Za-z0-9]/.test(char);
 
-  return root.innerHTML;
+    textNodes.forEach(node => {
+      const text = node.textContent;
+      const lowerText = text.toLowerCase();
+      let position = 0;
+      const fragment = doc.createDocumentFragment();
+
+      while (position < text.length) {
+        let bestMatch = null;
+
+        entries.forEach(entry => {
+          const index = lowerText.indexOf(entry.lowerName, position);
+          if (index === -1) return;
+
+          const beforeChar = index > 0 ? text[index - 1] : '';
+          const afterChar = text[index + entry.name.length] || '';
+          if ((beforeChar && isWordChar(beforeChar)) || (afterChar && isWordChar(afterChar))) {
+            return;
+          }
+
+          if (
+            !bestMatch
+            || index < bestMatch.index
+            || (index === bestMatch.index && entry.name.length > bestMatch.entry.name.length)
+          ) {
+            bestMatch = { index, entry };
+          }
+        });
+
+        if (!bestMatch) {
+          fragment.appendChild(doc.createTextNode(text.slice(position)));
+          break;
+        }
+
+        if (bestMatch.index > position) {
+          fragment.appendChild(doc.createTextNode(text.slice(position, bestMatch.index)));
+        }
+
+        const button = doc.createElement('button');
+        button.setAttribute('type', 'button');
+        button.className = 'modal-reference';
+        button.textContent = text.slice(bestMatch.index, bestMatch.index + bestMatch.entry.name.length);
+        button.setAttribute('data-item-id', bestMatch.entry.id);
+        button.setAttribute('data-item-type', bestMatch.entry.type);
+        fragment.appendChild(button);
+
+        position = bestMatch.index + bestMatch.entry.name.length;
+      }
+
+      node.replaceWith(fragment);
+    });
+
+    return root.innerHTML;
+  } catch (error) {
+    console.warn('Failed to linkify modal description:', error);
+    return description;
+  }
 }
 
 export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem }) {
@@ -224,7 +233,10 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
     <div
       className="timeline-modal"
       onClick={onClose}
+      onMouseDown={handleModalWheel}
+      onMouseUp={handleModalWheel}
       onWheel={handleModalWheel}
+      onTouchStart={handleModalWheel}
       onTouchMove={handleModalWheel}
     >
       <div className="modal-backdrop" />
