@@ -106,14 +106,16 @@
       .modal-panel {
         position: relative;
         z-index: 1;
-        max-width: 520px;
-        width: min(90vw, 520px);
+        max-width: 720px;
+        width: min(92vw, 720px);
         background: #fff;
         color: #111;
         border-radius: 16px;
         padding: 28px;
         box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
         animation: slideIn 200ms ease-out;
+        max-height: min(80vh, 720px);
+        overflow-y: auto;
       }
       @keyframes slideIn {
         from {

@@ -869,6 +869,26 @@ async function main() {
     }
   });
 
+  modal.addEventListener(
+    "wheel",
+    (event) => {
+      if (modal.classList.contains("is-open")) {
+        event.stopPropagation();
+      }
+    },
+    { passive: true }
+  );
+
+  modal.addEventListener(
+    "touchmove",
+    (event) => {
+      if (modal.classList.contains("is-open")) {
+        event.stopPropagation();
+      }
+    },
+    { passive: true }
+  );
+
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && modal.classList.contains("is-open")) {
       closeModal();
