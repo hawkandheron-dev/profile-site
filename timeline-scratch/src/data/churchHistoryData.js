@@ -151,6 +151,33 @@ const rawData = {
     { id: "philipp-melanchthon", group: "people", content: "Philipp Melanchthon", start: "1497-01-01", end: "1560-01-01", location: "Wittenberg, Germany" },
     { id: "william-farel", group: "people", content: "William Farel", start: "1489-01-01", end: "1565-01-01", location: "Geneva, Switzerland" },
     { id: "george-whitefield", group: "people", content: "George Whitefield", start: "1714-01-01", end: "1770-01-01", location: "England" },
+    { id: "saturus", group: "people", content: "Saturus (martyr; companion of Perpetua)", start: "0170-01-01", end: "0203-01-01", location: "Carthage" },
+    { id: "callixtus-i", group: "people", content: "Pope Callixtus I", start: "0165-01-01", end: "0222-01-01", location: "Rome" },
+    { id: "flavian-constantinople", group: "people", content: "Flavian of Constantinople", start: "0381-01-01", end: "0449-01-01", location: "Constantinople" },
+    { id: "aeonius-arles", group: "people", content: "Aeonius of Arles", start: "0450-01-01", end: "0502-01-01", location: "Arles, Gaul" },
+    { id: "maurus", group: "people", content: "Saint Maurus", start: "0512-01-01", end: "0584-01-01", location: "Italy" },
+    { id: "finnian-moville", group: "people", content: "Finnian of Moville", start: "0495-01-01", end: "0589-01-01", location: "Ireland" },
+    { id: "caedmon", group: "people", content: "Caedmon", start: "0620-01-01", end: "0680-01-01", location: "Northumbria, England" },
+    { id: "itta-metz", group: "people", content: "Itta of Metz", start: "0592-01-01", end: "0652-01-01", location: "Frankish Kingdom" },
+    { id: "benedict-biscop", group: "people", content: "Benedict Biscop", start: "0628-01-01", end: "0689-01-01", location: "Wearmouth, England" },
+    { id: "ceolfrith", group: "people", content: "Ceolfrith", start: "0642-01-01", end: "0716-01-01", location: "Jarrow, England" },
+    { id: "eterius-osma", group: "people", content: "Eterius of Osma", start: "0750-01-01", end: "0800-01-01", location: "Spain" },
+    { id: "hincmar-reims", group: "people", content: "Hincmar of Reims", start: "0806-01-01", end: "0882-01-01", location: "Reims" },
+    { id: "berno-cluny", group: "people", content: "Berno of Cluny", start: "0850-01-01", end: "0927-01-01", location: "Cluny, Burgundy" },
+    { id: "adalbero-reims", group: "people", content: "Adalbero of Reims", start: "0920-01-01", end: "0989-01-01", location: "Reims" },
+    { id: "bruno-querfurt", group: "people", content: "Bruno of Querfurt", start: "0974-01-01", end: "1009-01-01", location: "Central/Eastern Europe" },
+    { id: "william-champeaux", group: "people", content: "William of Champeaux", start: "1070-01-01", end: "1121-01-01", location: "Paris, France" },
+    { id: "heloise", group: "people", content: "Heloise", start: "1100-01-01", end: "1164-01-01", location: "Paris, France" },
+    { id: "william-of-ware", group: "people", content: "William of Ware", start: "1275-01-01", end: "1305-01-01", location: "England" },
+    { id: "brunetto-latini", group: "people", content: "Brunetto Latini", start: "1220-01-01", end: "1294-01-01", location: "Florence, Italy" },
+    { id: "john-purvey", group: "people", content: "John Purvey", start: "1354-01-01", end: "1428-01-01", location: "England" },
+    { id: "margery-kempe", group: "people", content: "Margery Kempe", start: "1373-01-01", end: "1438-01-01", location: "England" },
+    { id: "florens-radewijns", group: "people", content: "Florens Radewijns", start: "1350-01-01", end: "1400-01-01", location: "Deventer" },
+    { id: "pope-eugenius-iv", group: "people", content: "Pope Eugenius IV", start: "1383-01-01", end: "1447-01-01", location: "Rome" },
+    { id: "tiedemann-giese", group: "people", content: "Tiedemann Giese", start: "1480-01-01", end: "1550-01-01", location: "Prussia" },
+    { id: "antonio-montesinos", group: "people", content: "Antonio de Montesinos", start: "1475-01-01", end: "1540-01-01", location: "Hispaniola" },
+    { id: "william-brewster", group: "people", content: "William Brewster", start: "1568-01-01", end: "1644-01-01", location: "England / Plymouth" },
+    { id: "john-robinson", group: "people", content: "John Robinson (Separatist pastor)", start: "1576-01-01", end: "1625-01-01", location: "Leiden" },
     // Councils
     { id: "council-nicaea", group: "councils", content: "Council of Nicaea", start: "0325-01-01", type: "point", location: "Nicaea" },
     { id: "council-constantinople-1", group: "councils", content: "First Council of Constantinople", start: "0381-01-01", type: "point", location: "Constantinople" },
@@ -276,6 +303,35 @@ const knownConnections = [
   { type: 'known', people: ['john-wesley', 'charles-wesley'] },
   { type: 'known', people: ['john-wesley', 'george-whitefield'] },
   { type: 'known', people: ['charles-wesley', 'george-whitefield'] },
+  { type: 'known', people: ['saturus', 'perpetua'] },
+  { type: 'known', people: ['callixtus-i', 'hippolytus'] },
+  { type: 'known', people: ['augustine', 'prosper-aquitaine'] },
+  { type: 'known', people: ['flavian-constantinople', 'pope-leo-1'] },
+  { type: 'known', people: ['aeonius-arles', 'caesarius-arles'] },
+  { type: 'known', people: ['benedict-nursia', 'maurus'] },
+  { type: 'known', people: ['finnian-moville', 'columba'] },
+  { type: 'known', people: ['hilda-whitby', 'caedmon'] },
+  { type: 'known', people: ['itta-metz', 'gertrude-nivelles'] },
+  { type: 'known', people: ['benedict-biscop', 'bede'] },
+  { type: 'known', people: ['ceolfrith', 'bede'] },
+  { type: 'known', people: ['eterius-osma', 'beatus-liebana'] },
+  { type: 'known', people: ['hincmar-reims', 'john-scotus-eriugena'] },
+  { type: 'known', people: ['berno-cluny', 'odo-cluny'] },
+  { type: 'known', people: ['adalbero-reims', 'sylvester-ii'] },
+  { type: 'known', people: ['adalbert-prague', 'bruno-querfurt'] },
+  { type: 'known', people: ['anselm-laon', 'peter-abelard'] },
+  { type: 'known', people: ['william-champeaux', 'peter-abelard'] },
+  { type: 'known', people: ['peter-abelard', 'heloise'] },
+  { type: 'known', people: ['william-of-ware', 'duns-scotus'] },
+  { type: 'known', people: ['brunetto-latini', 'dante-alighieri'] },
+  { type: 'known', people: ['john-wycliffe', 'john-purvey'] },
+  { type: 'known', people: ['julian-norwich', 'margery-kempe'] },
+  { type: 'known', people: ['florens-radewijns', 'thomas-kempis'] },
+  { type: 'known', people: ['pope-eugenius-iv', 'nicholas-cusa'] },
+  { type: 'known', people: ['tiedemann-giese', 'nicholas-copernicus'] },
+  { type: 'known', people: ['antonio-montesinos', 'bartolome-las-casas'] },
+  { type: 'known', people: ['william-brewster', 'william-bradford'] },
+  { type: 'known', people: ['john-robinson', 'william-bradford'] },
 ];
 
 const sources = [
@@ -665,6 +721,231 @@ const sources = [
     url: 'https://aleteia.org/2018/12/14/teresa-of-avila-and-john-of-the-cross-a-very-thorny-friendship/',
     figures: ['teresa-avila', 'john-cross'],
     notes: 'Collaboration within Carmelite reform.'
+  },
+  {
+    id: 'src-ccel-perpetua',
+    source: 'CCEL',
+    title: 'The Passion of Perpetua and Felicity (includes Saturus)',
+    year: '',
+    url: 'https://www.ccel.org/ccel/pearse/morefathers/files/perpetua.htm',
+    figures: ['perpetua', 'saturus'],
+    notes: 'Primary narrative includes Perpetua’s martyr-companions, including Saturus.'
+  },
+  {
+    id: 'src-wikipedia-hippolytus',
+    source: 'Wikipedia',
+    title: 'Hippolytus of Rome (conflict context with Callixtus)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Hippolytus_of_Rome',
+    figures: ['hippolytus', 'callixtus-i'],
+    notes: 'Commonly summarized direct conflict (complicated but clearly connected).'
+  },
+  {
+    id: 'src-wikipedia-prosper',
+    source: 'Wikipedia',
+    title: 'Prosper of Aquitaine (Augustinian disciple/ally)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Prosper_of_Aquitaine',
+    figures: ['prosper-aquitaine', 'augustine'],
+    notes: 'Often presented as an Augustinian ally; relationship is ‘disciple/circle’ more than face-to-face proof.'
+  },
+  {
+    id: 'src-wikipedia-tome-leo',
+    source: 'Wikipedia',
+    title: 'Tome of Leo (letter to Flavian)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Tome_of_Leo',
+    figures: ['pope-leo-1', 'flavian-constantinople'],
+    notes: 'Direct relationship: Leo’s doctrinal letter addressed to Flavian.'
+  },
+  {
+    id: 'src-wikipedia-caesarius',
+    source: 'Wikipedia',
+    title: 'Caesarius of Arles (ordination/advancement under Aeonius)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Caesarius_of_Arles',
+    figures: ['caesarius-arles', 'aeonius-arles'],
+    notes: 'Often summarized as Aeonius promoting/ordaining Caesarius.'
+  },
+  {
+    id: 'src-wikipedia-maurus',
+    source: 'Wikipedia',
+    title: 'Maurus (disciple in Benedictine tradition)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Maurus',
+    figures: ['benedict-nursia', 'maurus'],
+    notes: 'Hagiographical but classic monastic lineage: Benedict → Maurus.'
+  },
+  {
+    id: 'src-wikipedia-columba',
+    source: 'Wikipedia',
+    title: 'Columba (traditions about Finnian as teacher)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Columba',
+    figures: ['columba', 'finnian-moville'],
+    notes: 'Traditional teacher-student link in Irish monastic biographies.'
+  },
+  {
+    id: 'src-fordham-bede-caedmon',
+    source: 'Fordham Medieval Sourcebook',
+    title: 'Bede, Ecclesiastical History IV.24 (Caedmon at Whitby)',
+    year: '',
+    url: 'https://sourcebooks.fordham.edu/basis/bede-book4.asp',
+    figures: ['hilda-whitby', 'caedmon'],
+    notes: 'Primary narrative anchor for Hilda–Caedmon.'
+  },
+  {
+    id: 'src-wikipedia-gertrude',
+    source: 'Wikipedia',
+    title: 'Gertrude of Nivelles (daughter of Itta)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Gertrude_of_Nivelles',
+    figures: ['gertrude-nivelles', 'itta-metz'],
+    notes: 'Mother–daughter relationship.'
+  },
+  {
+    id: 'src-wikipedia-bede',
+    source: 'Wikipedia',
+    title: 'Bede (formation under Benedict Biscop and Ceolfrith)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Bede',
+    figures: ['bede', 'benedict-biscop', 'ceolfrith'],
+    notes: 'Common biographical summary of formative relationships.'
+  },
+  {
+    id: 'src-wikipedia-beatus',
+    source: 'Wikipedia',
+    title: 'Beatus of Liébana (collaboration with Eterius)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Beatus_of_Li%C3%A9bana',
+    figures: ['beatus-liebana', 'eterius-osma'],
+    notes: 'Commonly presented as collaborator/co-author with Eterius.'
+  },
+  {
+    id: 'src-wikipedia-eriugena',
+    source: 'Wikipedia',
+    title: 'John Scotus Eriugena (predestination controversy; Hincmar context)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/John_Scotus_Eriugena',
+    figures: ['john-scotus-eriugena', 'hincmar-reims'],
+    notes: 'Often summarized as Eriugena writing into Hincmar’s ecclesial controversy context.'
+  },
+  {
+    id: 'src-wikipedia-odo',
+    source: 'Wikipedia',
+    title: 'Odo of Cluny (formation / relationship to Berno)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Odo_of_Cluny',
+    figures: ['odo-cluny', 'berno-cluny'],
+    notes: 'Monastic succession/formation within Cluny.'
+  },
+  {
+    id: 'src-wikipedia-sylvester-ii',
+    source: 'Wikipedia',
+    title: 'Pope Sylvester II (Gerbert; education under Adalbero)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Pope_Sylvester_II',
+    figures: ['sylvester-ii', 'adalbero-reims'],
+    notes: 'Commonly reported formative relationship.'
+  },
+  {
+    id: 'src-wikipedia-bruno-querfurt',
+    source: 'Wikipedia',
+    title: 'Bruno of Querfurt (missionary; association with Adalbert of Prague)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Bruno_of_Querfurt',
+    figures: ['bruno-querfurt', 'adalbert-prague'],
+    notes: 'Missionary/hagiographic lineage connection to Adalbert.'
+  },
+  {
+    id: 'src-wikipedia-abelard',
+    source: 'Wikipedia',
+    title: 'Peter Abelard (teachers and relationship with Heloise)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Peter_Abelard',
+    figures: ['peter-abelard', 'anselm-laon', 'william-champeaux', 'heloise'],
+    notes: 'Single stable summary for Abelard’s teacher-chain and Heloise.'
+  },
+  {
+    id: 'src-wikipedia-scotus',
+    source: 'Wikipedia',
+    title: 'John Duns Scotus (linked to William of Ware)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Duns_Scotus',
+    figures: ['duns-scotus', 'william-of-ware'],
+    notes: 'Often given as a formative teacher relationship.'
+  },
+  {
+    id: 'src-wikipedia-dante',
+    source: 'Wikipedia',
+    title: 'Dante (teacher Brunetto Latini)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Dante_Alighieri',
+    figures: ['dante-alighieri', 'brunetto-latini'],
+    notes: 'Commonly reported teacher relationship.'
+  },
+  {
+    id: 'src-wikipedia-purvey',
+    source: 'Wikipedia',
+    title: 'John Purvey (associate/disciple in Wycliffite circle)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/John_Purvey',
+    figures: ['john-wycliffe', 'john-purvey'],
+    notes: 'Direct ‘disciple/associate’ framing in Wycliffite movement history.'
+  },
+  {
+    id: 'src-wikipedia-julian',
+    source: 'Wikipedia',
+    title: 'Julian of Norwich (visited by Margery Kempe)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Julian_of_Norwich',
+    figures: ['julian-norwich', 'margery-kempe'],
+    notes: 'Direct visit relationship (via Kempe’s account/tradition).'
+  },
+  {
+    id: 'src-wikipedia-kempis',
+    source: 'Wikipedia',
+    title: 'Thomas à Kempis (Devotio Moderna; Florens Radewijns)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Thomas_%C3%A0_Kempis',
+    figures: ['thomas-kempis', 'florens-radewijns'],
+    notes: 'Commonly reported formative relationship within Devotio Moderna.'
+  },
+  {
+    id: 'src-wikipedia-cusa',
+    source: 'Wikipedia',
+    title: 'Nicholas of Cusa (papal service under Eugenius IV)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Nicholas_of_Cusa',
+    figures: ['nicholas-cusa', 'pope-eugenius-iv'],
+    notes: 'Clear ecclesial service relationship.'
+  },
+  {
+    id: 'src-wikipedia-copernicus',
+    source: 'Wikipedia',
+    title: 'Copernicus (friend/bishop Tiedemann Giese)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Nicolaus_Copernicus',
+    figures: ['nicholas-copernicus', 'tiedemann-giese'],
+    notes: 'Often described as a close friend and supporter within the Church context.'
+  },
+  {
+    id: 'src-wikipedia-montesinos',
+    source: 'Wikipedia',
+    title: 'Antonio de Montesinos (influence on Las Casas)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/Antonio_de_Montesinos',
+    figures: ['antonio-montesinos', 'bartolome-las-casas'],
+    notes: 'Commonly credited as a pivotal influence on Las Casas.'
+  },
+  {
+    id: 'src-wikipedia-bradford',
+    source: 'Wikipedia',
+    title: 'William Bradford (Robinson/Brewster as formative leaders)',
+    year: '',
+    url: 'https://en.wikipedia.org/wiki/William_Bradford_(Plymouth_Colony)',
+    figures: ['william-bradford', 'william-brewster', 'john-robinson'],
+    notes: 'Common biographical summary of ecclesial leadership relationships.'
   },
 ];
 
