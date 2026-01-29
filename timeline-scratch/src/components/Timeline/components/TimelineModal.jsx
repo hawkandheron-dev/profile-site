@@ -318,17 +318,28 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
             <ul className="modal-reference-list">
               {worksForPerson.map((work) => (
                 <li key={work.name}>
-                  {work.textUrl || work.referenceUrl ? (
-                    <a
-                      href={work.textUrl || work.referenceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {work.name}
-                    </a>
-                  ) : (
-                    work.name
-                  )}
+                  <div className="modal-work-title">{work.name}</div>
+                  {work.textUrl ? (
+                    <div className="modal-work-links">
+                      <a href={work.textUrl} target="_blank" rel="noopener noreferrer">
+                        Text
+                      </a>
+                      {work.referenceUrl && (
+                        <>
+                          <span aria-hidden="true">|</span>
+                          <a href={work.referenceUrl} target="_blank" rel="noopener noreferrer">
+                            Wikipedia entry
+                          </a>
+                        </>
+                      )}
+                    </div>
+                  ) : work.referenceUrl ? (
+                    <div className="modal-work-links">
+                      <a href={work.referenceUrl} target="_blank" rel="noopener noreferrer">
+                        Wikipedia entry
+                      </a>
+                    </div>
+                  ) : null}
                 </li>
               ))}
             </ul>

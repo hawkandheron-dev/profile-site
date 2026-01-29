@@ -140,16 +140,41 @@ async function main() {
     }
     worksForPerson.forEach((work) => {
       const listItem = document.createElement("li");
-      const workLink = work.textUrl || work.referenceUrl;
-      if (workLink) {
-        const link = document.createElement("a");
-        link.href = workLink;
-        link.target = "_blank";
-        link.rel = "noopener";
-        link.textContent = work.name;
-        listItem.appendChild(link);
-      } else {
-        listItem.textContent = work.name;
+      const title = document.createElement("div");
+      title.classList.add("modal-work-title");
+      title.textContent = work.name;
+      listItem.appendChild(title);
+
+      if (work.textUrl || work.referenceUrl) {
+        const links = document.createElement("div");
+        links.classList.add("modal-work-links");
+
+        if (work.textUrl) {
+          const textLink = document.createElement("a");
+          textLink.href = work.textUrl;
+          textLink.target = "_blank";
+          textLink.rel = "noopener";
+          textLink.textContent = "Text";
+          links.appendChild(textLink);
+
+          if (work.referenceUrl) {
+            const divider = document.createElement("span");
+            divider.textContent = "|";
+            divider.setAttribute("aria-hidden", "true");
+            links.appendChild(divider);
+          }
+        }
+
+        if (work.referenceUrl) {
+          const refLink = document.createElement("a");
+          refLink.href = work.referenceUrl;
+          refLink.target = "_blank";
+          refLink.rel = "noopener";
+          refLink.textContent = "Wikipedia entry";
+          links.appendChild(refLink);
+        }
+
+        listItem.appendChild(links);
       }
       modalWorksList.appendChild(listItem);
     });

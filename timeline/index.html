@@ -199,6 +199,19 @@
       .modal-works-list a:hover {
         text-decoration: underline;
       }
+      .modal-work-title {
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+      .modal-work-links {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+      }
+      .modal-work-links span[aria-hidden="true"] {
+        color: #777;
+      }
       .modal-close {
         position: absolute;
         top: 10px;
@@ -357,6 +370,9 @@
         }
         .modal-works-list a {
           color: #8cb4ff;
+        }
+        .modal-work-links span[aria-hidden="true"] {
+          color: #aaa;
         }
         .modal-search-link {
           border-color: rgba(255, 255, 255, 0.2);

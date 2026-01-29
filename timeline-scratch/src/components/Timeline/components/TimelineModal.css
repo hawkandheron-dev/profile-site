@@ -199,6 +199,22 @@
   color: #333;
 }
 
+.modal-work-title {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.modal-work-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.modal-work-links span[aria-hidden="true"] {
+  color: #777;
+}
+
 .modal-links a {
   color: #0066cc;
   text-decoration: underline;
@@ -398,6 +414,10 @@
 
   .modal-links li {
     color: #ddd;
+  }
+
+  .modal-work-links span[aria-hidden="true"] {
+    color: #aaa;
   }
 
   .modal-search-link {
