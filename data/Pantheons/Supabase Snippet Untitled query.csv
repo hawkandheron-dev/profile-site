@@ -1,0 +1,13 @@
+table_name,constraint_type,constraint_name,column_name,foreign_table_name,foreign_column_name
+God Epithets,CHECK,2200_17552_1_not_null,null,null,null
+God Epithets,PRIMARY KEY,God Epithets_pkey,epithet_id,God Epithets,epithet_id
+Gods,CHECK,2200_17495_1_not_null,null,null,null
+Gods,PRIMARY KEY,Gods_pkey,god_id,Gods,god_id
+Hero Favors,CHECK,2200_17525_1_not_null,null,null,null
+Hero Favors,PRIMARY KEY,Hero Favors_pkey,hero_id,Hero Favors,hero_id
+Hero Works,CHECK,2200_17542_1_not_null,null,null,null
+Hero Works,PRIMARY KEY,Hero Works_pkey,work_id,Hero Works,work_id
+Heroes,CHECK,2200_17505_1_not_null,null,null,null
+Heroes,PRIMARY KEY,Heroes_pkey,hero_id,Heroes,hero_id
+Pantheons,CHECK,2200_17485_1_not_null,null,null,null
+Pantheons,PRIMARY KEY,Pantheons_pkey,pantheon_id,Pantheons,pantheon_id

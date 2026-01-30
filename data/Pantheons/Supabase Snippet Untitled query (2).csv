@@ -1,0 +1,7 @@
+schemaname,tablename,policyname,roles,cmd,qual,with_check
+public,God Epithets,Enable read access for all users,{public},SELECT,true,null
+public,Gods,Enable read access for all users,{public},SELECT,true,null
+public,Hero Favors,Enable read access for all users,{public},SELECT,true,null
+public,Hero Works,Enable read access for all users,{public},SELECT,true,null
+public,Heroes,Enable read access for all users,{public},SELECT,true,null
+public,Pantheons,Enable read access for all users,{public},SELECT,true,null

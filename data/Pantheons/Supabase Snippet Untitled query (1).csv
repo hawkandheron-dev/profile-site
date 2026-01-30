@@ -1,0 +1,7 @@
+tablename,indexname,indexdef
+God Epithets,God Epithets_pkey,"CREATE UNIQUE INDEX ""God Epithets_pkey"" ON public.""God Epithets"" USING btree (epithet_id)"
+Gods,Gods_pkey,"CREATE UNIQUE INDEX ""Gods_pkey"" ON public.""Gods"" USING btree (god_id)"
+Hero Favors,Hero Favors_pkey,"CREATE UNIQUE INDEX ""Hero Favors_pkey"" ON public.""Hero Favors"" USING btree (hero_id)"
+Hero Works,Hero Works_pkey,"CREATE UNIQUE INDEX ""Hero Works_pkey"" ON public.""Hero Works"" USING btree (work_id)"
+Heroes,Heroes_pkey,"CREATE UNIQUE INDEX ""Heroes_pkey"" ON public.""Heroes"" USING btree (hero_id)"
+Pantheons,Pantheons_pkey,"CREATE UNIQUE INDEX ""Pantheons_pkey"" ON public.""Pantheons"" USING btree (pantheon_id)"
