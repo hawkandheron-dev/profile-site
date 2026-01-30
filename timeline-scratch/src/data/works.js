@@ -1680,3 +1680,19 @@ export const works = [
     textUrl: "https://la.wikisource.org/wiki/Epistolae_et_canones_(Gregorius_II)"
   },
 ];
+
+const worksByAuthor = new Map();
+works.forEach((work) => {
+  work.authors.forEach((author) => {
+    const key = author.toLowerCase();
+    if (!worksByAuthor.has(key)) {
+      worksByAuthor.set(key, []);
+    }
+    worksByAuthor.get(key).push(work);
+  });
+});
+
+export function getWorksForAuthor(authorName) {
+  if (!authorName) return [];
+  return worksByAuthor.get(authorName.toLowerCase()) || [];
+}
