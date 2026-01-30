@@ -1,3 +1,4 @@
+import { resolve } from "node:path";
 import { PrismaClient } from "@prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
@@ -8,7 +9,9 @@ type PrismaGlobal = typeof globalThis & {
 const globalForPrisma = globalThis as PrismaGlobal;
 
 const createClient = () => {
-  const databaseUrl = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
+  const databaseUrl =
+    process.env.DATABASE_URL ??
+    `file:${resolve(process.cwd(), "prisma", "dev.db")}`;
   const databasePath = databaseUrl.replace(/^file:/, "");
   const adapter = new PrismaBetterSqlite3({ url: databasePath });
 
