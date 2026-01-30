@@ -51,7 +51,6 @@ const rawData = {
     { id: "olympias", group: "people", content: "Olympias the Deaconess", start: "0365-01-01", end: "0408-07-25", location: "Constantinople / Nicomedia" },
     { id: "theophilus-alexandria", group: "people", content: "Theophilus of Alexandria", start: "0355-01-01", end: "0412-10-15", location: "Alexandria" },
     { id: "cyril-alexandria", group: "people", content: "Cyril of Alexandria", start: "0376-01-01", end: "0444-01-01", location: "Alexandria" },
-    { id: "nestorius", group: "people", content: "Nestorius of Constantinople", start: "0381-01-01", end: "0451-01-01", location: "Constantinople / Egypt" },
     { id: "patrick", group: "people", content: "Patrick", start: "0385-01-01", end: "0461-01-01", location: "Ireland" },
     { id: "prosper-aquitaine", group: "people", content: "Prosper of Aquitaine", start: "0390-01-01", end: "0455-01-01", location: "Aquitaine" },
     { id: "pope-leo-1", group: "people", content: "Pope Leo I", start: "0400-01-01", end: "0461-01-01", location: "Rome" },
@@ -267,7 +266,6 @@ const knownConnections = [
   { type: 'known', people: ['possidius', 'augustine'] },
   { type: 'known', people: ['john-chrysostom', 'olympias'] },
   { type: 'known', people: ['theophilus-alexandria', 'john-chrysostom'] },
-  { type: 'known', people: ['cyril-alexandria', 'nestorius'] },
   { type: 'known', people: ['germanus-auxerre', 'patrick'] },
   { type: 'known', people: ['pope-gregory-great', 'augustine-canterbury'] },
   { type: 'known', people: ['leander-seville', 'isidore-seville'] },
@@ -566,7 +564,7 @@ const sources = [
     title: 'Council of Ephesus (A.D. 431) documents incl. Cyril letters re: Nestorius)',
     year: '',
     url: 'https://www.newadvent.org/fathers/3810.htm',
-    figures: ['cyril-alexandria', 'nestorius'],
+    figures: ['cyril-alexandria'],
     notes: 'Primary/translation material for the Cyril–Nestorius conflict context.'
   },
   {

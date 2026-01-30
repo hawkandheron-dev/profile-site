@@ -147,9 +147,14 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     return () => observer.disconnect();
   }, []);
 
+  const isModalOpen = selectedItem !== null || yearSummaryOpen;
+
   // Handle wheel for zoom
   const handleWheel = useCallback((e) => {
     e.preventDefault();
+    if (isModalOpen) {
+      return;
+    }
 
     const container = containerRef.current;
     if (!container) return;
@@ -158,11 +163,12 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     const mouseX = e.clientX - rect.left;
 
     handleZoom(e.deltaY / 100, mouseX, dimensions.width);
-  }, [handleZoom, dimensions.width]);
+  }, [handleZoom, dimensions.width, isModalOpen]);
 
   // Handle mouse down for pan or blank click
   const handleMouseDown = useCallback((e) => {
     if (e.button !== 0) return; // Only left click
+    if (isModalOpen) return;
 
     const container = containerRef.current;
     if (!container) return;
@@ -176,12 +182,13 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
 
     startPan(x, y);
     container.style.cursor = 'grabbing';
-  }, [startPan]);
+  }, [isModalOpen, startPan]);
 
   // Handle mouse move
   const handleMouseMove = useCallback((e) => {
     const container = containerRef.current;
     if (!container) return;
+    if (isModalOpen) return;
 
     const rect = container.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -193,7 +200,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
       const maxOffsetY = Math.max(0, layout.totalHeight - dimensions.height);
       updatePan(x, y, dimensions.width, maxOffsetY);
     }
-  }, [isPanning, updatePan, dimensions, layout.totalHeight]);
+  }, [isModalOpen, isPanning, updatePan, dimensions, layout.totalHeight]);
 
   // Calculate cursor year from mouse X position (needs to be before handleMouseUp)
   const cursorYear = useMemo(() => {
@@ -204,6 +211,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
   const handleMouseUp = useCallback((e) => {
     const container = containerRef.current;
     if (!container) return;
+    if (isModalOpen) return;
 
     // Check if this was a click (minimal movement and short duration)
     // Don't trigger if any modal is open or hovering over controls
@@ -223,7 +231,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
 
     endPan();
     container.style.cursor = 'grab';
-  }, [endPan, hoveredItem, mousePos, cursorYear, isOverControls, selectedItem, yearSummaryOpen]);
+  }, [endPan, hoveredItem, isModalOpen, mousePos, cursorYear, isOverControls, selectedItem, yearSummaryOpen]);
 
   // Handle item hover
   const handleItemHover = useCallback((type, item) => {

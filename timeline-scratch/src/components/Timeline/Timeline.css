@@ -8,6 +8,10 @@
   user-select: none;
 }
 
+body.modal-open .timeline-container {
+  cursor: default;
+}
+
 .timeline-container:active {
   cursor: grabbing;
 }
