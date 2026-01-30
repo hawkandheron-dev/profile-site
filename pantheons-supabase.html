@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pantheon Supabase</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="supabase.css" />
+  </head>
+  <body>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="index.html#home">Home</a>
+      <a href="pantheons.html">Pantheons SQLite</a>
+      <a href="pantheons-supabase.html">Pantheon Supabase</a>
+    </nav>
+
+    <main class="supabase-shell">
+      <header class="supabase-header">
+        <h1>Pantheon Supabase</h1>
+        <p>Simple browser for Pantheon data stored in Supabase.</p>
+      </header>
+
+      <section class="supabase-card" aria-live="polite">
+        <div class="supabase-controls">
+          <label>
+            Table
+            <select id="tableSelect"></select>
+          </label>
+          <label>
+            Row limit
+            <input id="limitInput" type="number" min="1" max="500" value="50" />
+          </label>
+          <label>
+            Search (client-side)
+            <input id="searchInput" type="search" placeholder="Type to filter results" />
+          </label>
+        </div>
+
+        <div class="supabase-actions">
+          <button class="button" id="refreshButton" type="button">Refresh</button>
+          <span class="supabase-pill" id="rowCount">Rows: 0</span>
+        </div>
+
+        <div class="supabase-status" id="status"></div>
+
+        <div class="supabase-table-wrap" id="tableWrap">
+          <div class="supabase-empty">Select a table to load data.</div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      (function loadSupabaseConfig() {
+        const script = document.createElement("script");
+        script.src = "/api/supabase-config";
+        script.onload = function () {
+          const app = document.createElement("script");
+          app.type = "module";
+          app.src = "supabase-app.js";
+          document.head.appendChild(app);
+        };
+        script.onerror = function () {
+          const fallback = document.createElement("script");
+          fallback.src = "supabase-config.js";
+          fallback.onload = function () {
+            const app = document.createElement("script");
+            app.type = "module";
+            app.src = "supabase-app.js";
+            document.head.appendChild(app);
+          };
+          document.head.appendChild(fallback);
+        };
+        document.head.appendChild(script);
+      })();
+    </script>
+  </body>
+</html>
