@@ -2,13 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 type RouteContext = {
-  params: {
-    id: string;
-  };
+  params: { id: string } | Promise<{ id: string }>;
 };
 
 export async function GET(_request: Request, context: RouteContext) {
-  const pantheonId = Number(context.params.id);
+  const { id } = await Promise.resolve(context.params);
+  const pantheonId = Number(id);
 
   if (!Number.isInteger(pantheonId)) {
     return NextResponse.json(

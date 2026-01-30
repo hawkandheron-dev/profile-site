@@ -3,13 +3,12 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 type PageProps = {
-  params: {
-    id: string;
-  };
+  params: { id: string } | Promise<{ id: string }>;
 };
 
 export default async function PantheonPage({ params }: PageProps) {
-  const pantheonId = Number(params.id);
+  const { id } = await Promise.resolve(params);
+  const pantheonId = Number(id);
 
   if (!Number.isInteger(pantheonId)) {
     notFound();
