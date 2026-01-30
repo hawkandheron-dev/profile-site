@@ -948,20 +948,6 @@ async function main() {
       "textUrl": "https://www.ccel.org/ccel/cyril"
     },
     {
-      "name": "The Bazaar of Heracleides",
-      "authors": [
-        "Nestorius of Constantinople"
-      ],
-      "textUrl": "https://www.gorgiaspress.com/the-bazaar-of-heracleides-9781593331327.html"
-    },
-    {
-      "name": "Letters (selected)",
-      "authors": [
-        "Nestorius of Constantinople"
-      ],
-      "textUrl": "https://www.cambridge.org/core/books/cambridge-edition-of-early-christian-writings/nestorius-of-constantinople-three-letters-to-celestine-of-rome/AA616A2895C8734E0B87F239D6CD8A73"
-    },
-    {
       "name": "Confessio",
       "authors": [
         "Patrick"
