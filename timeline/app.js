@@ -154,12 +154,12 @@ async function main() {
           textLink.href = work.textUrl;
           textLink.target = "_blank";
           textLink.rel = "noopener";
-          textLink.textContent = "Text";
+          textLink.textContent = "Text:";
           links.appendChild(textLink);
 
           if (work.referenceUrl) {
             const divider = document.createElement("span");
-            divider.textContent = "|";
+            divider.textContent = " / ";
             divider.setAttribute("aria-hidden", "true");
             links.appendChild(divider);
           }
@@ -170,7 +170,7 @@ async function main() {
           refLink.href = work.referenceUrl;
           refLink.target = "_blank";
           refLink.rel = "noopener";
-          refLink.textContent = "Wikipedia entry";
+          refLink.textContent = "Wikipedia entry:";
           links.appendChild(refLink);
         }
 
@@ -191,1908 +191,2374 @@ async function main() {
   };
 
   const works = [
-  {
-    "name": "Gospel of John",
-    "authors": [
-      "John the Evangelist"
-    ],
-    "textUrl": "https://www.biblegateway.com/passage/?search=John+1&version=ESV",
-    "referenceUrl": "https://en.wikipedia.org/wiki/Gospel_of_John"
-  },
-  {
-    "name": "First Epistle of John (1 John)",
-    "authors": [
-      "John the Evangelist"
-    ],
-    "textUrl": "https://www.biblegateway.com/passage/?search=1+John+1&version=ESV",
-    "referenceUrl": "https://en.wikipedia.org/wiki/First_Epistle_of_John_(1_John)"
-  },
-  {
-    "name": "Second Epistle of John (2 John)",
-    "authors": [
-      "John the Evangelist"
-    ],
-    "textUrl": "https://www.biblegateway.com/passage/?search=2+John+1&version=ESV",
-    "referenceUrl": "https://en.wikipedia.org/wiki/Second_Epistle_of_John_(2_John)"
-  },
-  {
-    "name": "Third Epistle of John (3 John)",
-    "authors": [
-      "John the Evangelist"
-    ],
-    "textUrl": "https://www.biblegateway.com/passage/?search=3+John+1&version=ESV",
-    "referenceUrl": "https://en.wikipedia.org/wiki/Third_Epistle_of_John_(3_John)"
-  },
-  {
-    "name": "Revelation",
-    "authors": [
-      "John the Evangelist"
-    ],
-    "textUrl": "https://www.biblegateway.com/passage/?search=Revelation+1&version=ESV",
-    "referenceUrl": "https://en.wikipedia.org/wiki/Revelation"
-  },
-  {
-    "name": "Epistle to the Romans",
-    "authors": [
-      "Paul"
-    ],
-    "textUrl": "https://www.biblegateway.com/passage/?search=Romans+1&version=ESV",
-    "referenceUrl": "https://en.wikipedia.org/wiki/Epistle_to_the_Romans"
-  },
-  {
-    "name": "First Epistle to the Corinthians (1 Corinthians)",
-    "authors": [
-      "Paul"
-    ],
-    "textUrl": "https://www.biblegateway.com/passage/?search=1+Corinthians+1&version=ESV",
-    "referenceUrl": "https://en.wikipedia.org/wiki/First_Epistle_to_the_Corinthians_(1_Corinthians)"
-  },
-  {
-    "name": "Second Epistle to the Corinthians (2 Corinthians)",
-    "authors": [
-      "Paul"
-    ],
-    "textUrl": "https://www.biblegateway.com/passage/?search=2+Corinthians+1&version=ESV",
-    "referenceUrl": "https://en.wikipedia.org/wiki/Second_Epistle_to_the_Corinthians_(2_Corinthians)"
-  },
-  {
-    "name": "Epistle to the Galatians",
-    "authors": [
-      "Paul"
-    ],
-    "textUrl": "https://www.biblegateway.com/passage/?search=Galatians+1&version=ESV",
-    "referenceUrl": "https://en.wikipedia.org/wiki/Epistle_to_the_Galatians"
-  },
-  {
-    "name": "Epistle to the Ephesians",
-    "authors": [
-      "Paul"
-    ],
-    "textUrl": "https://www.biblegateway.com/passage/?search=Ephesians+1&version=ESV",
-    "referenceUrl": "https://en.wikipedia.org/wiki/Epistle_to_the_Ephesians"
-  },
-  {
-    "name": "First Epistle of Peter (1 Peter)",
-    "authors": [
-      "Peter"
-    ],
-    "textUrl": "https://www.biblegateway.com/passage/?search=1+Peter+1&version=ESV",
-    "referenceUrl": "https://en.wikipedia.org/wiki/First_Epistle_of_Peter_(1_Peter)"
-  },
-  {
-    "name": "Second Epistle of Peter (2 Peter)",
-    "authors": [
-      "Peter"
-    ],
-    "textUrl": "https://www.biblegateway.com/passage/?search=2+Peter+1&version=ESV",
-    "referenceUrl": "https://en.wikipedia.org/wiki/Second_Epistle_of_Peter_(2_Peter)"
-  },
-  {
-    "name": "First Epistle of Clement to the Corinthians (1 Clement)",
-    "authors": [
-      "Clement of Rome"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/First_Epistle_of_Clement_to_the_Corinthians_(1_Clement)"
-  },
-  {
-    "name": "Letter to the Ephesians",
-    "authors": [
-      "Ignatius of Antioch"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Letter_to_the_Ephesians"
-  },
-  {
-    "name": "Letter to the Magnesians",
-    "authors": [
-      "Ignatius of Antioch"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Letter_to_the_Magnesians"
-  },
-  {
-    "name": "Letter to the Trallians",
-    "authors": [
-      "Ignatius of Antioch"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Letter_to_the_Trallians"
-  },
-  {
-    "name": "Letter to the Romans",
-    "authors": [
-      "Ignatius of Antioch"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Letter_to_the_Romans"
-  },
-  {
-    "name": "Letter to Polycarp",
-    "authors": [
-      "Ignatius of Antioch"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Letter_to_Polycarp"
-  },
-  {
-    "name": "Letter to the Philippians",
-    "authors": [
-      "Polycarp"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Letter_to_the_Philippians"
-  },
-  {
-    "name": "First Apology",
-    "authors": [
-      "Justin Martyr"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/First_Apology_of_Justin_Martyr"
-  },
-  {
-    "name": "Second Apology",
-    "authors": [
-      "Justin Martyr"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Second_Apology"
-  },
-  {
-    "name": "Dialogue with Trypho",
-    "authors": [
-      "Justin Martyr"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Dialogue_with_Trypho"
-  },
-  {
-    "name": "Protrepticus (Exhortation to the Greeks)",
-    "authors": [
-      "Clement of Alexandria"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Protrepticus_(Exhortation_to_the_Greeks)"
-  },
-  {
-    "name": "Paedagogus (The Instructor)",
-    "authors": [
-      "Clement of Alexandria"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Paedagogus_(The_Instructor)"
-  },
-  {
-    "name": "Stromata (Miscellanies)",
-    "authors": [
-      "Clement of Alexandria"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Stromata_(Miscellanies)"
-  },
-  {
-    "name": "Who Is the Rich Man That Shall Be Saved? (Quis Dives Salvetur)",
-    "authors": [
-      "Clement of Alexandria"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Who_Is_the_Rich_Man_That_Shall_Be_Saved%3F_(Quis_Dives_Salvetur)"
-  },
-  {
-    "name": "Diatessaron",
-    "authors": [
-      "Tatian"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Diatessaron"
-  },
-  {
-    "name": "Address to the Greeks",
-    "authors": [
-      "Tatian"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Address_to_the_Greeks"
-  },
-  {
-    "name": "Against Heresies",
-    "authors": [
-      "Irenaeus of Lyons"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Against_Heresies_(Irenaeus)"
-  },
-  {
-    "name": "Demonstration of the Apostolic Preaching (Proof of the Apostolic Preaching)",
-    "authors": [
-      "Irenaeus of Lyons"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Demonstration_of_the_Apostolic_Preaching_(Proof_of_the_Apostolic_Preaching)"
-  },
-  {
-    "name": "Apology",
-    "authors": [
-      "Tertullian"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Apologeticus"
-  },
-  {
-    "name": "Prescription Against Heretics",
-    "authors": [
-      "Tertullian"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Prescription_against_heretics"
-  },
-  {
-    "name": "Against Marcion",
-    "authors": [
-      "Tertullian"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Against_Marcion"
-  },
-  {
-    "name": "On Baptism",
-    "authors": [
-      "Tertullian"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Baptism"
-  },
-  {
-    "name": "On the Flesh of Christ",
-    "authors": [
-      "Tertullian"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Flesh_of_Christ"
-  },
-  {
-    "name": "Apostolic Tradition (attributed)",
-    "authors": [
-      "Hippolytus of Rome"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Apostolic_Tradition"
-  },
-  {
-    "name": "Refutation of All Heresies",
-    "authors": [
-      "Hippolytus of Rome"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Refutation_of_All_Heresies"
-  },
-  {
-    "name": "Commentary on Daniel",
-    "authors": [
-      "Hippolytus of Rome"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Commentary_on_Daniel"
-  },
-  {
-    "name": "On Christ and Antichrist",
-    "authors": [
-      "Hippolytus of Rome"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Christ_and_Antichrist"
-  },
-  {
-    "name": "The Passion of Perpetua and Felicity (Perpetua\u2019s diary portion)",
-    "authors": [
-      "Perpetua"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Passion_of_Perpetua_and_Felicity_(Perpetua%E2%80%99s_diary_portion)"
-  },
-  {
-    "name": "On First Principles (De Principiis)",
-    "authors": [
-      "Origen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_First_Principles"
-  },
-  {
-    "name": "Against Celsus",
-    "authors": [
-      "Origen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Contra_Celsum"
-  },
-  {
-    "name": "On Prayer",
-    "authors": [
-      "Origen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Prayer"
-  },
-  {
-    "name": "Commentary on the Gospel of John",
-    "authors": [
-      "Origen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Commentary_on_the_Gospel_of_John"
-  },
-  {
-    "name": "Homilies on Genesis",
-    "authors": [
-      "Origen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Homilies_on_Genesis"
-  },
-  {
-    "name": "Address of Thanksgiving to Origen (Panegyric)",
-    "authors": [
-      "Gregory Thaumaturgus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Address_of_Thanksgiving_to_Origen_(Panegyric)"
-  },
-  {
-    "name": "Declaration of Faith (Creed) (traditional attribution)",
-    "authors": [
-      "Gregory Thaumaturgus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Declaration_of_Faith_(Creed)_(traditional_attribution)"
-  },
-  {
-    "name": "On the Unity of the Catholic Church",
-    "authors": [
-      "Cyprian"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Unity_of_the_Catholic_Church"
-  },
-  {
-    "name": "On the Lapsed",
-    "authors": [
-      "Cyprian"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Lapsed"
-  },
-  {
-    "name": "On Mortality",
-    "authors": [
-      "Cyprian"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Mortality"
-  },
-  {
-    "name": "On the Lord\u2019s Prayer",
-    "authors": [
-      "Cyprian"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Lord%E2%80%99s_Prayer"
-  },
-  {
-    "name": "Letters (Epistles)",
-    "authors": [
-      "Cyprian"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Letters_(Epistles)"
-  },
-  {
-    "name": "On the Incarnation",
-    "authors": [
-      "Athanasius"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Incarnation_(Athanasius)"
-  },
-  {
-    "name": "Life of Antony",
-    "authors": [
-      "Athanasius"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Life_of_Antony"
-  },
-  {
-    "name": "Orations Against the Arians",
-    "authors": [
-      "Athanasius"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Orations_Against_the_Arians"
-  },
-  {
-    "name": "Letters to Serapion on the Holy Spirit",
-    "authors": [
-      "Athanasius"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Letters_to_Serapion_on_the_Holy_Spirit"
-  },
-  {
-    "name": "On the Holy Spirit",
-    "authors": [
-      "Basil the Great"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Holy_Spirit"
-  },
-  {
-    "name": "Hexaemeron",
-    "authors": [
-      "Basil the Great"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Hexaemeron"
-  },
-  {
-    "name": "Longer Rules (Regulae Fusius Tractatae)",
-    "authors": [
-      "Basil the Great"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Longer_Rules_(Regulae_Fusius_Tractatae)"
-  },
-  {
-    "name": "Shorter Rules (Regulae Brevius Tractatae)",
-    "authors": [
-      "Basil the Great"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Shorter_Rules_(Regulae_Brevius_Tractatae)"
-  },
-  {
-    "name": "Address to Young Men on How They Might Derive Benefit from Greek Literature",
-    "authors": [
-      "Basil the Great"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Address_to_Young_Men_on_How_They_Might_Derive_Benefit_from_Greek_Literature"
-  },
-  {
-    "name": "Theological Orations (Orations 27\u201331)",
-    "authors": [
-      "Gregory of Nazianzus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Theological_Orations_(Orations_27%E2%80%9331)"
-  },
-  {
-    "name": "Oration 43: Funeral Oration on Basil",
-    "authors": [
-      "Gregory of Nazianzus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Oration_43%3A_Funeral_Oration_on_Basil"
-  },
-  {
-    "name": "Life of Moses",
-    "authors": [
-      "Gregory of Nyssa"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Life_of_Moses"
-  },
-  {
-    "name": "Great Catechism",
-    "authors": [
-      "Gregory of Nyssa"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Great_Catechism"
-  },
-  {
-    "name": "On the Making of Man",
-    "authors": [
-      "Gregory of Nyssa"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Making_of_Man"
-  },
-  {
-    "name": "On the Soul and the Resurrection",
-    "authors": [
-      "Gregory of Nyssa"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Soul_and_the_Resurrection"
-  },
-  {
-    "name": "Against Eunomius",
-    "authors": [
-      "Gregory of Nyssa"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Against_Eunomius"
-  },
-  {
-    "name": "On the Duties of the Clergy (De Officiis Ministrorum)",
-    "authors": [
-      "Ambrose of Milan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Duties_of_the_Clergy_(De_Officiis_Ministrorum)"
-  },
-  {
-    "name": "On the Mysteries (De Mysteriis)",
-    "authors": [
-      "Ambrose of Milan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Mysteries_(De_Mysteriis)"
-  },
-  {
-    "name": "On the Sacraments (De Sacramentis)",
-    "authors": [
-      "Ambrose of Milan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Sacraments_(De_Sacramentis)"
-  },
-  {
-    "name": "On the Holy Spirit (De Spiritu Sancto)",
-    "authors": [
-      "Ambrose of Milan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Holy_Spirit_(De_Spiritu_Sancto)"
-  },
-  {
-    "name": "On Repentance (De Paenitentia)",
-    "authors": [
-      "Ambrose of Milan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Repentance_(De_Paenitentia)"
-  },
-  {
-    "name": "On Illustrious Men (De Viris Illustribus)",
-    "authors": [
-      "Jerome"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Illustrious_Men_(De_Viris_Illustribus)"
-  },
-  {
-    "name": "Against Jovinian (Adversus Jovinianum)",
-    "authors": [
-      "Jerome"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Against_Jovinian_(Adversus_Jovinianum)"
-  },
-  {
-    "name": "Letter 22 to Eustochium",
-    "authors": [
-      "Jerome"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Letter_22_to_Eustochium"
-  },
-  {
-    "name": "Commentary on Galatians",
-    "authors": [
-      "Jerome"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Commentary_on_Galatians"
-  },
-  {
-    "name": "On the Priesthood",
-    "authors": [
-      "John Chrysostom"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Priesthood"
-  },
-  {
-    "name": "Homilies on Matthew",
-    "authors": [
-      "John Chrysostom"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Homilies_on_Matthew"
-  },
-  {
-    "name": "Homilies on John",
-    "authors": [
-      "John Chrysostom"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Homilies_on_John"
-  },
-  {
-    "name": "Homilies on Romans",
-    "authors": [
-      "John Chrysostom"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Homilies_on_Romans"
-  },
-  {
-    "name": "Letters to Olympias",
-    "authors": [
-      "John Chrysostom"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Letters_to_Olympias"
-  },
-  {
-    "name": "Confessions",
-    "authors": [
-      "Augustine of Hippo"
-    ],
-    "textUrl": "https://www.ccel.org/ccel/augustine/confessions.html",
-    "referenceUrl": "https://en.wikipedia.org/wiki/Confessions_(Augustine)"
-  },
-  {
-    "name": "The City of God",
-    "authors": [
-      "Augustine of Hippo"
-    ],
-    "textUrl": "https://www.ccel.org/ccel/augustine/cityofgod.html",
-    "referenceUrl": "https://en.wikipedia.org/wiki/City_of_God_(book)"
-  },
-  {
-    "name": "On the Trinity (De Trinitate)",
-    "authors": [
-      "Augustine of Hippo"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Trinity_(De_Trinitate)"
-  },
-  {
-    "name": "On Christian Doctrine (De Doctrina Christiana)",
-    "authors": [
-      "Augustine of Hippo"
-    ],
-    "textUrl": "https://www.ccel.org/ccel/augustine/doctrine.html",
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Christian_Doctrine"
-  },
-  {
-    "name": "Enchiridion (Handbook on Faith, Hope, and Love)",
-    "authors": [
-      "Augustine of Hippo"
-    ],
-    "textUrl": "https://www.ccel.org/ccel/augustine/enchiridion.html",
-    "referenceUrl": "https://en.wikipedia.org/wiki/Enchiridion_(Augustine)"
-  },
-  {
-    "name": "On the Holy Spirit (De Spiritu Sancto)",
-    "authors": [
-      "Didymus the Blind"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Holy_Spirit_(De_Spiritu_Sancto)"
-  },
-  {
-    "name": "Commentary on the Apostles\u2019 Creed",
-    "authors": [
-      "Rufinus of Aquileia"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Commentary_on_the_Apostles%E2%80%99_Creed"
-  },
-  {
-    "name": "Apology for Origen",
-    "authors": [
-      "Rufinus of Aquileia"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Apology_for_Origen"
-  },
-  {
-    "name": "Commentary on the Gospel of John",
-    "authors": [
-      "Cyril of Alexandria"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Commentary_on_the_Gospel_of_John"
-  },
-  {
-    "name": "On the Unity of Christ",
-    "authors": [
-      "Cyril of Alexandria"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Unity_of_Christ"
-  },
-  {
-    "name": "Five Tomes Against Nestorius",
-    "authors": [
-      "Cyril of Alexandria"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Five_Tomes_Against_Nestorius"
-  },
-  {
-    "name": "The Bazaar of Heracleides",
-    "authors": [
-      "Nestorius of Constantinople"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Bazaar_of_Heracleides"
-  },
-  {
-    "name": "Confessio",
-    "authors": [
-      "Patrick"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Confessio"
-  },
-  {
-    "name": "Letter to the Soldiers of Coroticus",
-    "authors": [
-      "Patrick"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Letter_to_the_Soldiers_of_Coroticus"
-  },
-  {
-    "name": "Chronicle (Epitoma Chronicon)",
-    "authors": [
-      "Prosper of Aquitaine"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Chronicle_(Epitoma_Chronicon)"
-  },
-  {
-    "name": "Against the Ingrates (Carmen de Ingratis)",
-    "authors": [
-      "Prosper of Aquitaine"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Against_the_Ingrates_(Carmen_de_Ingratis)"
-  },
-  {
-    "name": "Liber contra Collatorem",
-    "authors": [
-      "Prosper of Aquitaine"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Liber_contra_Collatorem"
-  },
-  {
-    "name": "Tome of Leo",
-    "authors": [
-      "Pope Leo I"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Tome_of_Leo"
-  },
-  {
-    "name": "On Grace (De Gratia) (traditional attribution)",
-    "authors": [
-      "Faustus of Riez"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Grace_(De_Gratia)_(traditional_attribution)"
-  },
-  {
-    "name": "On the State of the Soul (De Statu Animae)",
-    "authors": [
-      "Claudianus Mamertus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_State_of_the_Soul_(De_Statu_Animae)"
-  },
-  {
-    "name": "Rule of St Benedict",
-    "authors": [
-      "Benedict of Nursia"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Rule_of_St_Benedict"
-  },
-  {
-    "name": "Rule for Nuns",
-    "authors": [
-      "Caesarius of Arles"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Rule_for_Nuns"
-  },
-  {
-    "name": "Pastoral Rule (Regula Pastoralis)",
-    "authors": [
-      "Pope Gregory the Great"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Pastoral_Rule"
-  },
-  {
-    "name": "Moralia on Job",
-    "authors": [
-      "Pope Gregory the Great"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Moralia_in_Job"
-  },
-  {
-    "name": "Dialogues",
-    "authors": [
-      "Pope Gregory the Great"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Dialogues"
-  },
-  {
-    "name": "Homilies on Ezekiel",
-    "authors": [
-      "Pope Gregory the Great"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Homilies_on_Ezekiel"
-  },
-  {
-    "name": "Homilies on the Gospels",
-    "authors": [
-      "Pope Gregory the Great"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Homilies_on_the_Gospels"
-  },
-  {
-    "name": "Etymologies (Etymologiae)",
-    "authors": [
-      "Isidore of Seville"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Etymologiae"
-  },
-  {
-    "name": "On the Nature of Things (De Natura Rerum)",
-    "authors": [
-      "Isidore of Seville"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/De_natura_rerum"
-  },
-  {
-    "name": "Sentences (Sententiae)",
-    "authors": [
-      "Isidore of Seville"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Sentences_(Sententiae)"
-  },
-  {
-    "name": "On Ecclesiastical Offices (De Ecclesiasticis Officiis)",
-    "authors": [
-      "Isidore of Seville"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Ecclesiastical_Offices_(De_Ecclesiasticis_Officiis)"
-  },
-  {
-    "name": "Ambigua",
-    "authors": [
-      "Maximus the Confessor"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Ambigua_(Maximus_the_Confessor)"
-  },
-  {
-    "name": "Mystagogia",
-    "authors": [
-      "Maximus the Confessor"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Mystagogy"
-  },
-  {
-    "name": "Questions to Thalassius",
-    "authors": [
-      "Maximus the Confessor"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Questions_to_Thalassius"
-  },
-  {
-    "name": "Disputation with Pyrrhus",
-    "authors": [
-      "Maximus the Confessor"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Disputation_with_Pyrrhus"
-  },
-  {
-    "name": "Four Hundred Chapters on Love",
-    "authors": [
-      "Maximus the Confessor"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Four_Hundred_Chapters_on_Love"
-  },
-  {
-    "name": "Life of Saint Eligius (Vita Sancti Eligii)",
-    "authors": [
-      "Audoin"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Life_of_Saint_Eligius_(Vita_Sancti_Eligii)"
-  },
-  {
-    "name": "Ecclesiastical History of the English People",
-    "authors": [
-      "The Venerable Bede"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Ecclesiastical_History_of_the_English_People"
-  },
-  {
-    "name": "On the Reckoning of Time (De Temporum Ratione)",
-    "authors": [
-      "The Venerable Bede"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Reckoning_of_Time_(De_Temporum_Ratione)"
-  },
-  {
-    "name": "Lives of the Abbots of Wearmouth and Jarrow",
-    "authors": [
-      "The Venerable Bede"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Lives_of_the_Abbots_of_Wearmouth_and_Jarrow"
-  },
-  {
-    "name": "Commentary on Mark",
-    "authors": [
-      "The Venerable Bede"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Commentary_on_Mark"
-  },
-  {
-    "name": "On the Temple (De Templo)",
-    "authors": [
-      "The Venerable Bede"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Temple_(De_Templo)"
-  },
-  {
-    "name": "Commentary on the Apocalypse",
-    "authors": [
-      "Beatus of Liebana"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Commentary_on_the_Apocalypse"
-  },
-  {
-    "name": "Libellus Sacrosyllabus (against Adoptionism)",
-    "authors": [
-      "Paulinus II of Aquileia"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Libellus_Sacrosyllabus_(against_Adoptionism)"
-  },
-  {
-    "name": "On the Trinity and Incarnation (De Fide Sanctae Trinitatis)",
-    "authors": [
-      "Alcuin of York"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Trinity_and_Incarnation_(De_Fide_Sanctae_Trinitatis)"
-  },
-  {
-    "name": "De Virtutibus et Vitiis",
-    "authors": [
-      "Alcuin of York"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/De_Virtutibus_et_Vitiis"
-  },
-  {
-    "name": "Disputation with Pepin",
-    "authors": [
-      "Alcuin of York"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Disputation_with_Pepin"
-  },
-  {
-    "name": "Life of Willibrord (Vita Willibrordi)",
-    "authors": [
-      "Alcuin of York"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Life_of_Willibrord_(Vita_Willibrordi)"
-  },
-  {
-    "name": "On the Education of Clergy (De Institutione Clericorum)",
-    "authors": [
-      "Rabanus Maurus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Education_of_Clergy_(De_Institutione_Clericorum)"
-  },
-  {
-    "name": "On the Nature of Things (De Rerum Naturis)",
-    "authors": [
-      "Rabanus Maurus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Nature_of_Things_(De_Rerum_Naturis)"
-  },
-  {
-    "name": "On the Praises of the Holy Cross (De Laudibus Sanctae Crucis)",
-    "authors": [
-      "Rabanus Maurus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Praises_of_the_Holy_Cross_(De_Laudibus_Sanctae_Crucis)"
-  },
-  {
-    "name": "Hymn: The Fallen Woman (Kassia\u2019s Troparion)",
-    "authors": [
-      "Kassia of Byzantium"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Hymn%3A_The_Fallen_Woman_(Kassia%E2%80%99s_Troparion)"
-  },
-  {
-    "name": "Periphyseon (De Divisione Naturae)",
-    "authors": [
-      "John Scotus Eriugena"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Periphyseon_(De_Divisione_Naturae)"
-  },
-  {
-    "name": "On Divine Predestination (De Praedestinatione)",
-    "authors": [
-      "John Scotus Eriugena"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Divine_Predestination_(De_Praedestinatione)"
-  },
-  {
-    "name": "Homily on the Prologue of John",
-    "authors": [
-      "John Scotus Eriugena"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Homily_on_the_Prologue_of_John"
-  },
-  {
-    "name": "Bibliotheca (Myriobiblon)",
-    "authors": [
-      "Photios I of Constantinople"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Bibliotheca_(Myriobiblon)"
-  },
-  {
-    "name": "Mystagogy of the Holy Spirit",
-    "authors": [
-      "Photios I of Constantinople"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Mystagogy_of_the_Holy_Spirit"
-  },
-  {
-    "name": "Liber Manualis (Handbook)",
-    "authors": [
-      "Dhuoda of Uzes"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Liber_Manualis_(Handbook)"
-  },
-  {
-    "name": "Old Church Slavonic Translation of the Gospels (traditional attribution)",
-    "authors": [
-      "Cyril and Methodius"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Old_Church_Slavonic_Translation_of_the_Gospels_(traditional_attribution)"
-  },
-  {
-    "name": "Vita Sancti Geraldi (Life of St Gerald of Aurillac)",
-    "authors": [
-      "Odo of Cluny"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Vita_Sancti_Geraldi_(Life_of_St_Gerald_of_Aurillac)"
-  },
-  {
-    "name": "De Mensura Fistularum (On the Measure of Organ Pipes)",
-    "authors": [
-      "Sylvester II / Gerbert of Aurillac"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/De_Mensura_Fistularum_(On_the_Measure_of_Organ_Pipes)"
-  },
-  {
-    "name": "On the Body and Blood of the Lord (De Corpore et Sanguine Domini)",
-    "authors": [
-      "Lanfranc"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Body_and_Blood_of_the_Lord_(De_Corpore_et_Sanguine_Domini)"
-  },
-  {
-    "name": "Proslogion",
-    "authors": [
-      "Anselm"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Proslogion"
-  },
-  {
-    "name": "Monologion",
-    "authors": [
-      "Anselm"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Monologion"
-  },
-  {
-    "name": "Why God Became Man (Cur Deus Homo)",
-    "authors": [
-      "Anselm"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Why_God_Became_Man_(Cur_Deus_Homo)"
-  },
-  {
-    "name": "On Truth (De Veritate)",
-    "authors": [
-      "Anselm"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Truth_(De_Veritate)"
-  },
-  {
-    "name": "On the Freedom of the Will (De Libertate Arbitrii)",
-    "authors": [
-      "Anselm"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Freedom_of_the_Will_(De_Libertate_Arbitrii)"
-  },
-  {
-    "name": "Scivias",
-    "authors": [
-      "Hildegard of Bingen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Scivias"
-  },
-  {
-    "name": "Book of Life\u2019s Merits (Liber Vitae Meritorum)",
-    "authors": [
-      "Hildegard of Bingen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Book_of_Life%E2%80%99s_Merits_(Liber_Vitae_Meritorum)"
-  },
-  {
-    "name": "Book of Divine Works (Liber Divinorum Operum)",
-    "authors": [
-      "Hildegard of Bingen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Book_of_Divine_Works_(Liber_Divinorum_Operum)"
-  },
-  {
-    "name": "Physica",
-    "authors": [
-      "Hildegard of Bingen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Physica"
-  },
-  {
-    "name": "Causae et Curae",
-    "authors": [
-      "Hildegard of Bingen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Causae_et_Curae"
-  },
-  {
-    "name": "On Loving God (De Diligendo Deo)",
-    "authors": [
-      "Bernard of Clairvaux"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Loving_God_(De_Diligendo_Deo)"
-  },
-  {
-    "name": "On Consideration (De Consideratione)",
-    "authors": [
-      "Bernard of Clairvaux"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Consideration_(De_Consideratione)"
-  },
-  {
-    "name": "On Grace and Free Choice (De Gratia et Libero Arbitrio)",
-    "authors": [
-      "Bernard of Clairvaux"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Grace_and_Free_Choice_(De_Gratia_et_Libero_Arbitrio)"
-  },
-  {
-    "name": "Life of St Malachy (Vita Sancti Malachiae)",
-    "authors": [
-      "Bernard of Clairvaux"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Life_of_St_Malachy_(Vita_Sancti_Malachiae)"
-  },
-  {
-    "name": "Summa Aurea",
-    "authors": [
-      "William of Auxerre"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Summa_Aurea"
-  },
-  {
-    "name": "Canticle of the Creatures",
-    "authors": [
-      "Francis of Assisi"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Canticle_of_the_Creatures"
-  },
-  {
-    "name": "Earlier Rule (Regula non bullata)",
-    "authors": [
-      "Francis of Assisi"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Earlier_Rule_(Regula_non_bullata)"
-  },
-  {
-    "name": "Later Rule (Regula bullata)",
-    "authors": [
-      "Francis of Assisi"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Later_Rule_(Regula_bullata)"
-  },
-  {
-    "name": "Testament",
-    "authors": [
-      "Francis of Assisi"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Testament"
-  },
-  {
-    "name": "Admonitions",
-    "authors": [
-      "Francis of Assisi"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Admonitions"
-  },
-  {
-    "name": "On Light (De Luce)",
-    "authors": [
-      "Robert Grosseteste"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Light_(De_Luce)"
-  },
-  {
-    "name": "Hexaemeron (Commentary on Six Days of Creation)",
-    "authors": [
-      "Robert Grosseteste"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Hexaemeron_(Commentary_on_Six_Days_of_Creation)"
-  },
-  {
-    "name": "Epitome of Logic",
-    "authors": [
-      "Nicephorus Blemmydes"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Epitome_of_Logic"
-  },
-  {
-    "name": "Epitome of Physics",
-    "authors": [
-      "Nicephorus Blemmydes"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Epitome_of_Physics"
-  },
-  {
-    "name": "Latin Translation of Proclus\u2019 Elements of Theology",
-    "authors": [
-      "William of Moerbeke"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Latin_Translation_of_Proclus%E2%80%99_Elements_of_Theology"
-  },
-  {
-    "name": "Summa Theologiae",
-    "authors": [
-      "Thomas Aquinas"
-    ],
-    "textUrl": "https://www.newadvent.org/summa/",
-    "referenceUrl": "https://en.wikipedia.org/wiki/Summa_Theologica"
-  },
-  {
-    "name": "Summa Contra Gentiles",
-    "authors": [
-      "Thomas Aquinas"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Summa_Contra_Gentiles"
-  },
-  {
-    "name": "Catena Aurea",
-    "authors": [
-      "Thomas Aquinas"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Catena_Aurea"
-  },
-  {
-    "name": "On Being and Essence (De Ente et Essentia)",
-    "authors": [
-      "Thomas Aquinas"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Being_and_Essence_(De_Ente_et_Essentia)"
-  },
-  {
-    "name": "Compendium of Theology",
-    "authors": [
-      "Thomas Aquinas"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Compendium_of_Theology"
-  },
-  {
-    "name": "Ordinatio (Opus Oxoniense)",
-    "authors": [
-      "Duns Scotus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Ordinatio_(Opus_Oxoniense)"
-  },
-  {
-    "name": "On the First Principle (De Primo Principio)",
-    "authors": [
-      "Duns Scotus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_First_Principle_(De_Primo_Principio)"
-  },
-  {
-    "name": "Questions on the Metaphysics (Quaestiones super Metaphysicam)",
-    "authors": [
-      "Duns Scotus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Questions_on_the_Metaphysics_(Quaestiones_super_Metaphysicam)"
-  },
-  {
-    "name": "The Divine Comedy",
-    "authors": [
-      "Dante Alighieri"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Divine_Comedy"
-  },
-  {
-    "name": "Vita Nuova",
-    "authors": [
-      "Dante Alighieri"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Vita_Nuova"
-  },
-  {
-    "name": "Convivio",
-    "authors": [
-      "Dante Alighieri"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Convivio"
-  },
-  {
-    "name": "De Vulgari Eloquentia",
-    "authors": [
-      "Dante Alighieri"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/De_Vulgari_Eloquentia"
-  },
-  {
-    "name": "De Monarchia",
-    "authors": [
-      "Dante Alighieri"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/De_Monarchia"
-  },
-  {
-    "name": "On the Cause of God (De Causa Dei)",
-    "authors": [
-      "Thomas Bradwardine"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Cause_of_God_(De_Causa_Dei)"
-  },
-  {
-    "name": "Tractatus de Proportionibus",
-    "authors": [
-      "Thomas Bradwardine"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Tractatus_de_Proportionibus"
-  },
-  {
-    "name": "On the Truth of Holy Scripture (De Veritate Sacrae Scripturae)",
-    "authors": [
-      "John Wycliffe"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Truth_of_Holy_Scripture_(De_Veritate_Sacrae_Scripturae)"
-  },
-  {
-    "name": "On the Church (De Ecclesia)",
-    "authors": [
-      "John Wycliffe"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Church_(De_Ecclesia)"
-  },
-  {
-    "name": "On Civil Dominion (De Civili Dominio)",
-    "authors": [
-      "John Wycliffe"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Civil_Dominion_(De_Civili_Dominio)"
-  },
-  {
-    "name": "Revelations of Divine Love",
-    "authors": [
-      "Julian of Norwich"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Revelations_of_Divine_Love"
-  },
-  {
-    "name": "The Book of the City of Ladies",
-    "authors": [
-      "Christine de Pisan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Book_of_the_City_of_Ladies"
-  },
-  {
-    "name": "The Treasure of the City of Ladies",
-    "authors": [
-      "Christine de Pisan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Treasure_of_the_City_of_Ladies"
-  },
-  {
-    "name": "The Book of the Deeds and Good Morals of King Charles V",
-    "authors": [
-      "Christine de Pisan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Book_of_the_Deeds_and_Good_Morals_of_King_Charles_V"
-  },
-  {
-    "name": "Letter of the God of Love (Epistre au Dieu d\u2019Amours)",
-    "authors": [
-      "Christine de Pisan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Letter_of_the_God_of_Love_(Epistre_au_Dieu_d%E2%80%99Amours)"
-  },
-  {
-    "name": "On the Church (De Ecclesia)",
-    "authors": [
-      "Jan Hus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Church_(De_Ecclesia)"
-  },
-  {
-    "name": "Letters (selected)",
-    "authors": [
-      "Jan Hus"
-    ],
-    "referenceUrl": "https://en.wikisource.org/wiki/The_letters_of_John_Hus"
-  },
-  {
-    "name": "On Simony",
-    "authors": [
-      "Jan Hus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Simony"
-  },
-  {
-    "name": "The Imitation of Christ",
-    "authors": [
-      "Thomas a Kempis"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Imitation_of_Christ"
-  },
-  {
-    "name": "Prayers and Meditations (selected)",
-    "authors": [
-      "Thomas a Kempis"
-    ],
-    "referenceUrl": "https://en.wikisource.org/wiki/Prayers_and_Meditations_on_the_Life_of_Christ"
-  },
-  {
-    "name": "Sermons (selected)",
-    "authors": [
-      "Thomas a Kempis"
-    ],
-    "referenceUrl": "https://en.wikisource.org/wiki/Sermons_to_the_Novices_Regular"
-  },
-  {
-    "name": "On Learned Ignorance (De Docta Ignorantia)",
-    "authors": [
-      "Nicholas of Cusa"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Learned_Ignorance_(De_Docta_Ignorantia)"
-  },
-  {
-    "name": "On the Peace of Faith (De Pace Fidei)",
-    "authors": [
-      "Nicholas of Cusa"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Peace_of_Faith_(De_Pace_Fidei)"
-  },
-  {
-    "name": "On the Vision of God (De Visione Dei)",
-    "authors": [
-      "Nicholas of Cusa"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Vision_of_God_(De_Visione_Dei)"
-  },
-  {
-    "name": "On Conjectures (De Coniecturis)",
-    "authors": [
-      "Nicholas of Cusa"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Conjectures_(De_Coniecturis)"
-  },
-  {
-    "name": "Idiota de Mente (The Layman on Mind)",
-    "authors": [
-      "Nicholas of Cusa"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Idiota_de_Mente_(The_Layman_on_Mind)"
-  },
-  {
-    "name": "Triumph of the Cross",
-    "authors": [
-      "Savonarola"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Triumph_of_the_Cross"
-  },
-  {
-    "name": "In Praise of Folly",
-    "authors": [
-      "Desiderius Erasmus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/In_Praise_of_Folly"
-  },
-  {
-    "name": "Handbook of the Christian Soldier (Enchiridion Militis Christiani)",
-    "authors": [
-      "Desiderius Erasmus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Enchiridion_(Erasmus)"
-  },
-  {
-    "name": "Colloquies",
-    "authors": [
-      "Desiderius Erasmus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Colloquies"
-  },
-  {
-    "name": "On Free Will (De Libero Arbitrio)",
-    "authors": [
-      "Desiderius Erasmus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_Free_Will_(De_Libero_Arbitrio)"
-  },
-  {
-    "name": "On the Revolutions of the Heavenly Spheres (De Revolutionibus Orbium Coelestium)",
-    "authors": [
-      "Nicholas Copernicus"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/De_revolutionibus_orbium_coelestium"
-  },
-  {
-    "name": "A Short Account of the Destruction of the Indies",
-    "authors": [
-      "Bartolome de las Casas"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/A_Short_Account_of_the_Destruction_of_the_Indies"
-  },
-  {
-    "name": "History of the Indies (Historia de las Indias)",
-    "authors": [
-      "Bartolome de las Casas"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/History_of_the_Indies_(Historia_de_las_Indias)"
-  },
-  {
-    "name": "In Defense of the Indians (Apologia)",
-    "authors": [
-      "Bartolome de las Casas"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/In_Defense_of_the_Indians_(Apologia)"
-  },
-  {
-    "name": "Apologetic History Summary (Apolog\u00e9tica Historia Sumaria)",
-    "authors": [
-      "Bartolome de las Casas"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Apologetic_History_Summary_(Apolog%C3%A9tica_Historia_Sumaria)"
-  },
-  {
-    "name": "Utopia",
-    "authors": [
-      "Thomas More"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Utopia_(book)"
-  },
-  {
-    "name": "Dialogue of Comfort against Tribulation",
-    "authors": [
-      "Thomas More"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Dialogue_of_Comfort_against_Tribulation"
-  },
-  {
-    "name": "The Sadness of Christ (De Tristitia Christi)",
-    "authors": [
-      "Thomas More"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Sadness_of_Christ_(De_Tristitia_Christi)"
-  },
-  {
-    "name": "A Dialogue Concerning Heresies",
-    "authors": [
-      "Thomas More"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/A_Dialogue_Concerning_Heresies"
-  },
-  {
-    "name": "History of King Richard III",
-    "authors": [
-      "Thomas More"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/History_of_King_Richard_III"
-  },
-  {
-    "name": "Ninety-Five Theses",
-    "authors": [
-      "Martin Luther"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Ninety-five_Theses"
-  },
-  {
-    "name": "Small Catechism",
-    "authors": [
-      "Martin Luther"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Small_Catechism"
-  },
-  {
-    "name": "Large Catechism",
-    "authors": [
-      "Martin Luther"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Large_Catechism"
-  },
-  {
-    "name": "The Bondage of the Will",
-    "authors": [
-      "Martin Luther"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Bondage_of_the_Will"
-  },
-  {
-    "name": "The Freedom of a Christian",
-    "authors": [
-      "Martin Luther"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Freedom_of_a_Christian"
-  },
-  {
-    "name": "Sixty-Seven Articles",
-    "authors": [
-      "Huldrych Zwingli"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Sixty-Seven_Articles"
-  },
-  {
-    "name": "Commentary on True and False Religion",
-    "authors": [
-      "Huldrych Zwingli"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Commentary_on_True_and_False_Religion"
-  },
-  {
-    "name": "On the Lord\u2019s Supper",
-    "authors": [
-      "Huldrych Zwingli"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Lord%E2%80%99s_Supper"
-  },
-  {
-    "name": "On the Providence of God (De Providentia Dei)",
-    "authors": [
-      "Huldrych Zwingli"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Providence_of_God_(De_Providentia_Dei)"
-  },
-  {
-    "name": "Spiritual Exercises",
-    "authors": [
-      "Ignatius of Loyola"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Spiritual_Exercises_of_Ignatius_of_Loyola"
-  },
-  {
-    "name": "Constitutions of the Society of Jesus",
-    "authors": [
-      "Ignatius of Loyola"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Constitutions_of_the_Society_of_Jesus"
-  },
-  {
-    "name": "Letters (selected)",
-    "authors": [
-      "Ignatius of Loyola"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Ignatius_of_Loyola"
-  },
-  {
-    "name": "Memoriale (Spiritual Diary)",
-    "authors": [
-      "Peter Faber"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Memoriale_(Spiritual_Diary)"
-  },
-  {
-    "name": "Letters (selected)",
-    "authors": [
-      "Peter Faber"
-    ],
-    "referenceUrl": "https://www.newadvent.org/cathen/06070a.htm"
-  },
-  {
-    "name": "Institutes of the Christian Religion",
-    "authors": [
-      "John Calvin"
-    ],
-    "textUrl": "https://www.ccel.org/ccel/calvin/institutes.html",
-    "referenceUrl": "https://en.wikipedia.org/wiki/Institutes_of_the_Christian_Religion"
-  },
-  {
-    "name": "Commentary on Romans",
-    "authors": [
-      "John Calvin"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Commentary_on_Romans"
-  },
-  {
-    "name": "Commentary on the Gospel of John",
-    "authors": [
-      "John Calvin"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Commentary_on_the_Gospel_of_John"
-  },
-  {
-    "name": "Reply to Sadoleto",
-    "authors": [
-      "John Calvin"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Reply_to_Sadoleto"
-  },
-  {
-    "name": "On the Necessity of Reforming the Church",
-    "authors": [
-      "John Calvin"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Necessity_of_Reforming_the_Church"
-  },
-  {
-    "name": "The Life of Teresa of Jesus (Autobiography)",
-    "authors": [
-      "Teresa of Avila"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Life_of_Teresa_of_Jesus_(Autobiography)"
-  },
-  {
-    "name": "The Way of Perfection",
-    "authors": [
-      "Teresa of Avila"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Way_of_Perfection"
-  },
-  {
-    "name": "The Interior Castle",
-    "authors": [
-      "Teresa of Avila"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Interior_Castle"
-  },
-  {
-    "name": "The Book of the Foundations",
-    "authors": [
-      "Teresa of Avila"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Book_of_the_Foundations"
-  },
-  {
-    "name": "Concepts of the Love of God",
-    "authors": [
-      "Teresa of Avila"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Concepts_of_the_Love_of_God"
-  },
-  {
-    "name": "Ascent of Mount Carmel",
-    "authors": [
-      "John of the Cross"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Ascent_of_Mount_Carmel"
-  },
-  {
-    "name": "Dark Night of the Soul",
-    "authors": [
-      "John of the Cross"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Dark_Night_of_the_Soul"
-  },
-  {
-    "name": "Spiritual Canticle",
-    "authors": [
-      "John of the Cross"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Spiritual_Canticle"
-  },
-  {
-    "name": "Living Flame of Love",
-    "authors": [
-      "John of the Cross"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Living_Flame_of_Love"
-  },
-  {
-    "name": "Sayings of Light and Love (Dichos)",
-    "authors": [
-      "John of the Cross"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Sayings_of_Light_and_Love_(Dichos)"
-  },
-  {
-    "name": "Of Plymouth Plantation",
-    "authors": [
-      "William Bradford"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Of_Plymouth_Plantation"
-  },
-  {
-    "name": "On the Mortification of Sin in Believers",
-    "authors": [
-      "John Owen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/On_the_Mortification_of_Sin_in_Believers"
-  },
-  {
-    "name": "The Death of Death in the Death of Christ",
-    "authors": [
-      "John Owen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Death_of_Death_in_the_Death_of_Christ"
-  },
-  {
-    "name": "Communion with God",
-    "authors": [
-      "John Owen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Communion_with_God"
-  },
-  {
-    "name": "The Glory of Christ",
-    "authors": [
-      "John Owen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Glory_of_Christ"
-  },
-  {
-    "name": "A Discourse Concerning the Holy Spirit",
-    "authors": [
-      "John Owen"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/A_Discourse_Concerning_the_Holy_Spirit"
-  },
-  {
-    "name": "The Pilgrim\u2019s Progress",
-    "authors": [
-      "John Bunyan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Pilgrim%27s_Progress"
-  },
-  {
-    "name": "Grace Abounding to the Chief of Sinners",
-    "authors": [
-      "John Bunyan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Grace_Abounding_to_the_Chief_of_Sinners"
-  },
-  {
-    "name": "The Holy War",
-    "authors": [
-      "John Bunyan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Holy_War"
-  },
-  {
-    "name": "The Life and Death of Mr. Badman",
-    "authors": [
-      "John Bunyan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Life_and_Death_of_Mr._Badman"
-  },
-  {
-    "name": "The Jerusalem Sinner Saved",
-    "authors": [
-      "John Bunyan"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/The_Jerusalem_Sinner_Saved"
-  },
-  {
-    "name": "Centuries of Meditations",
-    "authors": [
-      "Thomas Traherne"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Centuries_of_Meditations"
-  },
-  {
-    "name": "Philosophi\u00e6 Naturalis Principia Mathematica",
-    "authors": [
-      "Sir Isaac Newton"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Philosophi%C3%A6_Naturalis_Principia_Mathematica"
-  },
-  {
-    "name": "Opticks",
-    "authors": [
-      "Sir Isaac Newton"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Opticks"
-  },
-  {
-    "name": "Observations upon the Prophecies of Daniel and the Apocalypse of St. John",
-    "authors": [
-      "Sir Isaac Newton"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Observations_upon_the_Prophecies_of_Daniel_and_the_Apocalypse_of_St._John"
-  },
-  {
-    "name": "Explanatory Notes upon the New Testament",
-    "authors": [
-      "John Wesley"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Explanatory_Notes_upon_the_New_Testament"
-  },
-  {
-    "name": "Life of Saint Augustine (Vita Augustini)",
-    "authors": [
-      "Possidius"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Life_of_Saint_Augustine_(Vita_Augustini)"
-  },
-  {
-    "name": "Letters (selected, as preserved)",
-    "authors": [
-      "Pope Cornelius"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/Pope_Cornelius"
-  },
-  {
-    "name": "Letters (selected, as preserved)",
-    "authors": [
-      "Pope Stephen I"
-    ],
-    "referenceUrl": "https://la.wikisource.org/wiki/Epistolae_decretales_(Stephanus_I)"
-  },
-  {
-    "name": "De Institutione Virginum (On the Instruction of Virgins)",
-    "authors": [
-      "Leander of Seville"
-    ],
-    "referenceUrl": "https://en.wikipedia.org/wiki/De_Institutione_Virginum_(On_the_Instruction_of_Virgins)"
-  },
-  {
-    "name": "Letters (selected)",
-    "authors": [
-      "Pope Martin I"
-    ],
-    "referenceUrl": "https://la.wikisource.org/wiki/Epistolae_(Martinus_I)"
-  },
-  {
-    "name": "Letters (selected)",
-    "authors": [
-      "Pope Gregory II"
-    ],
-    "referenceUrl": "https://la.wikisource.org/wiki/Epistolae_et_canones_(Gregorius_II)"
-  }
-];
+    {
+      "name": "Gospel of John",
+      "authors": [
+        "John the Evangelist"
+      ],
+      "textUrl": "https://www.biblegateway.com/passage/?search=John+1&version=ESV"
+    },
+    {
+      "name": "First Epistle of John (1 John)",
+      "authors": [
+        "John the Evangelist"
+      ],
+      "textUrl": "https://www.biblegateway.com/passage/?search=1+John+1&version=ESV"
+    },
+    {
+      "name": "Second Epistle of John (2 John)",
+      "authors": [
+        "John the Evangelist"
+      ],
+      "textUrl": "https://www.biblegateway.com/passage/?search=2+John+1&version=ESV"
+    },
+    {
+      "name": "Third Epistle of John (3 John)",
+      "authors": [
+        "John the Evangelist"
+      ],
+      "textUrl": "https://www.biblegateway.com/passage/?search=3+John+1&version=ESV"
+    },
+    {
+      "name": "Revelation",
+      "authors": [
+        "John the Evangelist"
+      ],
+      "textUrl": "https://www.biblegateway.com/passage/?search=Revelation+1&version=ESV"
+    },
+    {
+      "name": "Epistle to the Romans",
+      "authors": [
+        "Paul"
+      ],
+      "textUrl": "https://www.biblegateway.com/passage/?search=Romans+1&version=ESV"
+    },
+    {
+      "name": "First Epistle to the Corinthians (1 Corinthians)",
+      "authors": [
+        "Paul"
+      ],
+      "textUrl": "https://www.biblegateway.com/passage/?search=1+Corinthians+1&version=ESV"
+    },
+    {
+      "name": "Second Epistle to the Corinthians (2 Corinthians)",
+      "authors": [
+        "Paul"
+      ],
+      "textUrl": "https://www.biblegateway.com/passage/?search=2+Corinthians+1&version=ESV"
+    },
+    {
+      "name": "Epistle to the Galatians",
+      "authors": [
+        "Paul"
+      ],
+      "textUrl": "https://www.biblegateway.com/passage/?search=Galatians+1&version=ESV"
+    },
+    {
+      "name": "Epistle to the Ephesians",
+      "authors": [
+        "Paul"
+      ],
+      "textUrl": "https://www.biblegateway.com/passage/?search=Ephesians+1&version=ESV"
+    },
+    {
+      "name": "First Epistle of Peter (1 Peter)",
+      "authors": [
+        "Peter"
+      ],
+      "textUrl": "https://www.biblegateway.com/passage/?search=1+Peter+1&version=ESV"
+    },
+    {
+      "name": "Second Epistle of Peter (2 Peter)",
+      "authors": [
+        "Peter"
+      ],
+      "textUrl": "https://www.biblegateway.com/passage/?search=2+Peter+1&version=ESV"
+    },
+    {
+      "name": "Exposition of the Sayings of the Lord (fragments)",
+      "authors": [
+        "Papias of Hieropolis"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf-series/anf-series"
+    },
+    {
+      "name": "First Epistle of Clement to the Corinthians (1 Clement)",
+      "authors": [
+        "Clement of Rome"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf-series/anf-series"
+    },
+    {
+      "name": "Letter to the Ephesians",
+      "authors": [
+        "Ignatius of Antioch"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf-series/anf-series"
+    },
+    {
+      "name": "Letter to the Magnesians",
+      "authors": [
+        "Ignatius of Antioch"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf-series/anf-series"
+    },
+    {
+      "name": "Letter to the Trallians",
+      "authors": [
+        "Ignatius of Antioch"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf-series/anf-series"
+    },
+    {
+      "name": "Letter to the Romans",
+      "authors": [
+        "Ignatius of Antioch"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf-series/anf-series"
+    },
+    {
+      "name": "Letter to Polycarp",
+      "authors": [
+        "Ignatius of Antioch"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf-series/anf-series"
+    },
+    {
+      "name": "Letter to the Philippians",
+      "authors": [
+        "Polycarp"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf-series/anf-series"
+    },
+    {
+      "name": "First Apology",
+      "authors": [
+        "Justin Martyr"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf-series/anf-series"
+    },
+    {
+      "name": "Second Apology",
+      "authors": [
+        "Justin Martyr"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf-series/anf-series"
+    },
+    {
+      "name": "Dialogue with Trypho",
+      "authors": [
+        "Justin Martyr"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf-series/anf-series"
+    },
+    {
+      "name": "Protrepticus (Exhortation to the Greeks)",
+      "authors": [
+        "Clement of Alexandria"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf02.html"
+    },
+    {
+      "name": "Paedagogus (The Instructor)",
+      "authors": [
+        "Clement of Alexandria"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf02.html"
+    },
+    {
+      "name": "Stromata (Miscellanies)",
+      "authors": [
+        "Clement of Alexandria"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf02.html"
+    },
+    {
+      "name": "Who Is the Rich Man That Shall Be Saved? (Quis Dives Salvetur)",
+      "authors": [
+        "Clement of Alexandria"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf02.html"
+    },
+    {
+      "name": "Diatessaron",
+      "authors": [
+        "Tatian"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf02.html"
+    },
+    {
+      "name": "Address to the Greeks",
+      "authors": [
+        "Tatian"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf02.html"
+    },
+    {
+      "name": "Against Heresies",
+      "authors": [
+        "Irenaeus of Lyons"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf01"
+    },
+    {
+      "name": "Demonstration of the Apostolic Preaching (Proof of the Apostolic Preaching)",
+      "authors": [
+        "Irenaeus of Lyons"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf01"
+    },
+    {
+      "name": "Apology",
+      "authors": [
+        "Tertullian"
+      ],
+      "textUrl": "https://ccel.org/ccel/tertullian"
+    },
+    {
+      "name": "Prescription Against Heretics",
+      "authors": [
+        "Tertullian"
+      ],
+      "textUrl": "https://ccel.org/ccel/tertullian"
+    },
+    {
+      "name": "Against Marcion",
+      "authors": [
+        "Tertullian"
+      ],
+      "textUrl": "https://ccel.org/ccel/tertullian"
+    },
+    {
+      "name": "On Baptism",
+      "authors": [
+        "Tertullian"
+      ],
+      "textUrl": "https://ccel.org/ccel/tertullian"
+    },
+    {
+      "name": "On the Flesh of Christ",
+      "authors": [
+        "Tertullian"
+      ],
+      "textUrl": "https://ccel.org/ccel/tertullian"
+    },
+    {
+      "name": "Apostolic Tradition (attributed)",
+      "authors": [
+        "Hippolytus of Rome"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf05"
+    },
+    {
+      "name": "Refutation of All Heresies",
+      "authors": [
+        "Hippolytus of Rome"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf05"
+    },
+    {
+      "name": "Commentary on Daniel",
+      "authors": [
+        "Hippolytus of Rome"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf05"
+    },
+    {
+      "name": "On Christ and Antichrist",
+      "authors": [
+        "Hippolytus of Rome"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf05"
+    },
+    {
+      "name": "The Passion of Perpetua and Felicity (Perpetua’s diary portion)",
+      "authors": [
+        "Perpetua"
+      ],
+      "textUrl": "https://www.cambridge.org/core/journals/church-history/article/suicide-by-gladiator-the-acts-of-perpetua-and-felicitas-in-its-north-african-context/956AA0BD2ED4F9F14CF28071B1085CF9"
+    },
+    {
+      "name": "On First Principles (De Principiis)",
+      "authors": [
+        "Origen"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/origen"
+    },
+    {
+      "name": "Against Celsus",
+      "authors": [
+        "Origen"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/origen"
+    },
+    {
+      "name": "On Prayer",
+      "authors": [
+        "Origen"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/origen"
+    },
+    {
+      "name": "Commentary on the Gospel of John",
+      "authors": [
+        "Origen"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/origen"
+    },
+    {
+      "name": "Homilies on Genesis",
+      "authors": [
+        "Origen"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/origen"
+    },
+    {
+      "name": "Address of Thanksgiving to Origen (Panegyric)",
+      "authors": [
+        "Gregory Thaumaturgus"
+      ],
+      "textUrl": "https://bkv.unifr.ch/works/cpg-1763/versions/the-oration-and-panegyric-addressed-to-origen/divisions"
+    },
+    {
+      "name": "Declaration of Faith (Creed) (traditional attribution)",
+      "authors": [
+        "Gregory Thaumaturgus"
+      ],
+      "textUrl": "https://orthodoxchurchfathers.com/fathers/anf06/anf0606.html"
+    },
+    {
+      "name": "On the Promises (as preserved in fragments/quotations)",
+      "authors": [
+        "Dionysius of Alexandria"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/feltoe/dionysius.dionysius.t.t1.html"
+    },
+    {
+      "name": "Letters (selected, as preserved in Eusebius)",
+      "authors": [
+        "Dionysius of Alexandria"
+      ],
+      "textUrl": "https://ccel.org/ccel/feltoe/dionysius/dionysius.toc.html"
+    },
+    {
+      "name": "On the Unity of the Catholic Church",
+      "authors": [
+        "Cyprian"
+      ],
+      "textUrl": "https://ccel.org/ccel/cyprian"
+    },
+    {
+      "name": "On the Lapsed",
+      "authors": [
+        "Cyprian"
+      ],
+      "textUrl": "https://ccel.org/ccel/cyprian"
+    },
+    {
+      "name": "On Mortality",
+      "authors": [
+        "Cyprian"
+      ],
+      "textUrl": "https://ccel.org/ccel/cyprian"
+    },
+    {
+      "name": "On the Lord’s Prayer",
+      "authors": [
+        "Cyprian"
+      ],
+      "textUrl": "https://ccel.org/ccel/cyprian"
+    },
+    {
+      "name": "Letters (Epistles)",
+      "authors": [
+        "Cyprian"
+      ],
+      "textUrl": "https://ccel.org/ccel/cyprian"
+    },
+    {
+      "name": "Letter(s) against Arianism (selected)",
+      "authors": [
+        "Alexander of Alexandria"
+      ],
+      "textUrl": "https://ccel.org/ccel/alexander_alexandria/heresy_and_deposition/anf06.x.iii.i.html"
+    },
+    {
+      "name": "On the Incarnation",
+      "authors": [
+        "Athanasius"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/athanasius/incarnation"
+    },
+    {
+      "name": "Life of Antony",
+      "authors": [
+        "Athanasius"
+      ],
+      "textUrl": "https://ccel.org/ccel/athanasius"
+    },
+    {
+      "name": "Orations Against the Arians",
+      "authors": [
+        "Athanasius"
+      ],
+      "textUrl": "https://ccel.org/ccel/athanasius"
+    },
+    {
+      "name": "Letters to Serapion on the Holy Spirit",
+      "authors": [
+        "Athanasius"
+      ],
+      "textUrl": "https://ccel.org/ccel/athanasius"
+    },
+    {
+      "name": "Festal Letters (selected)",
+      "authors": [
+        "Athanasius"
+      ],
+      "textUrl": "https://ccel.org/ccel/athanasius"
+    },
+    {
+      "name": "On the Holy Spirit",
+      "authors": [
+        "Basil the Great"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/basil"
+    },
+    {
+      "name": "Hexaemeron",
+      "authors": [
+        "Basil the Great"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/basil"
+    },
+    {
+      "name": "Longer Rules (Regulae Fusius Tractatae)",
+      "authors": [
+        "Basil the Great"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/basil"
+    },
+    {
+      "name": "Shorter Rules (Regulae Brevius Tractatae)",
+      "authors": [
+        "Basil the Great"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/basil"
+    },
+    {
+      "name": "Address to Young Men on How They Might Derive Benefit from Greek Literature",
+      "authors": [
+        "Basil the Great"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/basil"
+    },
+    {
+      "name": "Theological Orations (Orations 27–31)",
+      "authors": [
+        "Gregory of Nazianzus"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/npnf207"
+    },
+    {
+      "name": "Orations (selected)",
+      "authors": [
+        "Gregory of Nazianzus"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/npnf207"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Gregory of Nazianzus"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/npnf207"
+    },
+    {
+      "name": "Poems (selected)",
+      "authors": [
+        "Gregory of Nazianzus"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/npnf207"
+    },
+    {
+      "name": "Oration 43: Funeral Oration on Basil",
+      "authors": [
+        "Gregory of Nazianzus"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/npnf207"
+    },
+    {
+      "name": "Life of Moses",
+      "authors": [
+        "Gregory of Nyssa"
+      ],
+      "textUrl": "https://www.ccel.org/g/gregorynyssa/index.html"
+    },
+    {
+      "name": "Great Catechism",
+      "authors": [
+        "Gregory of Nyssa"
+      ],
+      "textUrl": "https://www.ccel.org/g/gregorynyssa/index.html"
+    },
+    {
+      "name": "On the Making of Man",
+      "authors": [
+        "Gregory of Nyssa"
+      ],
+      "textUrl": "https://www.ccel.org/g/gregorynyssa/index.html"
+    },
+    {
+      "name": "On the Soul and the Resurrection",
+      "authors": [
+        "Gregory of Nyssa"
+      ],
+      "textUrl": "https://www.ccel.org/g/gregorynyssa/index.html"
+    },
+    {
+      "name": "Against Eunomius",
+      "authors": [
+        "Gregory of Nyssa"
+      ],
+      "textUrl": "https://www.ccel.org/g/gregorynyssa/index.html"
+    },
+    {
+      "name": "On the Duties of the Clergy (De Officiis Ministrorum)",
+      "authors": [
+        "Ambrose of Milan"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/ambrose"
+    },
+    {
+      "name": "On the Mysteries (De Mysteriis)",
+      "authors": [
+        "Ambrose of Milan"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/ambrose"
+    },
+    {
+      "name": "On the Sacraments (De Sacramentis)",
+      "authors": [
+        "Ambrose of Milan"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/ambrose"
+    },
+    {
+      "name": "On the Holy Spirit (De Spiritu Sancto)",
+      "authors": [
+        "Ambrose of Milan"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/ambrose"
+    },
+    {
+      "name": "On Repentance (De Paenitentia)",
+      "authors": [
+        "Ambrose of Milan"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/ambrose"
+    },
+    {
+      "name": "On Illustrious Men (De Viris Illustribus)",
+      "authors": [
+        "Jerome"
+      ],
+      "textUrl": "https://ccel.org/ccel/jerome"
+    },
+    {
+      "name": "Against Jovinian (Adversus Jovinianum)",
+      "authors": [
+        "Jerome"
+      ],
+      "textUrl": "https://ccel.org/ccel/jerome"
+    },
+    {
+      "name": "Letter 22 to Eustochium",
+      "authors": [
+        "Jerome"
+      ],
+      "textUrl": "https://ccel.org/ccel/jerome"
+    },
+    {
+      "name": "Lives of the Hermits (Paul, Hilarion, Malchus)",
+      "authors": [
+        "Jerome"
+      ],
+      "textUrl": "https://ccel.org/ccel/jerome"
+    },
+    {
+      "name": "Commentary on Galatians",
+      "authors": [
+        "Jerome"
+      ],
+      "textUrl": "https://ccel.org/ccel/jerome"
+    },
+    {
+      "name": "On the Priesthood",
+      "authors": [
+        "John Chrysostom"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/chrysostom"
+    },
+    {
+      "name": "Homilies on Matthew",
+      "authors": [
+        "John Chrysostom"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/chrysostom"
+    },
+    {
+      "name": "Homilies on John",
+      "authors": [
+        "John Chrysostom"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/chrysostom"
+    },
+    {
+      "name": "Homilies on Romans",
+      "authors": [
+        "John Chrysostom"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/chrysostom"
+    },
+    {
+      "name": "Letters to Olympias",
+      "authors": [
+        "John Chrysostom"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/chrysostom"
+    },
+    {
+      "name": "Confessions",
+      "authors": [
+        "Augustine of Hippo"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/augustine/confessions.html"
+    },
+    {
+      "name": "The City of God",
+      "authors": [
+        "Augustine of Hippo"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/augustine/cityofgod.html"
+    },
+    {
+      "name": "On the Trinity (De Trinitate)",
+      "authors": [
+        "Augustine of Hippo"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/augustine"
+    },
+    {
+      "name": "On Christian Doctrine (De Doctrina Christiana)",
+      "authors": [
+        "Augustine of Hippo"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/augustine/doctrine.html"
+    },
+    {
+      "name": "Enchiridion (Handbook on Faith, Hope, and Love)",
+      "authors": [
+        "Augustine of Hippo"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/augustine/enchiridion.html"
+    },
+    {
+      "name": "On the Holy Spirit (De Spiritu Sancto)",
+      "authors": [
+        "Didymus the Blind"
+      ],
+      "textUrl": "https://www.persee.fr/doc/rscir_0035-2217_1993_num_67_2_3230_t1_0122_0000_2"
+    },
+    {
+      "name": "On the Trinity (De Trinitate) (attributed)",
+      "authors": [
+        "Didymus the Blind"
+      ],
+      "textUrl": "https://www.cambridge.org/core/books/making-of-orthodoxy/some-sources-used-in-the-de-trinitate-ascribed-to-didymus-the-blind/209888B8E20E469C12B7A288DC8317EB"
+    },
+    {
+      "name": "Commentary on the Apostles’ Creed",
+      "authors": [
+        "Rufinus of Aquileia"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf08/anf08.vi.iii.ii.html"
+    },
+    {
+      "name": "Church History (Latin continuation/translation of Eusebius) (traditional association)",
+      "authors": [
+        "Rufinus of Aquileia"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf08/anf08.vi.iii.ii.html"
+    },
+    {
+      "name": "Apology for Origen",
+      "authors": [
+        "Rufinus of Aquileia"
+      ],
+      "textUrl": "https://ccel.org/ccel/schaff/anf08/anf08.vi.iii.ii.html"
+    },
+    {
+      "name": "Paschal Letters (selected)",
+      "authors": [
+        "Theophilus of Alexandria"
+      ],
+      "textUrl": "https://www.newadvent.org/fathers/260196.htm"
+    },
+    {
+      "name": "Festal Letters (selected)",
+      "authors": [
+        "Theophilus of Alexandria"
+      ],
+      "textUrl": "https://elmhurst.ecampus.com/theophilus-alexandria-1st-russell-norman/bk/9780415289146"
+    },
+    {
+      "name": "Commentary on the Gospel of John",
+      "authors": [
+        "Cyril of Alexandria"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/cyril"
+    },
+    {
+      "name": "On the Unity of Christ",
+      "authors": [
+        "Cyril of Alexandria"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/cyril"
+    },
+    {
+      "name": "Five Tomes Against Nestorius",
+      "authors": [
+        "Cyril of Alexandria"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/cyril"
+    },
+    {
+      "name": "Festal Letters (selected)",
+      "authors": [
+        "Cyril of Alexandria"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/cyril"
+    },
+    {
+      "name": "Commentary on Luke (fragments/selected)",
+      "authors": [
+        "Cyril of Alexandria"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/cyril"
+    },
+    {
+      "name": "The Bazaar of Heracleides",
+      "authors": [
+        "Nestorius of Constantinople"
+      ],
+      "textUrl": "https://www.gorgiaspress.com/the-bazaar-of-heracleides-9781593331327.html"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Nestorius of Constantinople"
+      ],
+      "textUrl": "https://www.cambridge.org/core/books/cambridge-edition-of-early-christian-writings/nestorius-of-constantinople-three-letters-to-celestine-of-rome/AA616A2895C8734E0B87F239D6CD8A73"
+    },
+    {
+      "name": "Confessio",
+      "authors": [
+        "Patrick"
+      ],
+      "textUrl": "https://www.confessio.ie/etexts/confessio_english#"
+    },
+    {
+      "name": "Letter to the Soldiers of Coroticus",
+      "authors": [
+        "Patrick"
+      ],
+      "textUrl": "https://www.confessio.ie/etexts/epistola_english#"
+    },
+    {
+      "name": "Chronicle (Epitoma Chronicon)",
+      "authors": [
+        "Prosper of Aquitaine"
+      ],
+      "textUrl": "https://openlibrary.org/works/OL4799175W/Prosperi_Tironis_Epitoma_chronicon"
+    },
+    {
+      "name": "Against the Ingrates (Carmen de Ingratis)",
+      "authors": [
+        "Prosper of Aquitaine"
+      ],
+      "textUrl": "https://books.google.com/books?id=lN4PAAAAQAAJ"
+    },
+    {
+      "name": "Liber contra Collatorem",
+      "authors": [
+        "Prosper of Aquitaine"
+      ],
+      "textUrl": "https://www.newadvent.org/cathen/12487a.htm"
+    },
+    {
+      "name": "Tome of Leo",
+      "authors": [
+        "Pope Leo I"
+      ],
+      "textUrl": "https://ccel.org/ccel/leo"
+    },
+    {
+      "name": "Sermons (selected)",
+      "authors": [
+        "Pope Leo I"
+      ],
+      "textUrl": "https://ccel.org/ccel/leo"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Pope Leo I"
+      ],
+      "textUrl": "https://ccel.org/ccel/leo"
+    },
+    {
+      "name": "On Grace (De Gratia) (traditional attribution)",
+      "authors": [
+        "Faustus of Riez"
+      ],
+      "textUrl": "https://www.britannica.com/biography/Faustus-of-Riez"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Faustus of Riez"
+      ],
+      "textUrl": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0121g.stoa003/"
+    },
+    {
+      "name": "On the State of the Soul (De Statu Animae)",
+      "authors": [
+        "Claudianus Mamertus"
+      ],
+      "textUrl": "https://la.wikisource.org/wiki/De_statu_animae"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Pope Simplicius"
+      ],
+      "textUrl": "https://www.newadvent.org/cathen/14002a.htm"
+    },
+    {
+      "name": "Rule of St Benedict",
+      "authors": [
+        "Benedict of Nursia"
+      ],
+      "textUrl": "https://www.penguinrandomhouse.com/books/630016/the-rule-of-saint-benedict-by-translated-with-an-introduction-by-anthony-c-meisel-and-m-l-del-mastro/"
+    },
+    {
+      "name": "Sermons (selected)",
+      "authors": [
+        "Caesarius of Arles"
+      ],
+      "textUrl": "https://www.cuapress.org/9780813214047/sermons/"
+    },
+    {
+      "name": "Rule for Nuns",
+      "authors": [
+        "Caesarius of Arles"
+      ],
+      "textUrl": "https://www.earlymedievalmonasticism.org/texts/Caesarius-Regula-ad-virgines.html"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Caesarius of Arles"
+      ],
+      "textUrl": "https://epistolae.ctl.columbia.edu/people/26123.html"
+    },
+    {
+      "name": "Pastoral Rule (Regula Pastoralis)",
+      "authors": [
+        "Pope Gregory the Great"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/gregory"
+    },
+    {
+      "name": "Moralia on Job",
+      "authors": [
+        "Pope Gregory the Great"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/gregory"
+    },
+    {
+      "name": "Dialogues",
+      "authors": [
+        "Pope Gregory the Great"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/gregory"
+    },
+    {
+      "name": "Homilies on Ezekiel",
+      "authors": [
+        "Pope Gregory the Great"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/gregory"
+    },
+    {
+      "name": "Homilies on the Gospels",
+      "authors": [
+        "Pope Gregory the Great"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/gregory"
+    },
+    {
+      "name": "Etymologies (Etymologiae)",
+      "authors": [
+        "Isidore of Seville"
+      ],
+      "textUrl": "https://la.wikisource.org/wiki/Etymologiarum_libri_XX"
+    },
+    {
+      "name": "On the Nature of Things (De Natura Rerum)",
+      "authors": [
+        "Isidore of Seville"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Isidore_of_Seville"
+    },
+    {
+      "name": "Sentences (Sententiae)",
+      "authors": [
+        "Isidore of Seville"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Isidore_of_Seville"
+    },
+    {
+      "name": "On Ecclesiastical Offices (De Ecclesiasticis Officiis)",
+      "authors": [
+        "Isidore of Seville"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Isidore_of_Seville"
+    },
+    {
+      "name": "History of the Goths, Vandals, and Suevi",
+      "authors": [
+        "Isidore of Seville"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Isidore_of_Seville"
+    },
+    {
+      "name": "Ambigua",
+      "authors": [
+        "Maximus the Confessor"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/maximus"
+    },
+    {
+      "name": "Mystagogia",
+      "authors": [
+        "Maximus the Confessor"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/maximus"
+    },
+    {
+      "name": "Questions to Thalassius",
+      "authors": [
+        "Maximus the Confessor"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/maximus"
+    },
+    {
+      "name": "Disputation with Pyrrhus",
+      "authors": [
+        "Maximus the Confessor"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/maximus"
+    },
+    {
+      "name": "Four Hundred Chapters on Love",
+      "authors": [
+        "Maximus the Confessor"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/maximus"
+    },
+    {
+      "name": "Life of Saint Eligius (Vita Sancti Eligii)",
+      "authors": [
+        "Audoin"
+      ],
+      "textUrl": "https://la.wikisource.org/wiki/Vita_S._Eligii"
+    },
+    {
+      "name": "Letters (Correspondence) (selected)",
+      "authors": [
+        "Boniface"
+      ],
+      "textUrl": "https://elfinspell.com/Boniface1.html"
+    },
+    {
+      "name": "Ecclesiastical History of the English People",
+      "authors": [
+        "The Venerable Bede"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/bede"
+    },
+    {
+      "name": "On the Reckoning of Time (De Temporum Ratione)",
+      "authors": [
+        "The Venerable Bede"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/bede"
+    },
+    {
+      "name": "Lives of the Abbots of Wearmouth and Jarrow",
+      "authors": [
+        "The Venerable Bede"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/bede"
+    },
+    {
+      "name": "Commentary on Mark",
+      "authors": [
+        "The Venerable Bede"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/bede"
+    },
+    {
+      "name": "On the Temple (De Templo)",
+      "authors": [
+        "The Venerable Bede"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/bede"
+    },
+    {
+      "name": "Commentary on the Apocalypse",
+      "authors": [
+        "Beatus of Liebana"
+      ],
+      "textUrl": "https://www.themorgan.org/collection/commentary-apocalypse/112348/285"
+    },
+    {
+      "name": "Libellus Sacrosyllabus (against Adoptionism)",
+      "authors": [
+        "Paulinus II of Aquileia"
+      ],
+      "textUrl": "https://researchportal.helsinki.fi/en/publications/the-libellus-sacrosyllabus-of-paulinus-ii-of-aquileia-publishing-"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Paulinus II of Aquileia"
+      ],
+      "textUrl": "https://la.wikisource.org/wiki/Patrologia_Latina/99"
+    },
+    {
+      "name": "On the Trinity and Incarnation (De Fide Sanctae Trinitatis)",
+      "authors": [
+        "Alcuin of York"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Alcuin"
+    },
+    {
+      "name": "De Virtutibus et Vitiis",
+      "authors": [
+        "Alcuin of York"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Alcuin"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Alcuin of York"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Alcuin"
+    },
+    {
+      "name": "Disputation with Pepin",
+      "authors": [
+        "Alcuin of York"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Alcuin"
+    },
+    {
+      "name": "Life of Willibrord (Vita Willibrordi)",
+      "authors": [
+        "Alcuin of York"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Alcuin"
+    },
+    {
+      "name": "On the Education of Clergy (De Institutione Clericorum)",
+      "authors": [
+        "Rabanus Maurus"
+      ],
+      "textUrl": "https://books.google.com/books/about/Rabani_Mauri_de_Institutione_Clericorum.html?id=hpP3wwEACAAJ"
+    },
+    {
+      "name": "On the Nature of Things (De Rerum Naturis)",
+      "authors": [
+        "Rabanus Maurus"
+      ],
+      "textUrl": "https://books.google.com/books/about/De_rerum_naturis.html?id=Z1lr0QEACAAJ"
+    },
+    {
+      "name": "On the Praises of the Holy Cross (De Laudibus Sanctae Crucis)",
+      "authors": [
+        "Rabanus Maurus"
+      ],
+      "textUrl": "https://la.wikisource.org/wiki/De_laudibus_Sanctae_Crucis_(Rabanus_Maurus)"
+    },
+    {
+      "name": "Commentary on Matthew (selected)",
+      "authors": [
+        "Rabanus Maurus"
+      ],
+      "textUrl": "https://la.wikisource.org/wiki/Commentarium_in_Matthaeum_(Rabanus_Maurus)"
+    },
+    {
+      "name": "Hymn: The Fallen Woman (Kassia’s Troparion)",
+      "authors": [
+        "Kassia of Byzantium"
+      ],
+      "textUrl": "https://www.musicale.gr/afieromata/kassiani/index_en.html"
+    },
+    {
+      "name": "Hymns (selected)",
+      "authors": [
+        "Kassia of Byzantium"
+      ],
+      "textUrl": "https://byzantine.lib.princeton.edu/byzantine/translation/15956"
+    },
+    {
+      "name": "Epigrams (selected)",
+      "authors": [
+        "Kassia of Byzantium"
+      ],
+      "textUrl": "https://byzantine.lib.princeton.edu/byzantine/translation/15956"
+    },
+    {
+      "name": "Periphyseon (De Divisione Naturae)",
+      "authors": [
+        "John Scotus Eriugena"
+      ],
+      "textUrl": "https://www.booksamillion.com/p/Periphyseon/Johannes-Scotus-Eriugena/9780884024620"
+    },
+    {
+      "name": "On Divine Predestination (De Praedestinatione)",
+      "authors": [
+        "John Scotus Eriugena"
+      ],
+      "textUrl": "https://www.barnesandnoble.com/w/treatise-on-divine-predestination-john-scottus-eriugena/1101996234"
+    },
+    {
+      "name": "Homily on the Prologue of John",
+      "authors": [
+        "John Scotus Eriugena"
+      ],
+      "textUrl": "https://academic.oup.com/book/26478/chapter/194921583"
+    },
+    {
+      "name": "Commentary on Pseudo-Dionysius (selected)",
+      "authors": [
+        "John Scotus Eriugena"
+      ],
+      "textUrl": "https://www.brepols.net/products/IS-9782503033112-1"
+    },
+    {
+      "name": "Bibliotheca (Myriobiblon)",
+      "authors": [
+        "Photios I of Constantinople"
+      ],
+      "textUrl": "https://ccel.org/ccel/pearse/morefathers/files/photius_bibliotheca_01.htm"
+    },
+    {
+      "name": "Mystagogy of the Holy Spirit",
+      "authors": [
+        "Photios I of Constantinople"
+      ],
+      "textUrl": "https://ccel.org/ccel/pearse/morefathers/files/photius_bibliotheca_01.htm"
+    },
+    {
+      "name": "Amphilochia (selected)",
+      "authors": [
+        "Photios I of Constantinople"
+      ],
+      "textUrl": "https://ccel.org/ccel/pearse/morefathers/files/photius_bibliotheca_01.htm"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Photios I of Constantinople"
+      ],
+      "textUrl": "https://ccel.org/ccel/pearse/morefathers/files/photius_bibliotheca_01.htm"
+    },
+    {
+      "name": "Liber Manualis (Handbook)",
+      "authors": [
+        "Dhuoda of Uzes"
+      ],
+      "textUrl": "https://www.cambridge.org/core/journals/studies-in-church-history/article/god-and-man-in-dhuodas-liber-manualis/21C62FC0807D1866CB216FBF0B03D396"
+    },
+    {
+      "name": "Old Church Slavonic Translation of the Gospels (traditional attribution)",
+      "authors": [
+        "Cyril and Methodius"
+      ],
+      "textUrl": "https://hrcak.srce.hr/265410"
+    },
+    {
+      "name": "Old Church Slavonic Liturgical Translations (selected, traditional attribution)",
+      "authors": [
+        "Cyril and Methodius"
+      ],
+      "textUrl": "https://hrcak.srce.hr/22379"
+    },
+    {
+      "name": "Alphabet/Orthographic works (Glagolitic tradition) (traditional attribution)",
+      "authors": [
+        "Cyril and Methodius"
+      ],
+      "referenceUrl": "https://en.wikipedia.org/wiki/Glagolitic_script"
+    },
+    {
+      "name": "Commentary on Martianus Capella (attributed)",
+      "authors": [
+        "Remigius of Auxerre"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/wace/biodict.html?term=Remigius%20of%20Auxerre"
+    },
+    {
+      "name": "Commentary on Boethius (attributed)",
+      "authors": [
+        "Remigius of Auxerre"
+      ],
+      "textUrl": "https://www.cambridge.org/core/journals/traditio/article/remigian-commentaries-on-boethiuss-de-consolatione-philosophiae/B3B2B8E9E0A04C5B2A9B7E0D6E4A0D8B"
+    },
+    {
+      "name": "Glosses/Commentaries on Priscian (attributed)",
+      "authors": [
+        "Remigius of Auxerre"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/wace/biodict.html?term=Remigius%20of%20Auxerre"
+    },
+    {
+      "name": "Vita Sancti Geraldi (Life of St Gerald of Aurillac)",
+      "authors": [
+        "Odo of Cluny"
+      ],
+      "textUrl": "https://la.wikisource.org/wiki/Vita_S._Geraldi_(Odo_Cluniacensis)"
+    },
+    {
+      "name": "Collationes (Conferences) (attributed)",
+      "authors": [
+        "Odo of Cluny"
+      ],
+      "textUrl": "https://la.wikisource.org/wiki/Patrologia_Latina/133"
+    },
+    {
+      "name": "De Musica (attributed)",
+      "authors": [
+        "Odo of Cluny"
+      ],
+      "textUrl": "https://books.google.com/books?id=R4YXvAEACAAJ&printsec=frontcover"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Sylvester II / Gerbert of Aurillac"
+      ],
+      "textUrl": "https://epistolae.ctl.columbia.edu/people/21350.html"
+    },
+    {
+      "name": "De Mensura Fistularum (On the Measure of Organ Pipes)",
+      "authors": [
+        "Sylvester II / Gerbert of Aurillac"
+      ],
+      "textUrl": "https://books.google.com/books?id=R4YXvAEACAAJ&printsec=frontcover"
+    },
+    {
+      "name": "On the Body and Blood of the Lord (De Corpore et Sanguine Domini)",
+      "authors": [
+        "Lanfranc"
+      ],
+      "textUrl": "https://brill.com/view/book/9789004330443/BP000012.xml"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Lanfranc"
+      ],
+      "textUrl": "https://books.google.com/books/about/The_Letters_of_Lanfranc.html?id=6vt3nQEACAAJ"
+    },
+    {
+      "name": "Proslogion",
+      "authors": [
+        "Anselm"
+      ],
+      "textUrl": "https://ccel.org/ccel/anselm"
+    },
+    {
+      "name": "Monologion",
+      "authors": [
+        "Anselm"
+      ],
+      "textUrl": "https://ccel.org/ccel/anselm"
+    },
+    {
+      "name": "Why God Became Man (Cur Deus Homo)",
+      "authors": [
+        "Anselm"
+      ],
+      "textUrl": "https://ccel.org/ccel/anselm"
+    },
+    {
+      "name": "On Truth (De Veritate)",
+      "authors": [
+        "Anselm"
+      ],
+      "textUrl": "https://ccel.org/ccel/anselm"
+    },
+    {
+      "name": "On the Freedom of the Will (De Libertate Arbitrii)",
+      "authors": [
+        "Anselm"
+      ],
+      "textUrl": "https://ccel.org/ccel/anselm"
+    },
+    {
+      "name": "Glossa Ordinaria on the Bible (traditionally associated)",
+      "authors": [
+        "Anselm of Laon"
+      ],
+      "textUrl": "https://www.glossae.net/en/home/"
+    },
+    {
+      "name": "Scivias",
+      "authors": [
+        "Hildegard of Bingen"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Hildegard_of_Bingen"
+    },
+    {
+      "name": "Book of Life’s Merits (Liber Vitae Meritorum)",
+      "authors": [
+        "Hildegard of Bingen"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Hildegard_of_Bingen"
+    },
+    {
+      "name": "Book of Divine Works (Liber Divinorum Operum)",
+      "authors": [
+        "Hildegard of Bingen"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Hildegard_of_Bingen"
+    },
+    {
+      "name": "Physica",
+      "authors": [
+        "Hildegard of Bingen"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Hildegard_of_Bingen"
+    },
+    {
+      "name": "Causae et Curae",
+      "authors": [
+        "Hildegard of Bingen"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Hildegard_of_Bingen"
+    },
+    {
+      "name": "On Loving God (De Diligendo Deo)",
+      "authors": [
+        "Bernard of Clairvaux"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/bernard"
+    },
+    {
+      "name": "Sermons on the Song of Songs (selected)",
+      "authors": [
+        "Bernard of Clairvaux"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/bernard"
+    },
+    {
+      "name": "On Consideration (De Consideratione)",
+      "authors": [
+        "Bernard of Clairvaux"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/bernard"
+    },
+    {
+      "name": "On Grace and Free Choice (De Gratia et Libero Arbitrio)",
+      "authors": [
+        "Bernard of Clairvaux"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/bernard"
+    },
+    {
+      "name": "Life of St Malachy (Vita Sancti Malachiae)",
+      "authors": [
+        "Bernard of Clairvaux"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/bernard"
+    },
+    {
+      "name": "Summa Aurea",
+      "authors": [
+        "William of Auxerre"
+      ],
+      "textUrl": "https://www.britannica.com/topic/Summa-aurea"
+    },
+    {
+      "name": "Canticle of the Creatures",
+      "authors": [
+        "Francis of Assisi"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Canticle_of_the_Sun"
+    },
+    {
+      "name": "Earlier Rule (Regula non bullata)",
+      "authors": [
+        "Francis of Assisi"
+      ],
+      "textUrl": "https://www.ofm.org/franciscan-writings/earlier-rule"
+    },
+    {
+      "name": "Later Rule (Regula bullata)",
+      "authors": [
+        "Francis of Assisi"
+      ],
+      "textUrl": "https://franciscan-archive.org/bullarium/TheRegulaBullataLSz.pdf"
+    },
+    {
+      "name": "Testament",
+      "authors": [
+        "Francis of Assisi"
+      ],
+      "textUrl": "https://www.ofm.org/franciscan-writings/testament"
+    },
+    {
+      "name": "Admonitions",
+      "authors": [
+        "Francis of Assisi"
+      ],
+      "textUrl": "https://www.franciscanarchive.org/franciscan-literature/assisi/admonitions/"
+    },
+    {
+      "name": "On Light (De Luce)",
+      "authors": [
+        "Robert Grosseteste"
+      ],
+      "textUrl": "https://la.wikisource.org/wiki/De_luce"
+    },
+    {
+      "name": "Hexaemeron (Commentary on Six Days of Creation)",
+      "authors": [
+        "Robert Grosseteste"
+      ],
+      "textUrl": "https://openlibrary.org/works/OL2878916W/Robert_Grosseteste_On_the_Six_Days_of_Creation"
+    },
+    {
+      "name": "On Truth (De Veritate) (attributed/associated)",
+      "authors": [
+        "Robert Grosseteste"
+      ],
+      "textUrl": "https://plato.stanford.edu/archives/sum2024/entries/grosseteste/"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Robert Grosseteste"
+      ],
+      "textUrl": "https://plato.stanford.edu/archives/sum2024/entries/grosseteste/"
+    },
+    {
+      "name": "Autobiography (attributed)",
+      "authors": [
+        "Nicephorus Blemmydes"
+      ],
+      "textUrl": "https://search.worldcat.org/title/Nicephori-Blemmydae-Autobiographia-sive-Curriculum-vitae-necnon-Epistula-universalior/oclc/1296420536"
+    },
+    {
+      "name": "Epitome of Logic",
+      "authors": [
+        "Nicephorus Blemmydes"
+      ],
+      "textUrl": "https://books.google.com/books/about/Nicephori_Blemmidae_opera_omnia.html?id=yfQUAAAAQAAJ"
+    },
+    {
+      "name": "Epitome of Physics",
+      "authors": [
+        "Nicephorus Blemmydes"
+      ],
+      "textUrl": "https://books.google.com/books/about/Nicephori_Blemmidae_opera_omnia.html?id=yfQUAAAAQAAJ"
+    },
+    {
+      "name": "Latin Translation of Aristotle’s Metaphysics (attributed)",
+      "authors": [
+        "William of Moerbeke"
+      ],
+      "textUrl": "https://www.brepols.net/products/IS-9782503534793-1"
+    },
+    {
+      "name": "Latin Translation of Proclus’ Elements of Theology",
+      "authors": [
+        "William of Moerbeke"
+      ],
+      "textUrl": "https://www.cambridge.org/core/journals/classical-review/article/abs/proclus-elementatio-theologica-translata-a-guillelmo-de-moerbecca-edited-by-h-boese-k-cm-thomas-bibliotheca-teubneriana-123-1-xvi-291-pp-leipzig-teubner-1980-dm-58/1D1CEB2AB74A979C6F3BC15A7F70CC69"
+    },
+    {
+      "name": "Latin Translation of Archimedes (selected) (attributed)",
+      "authors": [
+        "William of Moerbeke"
+      ],
+      "textUrl": "https://blogs.bl.uk/digitisedmanuscripts/2022/08/from-constantinople-to-canterbury-the-medieval-manuscript-that-contains-euclid-archimedes-and-aristotle.html"
+    },
+    {
+      "name": "Summa Theologiae",
+      "authors": [
+        "Thomas Aquinas"
+      ],
+      "textUrl": "https://www.newadvent.org/summa/"
+    },
+    {
+      "name": "Summa Contra Gentiles",
+      "authors": [
+        "Thomas Aquinas"
+      ],
+      "textUrl": "https://ccel.org/ccel/aquinas"
+    },
+    {
+      "name": "Catena Aurea",
+      "authors": [
+        "Thomas Aquinas"
+      ],
+      "textUrl": "https://ccel.org/ccel/aquinas"
+    },
+    {
+      "name": "On Being and Essence (De Ente et Essentia)",
+      "authors": [
+        "Thomas Aquinas"
+      ],
+      "textUrl": "https://ccel.org/ccel/aquinas"
+    },
+    {
+      "name": "Compendium of Theology",
+      "authors": [
+        "Thomas Aquinas"
+      ],
+      "textUrl": "https://ccel.org/ccel/aquinas"
+    },
+    {
+      "name": "Ordinatio (Opus Oxoniense)",
+      "authors": [
+        "Duns Scotus"
+      ],
+      "textUrl": "https://www.ccel.org/s/scotus/"
+    },
+    {
+      "name": "Reportatio (Lectura/Reportationes)",
+      "authors": [
+        "Duns Scotus"
+      ],
+      "textUrl": "https://www.ccel.org/s/scotus/"
+    },
+    {
+      "name": "On the First Principle (De Primo Principio)",
+      "authors": [
+        "Duns Scotus"
+      ],
+      "textUrl": "https://www.ccel.org/s/scotus/"
+    },
+    {
+      "name": "Questions on the Metaphysics (Quaestiones super Metaphysicam)",
+      "authors": [
+        "Duns Scotus"
+      ],
+      "textUrl": "https://www.ccel.org/s/scotus/"
+    },
+    {
+      "name": "Theoremata (attributed)",
+      "authors": [
+        "Duns Scotus"
+      ],
+      "textUrl": "https://www.ccel.org/s/scotus/"
+    },
+    {
+      "name": "The Divine Comedy",
+      "authors": [
+        "Dante Alighieri"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/dante"
+    },
+    {
+      "name": "Vita Nuova",
+      "authors": [
+        "Dante Alighieri"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/dante"
+    },
+    {
+      "name": "Convivio",
+      "authors": [
+        "Dante Alighieri"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/dante"
+    },
+    {
+      "name": "De Vulgari Eloquentia",
+      "authors": [
+        "Dante Alighieri"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/dante"
+    },
+    {
+      "name": "De Monarchia",
+      "authors": [
+        "Dante Alighieri"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/dante"
+    },
+    {
+      "name": "On the Cause of God (De Causa Dei)",
+      "authors": [
+        "Thomas Bradwardine"
+      ],
+      "textUrl": "https://books.google.com/books/about/De_causa_Dei.html?id=FPxJAAAAcAAJ"
+    },
+    {
+      "name": "Tractatus de Proportionibus",
+      "authors": [
+        "Thomas Bradwardine"
+      ],
+      "textUrl": "https://www.britannica.com/biography/Thomas-Bradwardine"
+    },
+    {
+      "name": "De Continuo (attributed/associated)",
+      "authors": [
+        "Thomas Bradwardine"
+      ],
+      "textUrl": "https://academic.oup.com/book/33556/chapter/287947098/chapter-pdf/39827504/oso-9780198809647-chapter-4.pdf"
+    },
+    {
+      "name": "On the Truth of Holy Scripture (De Veritate Sacrae Scripturae)",
+      "authors": [
+        "John Wycliffe"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:John_Wycliffe"
+    },
+    {
+      "name": "On the Church (De Ecclesia)",
+      "authors": [
+        "John Wycliffe"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:John_Wycliffe"
+    },
+    {
+      "name": "On Civil Dominion (De Civili Dominio)",
+      "authors": [
+        "John Wycliffe"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:John_Wycliffe"
+    },
+    {
+      "name": "On the Eucharist (De Eucharistia) (attributed)",
+      "authors": [
+        "John Wycliffe"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:John_Wycliffe"
+    },
+    {
+      "name": "Trialogus (attributed)",
+      "authors": [
+        "John Wycliffe"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:John_Wycliffe"
+    },
+    {
+      "name": "Revelations of Divine Love",
+      "authors": [
+        "Julian of Norwich"
+      ],
+      "textUrl": "https://ccel.org/ccel/julian/revelations"
+    },
+    {
+      "name": "The Book of the City of Ladies",
+      "authors": [
+        "Christine de Pisan"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Christine_de_Pizan"
+    },
+    {
+      "name": "The Treasure of the City of Ladies",
+      "authors": [
+        "Christine de Pisan"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Christine_de_Pizan"
+    },
+    {
+      "name": "The Book of the Deeds and Good Morals of King Charles V",
+      "authors": [
+        "Christine de Pisan"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Christine_de_Pizan"
+    },
+    {
+      "name": "Letter of the God of Love (Epistre au Dieu d’Amours)",
+      "authors": [
+        "Christine de Pisan"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Christine_de_Pizan"
+    },
+    {
+      "name": "On the Church (De Ecclesia)",
+      "authors": [
+        "Jan Hus"
+      ],
+      "textUrl": "https://ccel.org/ccel/hus"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Jan Hus"
+      ],
+      "textUrl": "https://ccel.org/ccel/hus"
+    },
+    {
+      "name": "On Simony",
+      "authors": [
+        "Jan Hus"
+      ],
+      "textUrl": "https://ccel.org/ccel/hus"
+    },
+    {
+      "name": "Exposition of the Faith (selected) (attributed)",
+      "authors": [
+        "Jan Hus"
+      ],
+      "textUrl": "https://ccel.org/ccel/hus"
+    },
+    {
+      "name": "The Imitation of Christ",
+      "authors": [
+        "Thomas a Kempis"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/kempis"
+    },
+    {
+      "name": "Prayers and Meditations (selected)",
+      "authors": [
+        "Thomas a Kempis"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/kempis"
+    },
+    {
+      "name": "Sermons (selected)",
+      "authors": [
+        "Thomas a Kempis"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/kempis"
+    },
+    {
+      "name": "On Learned Ignorance (De Docta Ignorantia)",
+      "authors": [
+        "Nicholas of Cusa"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/nicolas"
+    },
+    {
+      "name": "On the Peace of Faith (De Pace Fidei)",
+      "authors": [
+        "Nicholas of Cusa"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/nicolas"
+    },
+    {
+      "name": "On the Vision of God (De Visione Dei)",
+      "authors": [
+        "Nicholas of Cusa"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/nicolas"
+    },
+    {
+      "name": "On Conjectures (De Coniecturis)",
+      "authors": [
+        "Nicholas of Cusa"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/nicolas"
+    },
+    {
+      "name": "Idiota de Mente (The Layman on Mind)",
+      "authors": [
+        "Nicholas of Cusa"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/nicolas"
+    },
+    {
+      "name": "Triumph of the Cross",
+      "authors": [
+        "Savonarola"
+      ],
+      "textUrl": "https://www.gutenberg.org/ebooks/74508"
+    },
+    {
+      "name": "Compendium of Revelations (Compendio di Rivelazioni) (attributed)",
+      "authors": [
+        "Savonarola"
+      ],
+      "textUrl": "https://books.google.com/books/about/Compendio_di_rivelazioni.html?id=MM8FlIEZGysC"
+    },
+    {
+      "name": "Sermons (selected)",
+      "authors": [
+        "Savonarola"
+      ],
+      "textUrl": "https://oll.libertyfund.org/titles/savonarola-scelta-de-prediche-e-scritti"
+    },
+    {
+      "name": "In Praise of Folly",
+      "authors": [
+        "Desiderius Erasmus"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/erasmus"
+    },
+    {
+      "name": "Handbook of the Christian Soldier (Enchiridion Militis Christiani)",
+      "authors": [
+        "Desiderius Erasmus"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/erasmus"
+    },
+    {
+      "name": "Colloquies",
+      "authors": [
+        "Desiderius Erasmus"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/erasmus"
+    },
+    {
+      "name": "On Free Will (De Libero Arbitrio)",
+      "authors": [
+        "Desiderius Erasmus"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/erasmus"
+    },
+    {
+      "name": "Novum Instrumentum Omne (Greek New Testament, 1516) / New Testament Paraphrases (selected)",
+      "authors": [
+        "Desiderius Erasmus"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/erasmus"
+    },
+    {
+      "name": "On the Revolutions of the Heavenly Spheres (De Revolutionibus Orbium Coelestium)",
+      "authors": [
+        "Nicholas Copernicus"
+      ],
+      "textUrl": "https://ads.harvard.edu/books/1543droc.book"
+    },
+    {
+      "name": "A Short Account of the Destruction of the Indies",
+      "authors": [
+        "Bartolome de las Casas"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/A_Short_Account_of_the_Destruction_of_the_Indies"
+    },
+    {
+      "name": "History of the Indies (Historia de las Indias)",
+      "authors": [
+        "Bartolome de las Casas"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Bartolom%C3%A9_de_las_Casas"
+    },
+    {
+      "name": "In Defense of the Indians (Apologia)",
+      "authors": [
+        "Bartolome de las Casas"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Bartolom%C3%A9_de_las_Casas"
+    },
+    {
+      "name": "Apologetic History Summary (Apologética Historia Sumaria)",
+      "authors": [
+        "Bartolome de las Casas"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Bartolom%C3%A9_de_las_Casas"
+    },
+    {
+      "name": "Memorial de Remedios (Remedies for the Indies) (attributed/associated)",
+      "authors": [
+        "Bartolome de las Casas"
+      ],
+      "textUrl": "https://en.wikisource.org/wiki/Author:Bartolom%C3%A9_de_las_Casas"
+    },
+    {
+      "name": "Utopia",
+      "authors": [
+        "Thomas More"
+      ],
+      "textUrl": "https://ccel.org/ccel/more"
+    },
+    {
+      "name": "Dialogue of Comfort against Tribulation",
+      "authors": [
+        "Thomas More"
+      ],
+      "textUrl": "https://ccel.org/ccel/more"
+    },
+    {
+      "name": "The Sadness of Christ (De Tristitia Christi)",
+      "authors": [
+        "Thomas More"
+      ],
+      "textUrl": "https://ccel.org/ccel/more"
+    },
+    {
+      "name": "A Dialogue Concerning Heresies",
+      "authors": [
+        "Thomas More"
+      ],
+      "textUrl": "https://ccel.org/ccel/more"
+    },
+    {
+      "name": "History of King Richard III",
+      "authors": [
+        "Thomas More"
+      ],
+      "textUrl": "https://ccel.org/ccel/more"
+    },
+    {
+      "name": "Ninety-Five Theses",
+      "authors": [
+        "Martin Luther"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/luther"
+    },
+    {
+      "name": "Small Catechism",
+      "authors": [
+        "Martin Luther"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/luther"
+    },
+    {
+      "name": "Large Catechism",
+      "authors": [
+        "Martin Luther"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/luther"
+    },
+    {
+      "name": "The Bondage of the Will",
+      "authors": [
+        "Martin Luther"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/luther"
+    },
+    {
+      "name": "The Freedom of a Christian",
+      "authors": [
+        "Martin Luther"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/luther"
+    },
+    {
+      "name": "Sixty-Seven Articles",
+      "authors": [
+        "Huldrych Zwingli"
+      ],
+      "textUrl": "https://ccel.org/ccel/z/zwingli"
+    },
+    {
+      "name": "Commentary on True and False Religion",
+      "authors": [
+        "Huldrych Zwingli"
+      ],
+      "textUrl": "https://ccel.org/ccel/z/zwingli"
+    },
+    {
+      "name": "On the Lord’s Supper",
+      "authors": [
+        "Huldrych Zwingli"
+      ],
+      "textUrl": "https://ccel.org/ccel/z/zwingli"
+    },
+    {
+      "name": "On the Providence of God (De Providentia Dei)",
+      "authors": [
+        "Huldrych Zwingli"
+      ],
+      "textUrl": "https://ccel.org/ccel/z/zwingli"
+    },
+    {
+      "name": "Spiritual Exercises",
+      "authors": [
+        "Ignatius of Loyola"
+      ],
+      "textUrl": "https://ccel.org/ccel/ignatius/exercises"
+    },
+    {
+      "name": "Constitutions of the Society of Jesus",
+      "authors": [
+        "Ignatius of Loyola"
+      ],
+      "textUrl": "https://ccel.org/ccel/ignatius/exercises"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Ignatius of Loyola"
+      ],
+      "textUrl": "https://ccel.org/ccel/ignatius/exercises"
+    },
+    {
+      "name": "Memoriale (Spiritual Diary)",
+      "authors": [
+        "Peter Faber"
+      ],
+      "textUrl": "https://books.google.com/books/about/The_Letters_and_Instructions_of_Peter_Faber.html?id=8b7sAAAAMAAJ"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Peter Faber"
+      ],
+      "textUrl": "https://books.google.com/books/about/The_Letters_and_Instructions_of_Peter_Faber.html?id=8b7sAAAAMAAJ"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Francis Xavier"
+      ],
+      "textUrl": "https://books.google.com/books/about/The_Life_and_Letters_of_St_Francis_Xavie.html?id=gbJSAAAAcAAJ"
+    },
+    {
+      "name": "Institutes of the Christian Religion",
+      "authors": [
+        "John Calvin"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/calvin/institutes.html"
+    },
+    {
+      "name": "Commentary on Romans",
+      "authors": [
+        "John Calvin"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/calvin"
+    },
+    {
+      "name": "Commentary on the Gospel of John",
+      "authors": [
+        "John Calvin"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/calvin"
+    },
+    {
+      "name": "Reply to Sadoleto",
+      "authors": [
+        "John Calvin"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/calvin"
+    },
+    {
+      "name": "On the Necessity of Reforming the Church",
+      "authors": [
+        "John Calvin"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/calvin"
+    },
+    {
+      "name": "The Life of Teresa of Jesus (Autobiography)",
+      "authors": [
+        "Teresa of Avila"
+      ],
+      "textUrl": "https://ccel.org/ccel/teresa"
+    },
+    {
+      "name": "The Way of Perfection",
+      "authors": [
+        "Teresa of Avila"
+      ],
+      "textUrl": "https://ccel.org/ccel/teresa"
+    },
+    {
+      "name": "The Interior Castle",
+      "authors": [
+        "Teresa of Avila"
+      ],
+      "textUrl": "https://ccel.org/ccel/teresa"
+    },
+    {
+      "name": "The Book of the Foundations",
+      "authors": [
+        "Teresa of Avila"
+      ],
+      "textUrl": "https://ccel.org/ccel/teresa"
+    },
+    {
+      "name": "Concepts of the Love of God",
+      "authors": [
+        "Teresa of Avila"
+      ],
+      "textUrl": "https://ccel.org/ccel/teresa"
+    },
+    {
+      "name": "Ascent of Mount Carmel",
+      "authors": [
+        "John of the Cross"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/john_cross"
+    },
+    {
+      "name": "Dark Night of the Soul",
+      "authors": [
+        "John of the Cross"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/john_cross"
+    },
+    {
+      "name": "Spiritual Canticle",
+      "authors": [
+        "John of the Cross"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/john_cross"
+    },
+    {
+      "name": "Living Flame of Love",
+      "authors": [
+        "John of the Cross"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/john_cross"
+    },
+    {
+      "name": "Sayings of Light and Love (Dichos)",
+      "authors": [
+        "John of the Cross"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/john_cross"
+    },
+    {
+      "name": "Of Plymouth Plantation",
+      "authors": [
+        "William Bradford"
+      ],
+      "textUrl": "https://www.gutenberg.org/ebooks/24950"
+    },
+    {
+      "name": "On the Mortification of Sin in Believers",
+      "authors": [
+        "John Owen"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/owen"
+    },
+    {
+      "name": "The Death of Death in the Death of Christ",
+      "authors": [
+        "John Owen"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/owen"
+    },
+    {
+      "name": "Communion with God",
+      "authors": [
+        "John Owen"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/owen"
+    },
+    {
+      "name": "The Glory of Christ",
+      "authors": [
+        "John Owen"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/owen"
+    },
+    {
+      "name": "A Discourse Concerning the Holy Spirit",
+      "authors": [
+        "John Owen"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/owen"
+    },
+    {
+      "name": "The Pilgrim’s Progress",
+      "authors": [
+        "John Bunyan"
+      ],
+      "textUrl": "https://ccel.org/ccel/bunyan"
+    },
+    {
+      "name": "Grace Abounding to the Chief of Sinners",
+      "authors": [
+        "John Bunyan"
+      ],
+      "textUrl": "https://ccel.org/ccel/bunyan"
+    },
+    {
+      "name": "The Holy War",
+      "authors": [
+        "John Bunyan"
+      ],
+      "textUrl": "https://ccel.org/ccel/bunyan"
+    },
+    {
+      "name": "The Life and Death of Mr. Badman",
+      "authors": [
+        "John Bunyan"
+      ],
+      "textUrl": "https://ccel.org/ccel/bunyan"
+    },
+    {
+      "name": "The Jerusalem Sinner Saved",
+      "authors": [
+        "John Bunyan"
+      ],
+      "textUrl": "https://ccel.org/ccel/bunyan"
+    },
+    {
+      "name": "Centuries of Meditations",
+      "authors": [
+        "Thomas Traherne"
+      ],
+      "textUrl": "https://ccel.org/ccel/traherne/centuries"
+    },
+    {
+      "name": "Thanksgivings (poems/prayers) (collected)",
+      "authors": [
+        "Thomas Traherne"
+      ],
+      "textUrl": "https://ccel.org/ccel/traherne/centuries"
+    },
+    {
+      "name": "Christian Ethicks (attributed)",
+      "authors": [
+        "Thomas Traherne"
+      ],
+      "textUrl": "https://ccel.org/ccel/traherne/centuries"
+    },
+    {
+      "name": "Philosophiæ Naturalis Principia Mathematica",
+      "authors": [
+        "Sir Isaac Newton"
+      ],
+      "textUrl": "https://plato.stanford.edu/entries/newton-principia/index.html"
+    },
+    {
+      "name": "Opticks",
+      "authors": [
+        "Sir Isaac Newton"
+      ],
+      "textUrl": "https://www.britannica.com/topic/Opticks-by-Newton"
+    },
+    {
+      "name": "Observations upon the Prophecies of Daniel and the Apocalypse of St. John",
+      "authors": [
+        "Sir Isaac Newton"
+      ],
+      "textUrl": "https://dev.gutenberg.org/files/16878/16878-h/16878-h.htm"
+    },
+    {
+      "name": "Hymns and Sacred Poems (selected collections)",
+      "authors": [
+        "Charles Wesley",
+        "John Wesley"
+      ],
+      "textUrl": "https://ccel.org/ccel/wesley/hymns"
+    },
+    {
+      "name": "Charles Wesley’s Hymns (selected)",
+      "authors": [
+        "Charles Wesley"
+      ],
+      "textUrl": "https://ccel.org/ccel/wesley/hymns"
+    },
+    {
+      "name": "Poems (selected)",
+      "authors": [
+        "Charles Wesley"
+      ],
+      "textUrl": "https://ccel.org/ccel/wesley/hymns"
+    },
+    {
+      "name": "Journal (selected)",
+      "authors": [
+        "John Wesley"
+      ],
+      "textUrl": "https://ccel.org/ccel/wesley/journal"
+    },
+    {
+      "name": "Sermons (selected)",
+      "authors": [
+        "John Wesley"
+      ],
+      "textUrl": "https://ccel.org/ccel/wesley/journal"
+    },
+    {
+      "name": "Explanatory Notes upon the New Testament",
+      "authors": [
+        "John Wesley"
+      ],
+      "textUrl": "https://ccel.org/ccel/wesley/journal"
+    },
+    {
+      "name": "Journals (selected)",
+      "authors": [
+        "George Whitefield"
+      ],
+      "textUrl": "https://ccel.org/ccel/whitefield/sermons"
+    },
+    {
+      "name": "Sermons (selected)",
+      "authors": [
+        "George Whitefield"
+      ],
+      "textUrl": "https://ccel.org/ccel/whitefield/sermons"
+    },
+    {
+      "name": "Damasian Epigrams (selected inscriptions/poems)",
+      "authors": [
+        "Pope Damasus I"
+      ],
+      "textUrl": "https://books.google.com/books/about/The_epigrams_of_St_Damasus.html?id=Y_C7pwAACAAJ"
+    },
+    {
+      "name": "Life of Saint Augustine (Vita Augustini)",
+      "authors": [
+        "Possidius"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/pearse/morefathers/files/possidius_life_of_augustine_02_text.htm"
+    },
+    {
+      "name": "Letters (selected, as preserved)",
+      "authors": [
+        "Pope Cornelius"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/schaff/anf05.iv.iv.html"
+    },
+    {
+      "name": "Letters (selected, as preserved)",
+      "authors": [
+        "Pope Stephen I"
+      ],
+      "textUrl": "https://www.ccel.org/ccel/schaff/anf05.iv.iv.html"
+    },
+    {
+      "name": "De Institutione Virginum (On the Instruction of Virgins)",
+      "authors": [
+        "Leander of Seville"
+      ],
+      "textUrl": "https://ora-et-labora.net/ORATIO/LEANDRO.html"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Pope Martin I"
+      ],
+      "textUrl": "https://la.wikisource.org/wiki/Patrologia_Latina/87"
+    },
+    {
+      "name": "Letters (selected)",
+      "authors": [
+        "Pope Gregory II"
+      ],
+      "textUrl": "https://la.wikisource.org/wiki/Epistolae_et_canones_(Gregorius_II)"
+    }
+  ];
 
   const worksByAuthor = new Map();
   works.forEach((work) => {
