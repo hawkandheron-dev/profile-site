@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pantheons SQLite</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="index.html#home">Home</a>
+      <a href="index.html#about">About</a>
+      <a href="index.html#projects">Projects</a>
+      <a href="pantheons.html" aria-current="page">Pantheons SQLite</a>
+      <a href="timeline/">Timeline</a>
+      <a href="timeline-scratch/dist/index.html">Timeline-Scratch</a>
+      <a href="timeline-scratch/dist/church-history.html">Church History Timeline V2</a>
+    </nav>
+
+    <main class="section">
+      <h1>Pantheons SQLite</h1>
+      <p class="subtitle">
+        This page embeds the Pantheon DB app. Make sure the dev server is running in
+        <code>pantheon-db</code> on <code>http://localhost:3000</code>.
+      </p>
+      <div class="pantheon-actions">
+        <a class="button" href="http://localhost:3000" target="_blank" rel="noopener noreferrer">
+          Open Pantheons App
+        </a>
+      </div>
+      <div class="pantheon-embed" aria-label="Pantheons SQLite app">
+        <iframe
+          title="Pantheons SQLite app"
+          src="http://localhost:3000"
+          loading="lazy"
+        ></iframe>
+        <p class="pantheon-note">
+          If the embedded app doesn't load, make sure the Pantheons SQLite dev server is running on
+          <code>http://localhost:3000</code>.
+        </p>
+      </div>
+    </main>
+  </body>
+</html>
