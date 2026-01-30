@@ -53,14 +53,25 @@
       (function loadSupabaseConfig() {
         const script = document.createElement("script");
         script.src = "/api/supabase-config";
+        script.onload = function () {
+          const app = document.createElement("script");
+          app.type = "module";
+          app.src = "supabase-app.js";
+          document.head.appendChild(app);
+        };
         script.onerror = function () {
           const fallback = document.createElement("script");
           fallback.src = "supabase-config.js";
+          fallback.onload = function () {
+            const app = document.createElement("script");
+            app.type = "module";
+            app.src = "supabase-app.js";
+            document.head.appendChild(app);
+          };
           document.head.appendChild(fallback);
         };
         document.head.appendChild(script);
       })();
     </script>
-    <script type="module" src="supabase-app.js"></script>
   </body>
 </html>
