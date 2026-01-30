@@ -15,8 +15,11 @@ const tableConfig = [
   { id: "Pantheons", label: "Pantheons", orderBy: "name" },
   { id: "Gods", label: "Gods", orderBy: "name" },
   { id: "Heroes", label: "Heroes", orderBy: "name" },
+  { id: "Monsters", label: "Monsters", orderBy: "name" },
   { id: "Hero Favors", label: "Hero Favors", orderBy: "hero_id" },
   { id: "Hero Works", label: "Hero Works", orderBy: "hero_id" },
+  { id: "Monster Favors", label: "Monster Favors", orderBy: "monster_id" },
+  { id: "Monster Works", label: "Monster Works", orderBy: "monster_id" },
   { id: "God Epithets", label: "God Epithets", orderBy: "god_id" },
 ];
 
