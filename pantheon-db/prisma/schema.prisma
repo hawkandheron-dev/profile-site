@@ -1,0 +1,65 @@
+// Prisma schema for Pantheon DB
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Pantheon {
+  pantheon_id Int    @id @default(autoincrement())
+  name        String @unique
+  region      String?
+  era_note    String?
+  gods        God[]
+  heroes      Hero[]
+}
+
+model God {
+  god_id      Int         @id @default(autoincrement())
+  pantheon_id Int
+  name        String
+  domain      String?
+  symbols     String?
+  notes       String?
+  pantheon    Pantheon    @relation(fields: [pantheon_id], references: [pantheon_id], onDelete: Cascade)
+  favors      HeroFavor[]
+
+  @@unique([pantheon_id, name])
+}
+
+model Hero {
+  hero_id     Int         @id @default(autoincrement())
+  pantheon_id Int
+  name        String
+  origin      String?
+  archetype   String?
+  notes       String?
+  pantheon    Pantheon    @relation(fields: [pantheon_id], references: [pantheon_id], onDelete: Cascade)
+  favors      HeroFavor[]
+  works       HeroWork[]
+
+  @@unique([pantheon_id, name])
+}
+
+model HeroFavor {
+  hero_id    Int
+  god_id     Int
+  favor_type String?
+  notes      String?
+  hero       Hero @relation(fields: [hero_id], references: [hero_id], onDelete: Cascade)
+  god        God  @relation(fields: [god_id], references: [god_id], onDelete: Cascade)
+
+  @@id([hero_id, god_id])
+}
+
+model HeroWork {
+  work_id     Int    @id @default(autoincrement())
+  hero_id     Int
+  title       String
+  kind        String?
+  approx_date String?
+  hero        Hero   @relation(fields: [hero_id], references: [hero_id], onDelete: Cascade)
+}
