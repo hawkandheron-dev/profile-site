@@ -1,0 +1,8 @@
+project_id = "fnxsfdbbnjbveyjmwanc"
+
+[api]
+# Ports are only used for local dev with supabase start.
+port = 54321
+
+[db]
+port = 54322

@@ -1,0 +1,30 @@
+table_name,column_name,data_type,is_nullable,column_default
+God Epithets,epithet_id,bigint,NO,null
+God Epithets,god_id,bigint,YES,null
+God Epithets,epithet,text,YES,null
+God Epithets,meaning,text,YES,null
+Gods,god_id,bigint,NO,null
+Gods,pantheon_id,bigint,YES,null
+Gods,name,text,YES,null
+Gods,domain,text,YES,null
+Gods,symbols,text,YES,null
+Gods,notes,text,YES,null
+Hero Favors,hero_id,bigint,NO,null
+Hero Favors,god_id,bigint,YES,null
+Hero Favors,favor_type,text,YES,null
+Hero Favors,notes,text,YES,null
+Hero Works,work_id,bigint,NO,null
+Hero Works,hero_id,bigint,YES,null
+Hero Works,title,text,YES,null
+Hero Works,kind,text,YES,null
+Hero Works,approx_date,text,YES,null
+Heroes,hero_id,bigint,NO,null
+Heroes,pantheon_id,bigint,YES,null
+Heroes,name,text,YES,null
+Heroes,origin,text,YES,null
+Heroes,archetype,text,YES,null
+Heroes,notes,text,YES,null
+Pantheons,pantheon_id,bigint,NO,null
+Pantheons,name,text,YES,null
+Pantheons,region,text,YES,null
+Pantheons,era_note,text,YES,null

@@ -1,0 +1,118 @@
+.supabase-shell {
+  max-width: 960px;
+  margin: 0 auto 40px;
+  padding: 0 12px 32px;
+}
+
+.supabase-header {
+  margin-bottom: 16px;
+}
+
+.supabase-header h1 {
+  margin-bottom: 6px;
+}
+
+.supabase-header p {
+  margin: 0;
+  opacity: 0.75;
+}
+
+.supabase-card {
+  border: 1px solid rgba(127, 127, 127, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.supabase-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.supabase-controls label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.supabase-controls input,
+.supabase-controls select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  background: transparent;
+  color: inherit;
+}
+
+.supabase-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.supabase-status {
+  font-size: 0.92rem;
+  opacity: 0.85;
+}
+
+.supabase-status strong {
+  font-weight: 600;
+}
+
+.supabase-error {
+  color: #b3261e;
+  font-weight: 600;
+}
+
+.supabase-table-wrap {
+  overflow-x: auto;
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  border-radius: 12px;
+}
+
+.supabase-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+}
+
+.supabase-table th,
+.supabase-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.2);
+  text-align: left;
+  vertical-align: top;
+  font-size: 0.92rem;
+}
+
+.supabase-table th {
+  background: rgba(127, 127, 127, 0.12);
+  position: sticky;
+  top: 0;
+}
+
+.supabase-empty {
+  padding: 20px;
+  text-align: center;
+  opacity: 0.7;
+}
+
+.supabase-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 640px) {
+  .supabase-controls {
+    grid-template-columns: 1fr;
+  }
+}
