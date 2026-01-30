@@ -98,4 +98,48 @@ body {
   margin: 6px 0 0;
   opacity: 0.8;
 }
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(127, 127, 127, 0.4);
+  text-decoration: none;
+  color: inherit;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.button:hover,
+.button:focus-visible {
+  background: rgba(127, 127, 127, 0.16);
+  border-color: rgba(127, 127, 127, 0.6);
+  outline: none;
+}
+
+.pantheon-card {
+  margin-bottom: 16px;
+}
+
+.pantheon-actions {
+  margin-top: 12px;
+}
+
+.pantheon-embed {
+  display: grid;
+  gap: 12px;
+}
+
+.pantheon-embed iframe {
+  width: 100%;
+  min-height: 520px;
+  border-radius: 16px;
+  border: 1px solid rgba(127, 127, 127, 0.3);
+}
+
+.pantheon-note {
+  margin: 0;
+  opacity: 0.8;
+}
   
