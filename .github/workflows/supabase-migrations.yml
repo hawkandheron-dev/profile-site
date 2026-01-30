@@ -25,4 +25,4 @@ jobs:
             echo "SUPABASE_DATABASE_URL is not set."
             exit 1
           fi
-          supabase db push --db-url "$SUPABASE_DATABASE_URL"
+          supabase db push --db-url "" --yes
