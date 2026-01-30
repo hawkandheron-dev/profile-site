@@ -130,7 +130,7 @@ function init() {
   });
 
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    setStatus("Supabase keys missing. Update supabase-config.js.", true);
+    setStatus("Supabase keys missing. Check /api/supabase-config.", true);
     return;
   }
 

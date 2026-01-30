@@ -49,7 +49,18 @@
       </section>
     </main>
 
-    <script src="/api/supabase-config.js"></script>
+    <script>
+      (function loadSupabaseConfig() {
+        const script = document.createElement("script");
+        script.src = "/api/supabase-config";
+        script.onerror = function () {
+          const fallback = document.createElement("script");
+          fallback.src = "supabase-config.js";
+          document.head.appendChild(fallback);
+        };
+        document.head.appendChild(script);
+      })();
+    </script>
     <script type="module" src="supabase-app.js"></script>
   </body>
 </html>
