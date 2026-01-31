@@ -58,17 +58,17 @@ values
   (5002, 1, 'Minotaur',  'hybrid',                'hostile',  'Bull-headed man; kept in the Labyrinth'),
   (5003, 1, 'Cerberus',  'guardian hound',        'guardian', 'Guards the entrance to the Underworld'),
   (5201, 2, 'Cacus',     'giant',                 'hostile',  'Fire-breathing thief defeated by Hercules in Roman tradition'),
-  (5301, 3, 'Apep',      'serpent',               'hostile',  'Chaos serpent opposing the sun's journey'),
+  (5301, 3, 'Apep',      'serpent',               'hostile',  'Chaos serpent opposing the sun''s journey'),
   (5401, 4, 'Tiamat',    'primordial sea-dragon', 'hostile',  'Chaos sea; defeated by Marduk in Babylonian myth')
 on conflict (monster_id) do nothing;
 
 insert into public."Monster Favors" (monster_id, god_id, favor_type, notes)
 values
-  (5003, 105, 'ward',       'Cerberus serves as guardian of Hades' realm'),
-  (5301, 301, 'enemy',      'Apep opposes Ra's solar journey'),
+  (5003, 105, 'ward',       'Cerberus serves as guardian of Hades'' realm'),
+  (5301, 301, 'enemy',      'Apep opposes Ra''s solar journey'),
   (5401, 401, 'enemy',      'Tiamat is defeated by Marduk in Babylonian myth'),
   (5002, 104, 'instigator', 'Poseidon is linked to the bull that leads to the Minotaur story'),
-  (5001, 102, 'instigator', 'Hera's opposition to Heracles frames the Hydra episode')
+  (5001, 102, 'instigator', 'Hera''s opposition to Heracles frames the Hydra episode')
 on conflict (monster_id, god_id) do nothing;
 
 insert into public."Monster Works" (monster_id, title, kind, approx_date)

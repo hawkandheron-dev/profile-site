@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-  <!-- Three asterisks in triangle (asterism) -->
-  <!-- Top star -->
-  <path d="M12 3 L12.5 5.5 L15 6 L12.5 6.5 L12 9 L11.5 6.5 L9 6 L11.5 5.5 Z"/>
-  <!-- Bottom left star -->
-  <path d="M6 13 L6.5 15.5 L9 16 L6.5 16.5 L6 19 L5.5 16.5 L3 16 L5.5 15.5 Z"/>
-  <!-- Bottom right star -->
-  <path d="M18 13 L18.5 15.5 L21 16 L18.5 16.5 L18 19 L17.5 16.5 L15 16 L17.5 15.5 Z"/>
-</svg>

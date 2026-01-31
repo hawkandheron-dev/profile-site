@@ -60,20 +60,32 @@ alter table public."Hero Favors" enable row level security;
 alter table public."Hero Works" enable row level security;
 alter table public."God Epithets" enable row level security;
 
+drop policy if exists "Enable read access for all users" on public."Pantheons";
+
 create policy "Enable read access for all users" on public."Pantheons"
   for select to public using (true);
+
+drop policy if exists "Enable read access for all users" on public."Gods";
 
 create policy "Enable read access for all users" on public."Gods"
   for select to public using (true);
 
+drop policy if exists "Enable read access for all users" on public."Heroes";
+
 create policy "Enable read access for all users" on public."Heroes"
   for select to public using (true);
+
+drop policy if exists "Enable read access for all users" on public."Hero Favors";
 
 create policy "Enable read access for all users" on public."Hero Favors"
   for select to public using (true);
 
+drop policy if exists "Enable read access for all users" on public."Hero Works";
+
 create policy "Enable read access for all users" on public."Hero Works"
   for select to public using (true);
+
+drop policy if exists "Enable read access for all users" on public."God Epithets";
 
 create policy "Enable read access for all users" on public."God Epithets"
   for select to public using (true);

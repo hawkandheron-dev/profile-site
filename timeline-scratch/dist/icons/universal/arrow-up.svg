@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Period-style arrow pointing up -->
-  <path d="M12 20 L12 4"/>
-  <path d="M12 4 L6 10"/>
-  <path d="M12 4 L18 10"/>
-  <!-- Fletching detail -->
-  <path d="M10 18 L12 16 L14 18"/>
-</svg>

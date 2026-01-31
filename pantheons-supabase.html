@@ -49,28 +49,35 @@
       </section>
     </main>
 
+    <!-- Supabase config: served by Cloudflare Pages Function in production,
+         falls back to local supabase-config.js for development. -->
     <script>
       (function loadSupabaseConfig() {
-        const script = document.createElement("script");
-        script.src = "/api/supabase-config";
-        script.onload = function () {
-          const app = document.createElement("script");
+        var status = document.getElementById("status");
+
+        function loadApp() {
+          var app = document.createElement("script");
           app.type = "module";
           app.src = "supabase-app.js";
           document.head.appendChild(app);
-        };
-        script.onerror = function () {
-          const fallback = document.createElement("script");
-          fallback.src = "supabase-config.js";
-          fallback.onload = function () {
-            const app = document.createElement("script");
-            app.type = "module";
-            app.src = "supabase-app.js";
-            document.head.appendChild(app);
+        }
+
+        function tryLoad(src, onFail) {
+          var s = document.createElement("script");
+          s.src = src;
+          s.onload = loadApp;
+          s.onerror = onFail || function () {
+            if (status) {
+              status.textContent = "Could not load Supabase configuration.";
+              status.classList.add("supabase-error");
+            }
           };
-          document.head.appendChild(fallback);
-        };
-        document.head.appendChild(script);
+          document.head.appendChild(s);
+        }
+
+        tryLoad("/api/supabase-config", function () {
+          tryLoad("supabase-config.js");
+        });
       })();
     </script>
   </body>

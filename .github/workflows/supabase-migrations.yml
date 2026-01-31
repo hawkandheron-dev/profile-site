@@ -4,23 +4,23 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'supabase/migrations/**'
 
 jobs:
   migrate:
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
         with:
-          node-version: "20"
+          version: latest
 
-      - name: Install Supabase CLI
-        run: npm install -g supabase
-
-      - name: Push migrations
+      - name: Dry-run migrations
         env:
           SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
         run: |
@@ -28,4 +28,11 @@ jobs:
             echo "SUPABASE_DATABASE_URL is not set."
             exit 1
           fi
-          supabase db push --db-url "$SUPABASE_DATABASE_URL"
+          echo "=== Pending migrations ==="
+          supabase db push --db-url "$SUPABASE_DATABASE_URL" --dry-run
+
+      - name: Push migrations
+        env:
+          SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+        run: |
+          supabase db push --db-url "$SUPABASE_DATABASE_URL" --yes
