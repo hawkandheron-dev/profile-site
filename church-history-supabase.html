@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Church History Supabase</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="supabase.css" />
+  </head>
+  <body>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="index.html#home">Home</a>
+      <a href="church-history-supabase.html">CH Data Browser</a>
+      <a href="timeline-scratch/church-history-supabase.html">CH Timeline (Supabase)</a>
+      <a href="timeline-scratch/church-history.html">CH Timeline (JSON)</a>
+    </nav>
+
+    <main class="supabase-shell">
+      <header class="supabase-header">
+        <h1>Church History Supabase</h1>
+        <p>Browser for church history data stored in Supabase.</p>
+      </header>
+
+      <section class="supabase-card" aria-live="polite">
+        <div class="supabase-controls">
+          <label>
+            Table
+            <select id="tableSelect"></select>
+          </label>
+          <label>
+            Row limit
+            <input id="limitInput" type="number" min="1" max="500" value="50" />
+          </label>
+          <label>
+            Search (client-side)
+            <input id="searchInput" type="search" placeholder="Type to filter results" />
+          </label>
+        </div>
+
+        <div class="supabase-actions">
+          <button class="button" id="refreshButton" type="button">Refresh</button>
+          <span class="supabase-pill" id="rowCount">Rows: 0</span>
+        </div>
+
+        <div class="supabase-status" id="status"></div>
+
+        <div class="supabase-table-wrap" id="tableWrap">
+          <div class="supabase-empty">Select a table to load data.</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Supabase config: served by Cloudflare Pages Function in production,
+         falls back to local supabase-config.js for development. -->
+    <script>
+      (function loadSupabaseConfig() {
+        var status = document.getElementById("status");
+
+        function loadApp() {
+          var app = document.createElement("script");
+          app.type = "module";
+          app.src = "church-history-app.js";
+          document.head.appendChild(app);
+        }
+
+        function tryLoad(src, onFail) {
+          var s = document.createElement("script");
+          s.src = src;
+          s.onload = loadApp;
+          s.onerror = onFail || function () {
+            if (status) {
+              status.textContent = "Could not load Supabase configuration.";
+              status.classList.add("supabase-error");
+            }
+          };
+          document.head.appendChild(s);
+        }
+
+        tryLoad("/api/supabase-config", function () {
+          tryLoad("supabase-config.js");
+        });
+      })();
+    </script>
+  </body>
+</html>
