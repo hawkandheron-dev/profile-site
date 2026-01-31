@@ -1,0 +1,7 @@
+{
+  "name": "profile-site",
+  "private": true,
+  "scripts": {
+    "build": "cd timeline-scratch && npm install && npm run build"
+  }
+}
