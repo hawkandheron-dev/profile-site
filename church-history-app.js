@@ -108,6 +108,8 @@ async function loadTable(append = false) {
   if (!append) {
     currentOffset = 0;
     latestRows = [];
+    // Clear the table display immediately when switching tables
+    renderTable([]);
   }
 
   setStatus(`Loading ${tableName}...`);
