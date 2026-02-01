@@ -440,6 +440,14 @@
     color: #ddd;
   }
 
+  .vision-board-card-meta {
+    color: #666;
+  }
+
+  .vision-board-favorites-label {
+    color: #666;
+  }
+
   .vision-board-loading {
     color: #888;
   }
