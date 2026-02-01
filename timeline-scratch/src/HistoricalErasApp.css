@@ -1,0 +1,51 @@
+/* ===================================================================
+   HistoricalErasApp — layout for timeline + vision board split
+   =================================================================== */
+
+/* Instruction banner */
+.eras-instruction {
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  background: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+/* Timeline panel — fills available space when no era selected,
+   shrinks to a compact strip when vision board is open */
+.eras-timeline-panel {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  transition: flex 0.3s ease;
+  min-height: 200px;
+}
+
+.eras-timeline-panel--compact {
+  flex: 0 0 220px;
+  min-height: 180px;
+}
+
+/* Vision board panel — fills remaining space below timeline */
+.eras-visionboard-panel {
+  flex: 1;
+  overflow: hidden;
+  border-top: 2px solid #ddd;
+  min-height: 0;
+}
+
+/* ----- Dark mode ----- */
+
+@media (prefers-color-scheme: dark) {
+  .eras-instruction {
+    background: #222;
+    border-bottom-color: #444;
+    color: #999;
+  }
+
+  .eras-visionboard-panel {
+    border-top-color: #444;
+  }
+}
