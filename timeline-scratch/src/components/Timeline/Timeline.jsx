@@ -9,6 +9,7 @@ import { useTimelineLayout } from './hooks/useTimelineLayout.js';
 import { TimelineCanvas } from './components/TimelineCanvas.jsx';
 import { TimelineOverlay } from './components/TimelineOverlay.jsx';
 import { TimelineModal } from './components/TimelineModal.jsx';
+import { VisionBoardPanel } from './components/VisionBoardPanel.jsx';
 import { YearSummaryModal } from './components/YearSummaryModal.jsx';
 import { TimelineLegend } from './components/TimelineLegend.jsx';
 import { Icon } from './components/Icon.jsx';
@@ -20,6 +21,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [hoveredItem, setHoveredItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [visionBoardItem, setVisionBoardItem] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [filters, setFilters] = useState({
     people: true,
@@ -147,7 +149,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     return () => observer.disconnect();
   }, []);
 
-  const isModalOpen = selectedItem !== null || yearSummaryOpen;
+  const isModalOpen = selectedItem !== null || yearSummaryOpen || visionBoardItem !== null;
 
   // Handle wheel for zoom
   const handleWheel = useCallback((e) => {
@@ -242,9 +244,13 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
     }
   }, [mousePos]);
 
-  // Handle item click
+  // Handle item click – periods open the vision board panel, others open the modal
   const handleItemClickInternal = useCallback((type, item) => {
-    setSelectedItem({ type, item });
+    if (type === 'period') {
+      setVisionBoardItem(item);
+    } else {
+      setSelectedItem({ type, item });
+    }
     onItemClick?.(type, item);
   }, [onItemClick]);
 
@@ -256,6 +262,11 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
   // Handle modal close
   const handleModalClose = useCallback(() => {
     setSelectedItem(null);
+  }, []);
+
+  // Handle vision board close
+  const handleVisionBoardClose = useCallback(() => {
+    setVisionBoardItem(null);
   }, []);
 
   // Handle filter toggle
@@ -454,6 +465,15 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
         itemIndex={itemIndex}
         onSelectItem={handleModalItemSelect}
       />
+
+      {/* Vision Board Panel for eras/periods */}
+      {visionBoardItem && (
+        <VisionBoardPanel
+          item={visionBoardItem}
+          config={defaultConfig}
+          onClose={handleVisionBoardClose}
+        />
+      )}
 
       {/* Year Summary Modal */}
       {yearSummaryOpen && pinnedYear !== null && (

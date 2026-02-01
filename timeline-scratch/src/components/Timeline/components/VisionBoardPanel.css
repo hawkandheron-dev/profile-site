@@ -1,0 +1,248 @@
+/* ── Vision Board Panel ─────────────────────────────────────────────── */
+
+.vision-board-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  background: #f8f8f8;
+  display: flex;
+  flex-direction: column;
+  animation: vbSlideUp 0.25s ease-out;
+}
+
+@keyframes vbSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Close button ──────────────────────────────────────────────────── */
+
+.vision-board-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  border: none;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  font-size: 28px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  color: #555;
+}
+
+.vision-board-close:hover {
+  background-color: #fff;
+  color: #222;
+  transform: scale(1.08);
+}
+
+.vision-board-close:focus-visible {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+}
+
+/* ── Scrollable area ───────────────────────────────────────────────── */
+
+.vision-board-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px;
+}
+
+/* ── Header ────────────────────────────────────────────────────────── */
+
+.vision-board-header {
+  max-width: 800px;
+  margin: 0 auto 24px;
+  padding: 20px 24px;
+  padding-left: 28px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border-left: 5px solid #00acc1;
+}
+
+.vision-board-title {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111;
+  padding-right: 40px;
+}
+
+.vision-board-date {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #666;
+}
+
+.vision-board-summary {
+  margin: 0;
+  line-height: 1.65;
+  font-size: 15px;
+  color: #333;
+}
+
+/* ── Image grid (responsive masonry-ish) ───────────────────────────── */
+
+.vision-board-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  columns: 3;
+  column-gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .vision-board-grid {
+    columns: 2;
+  }
+}
+
+@media (max-width: 520px) {
+  .vision-board-grid {
+    columns: 1;
+  }
+}
+
+/* ── Image card ────────────────────────────────────────────────────── */
+
+.vision-board-card {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 16px;
+  break-inside: avoid;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.vision-board-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+}
+
+.vision-board-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.vision-board-card-label {
+  display: block;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #555;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Loading indicator ─────────────────────────────────────────────── */
+
+.vision-board-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px 0;
+  color: #888;
+  font-size: 14px;
+}
+
+.vision-board-spinner {
+  width: 22px;
+  height: 22px;
+  border: 3px solid #ddd;
+  border-top-color: #666;
+  border-radius: 50%;
+  animation: vbSpin 0.7s linear infinite;
+}
+
+@keyframes vbSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── End-of-feed ───────────────────────────────────────────────────── */
+
+.vision-board-end {
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+  padding: 24px 0 40px;
+  margin: 0;
+}
+
+/* ── Dark mode ─────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  .vision-board-panel {
+    background: #1a1a1a;
+  }
+
+  .vision-board-close {
+    background: rgba(40, 40, 40, 0.85);
+    color: #ccc;
+  }
+
+  .vision-board-close:hover {
+    background-color: #333;
+    color: #fff;
+  }
+
+  .vision-board-header {
+    background: #242424;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  }
+
+  .vision-board-title {
+    color: #f0f0f0;
+  }
+
+  .vision-board-date {
+    color: #aaa;
+  }
+
+  .vision-board-summary {
+    color: #ccc;
+  }
+
+  .vision-board-card {
+    background: #242424;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+
+  .vision-board-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .vision-board-card-label {
+    color: #aaa;
+  }
+}
