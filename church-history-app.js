@@ -4,6 +4,7 @@ const tableSelect = document.querySelector("#tableSelect");
 const limitInput = document.querySelector("#limitInput");
 const searchInput = document.querySelector("#searchInput");
 const refreshButton = document.querySelector("#refreshButton");
+const loadMoreButton = document.querySelector("#loadMoreButton");
 const statusEl = document.querySelector("#status");
 const rowCountEl = document.querySelector("#rowCount");
 const tableWrap = document.querySelector("#tableWrap");
@@ -23,6 +24,7 @@ const tableConfig = [
 
 let supabase = null;
 let latestRows = [];
+let currentOffset = 0;
 
 function setStatus(message, isError = false) {
   statusEl.textContent = message;
@@ -93,7 +95,7 @@ function applySearchFilter() {
   renderTable(filtered);
 }
 
-async function loadTable() {
+async function loadTable(append = false) {
   if (!supabase) {
     setStatus("Missing Supabase configuration.", true);
     return;
@@ -102,9 +104,18 @@ async function loadTable() {
   const tableName = tableSelect.value;
   const config = tableConfig.find((entry) => entry.id === tableName);
   const limit = Math.min(Math.max(Number(limitInput.value) || 50, 1), 500);
+
+  if (!append) {
+    currentOffset = 0;
+    latestRows = [];
+    // Clear search input and table display when switching tables
+    searchInput.value = "";
+    renderTable([]);
+  }
+
   setStatus(`Loading ${tableName}...`);
 
-  let query = supabase.from(tableName).select("*").limit(limit);
+  let query = supabase.from(tableName).select("*").range(currentOffset, currentOffset + limit - 1);
   if (config && config.orderBy) {
     query = query.order(config.orderBy, { ascending: true });
   }
@@ -112,14 +123,28 @@ async function loadTable() {
   const { data, error } = await query;
   if (error) {
     setStatus(error.message, true);
-    latestRows = [];
-    renderTable([]);
+    if (!append) {
+      latestRows = [];
+      renderTable([]);
+    }
+    loadMoreButton.style.display = "none";
     return;
   }
 
-  latestRows = data || [];
+  const newRows = data || [];
+  latestRows = append ? [...latestRows, ...newRows] : newRows;
+  currentOffset = latestRows.length;
+
   setStatus(`Loaded ${latestRows.length} rows from ${tableName}.`);
+
+  // Show/hide Load More button based on whether we got a full batch
+  loadMoreButton.style.display = newRows.length === limit ? "inline-flex" : "none";
+
   applySearchFilter();
+}
+
+async function loadMore() {
+  await loadTable(true);
 }
 
 function init() {
@@ -138,8 +163,9 @@ function init() {
   supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   setStatus("Ready.");
 
-  tableSelect.addEventListener("change", loadTable);
-  refreshButton.addEventListener("click", loadTable);
+  tableSelect.addEventListener("change", () => loadTable());
+  refreshButton.addEventListener("click", () => loadTable());
+  loadMoreButton.addEventListener("click", loadMore);
   searchInput.addEventListener("input", applySearchFilter);
 
   loadTable();

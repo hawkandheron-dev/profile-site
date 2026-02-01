@@ -17,8 +17,20 @@
 
     <main class="supabase-shell">
       <header class="supabase-header">
-        <h1>Church History Supabase</h1>
-        <p>Browser for church history data stored in Supabase.</p>
+        <div class="supabase-header-content">
+          <div>
+            <h1>Church History Supabase</h1>
+            <p>Browser for church history data stored in Supabase.</p>
+          </div>
+          <a
+            class="button"
+            href="https://supabase.com/dashboard/project/fnxsfdbbnjbveyjmwanc/editor/19967?schema=public"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open in Supabase Admin
+          </a>
+        </div>
       </header>
 
       <section class="supabase-card" aria-live="polite">
@@ -39,6 +51,7 @@
 
         <div class="supabase-actions">
           <button class="button" id="refreshButton" type="button">Refresh</button>
+          <button class="button" id="loadMoreButton" type="button" style="display: none;">Load More</button>
           <span class="supabase-pill" id="rowCount">Rows: 0</span>
         </div>
 
