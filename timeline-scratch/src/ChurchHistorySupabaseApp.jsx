@@ -47,8 +47,9 @@ function ChurchHistorySupabaseApp() {
         <div className="header-content">
           <h1>Church History Timeline (Supabase)</h1>
           <nav className="tab-nav">
-            <a href="../" className="tab-button">Back to Home</a>
+            <a href="../../index.html" className="tab-button">Home</a>
             <a href="./church-history.html" className="tab-button">JSON Version</a>
+            <a href="../../church-history-supabase.html" className="tab-button">Data Browser</a>
           </nav>
         </div>
       </header>
