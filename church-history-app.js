@@ -163,8 +163,8 @@ function init() {
   supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   setStatus("Ready.");
 
-  tableSelect.addEventListener("change", loadTable);
-  refreshButton.addEventListener("click", loadTable);
+  tableSelect.addEventListener("change", () => loadTable());
+  refreshButton.addEventListener("click", () => loadTable());
   loadMoreButton.addEventListener("click", loadMore);
   searchInput.addEventListener("input", applySearchFilter);
 
