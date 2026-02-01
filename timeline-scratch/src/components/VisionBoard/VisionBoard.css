@@ -122,6 +122,37 @@
   margin: 0;
 }
 
+/* ----- Favorites strip ----- */
+
+.vision-board-favorites-section {
+  padding: 16px 20px 0;
+}
+
+.vision-board-favorites-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.vision-board-favorites-strip {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+
+.vision-board-favorites-strip .vision-board-card {
+  flex: 0 0 180px;
+  width: 180px;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 /* ----- Loading ----- */
 
 .vision-board-loading {
@@ -298,6 +329,16 @@
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.vision-board-card-meta {
+  font-size: 11px;
+  color: #888;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

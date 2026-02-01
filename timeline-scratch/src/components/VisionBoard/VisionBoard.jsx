@@ -35,8 +35,9 @@ export function VisionBoard({
   favoriteUrls
 }) {
   const [failedImages, setFailedImages] = useState(new Set());
-  const gridRef = useRef(null);
+  const scrollRef = useRef(null);
   const sentinelRef = useRef(null);
+  const loadMoreCooldownRef = useRef(false);
 
   const handleImageError = useCallback((id) => {
     setFailedImages(prev => {
@@ -52,6 +53,7 @@ export function VisionBoard({
   }, [eraName]);
 
   // Infinite scroll via IntersectionObserver on sentinel element
+  // with cooldown to prevent rapid re-triggering
   useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel) return;
@@ -59,13 +61,16 @@ export function VisionBoard({
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (entry.isIntersecting && !loading && !loadingMore) {
+        if (entry.isIntersecting && !loading && !loadingMore && !loadMoreCooldownRef.current) {
+          loadMoreCooldownRef.current = true;
           onLoadMore?.();
+          // Cooldown: don't trigger again for 2 seconds
+          setTimeout(() => { loadMoreCooldownRef.current = false; }, 2000);
         }
       },
       {
-        root: gridRef.current,
-        rootMargin: '400px',   // trigger well before reaching the very bottom
+        root: scrollRef.current,
+        rootMargin: '200px',
         threshold: 0
       }
     );
@@ -76,14 +81,10 @@ export function VisionBoard({
 
   const visibleImages = images.filter(img => !failedImages.has(img.id));
 
-  // Sort: favorites first, then non-favorites
-  const sortedImages = [...visibleImages].sort((a, b) => {
-    const aFav = favoriteUrls?.has(a.thumbnailUrl) || a.isFavorite ? 1 : 0;
-    const bFav = favoriteUrls?.has(b.thumbnailUrl) || b.isFavorite ? 1 : 0;
-    return bFav - aFav;
-  });
-
-  const favCount = sortedImages.filter(img => favoriteUrls?.has(img.thumbnailUrl) || img.isFavorite).length;
+  // Split into favorites and non-favorites
+  const isFav = (img) => favoriteUrls?.has(img.thumbnailUrl) || img.isFavorite;
+  const favoriteImages = visibleImages.filter(isFav);
+  const regularImages = visibleImages.filter(img => !isFav(img));
 
   const handleFavoriteClick = useCallback((e, img) => {
     e.preventDefault();
@@ -98,7 +99,7 @@ export function VisionBoard({
         <div className="vision-board-header-left">
           <h2 className="vision-board-title">{eraName}</h2>
           <span className="vision-board-count">
-            {loading ? 'Loading images...' : `${sortedImages.length} images${favCount > 0 ? ` · ${favCount} favorited` : ''}`}
+            {loading ? 'Loading images...' : `${visibleImages.length} images${favoriteImages.length > 0 ? ` · ${favoriteImages.length} favorited` : ''}`}
           </span>
         </div>
         <div className="vision-board-header-right">
@@ -109,8 +110,8 @@ export function VisionBoard({
         </div>
       </div>
 
-      {/* Scrollable area: description + grid */}
-      <div className="vision-board-scroll" ref={gridRef}>
+      {/* Scrollable area: description + favorites strip + grid */}
+      <div className="vision-board-scroll" ref={scrollRef}>
         {/* Era summary */}
         <div className="vision-board-era-summary" style={{ borderLeftColor: eraColor }}>
           {eraPreview && (
@@ -124,6 +125,25 @@ export function VisionBoard({
           )}
         </div>
 
+        {/* Favorites strip — horizontal row across the top */}
+        {favoriteImages.length > 0 && (
+          <div className="vision-board-favorites-section">
+            <div className="vision-board-favorites-label">Favorites</div>
+            <div className="vision-board-favorites-strip">
+              {favoriteImages.map(img => (
+                <ImageCard
+                  key={img.id}
+                  img={img}
+                  isFav={true}
+                  eraColor={eraColor}
+                  onImageError={handleImageError}
+                  onFavoriteClick={handleFavoriteClick}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Initial loading state */}
         {loading && images.length === 0 && (
           <div className="vision-board-loading">
@@ -133,53 +153,25 @@ export function VisionBoard({
         )}
 
         {/* Empty state */}
-        {!loading && sortedImages.length === 0 && (
+        {!loading && visibleImages.length === 0 && (
           <div className="vision-board-empty">
             <p>No images found for this era. Try closing and clicking the era again.</p>
           </div>
         )}
 
-        {/* Masonry grid */}
-        {sortedImages.length > 0 && (
+        {/* Masonry grid — non-favorite images */}
+        {regularImages.length > 0 && (
           <div className="vision-board-grid">
-            {sortedImages.map(img => {
-              const isFav = favoriteUrls?.has(img.thumbnailUrl) || img.isFavorite;
-              return (
-                <div
-                  key={img.id}
-                  className={`vision-board-card${isFav ? ' vision-board-card--favorited' : ''}`}
-                  style={isFav ? { '--era-color': eraColor } : undefined}
-                >
-                  <div className="vision-board-card-image-wrapper">
-                    <a href={img.sourceUrl} target="_blank" rel="noopener noreferrer" title={`${img.title}\n${img.attribution}`}>
-                      <img
-                        src={img.thumbnailUrl}
-                        alt={img.title}
-                        loading="lazy"
-                        onError={() => handleImageError(img.id)}
-                      />
-                    </a>
-                    <button
-                      className={`vision-board-fav-btn${isFav ? ' vision-board-fav-btn--active' : ''}`}
-                      onClick={(e) => handleFavoriteClick(e, img)}
-                      title={isFav ? 'Remove from favorites' : 'Add to favorites'}
-                      aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
-                    >
-                      <HeartIcon filled={isFav} />
-                    </button>
-                  </div>
-                  <div className="vision-board-card-info">
-                    <span className="vision-board-card-title">{img.title}</span>
-                    <span
-                      className="vision-board-card-source"
-                      style={{ backgroundColor: SOURCE_COLORS[img.source] || '#555' }}
-                    >
-                      {SOURCE_LABELS[img.source] || img.source}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+            {regularImages.map(img => (
+              <ImageCard
+                key={img.id}
+                img={img}
+                isFav={false}
+                eraColor={eraColor}
+                onImageError={handleImageError}
+                onFavoriteClick={handleFavoriteClick}
+              />
+            ))}
           </div>
         )}
 
@@ -193,6 +185,50 @@ export function VisionBoard({
 
         {/* Infinite scroll sentinel */}
         <div ref={sentinelRef} className="vision-board-sentinel" />
+      </div>
+    </div>
+  );
+}
+
+// Card component for both favorites strip and masonry grid
+function ImageCard({ img, isFav, eraColor, onImageError, onFavoriteClick }) {
+  // Build metadata line from date and location
+  const metaLine = [img.date, img.location].filter(Boolean).join(' · ');
+
+  return (
+    <div
+      className={`vision-board-card${isFav ? ' vision-board-card--favorited' : ''}`}
+      style={isFav ? { '--era-color': eraColor } : undefined}
+    >
+      <div className="vision-board-card-image-wrapper">
+        <a href={img.sourceUrl} target="_blank" rel="noopener noreferrer" title={`${img.title}\n${img.attribution}`}>
+          <img
+            src={img.thumbnailUrl}
+            alt={img.title}
+            loading="lazy"
+            onError={() => onImageError(img.id)}
+          />
+        </a>
+        <button
+          className={`vision-board-fav-btn${isFav ? ' vision-board-fav-btn--active' : ''}`}
+          onClick={(e) => onFavoriteClick(e, img)}
+          title={isFav ? 'Remove from favorites' : 'Add to favorites'}
+          aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          <HeartIcon filled={isFav} />
+        </button>
+      </div>
+      <div className="vision-board-card-info">
+        <span className="vision-board-card-title">{img.title}</span>
+        {metaLine && (
+          <span className="vision-board-card-meta">{metaLine}</span>
+        )}
+        <span
+          className="vision-board-card-source"
+          style={{ backgroundColor: SOURCE_COLORS[img.source] || '#555' }}
+        >
+          {SOURCE_LABELS[img.source] || img.source}
+        </span>
       </div>
     </div>
   );

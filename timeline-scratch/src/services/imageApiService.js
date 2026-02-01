@@ -66,10 +66,14 @@ async function fetchWikimediaImages(keyword, limit = 8) {
       .map(p => {
         const info = p.imageinfo[0];
         const meta = info.extmetadata || {};
-        const title = (meta.ObjectName?.value || p.title || '').replace(/^File:/, '').replace(/\.\w+$/, '');
+        const rawTitle = (meta.ObjectName?.value || p.title || '').replace(/^File:/, '').replace(/\.\w+$/, '');
+        const title = stripHtml(rawTitle);
         // Extract metadata keywords from Categories
         const cats = meta.Categories?.value || '';
         const kwParts = cats.split('|').map(s => s.trim()).filter(Boolean);
+        // Extract date and location metadata
+        const date = stripHtml(meta.DateTimeOriginal?.value || meta.DateTime?.value || '');
+        const location = stripHtml(meta.LocationDest?.value || meta.GPSDestLatitude?.value || '');
         return {
           id: `wiki-${p.pageid}`,
           title: title || keyword,
@@ -79,7 +83,9 @@ async function fetchWikimediaImages(keyword, limit = 8) {
           attribution: meta.Artist?.value
             ? stripHtml(meta.Artist.value)
             : 'Wikimedia Commons',
-          keywords: kwParts.slice(0, 30).join(', ')
+          keywords: kwParts.slice(0, 30).join(', '),
+          date: date || '',
+          location: location || ''
         };
       });
   } catch (e) {
@@ -128,7 +134,9 @@ async function fetchMetImages(keyword, limit = 6) {
           attribution: o.artistDisplayName
             ? `${o.artistDisplayName} — The Met`
             : 'The Metropolitan Museum of Art',
-          keywords: kwParts.slice(0, 30).join(', ')
+          keywords: kwParts.slice(0, 30).join(', '),
+          date: o.objectDate || o.objectBeginDate ? String(o.objectBeginDate) : '',
+          location: [o.culture, o.country || o.city].filter(Boolean).join(', ')
         };
       });
   } catch (e) {
@@ -166,12 +174,14 @@ async function fetchEuropeanaImages(keyword, limit = 8) {
         ].filter(Boolean);
         return {
           id: `euro-${item.id}`,
-          title: (item.title?.[0] || keyword).slice(0, 120),
+          title: stripHtml((item.title?.[0] || keyword)).slice(0, 120),
           thumbnailUrl: item.edmPreview[0],
           sourceUrl: item.guid || `https://www.europeana.eu/item${item.id}`,
           source: 'europeana',
           attribution: item.dataProvider?.[0] || 'Europeana',
-          keywords: kwParts.slice(0, 30).join(', ')
+          keywords: kwParts.slice(0, 30).join(', '),
+          date: (item.year || []).join(', '),
+          location: (item.edmPlaceLabel || []).map(p => p.def || p).flat().filter(s => typeof s === 'string').join(', ')
         };
       });
   } catch (e) {
@@ -208,14 +218,16 @@ async function fetchNyplImages(keyword, limit = 6) {
         ].filter(Boolean);
         return {
           id: `nypl-${item.uuid}`,
-          title: (item.title || keyword).slice(0, 120),
+          title: stripHtml((item.title || keyword)).slice(0, 120),
           thumbnailUrl: `https://images.nypl.org/index.php?id=${imageId}&t=w`,
           sourceUrl: item.apiItemURL
             ? `https://digitalcollections.nypl.org/items/${item.uuid}`
             : 'https://digitalcollections.nypl.org/',
           source: 'nypl',
           attribution: 'NYPL Digital Collections',
-          keywords: kwParts.slice(0, 30).join(', ')
+          keywords: kwParts.slice(0, 30).join(', '),
+          date: item.dateDigitized || '',
+          location: ''
         };
       });
   } catch (e) {
@@ -260,14 +272,21 @@ async function fetchSmithsonianImages(keyword, limit = 8) {
           ...(indexed.culture || []),
           ...(indexed.place || [])
         ].filter(Boolean);
+        // Extract date from freetext.date
+        const dateEntries = freetext.date || [];
+        const dateStr = dateEntries.length > 0 ? dateEntries[0].content || '' : '';
+        // Extract place from indexed or freetext
+        const placeStr = (indexed.place || []).slice(0, 2).join(', ');
         return {
           id: `si-${row.id}`,
-          title: typeof title === 'string' ? title.slice(0, 120) : keyword,
+          title: typeof title === 'string' ? stripHtml(title).slice(0, 120) : keyword,
           thumbnailUrl: media.thumbnail || media.content,
           sourceUrl: desc.record_link || desc.guid || 'https://www.si.edu/search',
           source: 'smithsonian',
           attribution: desc.data_source || 'Smithsonian Institution',
-          keywords: kwParts.slice(0, 30).join(', ')
+          keywords: kwParts.slice(0, 30).join(', '),
+          date: dateStr,
+          location: placeStr
         };
       });
   } catch (e) {
