@@ -67,6 +67,9 @@ async function fetchWikimediaImages(keyword, limit = 8) {
         const info = p.imageinfo[0];
         const meta = info.extmetadata || {};
         const title = (meta.ObjectName?.value || p.title || '').replace(/^File:/, '').replace(/\.\w+$/, '');
+        // Extract metadata keywords from Categories
+        const cats = meta.Categories?.value || '';
+        const kwParts = cats.split('|').map(s => s.trim()).filter(Boolean);
         return {
           id: `wiki-${p.pageid}`,
           title: title || keyword,
@@ -75,7 +78,8 @@ async function fetchWikimediaImages(keyword, limit = 8) {
           source: 'wikimedia',
           attribution: meta.Artist?.value
             ? stripHtml(meta.Artist.value)
-            : 'Wikimedia Commons'
+            : 'Wikimedia Commons',
+          keywords: kwParts.slice(0, 30).join(', ')
         };
       });
   } catch (e) {
@@ -109,16 +113,24 @@ async function fetchMetImages(keyword, limit = 6) {
 
     return objects
       .filter(o => o && o.primaryImageSmall)
-      .map(o => ({
-        id: `met-${o.objectID}`,
-        title: o.title || keyword,
-        thumbnailUrl: o.primaryImageSmall,
-        sourceUrl: o.objectURL || `https://www.metmuseum.org/art/collection/search/${o.objectID}`,
-        source: 'met',
-        attribution: o.artistDisplayName
-          ? `${o.artistDisplayName} — The Met`
-          : 'The Metropolitan Museum of Art'
-      }));
+      .map(o => {
+        // Extract metadata keywords from tags, culture, period, classification, medium
+        const kwParts = [
+          ...(o.tags || []).map(t => t.term),
+          o.culture, o.period, o.dynasty, o.classification, o.medium, o.department
+        ].filter(Boolean);
+        return {
+          id: `met-${o.objectID}`,
+          title: o.title || keyword,
+          thumbnailUrl: o.primaryImageSmall,
+          sourceUrl: o.objectURL || `https://www.metmuseum.org/art/collection/search/${o.objectID}`,
+          source: 'met',
+          attribution: o.artistDisplayName
+            ? `${o.artistDisplayName} — The Met`
+            : 'The Metropolitan Museum of Art',
+          keywords: kwParts.slice(0, 30).join(', ')
+        };
+      });
   } catch (e) {
     console.warn('Met Museum fetch failed for:', keyword, e);
     return [];
@@ -145,14 +157,23 @@ async function fetchEuropeanaImages(keyword, limit = 8) {
 
     return (json.items || [])
       .filter(item => item.edmPreview?.[0])
-      .map(item => ({
-        id: `euro-${item.id}`,
-        title: (item.title?.[0] || keyword).slice(0, 120),
-        thumbnailUrl: item.edmPreview[0],
-        sourceUrl: item.guid || `https://www.europeana.eu/item${item.id}`,
-        source: 'europeana',
-        attribution: item.dataProvider?.[0] || 'Europeana'
-      }));
+      .map(item => {
+        // Extract metadata keywords from dcSubject, dcType, dcCreator
+        const kwParts = [
+          ...(item.dcSubject || []),
+          ...(item.dcType || []),
+          ...(item.dcCreator || [])
+        ].filter(Boolean);
+        return {
+          id: `euro-${item.id}`,
+          title: (item.title?.[0] || keyword).slice(0, 120),
+          thumbnailUrl: item.edmPreview[0],
+          sourceUrl: item.guid || `https://www.europeana.eu/item${item.id}`,
+          source: 'europeana',
+          attribution: item.dataProvider?.[0] || 'Europeana',
+          keywords: kwParts.slice(0, 30).join(', ')
+        };
+      });
   } catch (e) {
     console.warn('Europeana fetch failed for:', keyword, e);
     return [];
@@ -180,6 +201,11 @@ async function fetchNyplImages(keyword, limit = 6) {
       .filter(item => item.imageID)
       .map(item => {
         const imageId = item.imageID;
+        // Extract metadata keywords from subject headings and typeOfResource
+        const kwParts = [
+          ...(Array.isArray(item.subject) ? item.subject : item.subject ? [item.subject] : []),
+          ...(Array.isArray(item.typeOfResource) ? item.typeOfResource : item.typeOfResource ? [item.typeOfResource] : [])
+        ].filter(Boolean);
         return {
           id: `nypl-${item.uuid}`,
           title: (item.title || keyword).slice(0, 120),
@@ -188,7 +214,8 @@ async function fetchNyplImages(keyword, limit = 6) {
             ? `https://digitalcollections.nypl.org/items/${item.uuid}`
             : 'https://digitalcollections.nypl.org/',
           source: 'nypl',
-          attribution: 'NYPL Digital Collections'
+          attribution: 'NYPL Digital Collections',
+          keywords: kwParts.slice(0, 30).join(', ')
         };
       });
   } catch (e) {
@@ -221,15 +248,26 @@ async function fetchSmithsonianImages(keyword, limit = 8) {
       })
       .map(row => {
         const desc = row.content?.descriptiveNonRepeating || {};
+        const freetext = row.content?.freetext || {};
+        const indexed = row.content?.indexedStructured || {};
         const media = desc.online_media.media[0];
         const title = row.title || desc.title?.content || keyword;
+        // Extract metadata keywords from freetext topics/names and indexed topics
+        const kwParts = [
+          ...(freetext.topic || []).map(t => t.content),
+          ...(freetext.name || []).map(t => t.content),
+          ...(indexed.topic || []),
+          ...(indexed.culture || []),
+          ...(indexed.place || [])
+        ].filter(Boolean);
         return {
           id: `si-${row.id}`,
           title: typeof title === 'string' ? title.slice(0, 120) : keyword,
           thumbnailUrl: media.thumbnail || media.content,
           sourceUrl: desc.record_link || desc.guid || 'https://www.si.edu/search',
           source: 'smithsonian',
-          attribution: desc.data_source || 'Smithsonian Institution'
+          attribution: desc.data_source || 'Smithsonian Institution',
+          keywords: kwParts.slice(0, 30).join(', ')
         };
       });
   } catch (e) {
@@ -301,10 +339,11 @@ const STANDARD_SUFFIXES = [
  * @param {number}   opts.keywordsToUse  - how many keywords to query (default 5)
  * @param {number}   opts.perSource      - results per source per keyword (default 4)
  * @param {string}   opts.eraName        - era display name for building standard queries
+ * @param {string[]} opts.priorityKeywords - keywords from favorites to weight higher
  * @returns {Promise<Array>} array of image result objects
  */
 export async function fetchImagesForKeywords(keywords, opts = {}) {
-  const { keywordsToUse = 5, perSource = 4, eraName } = opts;
+  const { keywordsToUse = 5, perSource = 4, eraName, priorityKeywords = [] } = opts;
 
   // Build the full keyword pool: era-specific + standard suffix combos
   let pool = [...keywords];
@@ -313,8 +352,19 @@ export async function fetchImagesForKeywords(keywords, opts = {}) {
     pool = [...pool, ...standardKeywords];
   }
 
-  // Pick a random subset so each load feels fresh
-  const selected = shuffle(pool).slice(0, keywordsToUse);
+  // When we have priority keywords from favorites, allocate most slots to them
+  let selected;
+  if (priorityKeywords.length > 0) {
+    const prioritySlots = Math.min(Math.ceil(keywordsToUse * 0.6), priorityKeywords.length);
+    const regularSlots = keywordsToUse - prioritySlots;
+    selected = [
+      ...shuffle(priorityKeywords).slice(0, prioritySlots),
+      ...shuffle(pool).slice(0, regularSlots)
+    ];
+  } else {
+    // Pick a random subset so each load feels fresh
+    selected = shuffle(pool).slice(0, keywordsToUse);
+  }
 
   // For each keyword, query all five APIs in parallel
   const allPromises = selected.flatMap(kw => [
