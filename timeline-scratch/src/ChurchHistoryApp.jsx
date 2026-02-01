@@ -15,9 +15,11 @@ function ChurchHistoryApp() {
     <div className="app">
       <header className="app-header">
         <div className="header-content">
-          <h1>Church History Timeline</h1>
+          <h1>Church History Timeline (JSON)</h1>
           <nav className="tab-nav">
-            <a href="../" className="tab-button">Back to Home</a>
+            <a href="../../index.html" className="tab-button">Home</a>
+            <a href="./church-history-supabase.html" className="tab-button">Supabase Version</a>
+            <a href="../../church-history-supabase.html" className="tab-button">Data Browser</a>
           </nav>
         </div>
       </header>

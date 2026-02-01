@@ -11,6 +11,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         'church-history': resolve(__dirname, 'church-history.html'),
+        'church-history-supabase': resolve(__dirname, 'church-history-supabase.html'),
       },
     },
   },
