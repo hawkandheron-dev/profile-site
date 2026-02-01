@@ -108,7 +108,8 @@ async function loadTable(append = false) {
   if (!append) {
     currentOffset = 0;
     latestRows = [];
-    // Clear the table display immediately when switching tables
+    // Clear search input and table display when switching tables
+    searchInput.value = "";
     renderTable([]);
   }
 
