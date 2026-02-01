@@ -20,7 +20,7 @@ jobs:
         with:
           version: latest
 
-      - name: Dry-run migrations
+      - name: Build direct DB URL
         env:
           SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
         run: |
@@ -28,16 +28,33 @@ jobs:
             echo "SUPABASE_DATABASE_URL is not set."
             exit 1
           fi
-          # Use direct connection (port 5432) instead of pooled connection
-          # (port 6543) to avoid PgBouncer "prepared statement already exists"
-          # errors. The Supabase CLI uses prepared statements internally.
-          DB_URL="${SUPABASE_DATABASE_URL//:6543/:5432}"
+          DB_URL="$SUPABASE_DATABASE_URL"
+          # The Supabase CLI uses prepared statements which are incompatible
+          # with PgBouncer/Supavisor transaction-mode pooling. Convert any
+          # pooler URL to a direct database connection.
+          #
+          # Pooler format:  postgresql://postgres.PROJREF:PASS@REGION.pooler.supabase.com:PORT/postgres
+          # Direct format:  postgresql://postgres:PASS@db.PROJREF.supabase.co:5432/postgres
+          if echo "$DB_URL" | grep -q "pooler\.supabase\.com"; then
+            PROJ_REF=$(echo "$DB_URL" | sed -n 's|.*://postgres\.\([^:@]*\).*|\1|p')
+            if [ -n "$PROJ_REF" ]; then
+              DB_URL=$(echo "$DB_URL" | sed "s|postgres\.$PROJ_REF:|postgres:|")
+              DB_URL=$(echo "$DB_URL" | sed "s|@[^/]*pooler\.supabase\.com:[0-9]*|@db.$PROJ_REF.supabase.co:5432|")
+              echo "Converted pooler URL to direct connection"
+            fi
+          else
+            # Fallback: just ensure we use port 5432 instead of 6543
+            DB_URL="${DB_URL//:6543/:5432}"
+          fi
+          # Mask the URL so it doesn't appear in logs
+          echo "::add-mask::$DB_URL"
+          echo "DIRECT_DB_URL=$DB_URL" >> "$GITHUB_ENV"
+
+      - name: Dry-run migrations
+        run: |
           echo "=== Pending migrations ==="
-          supabase db push --db-url "$DB_URL" --dry-run
+          supabase db push --db-url "$DIRECT_DB_URL" --dry-run
 
       - name: Push migrations
-        env:
-          SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
         run: |
-          DB_URL="${SUPABASE_DATABASE_URL//:6543/:5432}"
-          supabase db push --db-url "$DB_URL" --yes
+          supabase db push --db-url "$DIRECT_DB_URL" --yes
