@@ -5,6 +5,28 @@
 
 begin;
 
+-- ── Clean up orphaned rows before adding FK constraints ────────────────
+
+delete from public."Gods"
+  where pantheon_id is not null
+    and pantheon_id not in (select pantheon_id from public."Pantheons");
+
+delete from public."Heroes"
+  where pantheon_id is not null
+    and pantheon_id not in (select pantheon_id from public."Pantheons");
+
+delete from public."Hero Favors"
+  where hero_id not in (select hero_id from public."Heroes");
+
+delete from public."Hero Favors"
+  where god_id not in (select god_id from public."Gods");
+
+delete from public."Hero Works"
+  where hero_id not in (select hero_id from public."Heroes");
+
+delete from public."God Epithets"
+  where god_id not in (select god_id from public."Gods");
+
 -- ── Foreign keys ────────────────────────────────────────────────────────
 
 alter table public."Gods"
