@@ -12,6 +12,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         'church-history': resolve(__dirname, 'church-history.html'),
         'church-history-supabase': resolve(__dirname, 'church-history-supabase.html'),
+        'historical-eras': resolve(__dirname, 'historical-eras.html'),
       },
     },
   },
