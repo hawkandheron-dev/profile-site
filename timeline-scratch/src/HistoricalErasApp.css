@@ -1,5 +1,5 @@
 /* ===================================================================
-   HistoricalErasApp — layout for timeline + vision board split
+   HistoricalErasApp — layout for timeline + vision board overlay
    =================================================================== */
 
 /* Instruction banner */
@@ -13,27 +13,27 @@
   flex-shrink: 0;
 }
 
-/* Timeline panel — fills available space when no era selected,
-   shrinks to a compact strip when vision board is open */
-.eras-timeline-panel {
+/* Content area — fills remaining space below header, acts as
+   positioning context for the vision board overlay */
+.eras-content-area {
   flex: 1;
-  overflow: hidden;
   position: relative;
-  transition: flex 0.3s ease;
-  min-height: 200px;
-}
-
-.eras-timeline-panel--compact {
-  flex: 0 0 220px;
-  min-height: 180px;
-}
-
-/* Vision board panel — fills remaining space below timeline */
-.eras-visionboard-panel {
-  flex: 1;
   overflow: hidden;
-  border-top: 2px solid #ddd;
   min-height: 0;
+}
+
+/* Timeline panel — fills content area */
+.eras-timeline-panel {
+  width: 100%;
+  height: 100%;
+}
+
+/* Vision board overlay — covers the entire content area,
+   sitting on top of the timeline */
+.eras-visionboard-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
 }
 
 /* ----- Dark mode ----- */
@@ -43,9 +43,5 @@
     background: #222;
     border-bottom-color: #444;
     color: #999;
-  }
-
-  .eras-visionboard-panel {
-    border-top-color: #444;
   }
 }

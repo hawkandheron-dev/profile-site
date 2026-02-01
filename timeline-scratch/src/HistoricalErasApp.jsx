@@ -3,7 +3,8 @@
  *
  * Timeline of major historical eras + Pinterest-style vision board.
  * Click an era on the timeline to see a feed of curated images
- * from museum and archive APIs.
+ * from museum and archive APIs.  Scrolling to the bottom auto-loads
+ * more images (infinite scroll).
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
@@ -23,25 +24,28 @@ function HistoricalErasApp() {
   const [selectedEra, setSelectedEra] = useState(null);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const fetchIdRef = useRef(0); // guard against stale fetches
+  const seenIdsRef = useRef(new Set()); // track already-loaded image ids for dedup
 
-  // Load images for a given era
-  const loadImages = useCallback(async (eraId) => {
-    const keywords = getEraKeywords(eraId);
+  // Load initial images for a given era
+  const loadImages = useCallback(async (era) => {
+    const keywords = getEraKeywords(era.id);
     if (keywords.length === 0) return;
 
     const id = ++fetchIdRef.current;
+    seenIdsRef.current = new Set();
     setLoading(true);
     setImages([]);
 
     try {
-      const results = await fetchImagesForKeywords(keywords);
-      // Only apply if this is still the active fetch
+      const results = await fetchImagesForKeywords(keywords, { eraName: era.name });
       if (id === fetchIdRef.current) {
+        results.forEach(img => seenIdsRef.current.add(img.id));
         setImages(results);
       }
     } catch (e) {
-      console.error('Failed to load images for era:', eraId, e);
+      console.error('Failed to load images for era:', era.id, e);
     } finally {
       if (id === fetchIdRef.current) {
         setLoading(false);
@@ -49,11 +53,41 @@ function HistoricalErasApp() {
     }
   }, []);
 
+  // Load more images (infinite scroll) — appends to existing feed
+  const loadMore = useCallback(async () => {
+    if (!selectedEra || loading || loadingMore) return;
+
+    const keywords = getEraKeywords(selectedEra.id);
+    if (keywords.length === 0) return;
+
+    const id = fetchIdRef.current; // don't increment — just check staleness
+    setLoadingMore(true);
+
+    try {
+      const results = await fetchImagesForKeywords(keywords, { eraName: selectedEra.name });
+      if (id === fetchIdRef.current) {
+        // Filter out images we already have
+        const newImages = results.filter(img => !seenIdsRef.current.has(img.id));
+        newImages.forEach(img => seenIdsRef.current.add(img.id));
+        if (newImages.length > 0) {
+          setImages(prev => [...prev, ...newImages]);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load more images:', e);
+    } finally {
+      if (id === fetchIdRef.current) {
+        setLoadingMore(false);
+      }
+    }
+  }, [selectedEra, loading, loadingMore]);
+
   // Handle period click on the timeline
   const handleItemClick = useCallback((type, item) => {
     if (type === 'period') {
-      setSelectedEra(item);
-      loadImages(item.id);
+      const era = getEraById(item.id) || item;
+      setSelectedEra(era);
+      loadImages(era);
     }
   }, [loadImages]);
 
@@ -61,15 +95,9 @@ function HistoricalErasApp() {
   const handleClose = useCallback(() => {
     setSelectedEra(null);
     setImages([]);
+    seenIdsRef.current = new Set();
     fetchIdRef.current++; // cancel in-flight fetches
   }, []);
-
-  // Refresh images (re-randomize keywords)
-  const handleRefresh = useCallback(() => {
-    if (selectedEra) {
-      loadImages(selectedEra.id);
-    }
-  }, [selectedEra, loadImages]);
 
   // Keyboard shortcut: Escape to close
   useEffect(() => {
@@ -101,29 +129,35 @@ function HistoricalErasApp() {
         </div>
       )}
 
-      {/* Timeline panel — compact when vision board is open */}
-      <div className={`eras-timeline-panel ${selectedEra ? 'eras-timeline-panel--compact' : ''}`}>
-        <Timeline
-          data={historicalErasTimelineData}
-          config={historicalErasConfig}
-          onItemClick={handleItemClick}
-        />
-      </div>
-
-      {/* Vision board panel */}
-      {selectedEra && (
-        <div className="eras-visionboard-panel">
-          <VisionBoard
-            eraId={selectedEra.id}
-            eraName={selectedEra.name}
-            eraColor={selectedEra.color || '#888'}
-            images={images}
-            loading={loading}
-            onClose={handleClose}
-            onRefresh={handleRefresh}
+      {/* Content area — timeline underneath, overlay on top when an era is selected */}
+      <div className="eras-content-area">
+        <div className="eras-timeline-panel">
+          <Timeline
+            data={historicalErasTimelineData}
+            config={historicalErasConfig}
+            onItemClick={handleItemClick}
+            suppressModal
           />
         </div>
-      )}
+
+        {/* Vision board — covers the full content area when open */}
+        {selectedEra && (
+          <div className="eras-visionboard-overlay">
+            <VisionBoard
+              eraId={selectedEra.id}
+              eraName={selectedEra.name}
+              eraColor={selectedEra.color || '#888'}
+              eraPreview={selectedEra.preview}
+              eraDescription={selectedEra.description}
+              images={images}
+              loading={loading}
+              loadingMore={loadingMore}
+              onClose={handleClose}
+              onLoadMore={loadMore}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

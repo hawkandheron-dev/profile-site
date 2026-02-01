@@ -85,6 +85,43 @@
   color: #a33;
 }
 
+/* ----- Scrollable area (description + grid) ----- */
+
+.vision-board-scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* ----- Era summary ----- */
+
+.vision-board-era-summary {
+  padding: 16px 24px;
+  border-left: 4px solid #888;
+  margin: 16px 20px 0;
+  background: #fff;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.vision-board-era-preview {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+}
+
+.vision-board-era-description {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.55;
+}
+
+.vision-board-era-description p {
+  margin: 0;
+}
+
 /* ----- Loading ----- */
 
 .vision-board-loading {
@@ -107,12 +144,35 @@
   animation: vb-spin 0.8s linear infinite;
 }
 
+.vision-board-spinner--small {
+  width: 24px;
+  height: 24px;
+  border-width: 2px;
+}
+
 @keyframes vb-spin {
   to { transform: rotate(360deg); }
 }
 
 .vision-board-loading p {
   margin: 0;
+}
+
+/* ----- Loading more (infinite scroll) ----- */
+
+.vision-board-loading-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px 20px;
+  color: #888;
+  font-size: 13px;
+}
+
+/* Sentinel for IntersectionObserver — invisible */
+.vision-board-sentinel {
+  height: 1px;
 }
 
 /* ----- Empty state ----- */
@@ -133,8 +193,6 @@
 /* ----- Masonry grid ----- */
 
 .vision-board-grid {
-  flex: 1;
-  overflow-y: auto;
   padding: 16px;
   columns: 5 220px;
   column-gap: 16px;
@@ -242,6 +300,19 @@
     color: #f88;
   }
 
+  .vision-board-era-summary {
+    background: #242424;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .vision-board-era-preview {
+    color: #ddd;
+  }
+
+  .vision-board-era-description {
+    color: #aaa;
+  }
+
   .vision-board-card {
     background: #2a2a2a;
     box-shadow: 0 1px 4px rgba(0,0,0,0.3);
@@ -265,6 +336,10 @@
 
   .vision-board-spinner {
     border-color: #444;
+  }
+
+  .vision-board-loading-more {
+    color: #666;
   }
 
   .vision-board-empty {
@@ -299,5 +374,10 @@
 
   .vision-board-header-right {
     align-self: flex-end;
+  }
+
+  .vision-board-era-summary {
+    margin: 10px 10px 0;
+    padding: 12px 16px;
   }
 }

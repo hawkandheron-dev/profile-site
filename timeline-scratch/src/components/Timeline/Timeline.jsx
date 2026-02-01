@@ -15,7 +15,7 @@ import { Icon } from './components/Icon.jsx';
 import { getYear, getYearRange } from './utils/dateUtils.js';
 import './Timeline.css';
 
-export function Timeline({ data, config, onViewportChange, onItemClick }) {
+export function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false }) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -244,9 +244,11 @@ export function Timeline({ data, config, onViewportChange, onItemClick }) {
 
   // Handle item click
   const handleItemClickInternal = useCallback((type, item) => {
-    setSelectedItem({ type, item });
+    if (!suppressModal) {
+      setSelectedItem({ type, item });
+    }
     onItemClick?.(type, item);
-  }, [onItemClick]);
+  }, [onItemClick, suppressModal]);
 
   const handleModalItemSelect = useCallback((type, item) => {
     setSelectedItem({ type, item });

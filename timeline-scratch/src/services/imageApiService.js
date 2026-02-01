@@ -257,25 +257,64 @@ function shuffle(arr) {
 }
 
 // ---------------------------------------------------------------------------
+// Content filter — exclude results inappropriate for younger audiences
+// ---------------------------------------------------------------------------
+const BLOCKED_TITLE_PATTERNS = /\b(nude|naked|erotic|erotica|risqu[eé]|sensual|boudoir|harem\s+scene|courtesan|concubine|seduction|lovemaking|coitus|copulat|orgy|phall|priap|brothel|bathing\s+nymph|rape\s+of|abduction\s+of\s+(?:the\s+)?sabine|leda\s+and\s+the\s+swan|odalisque|bacchana)\b/i;
+
+function isAppropriateForYoungerAudiences(img) {
+  const title = img.title || '';
+  const attribution = img.attribution || '';
+  const combined = `${title} ${attribution}`;
+  return !BLOCKED_TITLE_PATTERNS.test(combined);
+}
+
+// ---------------------------------------------------------------------------
+// Standard keyword suffixes appended to every era for variety.
+// Combined with the era's base name to produce searches like
+// "Ancient Egypt reconstruction", "Roman Empire architecture", etc.
+// ---------------------------------------------------------------------------
+const STANDARD_SUFFIXES = [
+  'reconstruction',
+  'illustration',
+  'art',
+  'architecture',
+  'artifact',
+  'sculpture',
+  'painting',
+  'map',
+  'daily life',
+  'landscape'
+];
+
+// ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 
 /**
  * Fetch a unified set of images for a given array of keywords.
- * Picks a subset of keywords, queries all APIs in parallel,
- * deduplicates, shuffles, and returns a combined feed.
+ * Picks a subset of keywords (including some generated from standard
+ * suffixes), queries all APIs in parallel, filters for age-appropriate
+ * content, deduplicates, shuffles, and returns a combined feed.
  *
- * @param {string[]} keywords - search terms for this era
+ * @param {string[]} keywords   - era-specific search terms
  * @param {object}   opts
  * @param {number}   opts.keywordsToUse  - how many keywords to query (default 5)
  * @param {number}   opts.perSource      - results per source per keyword (default 4)
+ * @param {string}   opts.eraName        - era display name for building standard queries
  * @returns {Promise<Array>} array of image result objects
  */
 export async function fetchImagesForKeywords(keywords, opts = {}) {
-  const { keywordsToUse = 5, perSource = 4 } = opts;
+  const { keywordsToUse = 5, perSource = 4, eraName } = opts;
 
-  // Pick a random subset of keywords so each load feels fresh
-  const selected = shuffle(keywords).slice(0, keywordsToUse);
+  // Build the full keyword pool: era-specific + standard suffix combos
+  let pool = [...keywords];
+  if (eraName) {
+    const standardKeywords = STANDARD_SUFFIXES.map(s => `${eraName} ${s}`);
+    pool = [...pool, ...standardKeywords];
+  }
+
+  // Pick a random subset so each load feels fresh
+  const selected = shuffle(pool).slice(0, keywordsToUse);
 
   // For each keyword, query all five APIs in parallel
   const allPromises = selected.flatMap(kw => [
@@ -291,9 +330,12 @@ export async function fetchImagesForKeywords(keywords, opts = {}) {
   // Flatten
   const flat = results.flat();
 
+  // Filter out inappropriate content
+  const safe = flat.filter(isAppropriateForYoungerAudiences);
+
   // Deduplicate by thumbnail URL (different APIs may link same image)
   const seen = new Set();
-  const unique = flat.filter(img => {
+  const unique = safe.filter(img => {
     if (!img.thumbnailUrl || seen.has(img.thumbnailUrl)) return false;
     seen.add(img.thumbnailUrl);
     return true;

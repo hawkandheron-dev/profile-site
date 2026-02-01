@@ -203,7 +203,7 @@ export const historicalEras = [
       'Sistine Chapel ceiling',
       'Raphael painting Renaissance',
       'Renaissance map exploration',
-      'Botticelli Birth Venus',
+      'Botticelli Primavera painting',
       'Renaissance portrait painting',
       'Medici Florence art'
     ]
