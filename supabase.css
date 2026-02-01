@@ -8,6 +8,14 @@
   margin-bottom: 16px;
 }
 
+.supabase-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
 .supabase-header h1 {
   margin-bottom: 6px;
 }
