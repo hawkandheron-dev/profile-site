@@ -1,0 +1,335 @@
+/* ===== Mobile Timeline ===== */
+
+.mobile-timeline {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: #f8f8f8;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ---- Toolbar ---- */
+.mobile-timeline-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid #ddd;
+  flex-shrink: 0;
+  gap: 8px;
+  z-index: 20;
+  backdrop-filter: blur(8px);
+}
+
+.mobile-toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.mobile-toolbar-btn:active {
+  background: #eee;
+}
+
+.mobile-zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mobile-zoom-label {
+  font-size: 11px;
+  color: #888;
+  min-width: 56px;
+  text-align: center;
+}
+
+/* ---- Filter drawer ---- */
+.mobile-filter-drawer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid #ddd;
+  flex-shrink: 0;
+  z-index: 19;
+}
+
+.mobile-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #444;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #f0f0f0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-filter-item.inactive {
+  opacity: 0.45;
+}
+
+.mobile-filter-item input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: #1976d2;
+}
+
+.mobile-filter-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid rgba(0,0,0,0.15);
+  flex-shrink: 0;
+}
+
+/* ---- Scrollable area ---- */
+.mobile-timeline-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+.mobile-timeline-content {
+  position: relative;
+  min-height: 100%;
+  padding-bottom: 40px;
+}
+
+/* ---- Vertical axis ---- */
+.mobile-axis-line {
+  position: absolute;
+  left: 56px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #ccc;
+  z-index: 1;
+}
+
+/* ---- Year markers ---- */
+.mobile-year-marker {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  transform: translateY(-50%);
+  z-index: 5;
+  border: none;
+  background: none;
+  padding: 4px 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.mobile-year-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  width: 52px;
+  text-align: right;
+  padding-right: 6px;
+  white-space: nowrap;
+}
+
+.mobile-year-tick {
+  display: inline-block;
+  width: 10px;
+  height: 2px;
+  background: #bbb;
+}
+
+/* ---- Period background bars ---- */
+.mobile-period-bar {
+  position: absolute;
+  left: 62px;
+  right: 8px;
+  border: none;
+  border-left: 3px solid;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  padding: 4px 8px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  text-align: left;
+}
+
+.mobile-period-label {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: sticky;
+  top: 4px;
+}
+
+/* ---- People bars ---- */
+.mobile-person-bar {
+  position: absolute;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 3px 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  text-align: left;
+  min-height: 24px;
+}
+
+.mobile-person-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  position: sticky;
+  top: 3px;
+}
+
+.mobile-person-years {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+}
+
+/* ---- Point markers ---- */
+.mobile-point-marker {
+  position: absolute;
+  left: 40px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transform: translateY(-50%);
+  z-index: 6;
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 6px;
+  padding: 6px 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  text-align: left;
+}
+
+.mobile-point-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.mobile-point-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-point-year {
+  font-size: 10px;
+  color: #888;
+  flex-shrink: 0;
+}
+
+/* ===== Dark mode ===== */
+@media (prefers-color-scheme: dark) {
+  .mobile-timeline {
+    background: #1a1a1a;
+  }
+
+  .mobile-timeline-toolbar {
+    background: rgba(30, 30, 30, 0.95);
+    border-bottom-color: #444;
+  }
+
+  .mobile-toolbar-btn {
+    background: #2a2a2a;
+    border-color: #555;
+    color: #eee;
+  }
+
+  .mobile-toolbar-btn:active {
+    background: #3a3a3a;
+  }
+
+  .mobile-zoom-label {
+    color: #999;
+  }
+
+  .mobile-filter-drawer {
+    background: rgba(30, 30, 30, 0.95);
+    border-bottom-color: #444;
+  }
+
+  .mobile-filter-item {
+    background: #2a2a2a;
+    color: #ccc;
+  }
+
+  .mobile-axis-line {
+    background: #555;
+  }
+
+  .mobile-year-label {
+    color: #aaa;
+  }
+
+  .mobile-year-tick {
+    background: #666;
+  }
+
+  .mobile-point-marker {
+    background: rgba(40, 40, 40, 0.92);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .mobile-point-name {
+    color: #eee;
+  }
+
+  .mobile-point-year {
+    color: #999;
+  }
+}
