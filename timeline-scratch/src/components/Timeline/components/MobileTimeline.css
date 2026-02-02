@@ -315,7 +315,8 @@
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   text-align: left;
-  display: block;
+  display: flex;
+  align-items: flex-start;
   width: 100%;
 }
 
