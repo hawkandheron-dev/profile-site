@@ -15,8 +15,9 @@ import './MobileTimeline.css';
 const DEFAULT_PIXELS_PER_YEAR = 8;
 const MIN_PIXELS_PER_YEAR = 1.5;
 const MAX_PIXELS_PER_YEAR = 40;
-const LANE_WIDTH = 100; // Fixed px width per person column
-const LANE_GAP = 4;     // Gap between columns
+const LANE_WIDTH = 100;
+const LANE_GAP = 4;
+const GUTTER_WIDTH = 60;
 
 export function MobileTimeline({ data, config, onItemClick }) {
   const scrollRef = useRef(null);
@@ -34,7 +35,6 @@ export function MobileTimeline({ data, config, onItemClick }) {
     events: true
   });
 
-  // Pinch-zoom tracking
   const pinchRef = useRef({ active: false, startDist: 0, startPPY: 0 });
 
   const defaultConfig = useMemo(() => ({
@@ -44,12 +44,9 @@ export function MobileTimeline({ data, config, onItemClick }) {
     ...config
   }), [config]);
 
-  // Data bounds
   const dataBounds = useMemo(() => {
     const { people = [], points = [], periods = [] } = data;
-    let minYear = Infinity;
-    let maxYear = -Infinity;
-
+    let minYear = Infinity, maxYear = -Infinity;
     for (const p of people) {
       const s = getYear(p.startDate), e = getYear(p.endDate);
       if (s != null && s < minYear) minYear = s;
@@ -64,14 +61,12 @@ export function MobileTimeline({ data, config, onItemClick }) {
       if (s != null && s < minYear) minYear = s;
       if (e != null && e > maxYear) maxYear = e;
     }
-
     if (!isFinite(minYear)) { minYear = 0; maxYear = 200; }
     const span = maxYear - minYear;
     const pad = Math.max(span * 0.05, 10);
     return { minYear: Math.floor(minYear - pad), maxYear: Math.ceil(maxYear + pad) };
   }, [data]);
 
-  // Filtered data
   const filteredData = useMemo(() => {
     const { people = [], points = [], periods = [] } = data;
     return {
@@ -86,7 +81,6 @@ export function MobileTimeline({ data, config, onItemClick }) {
     };
   }, [data, filters]);
 
-  // Item index for modals
   const itemIndex = useMemo(() => {
     const map = new Map();
     data.people?.forEach(p => map.set(p.id, { type: 'person', item: p }));
@@ -103,7 +97,6 @@ export function MobileTimeline({ data, config, onItemClick }) {
     return (dataBounds.maxYear - dataBounds.minYear) * pixelsPerYear;
   }, [dataBounds, pixelsPerYear]);
 
-  // Year markers
   const yearMarkers = useMemo(() => {
     const yearsPerPixel = 1 / pixelsPerYear;
     const interval = getYearLabelInterval(yearsPerPixel, 80);
@@ -117,11 +110,9 @@ export function MobileTimeline({ data, config, onItemClick }) {
     return markers;
   }, [dataBounds, pixelsPerYear, yearToY, defaultConfig.eraLabels]);
 
-  // Assign people to swimlane columns (greedy, pack into fewest columns)
   const { peopleLayout, numColumns } = useMemo(() => {
     const people = [...filteredData.people].sort((a, b) => getYear(a.startDate) - getYear(b.startDate));
-    const columnEnds = []; // Track end year per column
-
+    const columnEnds = [];
     const laid = people.map(person => {
       const { start, end } = getYearRange(person.startDate, person.endDate);
       let col = -1;
@@ -132,16 +123,13 @@ export function MobileTimeline({ data, config, onItemClick }) {
       columnEnds[col] = end;
       return { ...person, column: col };
     });
-
     return { peopleLayout: laid, numColumns: columnEnds.length };
   }, [filteredData.people]);
 
-  // Content area width: enough for all lanes
   const contentWidth = useMemo(() => {
     return Math.max(numColumns * (LANE_WIDTH + LANE_GAP) + LANE_GAP, 300);
   }, [numColumns]);
 
-  // Scroll to initial viewport
   useEffect(() => {
     const startYear = getYear(defaultConfig.initialViewport.startDate);
     if (scrollRef.current && startYear != null) {
@@ -149,7 +137,6 @@ export function MobileTimeline({ data, config, onItemClick }) {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Pinch zoom
   const handleTouchStart = useCallback((e) => {
     if (e.touches.length === 2) {
       e.preventDefault();
@@ -172,7 +159,6 @@ export function MobileTimeline({ data, config, onItemClick }) {
 
   const handleTouchEnd = useCallback(() => { pinchRef.current.active = false; }, []);
 
-  // Handlers
   const handleItemClick = useCallback((type, item) => {
     setSelectedItem({ type, item });
     onItemClick?.(type, item);
@@ -255,7 +241,7 @@ export function MobileTimeline({ data, config, onItemClick }) {
         </div>
       )}
 
-      {/* Main scroll area: both axes scroll, year gutter is sticky-left */}
+      {/* Main scroll area */}
       <div
         ref={scrollRef}
         className="mobile-timeline-scroll"
@@ -265,62 +251,19 @@ export function MobileTimeline({ data, config, onItemClick }) {
       >
         <div
           className="mobile-timeline-content"
-          style={{ height: `${totalHeight + 80}px`, width: `${contentWidth + 60}px` }}
+          style={{ height: `${totalHeight + 80}px`, width: `${contentWidth + GUTTER_WIDTH}px` }}
         >
-          {/* ── Period sticky banners (above everything, full width) ── */}
-          {filteredData.periods.map(period => {
-            const { start, end } = getYearRange(period.startDate, period.endDate);
-            const topY = yearToY(start);
-            const height = yearToY(end) - topY;
-            const color = period.color || '#00838f';
-            return (
-              <button
-                key={period.id}
-                className="mobile-period-banner"
-                style={{
-                  top: `${topY}px`,
-                  height: `${Math.max(height, 4)}px`,
-                  '--period-color': color
-                }}
-                onClick={() => handleItemClick('period', period)}
-              >
-                <span className="mobile-period-banner-label" style={{ borderLeftColor: color, color }}>
-                  {period.name}
-                  <span className="mobile-period-banner-dates">
-                    {formatYear(start)} – {formatYear(end)}
-                  </span>
-                </span>
-              </button>
-            );
-          })}
+          {/* Horizontal gridlines (behind everything) */}
+          {yearMarkers.map(m => (
+            <div
+              key={`grid-${m.year}`}
+              className="mobile-gridline"
+              style={{ top: `${m.y}px`, width: `${contentWidth + GUTTER_WIDTH}px` }}
+            />
+          ))}
 
-          {/* ── Year gutter (sticky left) ── */}
-          <div className="mobile-year-gutter">
-            <div className="mobile-axis-line" />
-            {yearMarkers.map(m => (
-              <button
-                key={m.year}
-                className="mobile-year-marker"
-                style={{ top: `${m.y}px` }}
-                onClick={() => handleYearMarkerClick(m.year)}
-              >
-                <span className="mobile-year-label">{m.label}</span>
-                <span className="mobile-year-tick" />
-              </button>
-            ))}
-
-            {/* Horizontal gridlines extending into the lane area */}
-            {yearMarkers.map(m => (
-              <div
-                key={`grid-${m.year}`}
-                className="mobile-gridline"
-                style={{ top: `${m.y}px`, width: `${contentWidth + 60}px` }}
-              />
-            ))}
-          </div>
-
-          {/* ── Lanes area (scrolls horizontally) ── */}
-          <div className="mobile-lanes-area" style={{ left: '60px', width: `${contentWidth}px` }}>
+          {/* ── Lanes area (people + periods, scrolls with content) ── */}
+          <div className="mobile-lanes-area" style={{ left: `${GUTTER_WIDTH}px`, width: `${contentWidth}px` }}>
             {/* Person lane columns */}
             {peopleLayout.map(person => {
               const { start, end } = getYearRange(person.startDate, person.endDate);
@@ -352,31 +295,73 @@ export function MobileTimeline({ data, config, onItemClick }) {
                 </button>
               );
             })}
-
-            {/* Point markers – compact card style */}
-            {filteredData.points.map(point => {
-              const year = getYear(point.date);
-              const topY = yearToY(year);
-              return (
-                <button
-                  key={point.id}
-                  className="mobile-point-marker"
-                  style={{ top: `${topY}px` }}
-                  onClick={() => handleItemClick('point', point)}
-                >
-                  <span className="mobile-point-content">
-                    <span className="mobile-point-icon">
-                      <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={14} />
-                    </span>
-                    <span className="mobile-point-text">
-                      <span className="mobile-point-name">{point.name}</span>
-                      <span className="mobile-point-year">{formatYear(year)}</span>
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
           </div>
+
+          {/* ── Point markers (positioned at gutter edge, sticky label) ── */}
+          {filteredData.points.map(point => {
+            const year = getYear(point.date);
+            const topY = yearToY(year);
+            return (
+              <button
+                key={point.id}
+                className="mobile-point-marker"
+                style={{ top: `${topY}px`, left: `${GUTTER_WIDTH + 2}px` }}
+                onClick={() => handleItemClick('point', point)}
+              >
+                <span className="mobile-point-content">
+                  <span className="mobile-point-icon">
+                    <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={14} />
+                  </span>
+                  <span className="mobile-point-text">
+                    <span className="mobile-point-name">{point.name}</span>
+                    <span className="mobile-point-year">{formatYear(year)}</span>
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+
+          {/* ── Year gutter overlay (dark bg, sticky left, in front of lanes) ── */}
+          <div className="mobile-year-gutter">
+            <div className="mobile-axis-line" />
+            {yearMarkers.map(m => (
+              <button
+                key={m.year}
+                className="mobile-year-marker"
+                style={{ top: `${m.y}px` }}
+                onClick={() => handleYearMarkerClick(m.year)}
+              >
+                <span className="mobile-year-label">{m.label}</span>
+                <span className="mobile-year-tick" />
+              </button>
+            ))}
+          </div>
+
+          {/* ── Period banners (in front of year gutter, sticky in both axes) ── */}
+          {filteredData.periods.map(period => {
+            const { start, end } = getYearRange(period.startDate, period.endDate);
+            const topY = yearToY(start);
+            const height = yearToY(end) - topY;
+            const color = period.color || '#00838f';
+            return (
+              <button
+                key={period.id}
+                className="mobile-period-banner"
+                style={{
+                  top: `${topY}px`,
+                  height: `${Math.max(height, 4)}px`
+                }}
+                onClick={() => handleItemClick('period', period)}
+              >
+                <span className="mobile-period-banner-label" style={{ borderLeftColor: color, color }}>
+                  {period.name}
+                  <span className="mobile-period-banner-dates">
+                    {formatYear(start)} – {formatYear(end)}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

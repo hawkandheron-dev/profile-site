@@ -109,112 +109,12 @@
   position: relative;
 }
 
-/* The content pane: explicit width & height for 2D scroll */
 .mobile-timeline-content {
   position: relative;
   min-height: 100%;
 }
 
-/* ── Period sticky banners ── */
-/* Full-width container that spans the period's time range.
-   The label inside is sticky so it scrolls into view at the top. */
-.mobile-period-banner {
-  position: absolute;
-  left: 0;
-  right: 0;
-  z-index: 8;
-  border: none;
-  background: none;
-  padding: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  text-align: left;
-  display: block;
-  width: 100%;
-}
-
-.mobile-period-banner-label {
-  position: sticky;
-  top: 0;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  padding: 5px 10px 5px 12px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  border-left: 4px solid;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(6px);
-  z-index: 9;
-}
-
-.mobile-period-banner-dates {
-  font-size: 9px;
-  font-weight: 500;
-  text-transform: none;
-  letter-spacing: 0;
-  opacity: 0.6;
-}
-
-/* ── Year gutter – sticky on the left while scrolling horizontally ── */
-.mobile-year-gutter {
-  position: sticky;
-  left: 0;
-  width: 60px;
-  height: 100%;
-  z-index: 10;
-  pointer-events: none;
-}
-
-.mobile-axis-line {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: #999;
-}
-
-.mobile-year-marker {
-  position: absolute;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  transform: translateY(-50%);
-  z-index: 12;
-  border: none;
-  background: none;
-  padding: 6px 0;
-  cursor: pointer;
-  pointer-events: auto;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-
-.mobile-year-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: #333;
-  flex: 1;
-  text-align: right;
-  padding-right: 5px;
-  white-space: nowrap;
-}
-
-.mobile-year-tick {
-  display: block;
-  width: 8px;
-  height: 2px;
-  background: #777;
-  flex-shrink: 0;
-}
-
-/* Horizontal gridlines */
+/* ── Horizontal gridlines (z-index 1, behind everything) ── */
 .mobile-gridline {
   position: absolute;
   left: 0;
@@ -224,14 +124,13 @@
   pointer-events: none;
 }
 
-/* ── Lanes area ── */
+/* ── Lanes area (z-index 3-4, people bars) ── */
 .mobile-lanes-area {
   position: absolute;
   top: 0;
   bottom: 0;
 }
 
-/* ── Person swimlane bars ── */
 .mobile-person-lane {
   position: absolute;
   border: none;
@@ -261,14 +160,12 @@
   z-index: 1;
 }
 
-/* 1) Allow person names to wrap (no word-break) */
 .mobile-person-name {
   font-size: 11px;
   font-weight: 700;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
   line-height: 1.25;
-  /* Wrap on spaces/hyphens, never mid-word */
   white-space: normal;
   overflow-wrap: break-word;
   word-break: keep-all;
@@ -285,10 +182,11 @@
   z-index: 1;
 }
 
-/* ── Point markers – compact inline card ── */
+/* ── Point markers (z-index 6, above lanes) ── */
+/* Outer button: absolutely positioned at the point's year, starts at gutter edge.
+   Does NOT extend left of the gutter. */
 .mobile-point-marker {
   position: absolute;
-  left: 0;
   right: 0;
   transform: translateY(-50%);
   z-index: 6;
@@ -301,19 +199,19 @@
   text-align: left;
 }
 
-/* The visible card content – sticky so label stays on screen */
+/* Inner card: sticky so it stays visible, but sticks at the gutter edge */
 .mobile-point-content {
   position: sticky;
-  left: 0;
+  left: 62px;
   display: inline-flex;
   align-items: flex-start;
   gap: 6px;
   padding: 5px 10px;
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(245, 245, 240, 0.7);
   backdrop-filter: blur(4px);
   border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  max-width: 240px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  max-width: 260px;
 }
 
 .mobile-point-icon {
@@ -323,7 +221,6 @@
   margin-top: 1px;
 }
 
-/* 4) Stack name and year vertically, like person bars */
 .mobile-point-text {
   display: flex;
   flex-direction: column;
@@ -336,7 +233,6 @@
   font-weight: 700;
   color: #333;
   line-height: 1.25;
-  /* Allow wrapping for long event names too */
   white-space: normal;
   overflow-wrap: break-word;
   word-break: keep-all;
@@ -347,6 +243,115 @@
   font-weight: 500;
   color: #777;
 }
+
+/* ── Year gutter (z-index 10, dark overlay, sticky left) ── */
+/* Sits IN FRONT of lanes and points to mask content scrolling behind it */
+.mobile-year-gutter {
+  position: sticky;
+  left: 0;
+  width: 60px;
+  height: 100%;
+  z-index: 10;
+  background: rgba(30, 30, 30, 0.75);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
+.mobile-axis-line {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #aaa;
+}
+
+.mobile-year-marker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  transform: translateY(-50%);
+  z-index: 12;
+  border: none;
+  background: none;
+  padding: 6px 0;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.mobile-year-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #eee;
+  flex: 1;
+  text-align: right;
+  padding-right: 5px;
+  white-space: nowrap;
+}
+
+.mobile-year-tick {
+  display: block;
+  width: 8px;
+  height: 2px;
+  background: #ccc;
+  flex-shrink: 0;
+}
+
+/* ── Period banners (z-index 14, in front of year gutter) ── */
+/* Container spans the period's full height. Label sticks at top AND left. */
+.mobile-period-banner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 14;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  text-align: left;
+  display: block;
+  width: 100%;
+}
+
+/* The label: sticky top (pins at top of viewport as you scroll down through the era)
+   AND sticky left (pins at left edge when you scroll right).
+   CSS sticky works in both axes when the scroll container scrolls both ways. */
+.mobile-period-banner-label {
+  position: sticky;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 10px 4px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-left: 4px solid;
+  background: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(6px);
+  border-radius: 0 4px 4px 0;
+}
+
+.mobile-period-banner-dates {
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.6;
+}
+
+/* ===== Light mode overrides ===== */
+/* In light mode, the dark gutter still works well for contrast.
+   Override specific elements if needed. */
 
 /* ===== Dark mode ===== */
 @media (prefers-color-scheme: dark) {
@@ -383,29 +388,32 @@
     color: #ccc;
   }
 
-  /* 3) Brighter year axis in dark mode */
+  .mobile-gridline {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .mobile-year-gutter {
+    background: rgba(15, 15, 15, 0.82);
+  }
+
   .mobile-axis-line {
-    background: #aaa;
-  }
-
-  .mobile-year-label {
-    color: #ddd;
-  }
-
-  .mobile-year-tick {
     background: #bbb;
   }
 
-  .mobile-gridline {
-    background: rgba(255, 255, 255, 0.08);
+  .mobile-year-label {
+    color: #eee;
+  }
+
+  .mobile-year-tick {
+    background: #ccc;
   }
 
   .mobile-period-banner-label {
-    background: rgba(30, 30, 30, 0.88);
+    background: rgba(15, 15, 15, 0.65);
   }
 
   .mobile-point-content {
-    background: rgba(40, 40, 40, 0.65);
+    background: rgba(30, 30, 30, 0.7);
     border-color: rgba(255, 255, 255, 0.1);
   }
 
