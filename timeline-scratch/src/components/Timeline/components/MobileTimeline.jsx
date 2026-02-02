@@ -201,10 +201,11 @@ export function MobileTimeline({ data, config, onItemClick }) {
   const handleBackgroundClick = useCallback((e) => {
     // Don't handle clicks on interactive elements (buttons, links) — those have their own handlers
     if (e.target.closest('button, a')) return;
-    const contentEl = e.currentTarget;
-    const rect = contentEl.getBoundingClientRect();
-    const scrollTop = contentEl.parentElement.scrollTop;
-    const y = e.clientY - rect.top + scrollTop;
+    // The scroll container is the parent; use its viewport rect + scrollTop
+    // to convert the click's clientY into a position within the content.
+    const scrollEl = e.currentTarget.parentElement;
+    const scrollRect = scrollEl.getBoundingClientRect();
+    const y = e.clientY - scrollRect.top + scrollEl.scrollTop;
     const year = Math.round(dataBounds.minYear + y / pixelsPerYear);
     setPinnedYear(year);
     setYearSummaryOpen(true);
