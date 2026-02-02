@@ -5,7 +5,7 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
-  background: #f8f8f8;
+  background: #f5f5f0;
   overflow: hidden;
   position: relative;
 }
@@ -115,6 +115,51 @@
   min-height: 100%;
 }
 
+/* ── Period sticky banners ── */
+/* Full-width container that spans the period's time range.
+   The label inside is sticky so it scrolls into view at the top. */
+.mobile-period-banner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 8;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  text-align: left;
+  display: block;
+  width: 100%;
+}
+
+.mobile-period-banner-label {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 10px 5px 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-left: 4px solid;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(6px);
+  z-index: 9;
+}
+
+.mobile-period-banner-dates {
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.6;
+}
+
 /* ── Year gutter – sticky on the left while scrolling horizontally ── */
 .mobile-year-gutter {
   position: sticky;
@@ -122,7 +167,7 @@
   width: 60px;
   height: 100%;
   z-index: 10;
-  pointer-events: none; /* let clicks through except on markers */
+  pointer-events: none;
 }
 
 .mobile-axis-line {
@@ -131,7 +176,7 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background: #bbb;
+  background: #999;
 }
 
 .mobile-year-marker {
@@ -154,7 +199,7 @@
 .mobile-year-label {
   font-size: 10px;
   font-weight: 700;
-  color: #555;
+  color: #333;
   flex: 1;
   text-align: right;
   padding-right: 5px;
@@ -163,55 +208,27 @@
 
 .mobile-year-tick {
   display: block;
-  width: 6px;
+  width: 8px;
   height: 2px;
-  background: #999;
+  background: #777;
   flex-shrink: 0;
 }
 
-/* Horizontal gridlines that extend across all lanes */
+/* Horizontal gridlines */
 .mobile-gridline {
   position: absolute;
   left: 0;
   height: 1px;
-  background: rgba(0, 0, 0, 0.06);
+  background: rgba(0, 0, 0, 0.08);
   z-index: 1;
   pointer-events: none;
 }
 
-/* ── Lanes area – positioned to the right of year gutter ── */
+/* ── Lanes area ── */
 .mobile-lanes-area {
   position: absolute;
   top: 0;
   bottom: 0;
-}
-
-/* ── Period background bands ── */
-.mobile-period-bar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  border: none;
-  border-left: 3px solid;
-  border-radius: 0 4px 4px 0;
-  cursor: pointer;
-  z-index: 2;
-  display: flex;
-  align-items: flex-start;
-  padding: 4px 8px;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  text-align: left;
-}
-
-.mobile-period-name {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  position: sticky;
-  top: 4px;
 }
 
 /* ── Person swimlane bars ── */
@@ -236,7 +253,7 @@
   position: sticky;
   top: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 3px;
   padding: 4px 6px 2px;
   background: inherit;
@@ -244,15 +261,17 @@
   z-index: 1;
 }
 
+/* 1) Allow person names to wrap (no word-break) */
 .mobile-person-name {
   font-size: 11px;
   font-weight: 700;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1.2;
+  line-height: 1.25;
+  /* Wrap on spaces/hyphens, never mid-word */
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: keep-all;
 }
 
 .mobile-person-dates {
@@ -262,51 +281,71 @@
   padding: 0 6px 4px;
   white-space: nowrap;
   position: sticky;
-  top: 20px;
+  top: 34px;
   z-index: 1;
 }
 
-/* ── Point markers ── */
+/* ── Point markers – compact inline card ── */
 .mobile-point-marker {
   position: absolute;
   left: 0;
   right: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
   transform: translateY(-50%);
   z-index: 6;
   border: none;
-  background: rgba(255, 255, 255, 0.94);
-  border-radius: 6px;
-  padding: 6px 10px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  background: none;
+  padding: 0;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   text-align: left;
 }
 
+/* The visible card content – sticky so label stays on screen */
+.mobile-point-content {
+  position: sticky;
+  left: 0;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 5px 10px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(4px);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  max-width: 240px;
+}
+
 .mobile-point-icon {
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  margin-top: 1px;
+}
+
+/* 4) Stack name and year vertically, like person bars */
+.mobile-point-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
 }
 
 .mobile-point-name {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: #333;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.25;
+  /* Allow wrapping for long event names too */
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: keep-all;
 }
 
 .mobile-point-year {
-  font-size: 10px;
-  color: #888;
-  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 500;
+  color: #777;
 }
 
 /* ===== Dark mode ===== */
@@ -344,25 +383,30 @@
     color: #ccc;
   }
 
+  /* 3) Brighter year axis in dark mode */
   .mobile-axis-line {
-    background: #555;
+    background: #aaa;
   }
 
   .mobile-year-label {
-    color: #aaa;
+    color: #ddd;
   }
 
   .mobile-year-tick {
-    background: #666;
+    background: #bbb;
   }
 
   .mobile-gridline {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.08);
   }
 
-  .mobile-point-marker {
-    background: rgba(40, 40, 40, 0.94);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  .mobile-period-banner-label {
+    background: rgba(30, 30, 30, 0.88);
+  }
+
+  .mobile-point-content {
+    background: rgba(40, 40, 40, 0.65);
+    border-color: rgba(255, 255, 255, 0.1);
   }
 
   .mobile-point-name {
@@ -370,6 +414,6 @@
   }
 
   .mobile-point-year {
-    color: #999;
+    color: #aaa;
   }
 }

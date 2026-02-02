@@ -267,6 +267,33 @@ export function MobileTimeline({ data, config, onItemClick }) {
           className="mobile-timeline-content"
           style={{ height: `${totalHeight + 80}px`, width: `${contentWidth + 60}px` }}
         >
+          {/* ── Period sticky banners (above everything, full width) ── */}
+          {filteredData.periods.map(period => {
+            const { start, end } = getYearRange(period.startDate, period.endDate);
+            const topY = yearToY(start);
+            const height = yearToY(end) - topY;
+            const color = period.color || '#00838f';
+            return (
+              <button
+                key={period.id}
+                className="mobile-period-banner"
+                style={{
+                  top: `${topY}px`,
+                  height: `${Math.max(height, 4)}px`,
+                  '--period-color': color
+                }}
+                onClick={() => handleItemClick('period', period)}
+              >
+                <span className="mobile-period-banner-label" style={{ borderLeftColor: color, color }}>
+                  {period.name}
+                  <span className="mobile-period-banner-dates">
+                    {formatYear(start)} – {formatYear(end)}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+
           {/* ── Year gutter (sticky left) ── */}
           <div className="mobile-year-gutter">
             <div className="mobile-axis-line" />
@@ -294,29 +321,6 @@ export function MobileTimeline({ data, config, onItemClick }) {
 
           {/* ── Lanes area (scrolls horizontally) ── */}
           <div className="mobile-lanes-area" style={{ left: '60px', width: `${contentWidth}px` }}>
-            {/* Period backgrounds */}
-            {filteredData.periods.map(period => {
-              const { start, end } = getYearRange(period.startDate, period.endDate);
-              const topY = yearToY(start);
-              const height = yearToY(end) - topY;
-              const color = period.color || '#00838f';
-              return (
-                <button
-                  key={period.id}
-                  className="mobile-period-bar"
-                  style={{
-                    top: `${topY}px`,
-                    height: `${Math.max(height, 4)}px`,
-                    borderLeftColor: color,
-                    backgroundColor: `${color}12`
-                  }}
-                  onClick={() => handleItemClick('period', period)}
-                >
-                  <span className="mobile-period-name" style={{ color }}>{period.name}</span>
-                </button>
-              );
-            })}
-
             {/* Person lane columns */}
             {peopleLayout.map(person => {
               const { start, end } = getYearRange(person.startDate, person.endDate);
@@ -349,7 +353,7 @@ export function MobileTimeline({ data, config, onItemClick }) {
               );
             })}
 
-            {/* Point markers */}
+            {/* Point markers – compact card style */}
             {filteredData.points.map(point => {
               const year = getYear(point.date);
               const topY = yearToY(year);
@@ -360,11 +364,15 @@ export function MobileTimeline({ data, config, onItemClick }) {
                   style={{ top: `${topY}px` }}
                   onClick={() => handleItemClick('point', point)}
                 >
-                  <span className="mobile-point-icon">
-                    <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={16} />
+                  <span className="mobile-point-content">
+                    <span className="mobile-point-icon">
+                      <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={14} />
+                    </span>
+                    <span className="mobile-point-text">
+                      <span className="mobile-point-name">{point.name}</span>
+                      <span className="mobile-point-year">{formatYear(year)}</span>
+                    </span>
                   </span>
-                  <span className="mobile-point-name">{point.name}</span>
-                  <span className="mobile-point-year">{formatYear(year)}</span>
                 </button>
               );
             })}
