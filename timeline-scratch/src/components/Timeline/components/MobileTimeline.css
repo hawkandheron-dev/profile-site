@@ -308,16 +308,13 @@
   left: 0;
   right: 0;
   z-index: 14;
-  border: none;
   background: none;
   padding: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
   text-align: left;
   display: flex;
   align-items: flex-start;
   width: 100%;
+  pointer-events: none;
 }
 
 /* The label: sticky top (pins at top of viewport as you scroll down through the era)
@@ -337,9 +334,17 @@
   text-transform: uppercase;
   white-space: nowrap;
   border-left: 4px solid;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
   background: rgba(30, 30, 30, 0.6);
   backdrop-filter: blur(6px);
   border-radius: 0 4px 4px 0;
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  color: inherit;
 }
 
 .mobile-period-banner-dates {

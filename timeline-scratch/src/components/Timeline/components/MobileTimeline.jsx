@@ -185,6 +185,18 @@ export function MobileTimeline({ data, config, onItemClick }) {
   const handleYearSummaryClose = useCallback(() => setYearSummaryOpen(false), []);
   const handleFilterToggle = useCallback((key) => setFilters(prev => ({ ...prev, [key]: !prev[key] })), []);
 
+  const handleBackgroundClick = useCallback((e) => {
+    // Don't handle clicks on interactive elements (buttons, links) — those have their own handlers
+    if (e.target.closest('button, a')) return;
+    const contentEl = e.currentTarget;
+    const rect = contentEl.getBoundingClientRect();
+    const scrollTop = contentEl.parentElement.scrollTop;
+    const y = e.clientY - rect.top + scrollTop;
+    const year = Math.round(dataBounds.minYear + y / pixelsPerYear);
+    setPinnedYear(year);
+    setYearSummaryOpen(true);
+  }, [dataBounds.minYear, pixelsPerYear]);
+
   const handleZoomIn = useCallback(() => setPixelsPerYear(p => Math.min(MAX_PIXELS_PER_YEAR, p * 1.5)), []);
   const handleZoomOut = useCallback(() => setPixelsPerYear(p => Math.max(MIN_PIXELS_PER_YEAR, p / 1.5)), []);
   const handleZoomReset = useCallback(() => setPixelsPerYear(DEFAULT_PIXELS_PER_YEAR), []);
@@ -252,6 +264,7 @@ export function MobileTimeline({ data, config, onItemClick }) {
         <div
           className="mobile-timeline-content"
           style={{ height: `${totalHeight + 80}px`, width: `${contentWidth + GUTTER_WIDTH}px` }}
+          onClick={handleBackgroundClick}
         >
           {/* Horizontal gridlines (behind everything) */}
           {yearMarkers.map(m => (
@@ -338,28 +351,33 @@ export function MobileTimeline({ data, config, onItemClick }) {
           </div>
 
           {/* ── Period banners (in front of year gutter, sticky in both axes) ── */}
+          {/* Container is pointer-events:none so taps pass through to background;
+              only the label itself is clickable. */}
           {filteredData.periods.map(period => {
             const { start, end } = getYearRange(period.startDate, period.endDate);
             const topY = yearToY(start);
             const height = yearToY(end) - topY;
             const color = period.color || '#00838f';
             return (
-              <button
+              <div
                 key={period.id}
                 className="mobile-period-banner"
                 style={{
                   top: `${topY}px`,
                   height: `${Math.max(height, 4)}px`
                 }}
-                onClick={() => handleItemClick('period', period)}
               >
-                <span className="mobile-period-banner-label" style={{ borderLeftColor: color, color }}>
+                <button
+                  className="mobile-period-banner-label"
+                  style={{ borderLeftColor: color, color }}
+                  onClick={() => handleItemClick('period', period)}
+                >
                   {period.name}
                   <span className="mobile-period-banner-dates">
                     {formatYear(start)} – {formatYear(end)}
                   </span>
-                </span>
-              </button>
+                </button>
+              </div>
             );
           })}
         </div>
