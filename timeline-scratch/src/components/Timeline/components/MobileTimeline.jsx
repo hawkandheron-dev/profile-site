@@ -19,6 +19,19 @@ const LANE_WIDTH = 100;
 const LANE_GAP = 4;
 const GUTTER_WIDTH = 60;
 
+/** Lighten a hex color for readability on dark backgrounds */
+function lightenColor(hex, floor = 160) {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  // Boost each channel so the minimum is `floor`
+  const lr = Math.min(255, Math.max(r, floor) + Math.round((255 - Math.max(r, floor)) * 0.3));
+  const lg = Math.min(255, Math.max(g, floor) + Math.round((255 - Math.max(g, floor)) * 0.3));
+  const lb = Math.min(255, Math.max(b, floor) + Math.round((255 - Math.max(b, floor)) * 0.3));
+  return `rgb(${lr}, ${lg}, ${lb})`;
+}
+
 export function MobileTimeline({ data, config, onItemClick }) {
   const scrollRef = useRef(null);
   const [pixelsPerYear, setPixelsPerYear] = useState(DEFAULT_PIXELS_PER_YEAR);
@@ -358,6 +371,7 @@ export function MobileTimeline({ data, config, onItemClick }) {
             const topY = yearToY(start);
             const height = yearToY(end) - topY;
             const color = period.color || '#00838f';
+            const lightColor = lightenColor(color);
             return (
               <div
                 key={period.id}
@@ -369,7 +383,7 @@ export function MobileTimeline({ data, config, onItemClick }) {
               >
                 <button
                   className="mobile-period-banner-label"
-                  style={{ borderLeftColor: color, color }}
+                  style={{ borderLeftColor: lightColor, color: lightColor }}
                   onClick={() => handleItemClick('period', period)}
                 >
                   {period.name}
