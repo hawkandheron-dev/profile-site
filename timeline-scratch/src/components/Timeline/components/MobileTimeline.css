@@ -1,4 +1,4 @@
-/* ===== Mobile Timeline ===== */
+/* ===== Mobile Timeline – Swimlane / Gantt Layout ===== */
 
 .mobile-timeline {
   display: flex;
@@ -10,7 +10,7 @@
   position: relative;
 }
 
-/* ---- Toolbar ---- */
+/* ── Toolbar ── */
 .mobile-timeline-toolbar {
   display: flex;
   align-items: center;
@@ -57,7 +57,7 @@
   text-align: center;
 }
 
-/* ---- Filter drawer ---- */
+/* ── Filter drawer ── */
 .mobile-filter-drawer {
   display: flex;
   flex-wrap: wrap;
@@ -97,76 +97,100 @@
   width: 12px;
   height: 12px;
   border-radius: 2px;
-  border: 1px solid rgba(0,0,0,0.15);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   flex-shrink: 0;
 }
 
-/* ---- Scrollable area ---- */
+/* ── Scrollable area – scrolls in both X and Y ── */
 .mobile-timeline-scroll {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
   position: relative;
 }
 
+/* The content pane: explicit width & height for 2D scroll */
 .mobile-timeline-content {
   position: relative;
   min-height: 100%;
-  padding-bottom: 40px;
 }
 
-/* ---- Vertical axis ---- */
+/* ── Year gutter – sticky on the left while scrolling horizontally ── */
+.mobile-year-gutter {
+  position: sticky;
+  left: 0;
+  width: 60px;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none; /* let clicks through except on markers */
+}
+
 .mobile-axis-line {
   position: absolute;
-  left: 56px;
+  right: 0;
   top: 0;
   bottom: 0;
   width: 2px;
-  background: #ccc;
-  z-index: 1;
+  background: #bbb;
 }
 
-/* ---- Year markers ---- */
 .mobile-year-marker {
   position: absolute;
   left: 0;
+  right: 0;
   display: flex;
   align-items: center;
-  gap: 0;
   transform: translateY(-50%);
-  z-index: 5;
+  z-index: 12;
   border: none;
   background: none;
-  padding: 4px 0;
+  padding: 6px 0;
   cursor: pointer;
+  pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
 .mobile-year-label {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 600;
-  color: #666;
-  width: 52px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #555;
+  flex: 1;
   text-align: right;
-  padding-right: 6px;
+  padding-right: 5px;
   white-space: nowrap;
 }
 
 .mobile-year-tick {
-  display: inline-block;
-  width: 10px;
+  display: block;
+  width: 6px;
   height: 2px;
-  background: #bbb;
+  background: #999;
+  flex-shrink: 0;
 }
 
-/* ---- Period background bars ---- */
+/* Horizontal gridlines that extend across all lanes */
+.mobile-gridline {
+  position: absolute;
+  left: 0;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.06);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Lanes area – positioned to the right of year gutter ── */
+.mobile-lanes-area {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+/* ── Period background bands ── */
 .mobile-period-bar {
   position: absolute;
-  left: 62px;
-  right: 8px;
+  left: 0;
+  right: 0;
   border: none;
   border-left: 3px solid;
   border-radius: 0 4px 4px 0;
@@ -180,68 +204,80 @@
   text-align: left;
 }
 
-.mobile-period-label {
-  font-size: 11px;
-  font-weight: 600;
+.mobile-period-name {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   position: sticky;
   top: 4px;
 }
 
-/* ---- People bars ---- */
-.mobile-person-bar {
+/* ── Person swimlane bars ── */
+.mobile-person-lane {
   position: absolute;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
   z-index: 4;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  padding: 3px 6px;
+  padding: 0;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  background: var(--person-color, #5b7ee8);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   text-align: left;
-  min-height: 24px;
+}
+
+.mobile-person-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 6px 2px;
+  background: inherit;
+  border-radius: 5px 5px 0 0;
+  z-index: 1;
 }
 
 .mobile-person-name {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   color: #fff;
-  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
   overflow: hidden;
   text-overflow: ellipsis;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  position: sticky;
-  top: 3px;
-}
-
-.mobile-person-years {
-  font-size: 9px;
-  color: rgba(255, 255, 255, 0.8);
   white-space: nowrap;
+  line-height: 1.2;
 }
 
-/* ---- Point markers ---- */
+.mobile-person-dates {
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  padding: 0 6px 4px;
+  white-space: nowrap;
+  position: sticky;
+  top: 20px;
+  z-index: 1;
+}
+
+/* ── Point markers ── */
 .mobile-point-marker {
   position: absolute;
-  left: 40px;
-  right: 8px;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   gap: 6px;
   transform: translateY(-50%);
   z-index: 6;
   border: none;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   border-radius: 6px;
   padding: 6px 10px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
@@ -320,8 +356,12 @@
     background: #666;
   }
 
+  .mobile-gridline {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
   .mobile-point-marker {
-    background: rgba(40, 40, 40, 0.92);
+    background: rgba(40, 40, 40, 0.94);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   }
 
