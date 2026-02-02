@@ -146,11 +146,19 @@
 }
 
 .vision-board-favorites-strip .vision-board-card {
-  flex: 0 0 180px;
-  width: 180px;
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 320px;
   margin-bottom: 0;
   display: flex;
   flex-direction: column;
+}
+
+.vision-board-favorites-strip .vision-board-card-image-wrapper img {
+  height: 220px;
+  width: auto;
+  min-width: 140px;
+  object-fit: cover;
 }
 
 /* ----- Loading ----- */
@@ -241,6 +249,7 @@
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   text-decoration: none;
   color: inherit;
+  cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   break-inside: avoid;
 }
@@ -448,6 +457,42 @@
     color: #666;
   }
 
+  .vb-preview-modal {
+    background: #222;
+  }
+
+  .vb-preview-title {
+    color: #eee;
+  }
+
+  .vb-preview-meta {
+    color: #777;
+  }
+
+  .vb-preview-attribution {
+    color: #999;
+  }
+
+  .vb-preview-fav-btn {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #ccc;
+  }
+
+  .vb-preview-fav-btn:hover {
+    background: #333;
+  }
+
+  .vb-preview-fav-btn--active {
+    color: #ff4757;
+    border-color: #ff4757;
+    background: #2a1a1a;
+  }
+
+  .vb-preview-fav-btn--active:hover {
+    background: #3a2020;
+  }
+
   .vision-board-loading {
     color: #888;
   }
@@ -465,11 +510,190 @@
   }
 }
 
+/* ----- Image preview modal ----- */
+
+.vb-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  animation: vb-fade-in 0.15s ease;
+}
+
+@keyframes vb-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.vb-preview-modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 900px;
+  max-height: 90vh;
+  width: 100%;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: vb-scale-in 0.2s ease;
+}
+
+@keyframes vb-scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.vb-preview-image-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+  overflow: hidden;
+}
+
+.vb-preview-image {
+  max-width: 100%;
+  max-height: 65vh;
+  object-fit: contain;
+  display: block;
+}
+
+.vb-preview-details {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vb-preview-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+  line-height: 1.35;
+}
+
+.vb-preview-meta {
+  margin: 0;
+  font-size: 13px;
+  color: #888;
+}
+
+.vb-preview-attribution {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.vb-preview-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.vb-preview-fav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+  color: #444;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.vb-preview-fav-btn:hover {
+  background: #f5f5f5;
+  border-color: #bbb;
+}
+
+.vb-preview-fav-btn--active {
+  color: #ff4757;
+  border-color: #ff4757;
+  background: #fff5f5;
+}
+
+.vb-preview-fav-btn--active:hover {
+  background: #ffe8e8;
+}
+
+.vb-preview-source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid var(--source-color, #555);
+  border-radius: 8px;
+  background: var(--source-color, #555);
+  font-size: 13px;
+  color: #fff;
+  text-decoration: none;
+  font-family: inherit;
+  transition: opacity 0.15s ease;
+}
+
+.vb-preview-source-link:hover {
+  opacity: 0.85;
+}
+
+.vb-preview-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  padding: 0;
+  z-index: 1;
+}
+
+.vb-preview-close:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
 /* ----- Responsive ----- */
 
 @media (max-width: 900px) {
   .vision-board-grid {
     columns: 3 180px;
+  }
+}
+
+@media (max-width: 600px) {
+  .vb-preview-backdrop {
+    padding: 12px;
+  }
+
+  .vb-preview-image {
+    max-height: 50vh;
+  }
+
+  .vb-preview-details {
+    padding: 14px 16px;
+  }
+
+  .vision-board-favorites-strip .vision-board-card-image-wrapper img {
+    height: 160px;
   }
 }
 
