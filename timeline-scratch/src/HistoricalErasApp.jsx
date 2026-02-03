@@ -12,6 +12,15 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useAuth
+} from '@clerk/clerk-react';
+import FavoritesTest from './components/FavoritesTest.tsx';
 import { Timeline } from './components/Timeline/Timeline.jsx';
 import { VisionBoard } from './components/VisionBoard/VisionBoard.jsx';
 import {
@@ -31,6 +40,7 @@ import './App.css';
 import './HistoricalErasApp.css';
 
 function HistoricalErasApp() {
+  const { getToken, isSignedIn, userId } = useAuth();
   const [selectedEra, setSelectedEra] = useState(null);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -39,7 +49,6 @@ function HistoricalErasApp() {
   const fetchIdRef = useRef(0); // guard against stale fetches
   const seenIdsRef = useRef(new Set()); // track already-loaded image ids for dedup
   const priorityKeywordsRef = useRef([]); // keywords extracted from favorites
-
   // Load initial images for a given era — favorites first, then API images
   const loadImages = useCallback(async (era) => {
     const keywords = getEraKeywords(era.id);
@@ -55,10 +64,12 @@ function HistoricalErasApp() {
     try {
       // Step 1: Fetch favorites from Supabase
       let favorites = [];
-      try {
-        favorites = await getFavoritesForEra(era.id);
-      } catch (e) {
-        console.warn('Could not load favorites (Supabase may not be configured):', e);
+      if (isSignedIn) {
+        try {
+          favorites = await getFavoritesForEra(era.id, getToken, userId);
+        } catch (e) {
+          console.warn('Could not load favorites (Supabase may not be configured):', e);
+        }
       }
 
       if (id !== fetchIdRef.current) return;
@@ -103,7 +114,7 @@ function HistoricalErasApp() {
         setLoading(false);
       }
     }
-  }, []);
+  }, [getToken, isSignedIn, userId]);
 
   // Load more images (infinite scroll) — appends to existing feed
   const loadMore = useCallback(async () => {
@@ -144,9 +155,12 @@ function HistoricalErasApp() {
   // Toggle favorite on an image
   const handleToggleFavorite = useCallback(async (img) => {
     if (!selectedEra) return;
+    if (!isSignedIn) {
+      console.warn('Sign in to save favorites.');
+      return;
+    }
 
     const isFav = favoriteUrls.has(img.thumbnailUrl);
-
     if (isFav) {
       // Optimistic UI: remove from favorites set
       setFavoriteUrls(prev => {
@@ -154,7 +168,7 @@ function HistoricalErasApp() {
         next.delete(img.thumbnailUrl);
         return next;
       });
-      const ok = await removeFavorite(selectedEra.id, img.thumbnailUrl);
+      const ok = await removeFavorite(selectedEra.id, img.thumbnailUrl, getToken, userId);
       if (!ok) {
         // Revert on failure
         setFavoriteUrls(prev => {
@@ -170,7 +184,7 @@ function HistoricalErasApp() {
         next.add(img.thumbnailUrl);
         return next;
       });
-      const ok = await addFavorite(selectedEra.id, img);
+      const ok = await addFavorite(selectedEra.id, img, getToken, userId);
       if (!ok) {
         // Revert on failure
         setFavoriteUrls(prev => {
@@ -180,7 +194,7 @@ function HistoricalErasApp() {
         });
       }
     }
-  }, [selectedEra, favoriteUrls]);
+  }, [selectedEra, favoriteUrls, isSignedIn, getToken, userId]);
 
   // Handle period click on the timeline
   const handleItemClick = useCallback((type, item) => {
@@ -222,7 +236,18 @@ function HistoricalErasApp() {
             <a href="./index.html" className="tab-button">Timeline-Scratch</a>
           </nav>
         </div>
+        <div className="auth-actions">
+          <span className="auth-hint">Sign in to save favorites.</span>
+          <SignedOut>
+            <SignInButton mode="modal" />
+            <SignUpButton mode="modal" />
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
+        </div>
       </header>
+      <FavoritesTest />
 
       {/* Instruction banner (hidden once an era is selected) */}
       {!selectedEra && (

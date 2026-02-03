@@ -4,45 +4,17 @@
  * Stores favorited images per era in the `era_favorites` table.
  * Reuses the same Supabase config pattern as churchHistorySupabaseAdapter.
  */
-import { createClient } from '@supabase/supabase-js';
+import { makeSupabaseClient } from '../lib/supabase.ts';
 
 // ── Supabase client (singleton) ─────────────────────────────────────────
 
 let supabaseClient = null;
+let supabaseTokenProvider = null;
 
-async function getSupabase() {
-  if (supabaseClient) return supabaseClient;
-
-  // Try fetching config from Cloudflare Pages Function first,
-  // then fall back to a local config script.
-  try {
-    const res = await fetch('/api/supabase-config');
-    if (res.ok) {
-      const script = await res.text();
-      const fn = new Function(script);
-      fn();
-    }
-  } catch {
-    try {
-      const res = await fetch('/supabase-config.js');
-      if (res.ok) {
-        const script = await res.text();
-        const fn = new Function(script);
-        fn();
-      }
-    } catch {
-      // ignore
-    }
-  }
-
-  const url = window.SUPABASE_URL || '';
-  const key = window.SUPABASE_ANON_KEY || '';
-
-  if (!url || !key) {
-    throw new Error('Supabase configuration not found. Check /api/supabase-config or supabase-config.js');
-  }
-
-  supabaseClient = createClient(url, key);
+function getSupabase(getToken) {
+  if (supabaseClient && supabaseTokenProvider === getToken) return supabaseClient;
+  supabaseTokenProvider = getToken;
+  supabaseClient = makeSupabaseClient(getToken);
   return supabaseClient;
 }
 
@@ -53,14 +25,20 @@ async function getSupabase() {
  * Returns image objects in the same shape as imageApiService results
  * plus an `isFavorite: true` flag.
  */
-export async function getFavoritesForEra(eraId) {
-  const supabase = await getSupabase();
+export async function getFavoritesForEra(eraId, getToken, userId) {
+  const supabase = getSupabase(getToken);
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('era_favorites')
     .select('*')
     .eq('era_id', eraId)
     .order('created_at', { ascending: false });
+
+  if (userId) {
+    query = query.eq('user_id', userId);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error('Failed to fetch favorites:', error);
@@ -83,21 +61,27 @@ export async function getFavoritesForEra(eraId) {
  * Add an image as a favorite for an era.
  * The image object should come from imageApiService (same shape).
  */
-export async function addFavorite(eraId, image) {
-  const supabase = await getSupabase();
+export async function addFavorite(eraId, image, getToken, userId) {
+  const supabase = getSupabase(getToken);
+
+  const payload = {
+    era_id: eraId,
+    image_id: image.id,
+    image_source: image.source,
+    thumbnail_url: image.thumbnailUrl,
+    source_url: image.sourceUrl,
+    image_title: image.title || '',
+    attribution: image.attribution || '',
+    keywords: image.keywords || ''
+  };
+
+  if (userId) {
+    payload.user_id = userId;
+  }
 
   const { error } = await supabase
     .from('era_favorites')
-    .insert({
-      era_id: eraId,
-      image_id: image.id,
-      image_source: image.source,
-      thumbnail_url: image.thumbnailUrl,
-      source_url: image.sourceUrl,
-      image_title: image.title || '',
-      attribution: image.attribution || '',
-      keywords: image.keywords || ''
-    });
+    .insert(payload);
 
   if (error) {
     console.error('Failed to add favorite:', error);
@@ -109,14 +93,20 @@ export async function addFavorite(eraId, image) {
 /**
  * Remove a favorite by era + thumbnail URL (the unique constraint).
  */
-export async function removeFavorite(eraId, thumbnailUrl) {
-  const supabase = await getSupabase();
+export async function removeFavorite(eraId, thumbnailUrl, getToken, userId) {
+  const supabase = getSupabase(getToken);
 
-  const { error } = await supabase
+  let query = supabase
     .from('era_favorites')
     .delete()
     .eq('era_id', eraId)
     .eq('thumbnail_url', thumbnailUrl);
+
+  if (userId) {
+    query = query.eq('user_id', userId);
+  }
+
+  const { error } = await query;
 
   if (error) {
     console.error('Failed to remove favorite:', error);
