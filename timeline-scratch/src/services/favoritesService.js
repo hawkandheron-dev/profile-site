@@ -25,7 +25,7 @@ function getSupabase(getToken) {
  * Returns image objects in the same shape as imageApiService results
  * plus an `isFavorite: true` flag.
  */
-export async function getFavoritesForEra(eraId, getToken, userId) {
+export async function getFavoritesForEra(eraId, getToken, clerkUserId) {
   const supabase = getSupabase(getToken);
 
   let query = supabase
@@ -34,8 +34,8 @@ export async function getFavoritesForEra(eraId, getToken, userId) {
     .eq('era_id', eraId)
     .order('created_at', { ascending: false });
 
-  if (userId) {
-    query = query.eq('user_id', userId);
+  if (clerkUserId) {
+    query = query.eq('clerk_user_id', clerkUserId);
   }
 
   const { data, error } = await query;
@@ -61,7 +61,7 @@ export async function getFavoritesForEra(eraId, getToken, userId) {
  * Add an image as a favorite for an era.
  * The image object should come from imageApiService (same shape).
  */
-export async function addFavorite(eraId, image, getToken, userId) {
+export async function addFavorite(eraId, image, getToken, clerkUserId) {
   const supabase = getSupabase(getToken);
 
   const payload = {
@@ -75,8 +75,8 @@ export async function addFavorite(eraId, image, getToken, userId) {
     keywords: image.keywords || ''
   };
 
-  if (userId) {
-    payload.user_id = userId;
+  if (clerkUserId) {
+    payload.clerk_user_id = clerkUserId;
   }
 
   const { error } = await supabase
@@ -93,7 +93,7 @@ export async function addFavorite(eraId, image, getToken, userId) {
 /**
  * Remove a favorite by era + thumbnail URL (the unique constraint).
  */
-export async function removeFavorite(eraId, thumbnailUrl, getToken, userId) {
+export async function removeFavorite(eraId, thumbnailUrl, getToken, clerkUserId) {
   const supabase = getSupabase(getToken);
 
   let query = supabase
@@ -102,8 +102,8 @@ export async function removeFavorite(eraId, thumbnailUrl, getToken, userId) {
     .eq('era_id', eraId)
     .eq('thumbnail_url', thumbnailUrl);
 
-  if (userId) {
-    query = query.eq('user_id', userId);
+  if (clerkUserId) {
+    query = query.eq('clerk_user_id', clerkUserId);
   }
 
   const { error } = await query;
