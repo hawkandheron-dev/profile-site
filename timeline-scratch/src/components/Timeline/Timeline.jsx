@@ -52,6 +52,12 @@ export function Timeline({ data, config, onViewportChange, onItemClick, suppress
   const initialEndYear = getYear(defaultConfig.initialViewport.endDate);
   const initialYearsPerPixel = (initialEndYear - initialStartYear) / dimensions.width;
 
+  // Derive min/max year from config viewport with generous padding
+  const viewportSpan = initialEndYear - initialStartYear;
+  const yearPadding = Math.max(viewportSpan * 0.5, 500);
+  const derivedMinYear = Math.floor(initialStartYear - yearPadding);
+  const derivedMaxYear = Math.ceil(initialEndYear + yearPadding);
+
   // Zoom and pan state
   const {
     viewportStartYear,
@@ -71,8 +77,8 @@ export function Timeline({ data, config, onViewportChange, onItemClick, suppress
     initialYearsPerPixel: initialYearsPerPixel,
     minYearsPerPixel: 0.1,
     maxYearsPerPixel: 50,
-    minYear: -3000,
-    maxYear: 2100
+    minYear: derivedMinYear,
+    maxYear: derivedMaxYear
   });
 
   // Filter data based on active filters
