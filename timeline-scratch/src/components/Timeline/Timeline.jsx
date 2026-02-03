@@ -6,16 +6,43 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useZoomPan } from './hooks/useZoomPan.js';
 import { useTimelineLayout } from './hooks/useTimelineLayout.js';
+import { useMobileDetect } from './hooks/useMobileDetect.js';
 import { TimelineCanvas } from './components/TimelineCanvas.jsx';
 import { TimelineOverlay } from './components/TimelineOverlay.jsx';
 import { TimelineModal } from './components/TimelineModal.jsx';
 import { YearSummaryModal } from './components/YearSummaryModal.jsx';
 import { TimelineLegend } from './components/TimelineLegend.jsx';
+import { MobileTimeline } from './components/MobileTimeline.jsx';
 import { Icon } from './components/Icon.jsx';
 import { getYear, getYearRange } from './utils/dateUtils.js';
 import './Timeline.css';
 
 export function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false }) {
+  const isMobile = useMobileDetect();
+
+  // Render mobile timeline on small viewports
+  if (isMobile) {
+    return (
+      <MobileTimeline
+        data={data}
+        config={config}
+        onItemClick={onItemClick}
+      />
+    );
+  }
+
+  return (
+    <DesktopTimeline
+      data={data}
+      config={config}
+      onViewportChange={onViewportChange}
+      onItemClick={onItemClick}
+      suppressModal={suppressModal}
+    />
+  );
+}
+
+function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false }) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [hoveredItem, setHoveredItem] = useState(null);
