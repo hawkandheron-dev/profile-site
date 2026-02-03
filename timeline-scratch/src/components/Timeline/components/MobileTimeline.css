@@ -1,0 +1,433 @@
+/* ===== Mobile Timeline – Swimlane / Gantt Layout ===== */
+
+.mobile-timeline {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: #f5f5f0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Toolbar ── */
+.mobile-timeline-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid #ddd;
+  flex-shrink: 0;
+  gap: 8px;
+  z-index: 20;
+  backdrop-filter: blur(8px);
+}
+
+.mobile-toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.mobile-toolbar-btn:active {
+  background: #eee;
+}
+
+.mobile-zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mobile-zoom-label {
+  font-size: 11px;
+  color: #888;
+  min-width: 56px;
+  text-align: center;
+}
+
+/* ── Filter drawer ── */
+.mobile-filter-drawer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid #ddd;
+  flex-shrink: 0;
+  z-index: 19;
+}
+
+.mobile-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #444;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #f0f0f0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-filter-item.inactive {
+  opacity: 0.45;
+}
+
+.mobile-filter-item input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: #1976d2;
+}
+
+.mobile-filter-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+/* ── Scrollable area – scrolls in both X and Y ── */
+.mobile-timeline-scroll {
+  flex: 1;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+.mobile-timeline-content {
+  position: relative;
+  min-height: 100%;
+}
+
+/* ── Horizontal gridlines (z-index 1, behind everything) ── */
+.mobile-gridline {
+  position: absolute;
+  left: 0;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Lanes area (z-index 3-4, people bars) ── */
+.mobile-lanes-area {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.mobile-person-lane {
+  position: absolute;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  background: var(--person-color, #5b7ee8);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  text-align: left;
+}
+
+.mobile-person-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 4px 6px 2px;
+  background: inherit;
+  border-radius: 5px 5px 0 0;
+  z-index: 1;
+}
+
+.mobile-person-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: keep-all;
+}
+
+.mobile-person-dates {
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  padding: 0 6px 4px;
+  white-space: nowrap;
+  position: sticky;
+  top: 34px;
+  z-index: 1;
+}
+
+/* ── Point markers (z-index 6, above lanes) ── */
+/* Outer button: absolutely positioned at the point's year, starts at gutter edge.
+   Does NOT extend left of the gutter. */
+.mobile-point-marker {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 6;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  text-align: left;
+}
+
+/* Inner card: sticky so it stays visible, but sticks at the gutter edge */
+.mobile-point-content {
+  position: sticky;
+  left: 62px;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 5px 10px;
+  background: rgba(245, 245, 240, 0.7);
+  backdrop-filter: blur(4px);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  max-width: 260px;
+}
+
+.mobile-point-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin-top: 1px;
+}
+
+.mobile-point-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.mobile-point-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #333;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: keep-all;
+}
+
+.mobile-point-year {
+  font-size: 9px;
+  font-weight: 500;
+  color: #777;
+}
+
+/* ── Year gutter (z-index 10, dark overlay, sticky left) ── */
+/* Sits IN FRONT of lanes and points to mask content scrolling behind it */
+.mobile-year-gutter {
+  position: sticky;
+  left: 0;
+  width: 60px;
+  height: 100%;
+  z-index: 10;
+  background: rgba(30, 30, 30, 0.75);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
+.mobile-axis-line {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #aaa;
+}
+
+.mobile-year-marker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  transform: translateY(-50%);
+  z-index: 12;
+  border: none;
+  background: none;
+  padding: 6px 0;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.mobile-year-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #eee;
+  flex: 1;
+  text-align: right;
+  padding-right: 5px;
+  white-space: nowrap;
+}
+
+.mobile-year-tick {
+  display: block;
+  width: 8px;
+  height: 2px;
+  background: #ccc;
+  flex-shrink: 0;
+}
+
+/* ── Period banners (z-index 14, in front of year gutter) ── */
+/* Container spans the period's full height. Label sticks at top AND left. */
+.mobile-period-banner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 14;
+  background: none;
+  padding: 0;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* The label: sticky top (pins at top of viewport as you scroll down through the era)
+   AND sticky left (pins at left edge when you scroll right).
+   CSS sticky works in both axes when the scroll container scrolls both ways. */
+.mobile-period-banner-label {
+  position: sticky;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 10px 4px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-left: 4px solid;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  background: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(6px);
+  border-radius: 0 4px 4px 0;
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  color: inherit;
+}
+
+.mobile-period-banner-dates {
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.6;
+}
+
+/* ===== Light mode overrides ===== */
+/* In light mode, the dark gutter still works well for contrast.
+   Override specific elements if needed. */
+
+/* ===== Dark mode ===== */
+@media (prefers-color-scheme: dark) {
+  .mobile-timeline {
+    background: #1a1a1a;
+  }
+
+  .mobile-timeline-toolbar {
+    background: rgba(30, 30, 30, 0.95);
+    border-bottom-color: #444;
+  }
+
+  .mobile-toolbar-btn {
+    background: #2a2a2a;
+    border-color: #555;
+    color: #eee;
+  }
+
+  .mobile-toolbar-btn:active {
+    background: #3a3a3a;
+  }
+
+  .mobile-zoom-label {
+    color: #999;
+  }
+
+  .mobile-filter-drawer {
+    background: rgba(30, 30, 30, 0.95);
+    border-bottom-color: #444;
+  }
+
+  .mobile-filter-item {
+    background: #2a2a2a;
+    color: #ccc;
+  }
+
+  .mobile-gridline {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .mobile-year-gutter {
+    background: rgba(15, 15, 15, 0.82);
+  }
+
+  .mobile-axis-line {
+    background: #bbb;
+  }
+
+  .mobile-year-label {
+    color: #eee;
+  }
+
+  .mobile-year-tick {
+    background: #ccc;
+  }
+
+  .mobile-period-banner-label {
+    background: rgba(15, 15, 15, 0.65);
+  }
+
+  .mobile-point-content {
+    background: rgba(30, 30, 30, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .mobile-point-name {
+    color: #eee;
+  }
+
+  .mobile-point-year {
+    color: #aaa;
+  }
+}
