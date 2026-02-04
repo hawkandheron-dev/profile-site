@@ -17,8 +17,7 @@ import {
   SignedOut,
   SignInButton,
   SignUpButton,
-  UserButton,
-  useAuth
+  UserButton
 } from '@clerk/clerk-react';
 import FavoritesTest from './components/FavoritesTest.tsx';
 import { Timeline } from './components/Timeline/Timeline.jsx';
@@ -30,25 +29,28 @@ import {
   getEraById
 } from './data/historicalErasData.js';
 import { fetchImagesForKeywords } from './services/imageApiService.js';
-import {
-  getFavoritesForEra,
-  addFavorite,
-  removeFavorite,
-  extractKeywordsFromFavorites
-} from './services/favoritesService.js';
+import { useFavorites } from './hooks/useFavorites.ts';
 import './App.css';
 import './HistoricalErasApp.css';
 
 function HistoricalErasApp() {
-  const { getToken, isSignedIn, userId } = useAuth();
   const [selectedEra, setSelectedEra] = useState(null);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [favoriteUrls, setFavoriteUrls] = useState(new Set());
   const fetchIdRef = useRef(0); // guard against stale fetches
   const seenIdsRef = useRef(new Set()); // track already-loaded image ids for dedup
-  const priorityKeywordsRef = useRef([]); // keywords extracted from favorites
+
+  const {
+    favoriteUrls,
+    favorites,
+    priorityKeywords,
+    errorMessage,
+    loadFavorites,
+    toggleFavorite,
+    clearFavorites
+  } = useFavorites();
+
   // Load initial images for a given era — favorites first, then API images
   const loadImages = useCallback(async (era) => {
     const keywords = getEraKeywords(era.id);
@@ -56,45 +58,36 @@ function HistoricalErasApp() {
 
     const id = ++fetchIdRef.current;
     seenIdsRef.current = new Set();
-    priorityKeywordsRef.current = [];
     setLoading(true);
     setImages([]);
-    setFavoriteUrls(new Set());
 
     try {
       // Step 1: Fetch favorites from Supabase
-      let favorites = [];
-      if (isSignedIn) {
-        try {
-          favorites = await getFavoritesForEra(era.id, getToken, userId);
-        } catch (e) {
-          console.warn('Could not load favorites (Supabase may not be configured):', e);
-        }
+      let favs = [];
+      try {
+        favs = await loadFavorites(era.id);
+      } catch (e) {
+        console.warn('Could not load favorites (Supabase may not be configured):', e);
       }
 
       if (id !== fetchIdRef.current) return;
 
       // Track favorite URLs and seed the seen-ids set
       const favUrlSet = new Set();
-      for (const fav of favorites) {
+      for (const fav of favs) {
         favUrlSet.add(fav.thumbnailUrl);
         seenIdsRef.current.add(fav.id);
       }
-      setFavoriteUrls(favUrlSet);
 
       // Show favorites immediately while API images load
-      if (favorites.length > 0) {
-        setImages(favorites);
+      if (favs.length > 0) {
+        setImages(favs);
       }
 
-      // Step 2: Extract priority keywords from favorites
-      const priorityKws = extractKeywordsFromFavorites(favorites);
-      priorityKeywordsRef.current = priorityKws;
-
-      // Step 3: Fetch API images with priority keywords
+      // Step 2: Fetch API images with priority keywords from favorites
       const results = await fetchImagesForKeywords(keywords, {
         eraName: era.name,
-        priorityKeywords: priorityKws
+        priorityKeywords: priorityKeywords
       });
 
       if (id === fetchIdRef.current) {
@@ -114,7 +107,7 @@ function HistoricalErasApp() {
         setLoading(false);
       }
     }
-  }, [getToken, isSignedIn, userId]);
+  }, [loadFavorites, priorityKeywords]);
 
   // Load more images (infinite scroll) — appends to existing feed
   const loadMore = useCallback(async () => {
@@ -129,7 +122,7 @@ function HistoricalErasApp() {
     try {
       const results = await fetchImagesForKeywords(keywords, {
         eraName: selectedEra.name,
-        priorityKeywords: priorityKeywordsRef.current
+        priorityKeywords: priorityKeywords
       });
       if (id === fetchIdRef.current) {
         // Filter out images we already have (by id or thumbnail URL)
@@ -150,51 +143,13 @@ function HistoricalErasApp() {
         setLoadingMore(false);
       }
     }
-  }, [selectedEra, loading, loadingMore, favoriteUrls]);
+  }, [selectedEra, loading, loadingMore, favoriteUrls, priorityKeywords]);
 
   // Toggle favorite on an image
   const handleToggleFavorite = useCallback(async (img) => {
     if (!selectedEra) return;
-    if (!isSignedIn) {
-      console.warn('Sign in to save favorites.');
-      return;
-    }
-
-    const isFav = favoriteUrls.has(img.thumbnailUrl);
-    if (isFav) {
-      // Optimistic UI: remove from favorites set
-      setFavoriteUrls(prev => {
-        const next = new Set(prev);
-        next.delete(img.thumbnailUrl);
-        return next;
-      });
-      const ok = await removeFavorite(selectedEra.id, img.thumbnailUrl, getToken, userId);
-      if (!ok) {
-        // Revert on failure
-        setFavoriteUrls(prev => {
-          const next = new Set(prev);
-          next.add(img.thumbnailUrl);
-          return next;
-        });
-      }
-    } else {
-      // Optimistic UI: add to favorites set
-      setFavoriteUrls(prev => {
-        const next = new Set(prev);
-        next.add(img.thumbnailUrl);
-        return next;
-      });
-      const ok = await addFavorite(selectedEra.id, img, getToken, userId);
-      if (!ok) {
-        // Revert on failure
-        setFavoriteUrls(prev => {
-          const next = new Set(prev);
-          next.delete(img.thumbnailUrl);
-          return next;
-        });
-      }
-    }
-  }, [selectedEra, favoriteUrls, isSignedIn, getToken, userId]);
+    await toggleFavorite(selectedEra.id, img);
+  }, [selectedEra, toggleFavorite]);
 
   // Handle period click on the timeline
   const handleItemClick = useCallback((type, item) => {
@@ -209,11 +164,10 @@ function HistoricalErasApp() {
   const handleClose = useCallback(() => {
     setSelectedEra(null);
     setImages([]);
-    setFavoriteUrls(new Set());
+    clearFavorites();
     seenIdsRef.current = new Set();
-    priorityKeywordsRef.current = [];
     fetchIdRef.current++; // cancel in-flight fetches
-  }, []);
+  }, [clearFavorites]);
 
   // Keyboard shortcut: Escape to close
   useEffect(() => {
@@ -248,6 +202,13 @@ function HistoricalErasApp() {
         </div>
       </header>
       <FavoritesTest />
+
+      {/* Favorites error toast */}
+      {errorMessage && (
+        <div className="favorites-error-toast" role="alert">
+          {errorMessage}
+        </div>
+      )}
 
       {/* Instruction banner (hidden once an era is selected) */}
       {!selectedEra && (
