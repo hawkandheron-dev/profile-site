@@ -17,7 +17,7 @@ import { Icon } from './components/Icon.jsx';
 import { getYear, getYearRange } from './utils/dateUtils.js';
 import './Timeline.css';
 
-export function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false }) {
+export function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }) {
   const isMobile = useMobileDetect();
 
   // Render mobile timeline on small viewports
@@ -27,6 +27,8 @@ export function Timeline({ data, config, onViewportChange, onItemClick, suppress
         data={data}
         config={config}
         onItemClick={onItemClick}
+        authContext={authContext}
+        allPeople={allPeople}
       />
     );
   }
@@ -38,11 +40,13 @@ export function Timeline({ data, config, onViewportChange, onItemClick, suppress
       onViewportChange={onViewportChange}
       onItemClick={onItemClick}
       suppressModal={suppressModal}
+      authContext={authContext}
+      allPeople={allPeople}
     />
   );
 }
 
-function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false }) {
+function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -488,6 +492,8 @@ function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppress
         onClose={handleModalClose}
         itemIndex={itemIndex}
         onSelectItem={handleModalItemSelect}
+        authContext={authContext}
+        allPeople={allPeople}
       />
 
       {/* Year Summary Modal */}

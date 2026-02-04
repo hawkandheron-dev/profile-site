@@ -7,6 +7,7 @@ import { formatDateRange, getYear } from '../utils/dateUtils.js';
 import { Icon } from './Icon.jsx';
 import { getWorksForAuthor } from '../../../data/works.js';
 import { fetchDescription } from '../../../services/wikipediaService.js';
+import { NotesSection } from '../../Notes/NotesSection.jsx';
 import './TimelineModal.css';
 
 function linkifyDescription(description, itemIndex, currentItemId) {
@@ -100,7 +101,7 @@ function linkifyDescription(description, itemIndex, currentItemId) {
   }
 }
 
-export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem }) {
+export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople }) {
   // Handle escape key
   useEffect(() => {
     if (!isOpen) return;
@@ -503,6 +504,17 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
               })}
             </ul>
           </div>
+        )}
+
+        {itemType === 'person' && authContext && (
+          <NotesSection
+            personId={item.id}
+            personName={item.name}
+            people={allPeople || []}
+            getToken={authContext.getToken}
+            clerkUserId={authContext.clerkUserId}
+            itemIndex={itemIndex}
+          />
         )}
       </div>
     </div>
