@@ -2,8 +2,8 @@
    The Mews by Hawk & Heron — Global Stylesheet
    =================================================== */
 
-/* --- Google Fonts: Cormorant --- */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+/* --- Google Fonts: Cormorant (display) + EB Garamond (body) --- */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
 
 /* --- CSS Custom Properties (Design Tokens) --- */
 :root {
@@ -22,7 +22,7 @@
 
   /* Typography */
   --font-display: 'Cormorant', Georgia, 'Times New Roman', serif;
-  --font-body:    'Cormorant', Georgia, 'Times New Roman', serif;
+  --font-body:    'EB Garamond', Georgia, 'Times New Roman', serif;
   --font-mono:    'Courier New', Courier, monospace;
 
   /* Sizing */
