@@ -8,6 +8,7 @@ import { Icon } from './Icon.jsx';
 import { getWorksForAuthor } from '../../../data/works.js';
 import { fetchDescription } from '../../../services/wikipediaService.js';
 import { NotesSection } from '../../Notes/NotesSection.jsx';
+import { HistoricalMap } from './HistoricalMap.jsx';
 import './TimelineModal.css';
 
 function linkifyDescription(description, itemIndex, currentItemId) {
@@ -309,6 +310,13 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
 
         {item.location && (
           <p className="modal-location">{item.location}</p>
+        )}
+
+        {itemType === 'person' && item.location && (
+          <HistoricalMap
+            location={item.location}
+            birthYear={getYear(item.startDate)}
+          />
         )}
 
         {item.periodName && (
