@@ -170,6 +170,41 @@
   font-weight: 600;
 }
 
+/* Wikipedia description section */
+.modal-wiki-description {
+  margin: 0 0 20px;
+  line-height: 1.7;
+  font-size: 15px;
+  color: #333;
+}
+
+.modal-wiki-loading {
+  margin: 0;
+  color: #999;
+  font-style: italic;
+  font-size: 13px;
+}
+
+.modal-wiki-text {
+  margin: 0 0 6px;
+}
+
+.modal-wiki-text p {
+  margin: 0 0 8px;
+}
+
+.modal-wiki-source {
+  display: inline-block;
+  font-size: 13px;
+  color: #0066cc;
+  text-decoration: none;
+  font-style: italic;
+}
+
+.modal-wiki-source:hover {
+  text-decoration: underline;
+}
+
 .modal-links {
   margin-top: 24px;
   padding-top: 20px;
@@ -402,6 +437,18 @@
 
   .modal-description {
     color: #ddd;
+  }
+
+  .modal-wiki-description {
+    color: #ddd;
+  }
+
+  .modal-wiki-loading {
+    color: #777;
+  }
+
+  .modal-wiki-source {
+    color: #6aaefc;
   }
 
   .modal-links {
