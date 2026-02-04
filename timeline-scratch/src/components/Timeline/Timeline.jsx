@@ -83,11 +83,35 @@ function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppress
   const initialEndYear = getYear(defaultConfig.initialViewport.endDate);
   const initialYearsPerPixel = (initialEndYear - initialStartYear) / dimensions.width;
 
-  // Derive min/max year from config viewport with generous padding
-  const viewportSpan = initialEndYear - initialStartYear;
-  const yearPadding = Math.max(viewportSpan * 0.5, 500);
-  const derivedMinYear = Math.floor(initialStartYear - yearPadding);
-  const derivedMaxYear = Math.ceil(initialEndYear + yearPadding);
+  // Derive min/max year from actual data extent (not just initial viewport)
+  const dataExtent = useMemo(() => {
+    let min = initialStartYear;
+    let max = initialEndYear;
+    const allItems = [
+      ...(data.people || []),
+      ...(data.periods || []),
+    ];
+    for (const item of allItems) {
+      const s = getYear(item.startDate);
+      const e = getYear(item.endDate);
+      if (s < min) min = s;
+      if (e > max) max = e;
+    }
+    for (const point of (data.points || [])) {
+      const y = getYear(point.date);
+      if (y < min) min = y;
+      if (y > max) max = y;
+      if (point.endDate) {
+        const e = getYear(point.endDate);
+        if (e > max) max = e;
+      }
+    }
+    return { min, max };
+  }, [data, initialStartYear, initialEndYear]);
+
+  const yearPadding = Math.max((dataExtent.max - dataExtent.min) * 0.1, 200);
+  const derivedMinYear = Math.floor(dataExtent.min - yearPadding);
+  const derivedMaxYear = Math.ceil(dataExtent.max + yearPadding);
 
   // Zoom and pan state
   const {

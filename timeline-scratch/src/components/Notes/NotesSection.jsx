@@ -12,6 +12,13 @@ import {
 } from '../../services/notesService.js';
 import './Notes.css';
 
+function formatTimestamp(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+    + ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+}
+
 export function NotesSection({ personId, personName, people, getToken, clerkUserId, itemIndex }) {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +27,6 @@ export function NotesSection({ personId, personName, people, getToken, clerkUser
   const PAGE = 5;
 
   // ── Pending changes state ──────────────────────────────────────────────
-  // editingId: note_id being edited, or 'new' for inline create
   const [editingId, setEditingId] = useState(null);
   const [editBody, setEditBody] = useState('');
   const [editPersonIds, setEditPersonIds] = useState([]);
@@ -56,7 +62,6 @@ export function NotesSection({ personId, personName, people, getToken, clerkUser
 
   useEffect(() => {
     loadNotes(true);
-    // Reset editing state when person changes
     setEditingId(null);
     setMarkedForDelete(null);
     setError(null);
@@ -105,7 +110,6 @@ export function NotesSection({ personId, personName, people, getToken, clerkUser
         await deleteNote(markedForDelete, getToken);
       } else if (editingId === 'new') {
         if (!editBody.trim()) { setSaving(false); return; }
-        // Ensure the current person is always included
         const ids = editPersonIds.includes(personId)
           ? editPersonIds
           : [personId, ...editPersonIds];
@@ -117,7 +121,6 @@ export function NotesSection({ personId, personName, people, getToken, clerkUser
           : [personId, ...editPersonIds];
         await updateNote(editingId, editBody.trim(), ids, getToken);
       }
-      // Reset and reload
       cancelPending();
       await loadNotes(true);
     } catch (err) {
@@ -141,7 +144,7 @@ export function NotesSection({ personId, personName, people, getToken, clerkUser
   return (
     <div className="notes-section">
       <div className="notes-section-header">
-        <h3 className="notes-section-title">Notes on {personName}</h3>
+        <h3 className="notes-section-title">My Notes on {personName}</h3>
         <button
           type="button"
           className="note-btn note-btn-small"
@@ -221,7 +224,15 @@ export function NotesSection({ personId, personName, people, getToken, clerkUser
                 />
               </>
             ) : (
-              <p className="note-body">{note.body}</p>
+              <>
+                <p className="note-body">{note.body}</p>
+                <div className="note-timestamps">
+                  <span>Created {formatTimestamp(note.created_at)}</span>
+                  {note.updated_at && note.updated_at !== note.created_at && (
+                    <span> · Modified {formatTimestamp(note.updated_at)}</span>
+                  )}
+                </div>
+              </>
             )}
 
             {/* Edit / Delete buttons (only when no other pending action) */}

@@ -143,3 +143,42 @@ export async function deleteNote(noteId, getToken) {
 
   if (error) throw error;
 }
+
+/**
+ * Fetch all notes for the current user (RLS handles scoping).
+ * Returns notes with their connected person IDs.
+ */
+export async function fetchAllNotes(getToken, { limit = 5, offset = 0 } = {}) {
+  const supabase = getClient(getToken);
+
+  const { data: notes, error: notesErr } = await supabase
+    .from('CH_Notes')
+    .select('*')
+    .order('updated_at', { ascending: false })
+    .range(offset, offset + limit);
+
+  if (notesErr) throw notesErr;
+
+  const fetchedIds = (notes || []).map(n => n.note_id);
+  let allConnections = [];
+  if (fetchedIds.length) {
+    const { data: conns, error: connsErr } = await supabase
+      .from('CH_NoteConnections')
+      .select('note_id, person_id')
+      .in('note_id', fetchedIds);
+    if (connsErr) throw connsErr;
+    allConnections = conns || [];
+  }
+
+  const enriched = (notes || []).map(note => ({
+    ...note,
+    personIds: allConnections
+      .filter(c => c.note_id === note.note_id)
+      .map(c => c.person_id),
+  }));
+
+  return {
+    notes: enriched,
+    hasMore: (notes || []).length > limit,
+  };
+}
