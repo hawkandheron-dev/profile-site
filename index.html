@@ -3,94 +3,51 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Captain</title>
+    <title>The Mews — by Hawk &amp; Heron</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <nav class="site-nav" aria-label="Primary">
-      <a href="#home">Home</a>
-      <a href="#about">About</a>
-      <a href="#projects">Projects</a>
-      <details class="nav-dropdown">
-        <summary>Timelines</summary>
-        <div class="nav-dropdown-menu">
+    <!-- Splash image kept in file but not displayed -->
+    <img class="splash" src="highcountry_1.png" alt="High country landscape" />
+
+    <nav class="top-nav" aria-label="Primary">
+      <a href="about.html">About</a>
+    </nav>
+
+    <header class="hero">
+      <h1 class="hero-title">The Mews</h1>
+      <p class="hero-subtitle">by Hawk &amp; Heron</p>
+      <p class="hero-description">
+        Welcome to The Mews! Here are a few projects that you may find interesting.
+        If you want, you can sign up and log in to save notes or favorites, or just
+        browse without logging in.
+      </p>
+    </header>
+
+    <div class="main-actions">
+      <a class="button" href="timeline-scratch/dist/church-history-supabase.html">Church History Timeline</a>
+      <a class="button" href="timeline-scratch/dist/historical-eras.html">Image Board Timeline</a>
+      <a class="button" href="pantheons-supabase.html">Pantheons</a>
+      <details class="more-projects">
+        <summary>More Projects ▾</summary>
+        <div class="more-projects-menu">
           <a href="timeline/">Timeline</a>
-          <a href="timeline-scratch/dist/index.html">Timeline-Scratch</a>
+          <a href="timeline-scratch/dist/index.html">Timeline Scratch</a>
           <a href="timeline-scratch/dist/church-history.html">CH Timeline (JSON)</a>
           <a href="timeline-scratch/dist/church-history-supabase.html">CH Timeline (Supabase)</a>
           <a href="church-history-supabase.html">CH Data Browser</a>
           <a href="timeline-scratch/dist/historical-eras.html">Historical Eras</a>
+          <div class="dropdown-divider"></div>
+          <a href="pantheons.html">Pantheons (SQLite)</a>
+          <a href="pantheons-supabase.html">Pantheons (Supabase)</a>
+          <div class="dropdown-divider"></div>
+          <a href="design-system.html">Design System</a>
         </div>
       </details>
-      <details class="nav-dropdown">
-        <summary>Pantheons</summary>
-        <div class="nav-dropdown-menu">
-          <a href="pantheons.html">Pantheons SQLite</a>
-          <a href="pantheons-supabase.html">Pantheon Supabase</a>
-        </div>
-      </details>
-    </nav>
-    <main id="home" class="section home">
-      <img class="splash" src="highcountry_1.png" alt="High country landscape" />
-    </main>
-    <section id="about" class="section">
-      <h2>About</h2>
-      <div class="card about-card">
-        <img class="avatar" src="profile_photo.png" alt="Portrait of Captain" />
-        <div>
-          <h1>Captain</h1>
-          <p class="subtitle">Profile</p>
-          <p>Short bio goes here. (We’ll refine this later.)</p>
-        </div>
-      </div>
-    </section>
-    <section id="projects" class="section">
-      <h2>Projects</h2>
-      <ul class="project-list">
-        <li>
-          <a href="https://www.instagram.com/hawkandheron_co/">Hawk &amp; Heron on Instagram</a>
-          <p>Go here for fun drawings and designs.</p>
-        </li>
-        <li>
-          <a href="https://thenewempires.bandcamp.com/">The New Empires on Bandcamp</a>
-          <p>This is my band. We've been playing together for 20 years.</p>
-        </li>
-      </ul>
-    </section>
-    <section id="pantheons" class="section">
-      <h2>Pantheons SQLite</h2>
-      <div class="card pantheon-card">
-        <div>
-          <p class="subtitle">Pantheon DB app</p>
-          <p>
-            Explore the Pantheons SQLite dataset (Pantheons, Gods, Heroes, favors, and works).
-            Start the app with <code>npm run dev</code> in <code>pantheon-db</code>, then open the
-            dedicated Pantheons page.
-          </p>
-          <div class="pantheon-actions">
-            <a class="button" href="pantheons.html">
-              Open Pantheons Page
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section id="pantheons-supabase" class="section">
-      <h2>Pantheon Supabase</h2>
-      <div class="card pantheon-card">
-        <div>
-          <p class="subtitle">Supabase-powered browser</p>
-          <p>
-            Browse the Pantheons dataset directly from Supabase with a lightweight table viewer.
-            Make sure your RLS policies allow read access for the anon key.
-          </p>
-          <div class="pantheon-actions">
-            <a class="button" href="pantheons-supabase.html">
-              Pantheon Supabase
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
+    </div>
+
+    <footer class="site-footer">
+      <p>&copy; Hawk &amp; Heron</p>
+    </footer>
   </body>
 </html>

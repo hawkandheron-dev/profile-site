@@ -7,9 +7,9 @@
   padding: 10px 20px;
   text-align: center;
   font-size: 14px;
-  color: #666;
-  background: #f5f5f5;
-  border-bottom: 1px solid #e0e0e0;
+  color: #7a6f5f;
+  background: #f5f0e1;
+  border-bottom: 1px solid rgba(120, 100, 70, 0.25);
   flex-shrink: 0;
 }
 
@@ -40,8 +40,8 @@
 
 @media (prefers-color-scheme: dark) {
   .eras-instruction {
-    background: #222;
-    border-bottom-color: #444;
-    color: #999;
+    background: #2a2518;
+    border-bottom-color: #3a3528;
+    color: #a09888;
   }
 }

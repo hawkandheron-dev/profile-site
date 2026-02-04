@@ -1,14 +1,14 @@
 .icon-sticker-sheet {
   height: 100%;
   overflow-y: auto;
-  background: #f5f5f0;
+  background: #f5f0e1;
   padding: 0;
 }
 
 .sheet-header {
   padding: 30px 40px 20px;
-  background: linear-gradient(to bottom, #fff, #f9f9f4);
-  border-bottom: 1px solid #e0ddd5;
+  background: linear-gradient(to bottom, #faf6eb, #f5f0e1);
+  border-bottom: 1px solid rgba(120,100,70,0.25);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -18,14 +18,14 @@
   margin: 0 0 8px;
   font-size: 28px;
   font-weight: 600;
-  color: #2a2520;
-  font-family: Georgia, 'Times New Roman', serif;
+  color: #2c2418;
+  font-family: 'Cormorant', Georgia, 'Times New Roman', serif;
 }
 
 .sheet-description {
   margin: 0 0 20px;
   font-size: 14px;
-  color: #666;
+  color: #7a6f5f;
   font-style: italic;
 }
 
@@ -37,25 +37,25 @@
 
 .filter-tab {
   padding: 8px 16px;
-  border: 1px solid #c9c4b8;
-  background: #fff;
+  border: 1px solid rgba(120,100,70,0.3);
+  background: #faf6eb;
   border-radius: 4px;
   font-size: 13px;
-  color: #555;
+  color: #7a6f5f;
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .filter-tab:hover {
-  background: #f0ede5;
-  border-color: #a09888;
+  background: #f5f0e1;
+  border-color: rgba(120,100,70,0.5);
 }
 
 .filter-tab.active {
-  background: #2a2520;
-  color: #fff;
-  border-color: #2a2520;
+  background: #2c2418;
+  color: #faf6eb;
+  border-color: #2c2418;
 }
 
 .collections-container {
@@ -69,26 +69,26 @@
 .collection-header {
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 2px solid #d4d0c4;
+  border-bottom: 2px solid rgba(120,100,70,0.3);
 }
 
 .collection-header h2 {
   margin: 0 0 4px;
   font-size: 20px;
   font-weight: 600;
-  color: #3a352d;
-  font-family: Georgia, 'Times New Roman', serif;
+  color: #4a3f2f;
+  font-family: 'Cormorant', Georgia, 'Times New Roman', serif;
 }
 
 .collection-period {
   font-size: 13px;
-  color: #888;
+  color: #a09888;
   font-style: italic;
 }
 
 .collection-count {
   font-size: 12px;
-  color: #aaa;
+  color: #a09888;
   margin-left: 12px;
 }
 
@@ -103,17 +103,17 @@
   flex-direction: column;
   align-items: center;
   padding: 16px 8px 12px;
-  background: #fff;
-  border: 1px solid #e0ddd5;
+  background: #faf6eb;
+  border: 1px solid rgba(120,100,70,0.25);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .icon-card:hover {
-  background: #fdfcf8;
-  border-color: #c9c4b8;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: #faf6eb;
+  border-color: rgba(120,100,70,0.3);
+  box-shadow: 0 2px 8px rgba(60, 50, 30, 0.1);
   transform: translateY(-2px);
 }
 
@@ -123,7 +123,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #2a2520;
+  color: #2c2418;
   margin-bottom: 8px;
 }
 
@@ -134,7 +134,7 @@
 
 .icon-name {
   font-size: 11px;
-  color: #666;
+  color: #7a6f5f;
   text-align: center;
   line-height: 1.3;
   max-width: 100%;
@@ -145,7 +145,7 @@
 
 /* Preferred section styling */
 .preferred-section {
-  border-bottom: 3px solid #c9c4b8;
+  border-bottom: 3px solid rgba(120,100,70,0.3);
   padding-bottom: 40px;
   margin-bottom: 50px;
 }
@@ -153,7 +153,7 @@
 .variant-label {
   font-size: 14px;
   font-weight: 500;
-  color: #666;
+  color: #7a6f5f;
   margin: 24px 0 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -165,102 +165,102 @@
 
 /* Inverted icon cards */
 .icon-card-inverted {
-  background: #2a2520;
-  border-color: #2a2520;
+  background: #2c2418;
+  border-color: #2c2418;
 }
 
 .icon-card-inverted:hover {
-  background: #3a352d;
-  border-color: #3a352d;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background: #4a3f2f;
+  border-color: #4a3f2f;
+  box-shadow: 0 2px 8px rgba(30, 20, 10, 0.2);
 }
 
 .icon-card-inverted .icon-preview {
-  color: #fff;
+  color: #faf6eb;
 }
 
 .icon-card-inverted .icon-name {
-  color: #bbb;
+  color: #a09888;
 }
 
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   .icon-sticker-sheet {
-    background: #1a1917;
+    background: #1e1b16;
   }
 
   .sheet-header {
-    background: linear-gradient(to bottom, #252320, #1f1d1a);
-    border-bottom-color: #3a3630;
+    background: linear-gradient(to bottom, #252118, #1e1b16);
+    border-bottom-color: #3a3528;
   }
 
   .sheet-header h1 {
-    color: #e8e4dc;
+    color: #f0ebe0;
   }
 
   .sheet-description {
-    color: #999;
+    color: #a09888;
   }
 
   .filter-tab {
-    background: #2a2825;
-    border-color: #4a4540;
-    color: #bbb;
+    background: #2a2518;
+    border-color: #4a4538;
+    color: #a09888;
   }
 
   .filter-tab:hover {
-    background: #353230;
-    border-color: #5a5550;
+    background: #353028;
+    border-color: #4a4538;
   }
 
   .filter-tab.active {
-    background: #e8e4dc;
-    color: #1a1917;
-    border-color: #e8e4dc;
+    background: #f0ebe0;
+    color: #1e1b16;
+    border-color: #f0ebe0;
   }
 
   .collection-header {
-    border-bottom-color: #3a3630;
+    border-bottom-color: #3a3528;
   }
 
   .collection-header h2 {
-    color: #e8e4dc;
+    color: #f0ebe0;
   }
 
   .collection-period {
-    color: #888;
+    color: #a09888;
   }
 
   .icon-card {
-    background: #252320;
-    border-color: #3a3630;
+    background: #252118;
+    border-color: #3a3528;
   }
 
   .icon-card:hover {
-    background: #2a2825;
-    border-color: #4a4540;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    background: #2a2518;
+    border-color: #4a4538;
+    box-shadow: 0 2px 8px rgba(30, 20, 10, 0.3);
   }
 
   .icon-preview {
-    color: #e8e4dc;
+    color: #f0ebe0;
   }
 
   .icon-name {
-    color: #999;
+    color: #a09888;
   }
 
   .preferred-section {
-    border-bottom-color: #4a4540;
+    border-bottom-color: #4a4538;
   }
 
   .variant-label {
-    color: #888;
+    color: #a09888;
   }
 
   .icon-card-inverted {
-    background: #e8e4dc;
-    border-color: #e8e4dc;
+    background: #f0ebe0;
+    border-color: #f0ebe0;
   }
 
   .icon-card-inverted:hover {
@@ -269,10 +269,10 @@
   }
 
   .icon-card-inverted .icon-preview {
-    color: #1a1917;
+    color: #1e1b16;
   }
 
   .icon-card-inverted .icon-name {
-    color: #555;
+    color: #7a6f5f;
   }
 }
