@@ -56,7 +56,7 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: url('highcountry_1.png');
+  background-image: url('resources/Bodleian-Library-MS-Bodl-264-pt-I_00508_fol-128r.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
