@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { makeSupabaseClient } from '../lib/supabase';
 
+const DEBUG_ENABLED = import.meta.env.VITE_ENABLE_DEBUG === 'true';
+
 type FavoritesRow = Record<string, unknown>;
 
 const FavoritesTest = () => {
-  const { getToken, isSignedIn } = useAuth();
+  const { getToken, isSignedIn, userId } = useAuth();
   const [rows, setRows] = useState<FavoritesRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -16,10 +18,12 @@ const FavoritesTest = () => {
   }, [getToken, isSignedIn]);
 
   useEffect(() => {
+    if (!DEBUG_ENABLED) return;
+
     let isMounted = true;
 
     const loadFavorites = async () => {
-      if (!supabase) {
+      if (!supabase || !userId) {
         setRows(null);
         setError(null);
         setLoading(false);
@@ -30,6 +34,7 @@ const FavoritesTest = () => {
       const { data, error: queryError } = await supabase
         .from('era_favorites')
         .select('*')
+        .eq('clerk_user_id', userId)
         .limit(10);
 
       if (!isMounted) return;
@@ -49,11 +54,13 @@ const FavoritesTest = () => {
     return () => {
       isMounted = false;
     };
-  }, [supabase]);
+  }, [supabase, userId]);
+
+  if (!DEBUG_ENABLED) return null;
 
   return (
     <section className="supabase-test">
-      <h2>Favorites Test</h2>
+      <h2>Favorites Debug Panel</h2>
       {!isSignedIn && <p>Sign in to load favorites from Supabase.</p>}
       {isSignedIn && loading && <p>Loading...</p>}
       {isSignedIn && error && <p className="supabase-error">{error}</p>}
@@ -65,10 +72,3 @@ const FavoritesTest = () => {
 };
 
 export default FavoritesTest;
-
-/*
-Temporary usage:
-- Import and render <FavoritesTest /> in the HistoricalErasApp header (already mounted).
-- Verify in DevTools Network that Supabase requests include Authorization: Bearer <token>.
-- Confirm RLS: signed-out should fail, signed-in should return rows.
-*/
