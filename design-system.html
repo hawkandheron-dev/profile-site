@@ -92,11 +92,21 @@
         <!-- ==================== TYPOGRAPHY ==================== -->
         <h2>Typography</h2>
 
-        <h3>Typeface: Cormorant</h3>
+        <h3>Display: Cormorant</h3>
         <p>
           <a href="https://fonts.google.com/specimen/Cormorant" target="_blank" rel="noopener">Cormorant</a>
           is a Garamond-inspired display serif with high contrast and elegant proportions.
-          It is used for both display headings and body text across the site.
+          Used for headings and the hero title where its dramatic strokes shine at large sizes.
+        </p>
+
+        <h3>Body: Alegreya Sans</h3>
+        <p>
+          <a href="https://fonts.google.com/specimen/Alegreya+Sans" target="_blank" rel="noopener">Alegreya Sans</a>
+          is a humanist sans-serif with warm, calligraphic undertones — designed as a companion to the
+          Renaissance-inspired Alegreya serif family. Its open letterforms and even stroke weight
+          make it highly readable at small sizes, ideal for timeline cards, data labels, navigation,
+          and body copy. The organic warmth avoids the clinical feel of most sans-serifs, pairing
+          naturally with Cormorant's historical character.
         </p>
 
         <table class="ds-token-table">
@@ -111,8 +121,8 @@
             </tr>
             <tr>
               <td><code>--font-body</code></td>
-              <td>'Cormorant', Georgia, serif</td>
-              <td>Body text, buttons, nav</td>
+              <td>'Alegreya Sans', Segoe UI, Roboto, sans-serif</td>
+              <td>Body text, buttons, nav, timeline cards, data labels</td>
             </tr>
             <tr>
               <td><code>--font-mono</code></td>
@@ -132,7 +142,7 @@
           <h3 style="margin:12px 0 4px;">Heading 3 — Subsection</h3>
           <p style="margin:8px 0 0;">
             Body text at 18px / 1.6 line-height. The quick brown fox jumps over the lazy dog.
-            Cormorant provides a warm, literary character that avoids the coldness of most web fonts.
+            Alegreya Sans provides warm, readable body text that complements Cormorant's display character.
           </p>
         </div>
 
@@ -152,7 +162,7 @@
             <tr><td>Padding</td><td>10px 22px</td></tr>
             <tr><td>Border radius</td><td>999px (pill)</td></tr>
             <tr><td>Border</td><td>1px solid <code>--color-border</code></td></tr>
-            <tr><td>Font</td><td>Cormorant, 1rem, weight 500</td></tr>
+            <tr><td>Font</td><td>Alegreya Sans, 1rem, weight 500</td></tr>
             <tr><td>Hover background</td><td><code>rgba(120, 100, 70, 0.12)</code></td></tr>
           </tbody>
         </table>
@@ -200,11 +210,17 @@
         <!-- ==================== BACKGROUND ==================== -->
         <h2>Background Treatment</h2>
         <p>
-          The landscape image (<code>highcountry_1.png</code>) is applied as a fixed
+          A medieval manuscript illustration (Bodleian Library, MS Bodl. 264, fol. 128r) is applied as a fixed
           full-bleed background via <code>body::before</code> at <strong>7% opacity</strong>.
           This gives a faint, textural warmth without competing with content. The
           <code>pointer-events: none</code> ensures it never intercepts clicks.
         </p>
+        <h3>Source Image (2769 &times; 4171)</h3>
+        <img
+          src="resources/Bodleian-Library-MS-Bodl-264-pt-I_00508_fol-128r.jpg"
+          alt="Medieval manuscript illustration — Bodleian Library MS Bodl. 264 fol. 128r"
+          style="width:100%; max-width:540px; border-radius:var(--radius-md); border:1px solid var(--color-border);"
+        />
 
         <!-- ==================== BORDERS ==================== -->
         <h2>Borders &amp; Shadows</h2>
