@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Design System — The Mews</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav class="top-nav" aria-label="Primary">
+      <a href="index.html">Home</a>
+    </nav>
+
+    <div class="page-wrapper">
+      <div class="ds-page">
+        <h1>Design System</h1>
+        <p>Brand source of truth for <strong>The Mews by Hawk &amp; Heron</strong>.</p>
+
+        <!-- ==================== COLOURS ==================== -->
+        <h2>Colour Palette</h2>
+        <p>The palette is rooted in warm, yellowed parchment tones with rich ink-dark text.
+           The goal is a non-digital, tactile feel — like aged paper, worn brick, or printed letterpress.</p>
+
+        <h3>Background Colours</h3>
+        <div class="ds-swatch-grid">
+          <div class="ds-swatch">
+            <div class="ds-swatch-color" style="background:#f5f0e1;"></div>
+            <div class="ds-swatch-label">
+              <strong>Parchment</strong>
+              <code>#f5f0e1</code>
+            </div>
+          </div>
+          <div class="ds-swatch">
+            <div class="ds-swatch-color" style="background:#faf6eb;"></div>
+            <div class="ds-swatch-label">
+              <strong>Parchment Light</strong>
+              <code>#faf6eb</code>
+            </div>
+          </div>
+          <div class="ds-swatch">
+            <div class="ds-swatch-color" style="background:#e8dfc8;"></div>
+            <div class="ds-swatch-label">
+              <strong>Parchment Dark</strong>
+              <code>#e8dfc8</code>
+            </div>
+          </div>
+        </div>
+
+        <h3>Ink &amp; Text Colours</h3>
+        <div class="ds-swatch-grid">
+          <div class="ds-swatch">
+            <div class="ds-swatch-color" style="background:#2c2418;"></div>
+            <div class="ds-swatch-label">
+              <strong>Ink</strong>
+              <code>#2c2418</code>
+            </div>
+          </div>
+          <div class="ds-swatch">
+            <div class="ds-swatch-color" style="background:#4a3f2f;"></div>
+            <div class="ds-swatch-label">
+              <strong>Ink Light</strong>
+              <code>#4a3f2f</code>
+            </div>
+          </div>
+          <div class="ds-swatch">
+            <div class="ds-swatch-color" style="background:#7a6f5f;"></div>
+            <div class="ds-swatch-label">
+              <strong>Ink Faded</strong>
+              <code>#7a6f5f</code>
+            </div>
+          </div>
+        </div>
+
+        <h3>Accent Colours</h3>
+        <div class="ds-swatch-grid">
+          <div class="ds-swatch">
+            <div class="ds-swatch-color" style="background:#8b7355;"></div>
+            <div class="ds-swatch-label">
+              <strong>Accent</strong>
+              <code>#8b7355</code>
+            </div>
+          </div>
+          <div class="ds-swatch">
+            <div class="ds-swatch-color" style="background:#6d5a42;"></div>
+            <div class="ds-swatch-label">
+              <strong>Accent Hover</strong>
+              <code>#6d5a42</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== TYPOGRAPHY ==================== -->
+        <h2>Typography</h2>
+
+        <h3>Typeface: Cormorant</h3>
+        <p>
+          <a href="https://fonts.google.com/specimen/Cormorant" target="_blank" rel="noopener">Cormorant</a>
+          is a Garamond-inspired display serif with high contrast and elegant proportions.
+          It is used for both display headings and body text across the site.
+        </p>
+
+        <table class="ds-token-table">
+          <thead>
+            <tr><th>Token</th><th>Value</th><th>Usage</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>--font-display</code></td>
+              <td>'Cormorant', Georgia, serif</td>
+              <td>Headings, hero title</td>
+            </tr>
+            <tr>
+              <td><code>--font-body</code></td>
+              <td>'Cormorant', Georgia, serif</td>
+              <td>Body text, buttons, nav</td>
+            </tr>
+            <tr>
+              <td><code>--font-mono</code></td>
+              <td>'Courier New', Courier, monospace</td>
+              <td>Code snippets</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Type Scale</h3>
+        <div class="ds-type-sample">
+          <h1 class="hero-title" style="font-size:3.5rem; margin-bottom:8px;">The Mews</h1>
+          <p style="font-style:italic; color:var(--color-ink-faded); margin:0 0 20px;">
+            by Hawk &amp; Heron
+          </p>
+          <h2 style="margin:12px 0 4px;">Heading 2 — Section Title</h2>
+          <h3 style="margin:12px 0 4px;">Heading 3 — Subsection</h3>
+          <p style="margin:8px 0 0;">
+            Body text at 18px / 1.6 line-height. The quick brown fox jumps over the lazy dog.
+            Cormorant provides a warm, literary character that avoids the coldness of most web fonts.
+          </p>
+        </div>
+
+        <!-- ==================== BUTTONS ==================== -->
+        <h2>Buttons</h2>
+        <p>Pill-shaped with a 1px border. Transparent background that gains a warm tint on hover.</p>
+        <div class="ds-button-row">
+          <a class="button" href="#">Default Button</a>
+          <a class="button" href="#" style="background:rgba(120,100,70,0.12); border-color:var(--color-border-hover);">Hover State</a>
+        </div>
+
+        <table class="ds-token-table">
+          <thead>
+            <tr><th>Property</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Padding</td><td>10px 22px</td></tr>
+            <tr><td>Border radius</td><td>999px (pill)</td></tr>
+            <tr><td>Border</td><td>1px solid <code>--color-border</code></td></tr>
+            <tr><td>Font</td><td>Cormorant, 1rem, weight 500</td></tr>
+            <tr><td>Hover background</td><td><code>rgba(120, 100, 70, 0.12)</code></td></tr>
+          </tbody>
+        </table>
+
+        <!-- ==================== SPACING & LAYOUT ==================== -->
+        <h2>Spacing &amp; Layout</h2>
+        <table class="ds-token-table">
+          <thead>
+            <tr><th>Token</th><th>Value</th><th>Usage</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>--max-width-page</code></td>
+              <td>960px</td>
+              <td>Hero, outer container</td>
+            </tr>
+            <tr>
+              <td><code>--max-width-content</code></td>
+              <td>720px</td>
+              <td>Cards, text sections</td>
+            </tr>
+            <tr>
+              <td><code>--radius-sm</code></td>
+              <td>6px</td>
+              <td>Code blocks, small elements</td>
+            </tr>
+            <tr>
+              <td><code>--radius-md</code></td>
+              <td>12px</td>
+              <td>Dropdown menus, swatches</td>
+            </tr>
+            <tr>
+              <td><code>--radius-lg</code></td>
+              <td>18px</td>
+              <td>Cards</td>
+            </tr>
+            <tr>
+              <td><code>--radius-pill</code></td>
+              <td>999px</td>
+              <td>Buttons, avatar, nav links</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ==================== BACKGROUND ==================== -->
+        <h2>Background Treatment</h2>
+        <p>
+          The landscape image (<code>highcountry_1.png</code>) is applied as a fixed
+          full-bleed background via <code>body::before</code> at <strong>7% opacity</strong>.
+          This gives a faint, textural warmth without competing with content. The
+          <code>pointer-events: none</code> ensures it never intercepts clicks.
+        </p>
+
+        <!-- ==================== BORDERS ==================== -->
+        <h2>Borders &amp; Shadows</h2>
+        <table class="ds-token-table">
+          <thead>
+            <tr><th>Token</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>--color-border</code></td>
+              <td><code>rgba(120, 100, 70, 0.25)</code></td>
+            </tr>
+            <tr>
+              <td><code>--color-border-hover</code></td>
+              <td><code>rgba(120, 100, 70, 0.5)</code></td>
+            </tr>
+            <tr>
+              <td><code>--color-shadow</code></td>
+              <td><code>rgba(60, 50, 30, 0.12)</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ==================== BRAND MARK ==================== -->
+        <h2>Brand Name Usage</h2>
+        <table class="ds-token-table">
+          <thead>
+            <tr><th>Element</th><th>Text</th><th>Style</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Title</td>
+              <td>The Mews</td>
+              <td>Cormorant 700, clamp(3.5rem–6rem)</td>
+            </tr>
+            <tr>
+              <td>Subtitle</td>
+              <td>by Hawk &amp; Heron</td>
+              <td>Cormorant 400 italic, <code>--color-ink-faded</code>, no filter</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <p>&copy; Hawk &amp; Heron</p>
+    </footer>
+  </body>
+</html>
