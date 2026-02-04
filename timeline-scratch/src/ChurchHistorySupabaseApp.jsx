@@ -11,6 +11,7 @@ import { Timeline } from './components/Timeline/Timeline.jsx';
 import { fetchChurchHistoryData } from './data/churchHistorySupabaseAdapter.js';
 import { churchHistoryConfig } from './data/churchHistoryData.js';
 import { AddNoteModal } from './components/Notes/AddNoteModal.jsx';
+import { ViewMyNotesModal } from './components/Notes/ViewMyNotesModal.jsx';
 import './App.css';
 
 const hasClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -19,15 +20,20 @@ const hasClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
  * Auth header rendered only when Clerk is configured.
  * Isolated so the useAuth hook is always called inside ClerkProvider.
  */
-function ClerkAuthHeader({ onAddNote }) {
+function ClerkAuthHeader({ onAddNote, onViewNotes }) {
   const { isSignedIn } = useAuth();
 
   return (
     <div className="auth-actions">
       {isSignedIn && (
-        <button type="button" className="header-add-note" onClick={onAddNote}>
-          + Add Note
-        </button>
+        <>
+          <button type="button" className="header-add-note" onClick={onAddNote}>
+            + Add Note
+          </button>
+          <button type="button" className="header-add-note" onClick={onViewNotes}>
+            View My Notes
+          </button>
+        </>
       )}
       <SignedOut>
         <span className="auth-hint">Sign in to save notes.</span>
@@ -47,6 +53,7 @@ function ClerkAuthHeader({ onAddNote }) {
 function AuthenticatedApp({ timelineData, loading, error, allPeople }) {
   const { getToken, isSignedIn, userId } = useAuth();
   const [addNoteOpen, setAddNoteOpen] = useState(false);
+  const [viewNotesOpen, setViewNotesOpen] = useState(false);
 
   const handleAddNoteClose = useCallback(() => {
     setAddNoteOpen(false);
@@ -67,7 +74,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople }) {
             <a href="../../church-history-supabase.html" className="tab-button">Data Browser</a>
           </nav>
         </div>
-        <ClerkAuthHeader onAddNote={() => setAddNoteOpen(true)} />
+        <ClerkAuthHeader onAddNote={() => setAddNoteOpen(true)} onViewNotes={() => setViewNotesOpen(true)} />
       </header>
 
       <div className="tab-content">
@@ -97,6 +104,16 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople }) {
         <AddNoteModal
           isOpen
           onClose={handleAddNoteClose}
+          people={allPeople}
+          getToken={getToken}
+          clerkUserId={userId}
+        />
+      )}
+
+      {viewNotesOpen && (
+        <ViewMyNotesModal
+          isOpen
+          onClose={() => setViewNotesOpen(false)}
           people={allPeople}
           getToken={getToken}
           clerkUserId={userId}
