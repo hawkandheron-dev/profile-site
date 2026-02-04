@@ -32,7 +32,7 @@ function lightenColor(hex, floor = 160) {
   return `rgb(${lr}, ${lg}, ${lb})`;
 }
 
-export function MobileTimeline({ data, config, onItemClick }) {
+export function MobileTimeline({ data, config, onItemClick, authContext, allPeople }) {
   const scrollRef = useRef(null);
   const [pixelsPerYear, setPixelsPerYear] = useState(DEFAULT_PIXELS_PER_YEAR);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -407,6 +407,8 @@ export function MobileTimeline({ data, config, onItemClick }) {
         onClose={handleModalClose}
         itemIndex={itemIndex}
         onSelectItem={handleModalItemSelect}
+        authContext={authContext}
+        allPeople={allPeople}
       />
       {yearSummaryOpen && pinnedYear !== null && (
         <YearSummaryModal
