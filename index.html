@@ -7,22 +7,6 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <!-- SVG filter for distressed / worn-ink texture on title -->
-    <svg class="distress-filter" aria-hidden="true">
-      <defs>
-        <filter id="distress">
-          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" seed="2" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" result="displaced" />
-          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" seed="7" result="fine" />
-          <feColorMatrix in="fine" type="saturate" values="0" result="fineBW" />
-          <feComponentTransfer in="fineBW" result="mask">
-            <feFuncA type="linear" slope="1.4" intercept="-0.15" />
-          </feComponentTransfer>
-          <feComposite in="displaced" in2="mask" operator="in" />
-        </filter>
-      </defs>
-    </svg>
-
     <!-- Splash image kept in file but not displayed -->
     <img class="splash" src="highcountry_1.png" alt="High country landscape" />
 

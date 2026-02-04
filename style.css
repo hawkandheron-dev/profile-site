@@ -141,7 +141,6 @@ code {
   padding: 40px 20px 0;
 }
 
-/* --- Distressed title effect --- */
 .hero-title {
   font-family: var(--font-display);
   font-size: clamp(3.5rem, 8vw, 6rem);
@@ -149,22 +148,6 @@ code {
   letter-spacing: 0.02em;
   margin: 0;
   color: var(--color-ink);
-  position: relative;
-  display: inline-block;
-
-  /* Distress / worn-ink effect via SVG turbulence filter */
-}
-
-/* SVG filter for distressed / worn texture on title text */
-.distress-filter {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-}
-
-.hero-title {
-  filter: url(#distress);
 }
 
 .hero-subtitle {

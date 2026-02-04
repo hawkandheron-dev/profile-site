@@ -7,22 +7,6 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <!-- SVG filter (same as index) -->
-    <svg class="distress-filter" aria-hidden="true">
-      <defs>
-        <filter id="distress">
-          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" seed="2" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" result="displaced" />
-          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" seed="7" result="fine" />
-          <feColorMatrix in="fine" type="saturate" values="0" result="fineBW" />
-          <feComponentTransfer in="fineBW" result="mask">
-            <feFuncA type="linear" slope="1.4" intercept="-0.15" />
-          </feComponentTransfer>
-          <feComposite in="displaced" in2="mask" operator="in" />
-        </filter>
-      </defs>
-    </svg>
-
     <nav class="top-nav" aria-label="Primary">
       <a href="index.html">Home</a>
     </nav>
@@ -152,19 +136,6 @@
           </p>
         </div>
 
-        <h3>Distressed Title Effect</h3>
-        <p>
-          The hero title uses an inline SVG filter (<code>&lt;filter id="distress"&gt;</code>) that
-          combines <code>feTurbulence</code> fractal noise with <code>feDisplacementMap</code> to
-          create subtle edge erosion. A second high-frequency noise pass composited via
-          <code>feComposite operator="in"</code> knocks small notches out of the letterforms,
-          simulating ink-on-paper or worn-stone texture. The filter is applied with
-          <code>filter: url(#distress)</code>.
-        </p>
-        <div class="ds-type-sample" style="text-align:center;">
-          <span class="hero-title" style="font-size:3rem;">Distressed Sample</span>
-        </div>
-
         <!-- ==================== BUTTONS ==================== -->
         <h2>Buttons</h2>
         <p>Pill-shaped with a 1px border. Transparent background that gains a warm tint on hover.</p>
@@ -267,7 +238,7 @@
             <tr>
               <td>Title</td>
               <td>The Mews</td>
-              <td>Cormorant 700, distress filter applied, clamp(3.5rem–6rem)</td>
+              <td>Cormorant 700, clamp(3.5rem–6rem)</td>
             </tr>
             <tr>
               <td>Subtitle</td>
