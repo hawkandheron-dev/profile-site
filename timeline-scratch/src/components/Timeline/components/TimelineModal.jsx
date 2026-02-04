@@ -2,10 +2,11 @@
  * Modal component for displaying full timeline item details
  */
 
-import { useEffect, useMemo, useCallback } from 'react';
+import { useEffect, useMemo, useCallback, useState } from 'react';
 import { formatDateRange, getYear } from '../utils/dateUtils.js';
 import { Icon } from './Icon.jsx';
 import { getWorksForAuthor } from '../../../data/works.js';
+import { fetchDescription } from '../../../services/wikipediaService.js';
 import './TimelineModal.css';
 
 function linkifyDescription(description, itemIndex, currentItemId) {
@@ -201,6 +202,30 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
     event.stopPropagation();
   }, []);
 
+  // ── Wikipedia description for People & Points (not Periods) ──────────
+  const [wikiDesc, setWikiDesc] = useState(null);
+  const [wikiLoading, setWikiLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen || !item || itemType === 'period') {
+      setWikiDesc(null);
+      return;
+    }
+
+    let cancelled = false;
+    setWikiLoading(true);
+    setWikiDesc(null);
+
+    fetchDescription(item.name).then(result => {
+      if (!cancelled) {
+        setWikiDesc(result);
+        setWikiLoading(false);
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, [isOpen, item?.id, item?.name, itemType]);
+
   if (!isOpen || !item) return null;
 
   // Format date based on item type
@@ -310,6 +335,30 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
             onClick={handleReferenceClick}
             dangerouslySetInnerHTML={{ __html: descriptionHtml }}
           />
+        )}
+
+        {itemType !== 'period' && (
+          <div className="modal-wiki-description">
+            {wikiLoading && (
+              <p className="modal-wiki-loading">Loading description...</p>
+            )}
+            {wikiDesc && (
+              <>
+                <div
+                  className="modal-wiki-text"
+                  dangerouslySetInnerHTML={{ __html: wikiDesc.text }}
+                />
+                <a
+                  className="modal-wiki-source"
+                  href={wikiDesc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Read more on {wikiDesc.source}
+                </a>
+              </>
+            )}
+          </div>
         )}
 
         {worksForPerson.length > 0 && (

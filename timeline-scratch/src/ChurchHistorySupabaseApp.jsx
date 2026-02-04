@@ -1,8 +1,39 @@
 import { useState, useEffect } from 'react';
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useAuth,
+} from '@clerk/clerk-react';
 import { Timeline } from './components/Timeline/Timeline.jsx';
 import { fetchChurchHistoryData } from './data/churchHistorySupabaseAdapter.js';
 import { churchHistoryConfig } from './data/churchHistoryData.js';
 import './App.css';
+
+const hasClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+/**
+ * Auth header rendered only when Clerk is configured.
+ * Isolated so the useAuth hook is always called inside ClerkProvider.
+ */
+function ClerkAuthHeader() {
+  const { isSignedIn } = useAuth();
+
+  return (
+    <div className="auth-actions">
+      <span className="auth-hint">Sign in to save notes.</span>
+      <SignedOut>
+        <SignInButton mode="modal" />
+        <SignUpButton mode="modal" />
+      </SignedOut>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
+    </div>
+  );
+}
 
 function ChurchHistorySupabaseApp() {
   const [timelineData, setTimelineData] = useState(null);
@@ -52,6 +83,7 @@ function ChurchHistorySupabaseApp() {
             <a href="../../church-history-supabase.html" className="tab-button">Data Browser</a>
           </nav>
         </div>
+        {hasClerk && <ClerkAuthHeader />}
       </header>
       <div className="tab-content">
         {loading && (
