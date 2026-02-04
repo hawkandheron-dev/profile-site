@@ -1,0 +1,100 @@
+import { useEffect, useRef, useState } from 'react';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates';
+import { getCoordinatesForLocation } from '../../../data/locationCoordinates.js';
+
+const OHM_STYLE_URL = 'https://www.openhistoricalmap.org/map-styles/main/main.json';
+
+/**
+ * Renders an Open Historical Map centered on a person's location,
+ * filtered to their birth year, with a marker pin.
+ */
+export function HistoricalMap({ location, birthYear }) {
+  const mapContainerRef = useRef(null);
+  const mapRef = useRef(null);
+  const [noCoords, setNoCoords] = useState(false);
+
+  const coords = getCoordinatesForLocation(location);
+
+  useEffect(() => {
+    if (!coords || !mapContainerRef.current) {
+      setNoCoords(!coords);
+      return;
+    }
+
+    setNoCoords(false);
+
+    const [lat, lng] = coords;
+
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: OHM_STYLE_URL,
+      center: [lng, lat],
+      zoom: 6,
+      attributionControl: true,
+    });
+
+    mapRef.current = map;
+
+    // Add navigation controls (zoom in/out, compass)
+    map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+    // Add marker at the person's location
+    new maplibregl.Marker({ color: '#c0392b' })
+      .setLngLat([lng, lat])
+      .addTo(map);
+
+    // Filter map to the historical date once loaded
+    map.once('load', () => {
+      if (birthYear != null) {
+        const yearStr = formatYearForOHM(birthYear);
+        try {
+          filterByDate(map, yearStr);
+        } catch {
+          // Some styles may not support date filtering; silently ignore
+        }
+      }
+    });
+
+    return () => {
+      mapRef.current = null;
+      map.remove();
+    };
+  }, [coords?.[0], coords?.[1], birthYear]);
+
+  if (!location) return null;
+
+  if (noCoords) {
+    return null;
+  }
+
+  return (
+    <div className="historical-map-section">
+      <h3>Historical Map</h3>
+      <div className="historical-map-container" ref={mapContainerRef} />
+      {birthYear != null && (
+        <p className="historical-map-date">
+          Showing borders c. {formatDisplayYear(birthYear)}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Format a year integer into an OHM-compatible date string */
+function formatYearForOHM(year) {
+  if (year < 0) {
+    // OHM uses negative years for BCE (e.g., "-0003")
+    return '-' + String(Math.abs(year)).padStart(4, '0');
+  }
+  return String(year).padStart(4, '0');
+}
+
+/** Format a year for display (e.g., "3 BC", "100 AD") */
+function formatDisplayYear(year) {
+  if (year <= 0) {
+    return `${Math.abs(year - 1) + 1} BC`;
+  }
+  return `${year} AD`;
+}
