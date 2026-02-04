@@ -26,11 +26,12 @@
 }
 
 .supabase-card {
-  border: 1px solid rgba(127, 127, 127, 0.3);
+  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
   border-radius: 16px;
   padding: 20px;
   display: grid;
   gap: 16px;
+  background: var(--color-parchment-light, #faf6eb);
 }
 
 .supabase-controls {
@@ -51,7 +52,7 @@
 .supabase-controls select {
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(127, 127, 127, 0.35);
+  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
   background: transparent;
   color: inherit;
 }
@@ -72,13 +73,13 @@
 }
 
 .supabase-error {
-  color: #b3261e;
+  color: var(--color-error, #9e3a2a);
   font-weight: 600;
 }
 
 .supabase-table-wrap {
   overflow-x: auto;
-  border: 1px solid rgba(127, 127, 127, 0.25);
+  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
   border-radius: 12px;
 }
 
@@ -91,14 +92,14 @@
 .supabase-table th,
 .supabase-table td {
   padding: 10px 12px;
-  border-bottom: 1px solid rgba(127, 127, 127, 0.2);
+  border-bottom: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
   text-align: left;
   vertical-align: top;
   font-size: 0.92rem;
 }
 
 .supabase-table th {
-  background: rgba(127, 127, 127, 0.12);
+  background: var(--color-parchment-dark, #e8dfc8);
   position: sticky;
   top: 0;
 }
@@ -115,7 +116,7 @@
   gap: 6px;
   padding: 4px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(127, 127, 127, 0.35);
+  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
   font-size: 0.8rem;
 }
 

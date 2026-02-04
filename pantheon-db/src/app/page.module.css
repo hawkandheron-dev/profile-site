@@ -1,19 +1,19 @@
 .page {
-  --background: #fafafa;
-  --foreground: #fff;
+  --background: #f5f0e1;
+  --foreground: #faf6eb;
 
-  --text-primary: #000;
-  --text-secondary: #666;
+  --text-primary: #2c2418;
+  --text-secondary: #7a6f5f;
 
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
+  --button-primary-hover: #4a3f2f;
+  --button-secondary-hover: #f5f0e1;
+  --button-secondary-border: rgba(120, 100, 70, 0.25);
 
   display: flex;
   min-height: 100vh;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-geist-sans);
+  font-family: 'Cormorant', Georgia, 'Times New Roman', serif;
   background-color: var(--background);
 }
 
@@ -128,14 +128,14 @@ a.secondary {
   }
 
   .page {
-    --background: #000;
-    --foreground: #000;
+    --background: #1e1b16;
+    --foreground: #252118;
 
-    --text-primary: #ededed;
-    --text-secondary: #999;
+    --text-primary: #f0ebe0;
+    --text-secondary: #a09888;
 
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
+    --button-primary-hover: #d8d0c4;
+    --button-secondary-hover: #2a2518;
+    --button-secondary-border: #3a3528;
   }
 }
