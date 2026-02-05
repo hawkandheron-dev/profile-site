@@ -13,8 +13,7 @@
 /* ── Toolbar ── */
 .mobile-timeline-toolbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   padding: 8px 12px;
   background: rgba(250, 246, 235, 0.95);
   border-bottom: 1px solid rgba(120, 100, 70, 0.25);
@@ -22,6 +21,22 @@
   gap: 8px;
   z-index: 20;
   backdrop-filter: blur(8px);
+}
+
+.mobile-toolbar-search {
+  width: 100%;
+}
+
+.mobile-toolbar-search .timeline-search {
+  max-width: none;
+}
+
+.mobile-toolbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
 }
 
 .mobile-toolbar-btn {
@@ -180,6 +195,24 @@
   position: sticky;
   top: 34px;
   z-index: 1;
+}
+
+/* Person lane search highlights */
+.mobile-person-lane.highlighted {
+  box-shadow:
+    0 0 0 2px #c4a050,
+    0 0 8px 2px rgba(196, 160, 80, 0.5),
+    0 1px 4px rgba(60, 50, 30, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.mobile-person-lane.current-highlight {
+  box-shadow:
+    0 0 0 3px #d4b060,
+    0 0 12px 4px rgba(212, 176, 96, 0.6),
+    0 1px 4px rgba(60, 50, 30, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+  z-index: 5;
 }
 
 /* ── Point markers (z-index 6, above lanes) ── */

@@ -1,0 +1,313 @@
+/* TimelineSearch — parchment design system styling */
+
+.timeline-search {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+}
+
+.timeline-search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--color-parchment-light, #faf6eb);
+  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
+  border-radius: 999px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.timeline-search-input-wrap:focus-within {
+  border-color: var(--color-border-hover, rgba(120, 100, 70, 0.5));
+  box-shadow: 0 0 0 3px rgba(120, 100, 70, 0.08);
+}
+
+.timeline-search-input-wrap.find-mode {
+  border-radius: 18px;
+  background: var(--color-parchment, #f5f0e1);
+}
+
+.timeline-search-input-wrap svg {
+  flex-shrink: 0;
+  color: var(--color-ink-faded, #7a6f5f);
+}
+
+.timeline-search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--color-ink, #2c2418);
+  outline: none;
+}
+
+.timeline-search-input::placeholder {
+  color: var(--color-ink-faded, #7a6f5f);
+  opacity: 0.7;
+}
+
+.timeline-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: rgba(120, 100, 70, 0.15);
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--color-ink-faded, #7a6f5f);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.timeline-search-clear:hover {
+  background: rgba(120, 100, 70, 0.25);
+  color: var(--color-ink, #2c2418);
+}
+
+/* Find mode navigation */
+.timeline-search-find-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding-left: 8px;
+  border-left: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
+}
+
+.timeline-search-find-count {
+  font-size: 12px;
+  color: var(--color-ink-faded, #7a6f5f);
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: center;
+}
+
+.timeline-search-find-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--color-ink-light, #4a3f2f);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.timeline-search-find-btn:hover:not(:disabled) {
+  background: rgba(120, 100, 70, 0.15);
+}
+
+.timeline-search-find-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.timeline-search-find-btn.close {
+  font-size: 20px;
+  margin-left: 4px;
+}
+
+/* Autocomplete dropdown */
+.timeline-search-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--color-parchment-light, #faf6eb);
+  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(60, 50, 30, 0.15);
+  z-index: 1000;
+}
+
+.timeline-search-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.timeline-search-option:hover,
+.timeline-search-option.active {
+  background: rgba(120, 100, 70, 0.12);
+}
+
+.timeline-search-option-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  color: var(--color-ink, #2c2418);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timeline-search-option-name strong {
+  font-weight: 600;
+  color: var(--color-accent-hover, #6d5a42);
+}
+
+.timeline-search-option-type {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 4px;
+  background: rgba(120, 100, 70, 0.1);
+  color: var(--color-ink-faded, #7a6f5f);
+}
+
+.timeline-search-option-type.type-person {
+  background: rgba(91, 126, 232, 0.15);
+  color: #4a6bc9;
+}
+
+.timeline-search-option-type.type-point {
+  background: rgba(211, 47, 47, 0.12);
+  color: #b33030;
+}
+
+.timeline-search-option-type.type-period {
+  background: rgba(0, 131, 143, 0.12);
+  color: #00696f;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .timeline-search {
+    max-width: none;
+  }
+
+  .timeline-search-input-wrap {
+    padding: 6px 10px;
+  }
+
+  .timeline-search-input {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+
+  .timeline-search-dropdown {
+    max-height: 260px;
+  }
+
+  .timeline-search-find-count {
+    min-width: 50px;
+    font-size: 11px;
+  }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .timeline-search-input-wrap {
+    background: #252118;
+    border-color: #3a3528;
+  }
+
+  .timeline-search-input-wrap:focus-within {
+    border-color: #4a4538;
+    box-shadow: 0 0 0 3px rgba(200, 180, 140, 0.1);
+  }
+
+  .timeline-search-input-wrap.find-mode {
+    background: #1e1b16;
+  }
+
+  .timeline-search-input-wrap svg {
+    color: #a09888;
+  }
+
+  .timeline-search-input {
+    color: #f0ebe0;
+  }
+
+  .timeline-search-input::placeholder {
+    color: #a09888;
+  }
+
+  .timeline-search-clear {
+    background: rgba(200, 180, 140, 0.15);
+    color: #a09888;
+  }
+
+  .timeline-search-clear:hover {
+    background: rgba(200, 180, 140, 0.25);
+    color: #f0ebe0;
+  }
+
+  .timeline-search-find-nav {
+    border-left-color: #3a3528;
+  }
+
+  .timeline-search-find-count {
+    color: #a09888;
+  }
+
+  .timeline-search-find-btn {
+    color: #d8d0c4;
+  }
+
+  .timeline-search-find-btn:hover:not(:disabled) {
+    background: rgba(200, 180, 140, 0.15);
+  }
+
+  .timeline-search-dropdown {
+    background: #252118;
+    border-color: #3a3528;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  .timeline-search-option:hover,
+  .timeline-search-option.active {
+    background: rgba(200, 180, 140, 0.1);
+  }
+
+  .timeline-search-option-name {
+    color: #f0ebe0;
+  }
+
+  .timeline-search-option-name strong {
+    color: #c4a67a;
+  }
+
+  .timeline-search-option-type {
+    background: rgba(200, 180, 140, 0.1);
+    color: #a09888;
+  }
+
+  .timeline-search-option-type.type-person {
+    background: rgba(106, 174, 252, 0.15);
+    color: #6aaefc;
+  }
+
+  .timeline-search-option-type.type-point {
+    background: rgba(239, 83, 80, 0.15);
+    color: #ef5350;
+  }
+
+  .timeline-search-option-type.type-period {
+    background: rgba(38, 198, 218, 0.15);
+    color: #26c6da;
+  }
+}

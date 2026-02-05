@@ -10,6 +10,7 @@ import { getYearLabelInterval } from '../utils/coordinates.js';
 import { Icon, ShapeIcon } from './Icon.jsx';
 import { TimelineModal } from './TimelineModal.jsx';
 import { YearSummaryModal } from './YearSummaryModal.jsx';
+import { TimelineSearch } from './TimelineSearch.jsx';
 import './MobileTimeline.css';
 
 const DEFAULT_PIXELS_PER_YEAR = 8;
@@ -47,6 +48,8 @@ export function MobileTimeline({ data, config, onItemClick, authContext, allPeop
     documents: true,
     events: true
   });
+  // Search highlight state
+  const [searchHighlight, setSearchHighlight] = useState(null);
 
   const pinchRef = useRef({ active: false, startDist: 0, startPPY: 0 });
 
@@ -198,6 +201,53 @@ export function MobileTimeline({ data, config, onItemClick, authContext, allPeop
   const handleYearSummaryClose = useCallback(() => setYearSummaryOpen(false), []);
   const handleFilterToggle = useCallback((key) => setFilters(prev => ({ ...prev, [key]: !prev[key] })), []);
 
+  // --- Search handlers ---
+  // Handle search autocomplete selection — scroll to item and open modal
+  const handleSearchSelect = useCallback((type, item) => {
+    setSearchHighlight(null);
+    // Get the item's year
+    const year = type === 'point' ? getYear(item.date) : getYear(item.startDate);
+    if (year != null && scrollRef.current) {
+      // Scroll to the year, centered vertically
+      const targetY = yearToY(year);
+      const viewportHeight = scrollRef.current.clientHeight;
+      scrollRef.current.scrollTop = Math.max(0, targetY - viewportHeight / 2);
+    }
+    // Open the modal
+    setSelectedItem({ type, item });
+    onItemClick?.(type, item);
+  }, [yearToY, onItemClick]);
+
+  // Handle search find mode — highlight matches and scroll to current
+  const handleSearchHighlight = useCallback((matches, currentIdx, query) => {
+    setSearchHighlight({ matches, currentIdx, query });
+    if (matches.length > 0 && currentIdx >= 0 && currentIdx < matches.length) {
+      const match = matches[currentIdx];
+      const year = match.type === 'point' ? getYear(match.item.date) : getYear(match.item.startDate);
+      if (year != null && scrollRef.current) {
+        const targetY = yearToY(year);
+        const viewportHeight = scrollRef.current.clientHeight;
+        scrollRef.current.scrollTop = Math.max(0, targetY - viewportHeight / 2);
+      }
+    }
+  }, [yearToY]);
+
+  // Clear search highlights
+  const handleSearchClearHighlight = useCallback(() => {
+    setSearchHighlight(null);
+  }, []);
+
+  // Compute highlighted item IDs
+  const highlightedItemIds = useMemo(() => {
+    if (!searchHighlight || searchHighlight.matches.length === 0) return new Set();
+    return new Set(searchHighlight.matches.map(m => m.id));
+  }, [searchHighlight]);
+
+  const currentHighlightId = useMemo(() => {
+    if (!searchHighlight || searchHighlight.matches.length === 0) return null;
+    return searchHighlight.matches[searchHighlight.currentIdx]?.id ?? null;
+  }, [searchHighlight]);
+
   const handleBackgroundClick = useCallback((e) => {
     // Don't handle clicks on interactive elements (buttons, links) — those have their own handlers
     if (e.target.closest('button, a')) return;
@@ -233,15 +283,25 @@ export function MobileTimeline({ data, config, onItemClick, authContext, allPeop
     <div className="mobile-timeline">
       {/* Toolbar */}
       <div className="mobile-timeline-toolbar">
-        <button className="mobile-toolbar-btn" onClick={() => setFiltersOpen(p => !p)}>
-          <Icon name="diamond" size={14} />
-          <span>Filter</span>
-        </button>
-        <div className="mobile-zoom-controls">
-          <button className="mobile-toolbar-btn" onClick={handleZoomOut}><Icon name="minus" size={14} /></button>
-          <span className="mobile-zoom-label">{pixelsPerYear.toFixed(1)}px/yr</span>
-          <button className="mobile-toolbar-btn" onClick={handleZoomIn}><Icon name="plus" size={14} /></button>
-          <button className="mobile-toolbar-btn" onClick={handleZoomReset}><Icon name="quatrefoil" size={14} /></button>
+        <div className="mobile-toolbar-search">
+          <TimelineSearch
+            data={data}
+            onSelectItem={handleSearchSelect}
+            onHighlight={handleSearchHighlight}
+            onClearHighlight={handleSearchClearHighlight}
+          />
+        </div>
+        <div className="mobile-toolbar-actions">
+          <button className="mobile-toolbar-btn" onClick={() => setFiltersOpen(p => !p)}>
+            <Icon name="diamond" size={14} />
+            <span>Filter</span>
+          </button>
+          <div className="mobile-zoom-controls">
+            <button className="mobile-toolbar-btn" onClick={handleZoomOut}><Icon name="minus" size={14} /></button>
+            <span className="mobile-zoom-label">{pixelsPerYear.toFixed(1)}px/yr</span>
+            <button className="mobile-toolbar-btn" onClick={handleZoomIn}><Icon name="plus" size={14} /></button>
+            <button className="mobile-toolbar-btn" onClick={handleZoomReset}><Icon name="quatrefoil" size={14} /></button>
+          </div>
         </div>
       </div>
 
@@ -298,11 +358,13 @@ export function MobileTimeline({ data, config, onItemClick, authContext, allPeop
               const height = yearToY(end) - topY;
               const color = getPersonColor(person);
               const x = person.column * (LANE_WIDTH + LANE_GAP) + LANE_GAP;
+              const isHighlighted = highlightedItemIds.has(person.id);
+              const isCurrent = person.id === currentHighlightId;
 
               return (
                 <button
                   key={person.id}
-                  className="mobile-person-lane"
+                  className={`mobile-person-lane${isHighlighted ? ' highlighted' : ''}${isCurrent ? ' current-highlight' : ''}`}
                   style={{
                     top: `${topY}px`,
                     height: `${Math.max(height, 28)}px`,
