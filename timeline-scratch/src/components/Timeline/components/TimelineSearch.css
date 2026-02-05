@@ -52,8 +52,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  flex-shrink: 0;
   border: none;
   background: rgba(120, 100, 70, 0.15);
   border-radius: 50%;
@@ -62,6 +65,7 @@
   color: var(--color-ink-faded, #7a6f5f);
   cursor: pointer;
   transition: background 0.15s ease;
+  aspect-ratio: 1;
 }
 
 .timeline-search-clear:hover {

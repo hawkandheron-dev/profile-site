@@ -33,6 +33,7 @@ function ChurchHistoryApp() {
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
+            <h1 className="site-title"><strong>History of the Christian Church</strong> <span>Lifespans</span></h1>
             <TimelineSearch
               data={churchHistoryData}
               onSelectItem={handleSearchSelect}
