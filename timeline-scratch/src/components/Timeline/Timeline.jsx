@@ -3,7 +3,7 @@
  * Combines Canvas rendering, overlays, and interactivity
  */
 
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo, forwardRef, useImperativeHandle } from 'react';
 import { useZoomPan } from './hooks/useZoomPan.js';
 import { useTimelineLayout } from './hooks/useTimelineLayout.js';
 import { useMobileDetect } from './hooks/useMobileDetect.js';
@@ -12,19 +12,19 @@ import { TimelineOverlay } from './components/TimelineOverlay.jsx';
 import { TimelineModal } from './components/TimelineModal.jsx';
 import { YearSummaryModal } from './components/YearSummaryModal.jsx';
 import { TimelineLegend } from './components/TimelineLegend.jsx';
-import { TimelineSearch } from './components/TimelineSearch.jsx';
 import { MobileTimeline } from './components/MobileTimeline.jsx';
 import { Icon } from './components/Icon.jsx';
 import { getYear, getYearRange } from './utils/dateUtils.js';
 import './Timeline.css';
 
-export function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }) {
+export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }, ref) {
   const isMobile = useMobileDetect();
 
   // Render mobile timeline on small viewports
   if (isMobile) {
     return (
       <MobileTimeline
+        ref={ref}
         data={data}
         config={config}
         onItemClick={onItemClick}
@@ -36,6 +36,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick, suppress
 
   return (
     <DesktopTimeline
+      ref={ref}
       data={data}
       config={config}
       onViewportChange={onViewportChange}
@@ -45,9 +46,9 @@ export function Timeline({ data, config, onViewportChange, onItemClick, suppress
       allPeople={allPeople}
     />
   );
-}
+});
 
-function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }) {
+const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }, ref) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -402,6 +403,13 @@ function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppress
     setSearchHighlight(null);
   }, []);
 
+  // Expose search methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    selectItem: handleSearchSelect,
+    highlight: handleSearchHighlight,
+    clearHighlight: handleSearchClearHighlight,
+  }), [handleSearchSelect, handleSearchHighlight, handleSearchClearHighlight]);
+
   // Compute set of highlighted item IDs for rendering
   const highlightedItemIds = useMemo(() => {
     if (!searchHighlight || searchHighlight.matches.length === 0) return new Set();
@@ -500,16 +508,6 @@ function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppress
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* Search bar */}
-      <div className="timeline-search-container">
-        <TimelineSearch
-          data={data}
-          onSelectItem={handleSearchSelect}
-          onHighlight={handleSearchHighlight}
-          onClearHighlight={handleSearchClearHighlight}
-        />
-      </div>
-
       {/* Cursor year line - behind all elements */}
       {!isOverItem && !isPanning && !yearSummaryOpen && !isOverControls && (
         <div
@@ -655,4 +653,4 @@ function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppress
       </div>
     </div>
   );
-}
+});

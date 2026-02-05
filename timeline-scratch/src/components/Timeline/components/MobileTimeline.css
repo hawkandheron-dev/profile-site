@@ -13,7 +13,8 @@
 /* ── Toolbar ── */
 .mobile-timeline-toolbar {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   padding: 8px 12px;
   background: rgba(250, 246, 235, 0.95);
   border-bottom: 1px solid rgba(120, 100, 70, 0.25);
@@ -21,22 +22,6 @@
   gap: 8px;
   z-index: 20;
   backdrop-filter: blur(8px);
-}
-
-.mobile-toolbar-search {
-  width: 100%;
-}
-
-.mobile-toolbar-search .timeline-search {
-  max-width: none;
-}
-
-.mobile-toolbar-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  width: 100%;
 }
 
 .mobile-toolbar-btn {

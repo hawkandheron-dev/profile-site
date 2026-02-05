@@ -4,13 +4,12 @@
  * Each person gets a fixed-width column so bars never overlap or truncate
  */
 
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo, forwardRef, useImperativeHandle } from 'react';
 import { getYear, getYearRange } from '../utils/dateUtils.js';
 import { getYearLabelInterval } from '../utils/coordinates.js';
 import { Icon, ShapeIcon } from './Icon.jsx';
 import { TimelineModal } from './TimelineModal.jsx';
 import { YearSummaryModal } from './YearSummaryModal.jsx';
-import { TimelineSearch } from './TimelineSearch.jsx';
 import './MobileTimeline.css';
 
 const DEFAULT_PIXELS_PER_YEAR = 8;
@@ -33,7 +32,7 @@ function lightenColor(hex, floor = 160) {
   return `rgb(${lr}, ${lg}, ${lb})`;
 }
 
-export function MobileTimeline({ data, config, onItemClick, authContext, allPeople }) {
+export const MobileTimeline = forwardRef(function MobileTimeline({ data, config, onItemClick, authContext, allPeople }, ref) {
   const scrollRef = useRef(null);
   const [pixelsPerYear, setPixelsPerYear] = useState(DEFAULT_PIXELS_PER_YEAR);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -237,6 +236,13 @@ export function MobileTimeline({ data, config, onItemClick, authContext, allPeop
     setSearchHighlight(null);
   }, []);
 
+  // Expose search methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    selectItem: handleSearchSelect,
+    highlight: handleSearchHighlight,
+    clearHighlight: handleSearchClearHighlight,
+  }), [handleSearchSelect, handleSearchHighlight, handleSearchClearHighlight]);
+
   // Compute highlighted item IDs
   const highlightedItemIds = useMemo(() => {
     if (!searchHighlight || searchHighlight.matches.length === 0) return new Set();
@@ -283,25 +289,15 @@ export function MobileTimeline({ data, config, onItemClick, authContext, allPeop
     <div className="mobile-timeline">
       {/* Toolbar */}
       <div className="mobile-timeline-toolbar">
-        <div className="mobile-toolbar-search">
-          <TimelineSearch
-            data={data}
-            onSelectItem={handleSearchSelect}
-            onHighlight={handleSearchHighlight}
-            onClearHighlight={handleSearchClearHighlight}
-          />
-        </div>
-        <div className="mobile-toolbar-actions">
-          <button className="mobile-toolbar-btn" onClick={() => setFiltersOpen(p => !p)}>
-            <Icon name="diamond" size={14} />
-            <span>Filter</span>
-          </button>
-          <div className="mobile-zoom-controls">
-            <button className="mobile-toolbar-btn" onClick={handleZoomOut}><Icon name="minus" size={14} /></button>
-            <span className="mobile-zoom-label">{pixelsPerYear.toFixed(1)}px/yr</span>
-            <button className="mobile-toolbar-btn" onClick={handleZoomIn}><Icon name="plus" size={14} /></button>
-            <button className="mobile-toolbar-btn" onClick={handleZoomReset}><Icon name="quatrefoil" size={14} /></button>
-          </div>
+        <button className="mobile-toolbar-btn" onClick={() => setFiltersOpen(p => !p)}>
+          <Icon name="diamond" size={14} />
+          <span>Filter</span>
+        </button>
+        <div className="mobile-zoom-controls">
+          <button className="mobile-toolbar-btn" onClick={handleZoomOut}><Icon name="minus" size={14} /></button>
+          <span className="mobile-zoom-label">{pixelsPerYear.toFixed(1)}px/yr</span>
+          <button className="mobile-toolbar-btn" onClick={handleZoomIn}><Icon name="plus" size={14} /></button>
+          <button className="mobile-toolbar-btn" onClick={handleZoomReset}><Icon name="quatrefoil" size={14} /></button>
         </div>
       </div>
 
@@ -484,4 +480,4 @@ export function MobileTimeline({ data, config, onItemClick, authContext, allPeop
       )}
     </div>
   );
-}
+});
