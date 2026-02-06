@@ -1,10 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-page="home">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>The Mews — by Hawk &amp; Heron</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="editable-content.css" />
   </head>
   <body>
     <!-- Splash image kept in file but not displayed -->
@@ -15,9 +16,9 @@
     </nav>
 
     <header class="hero">
-      <h1 class="hero-title">The Mews</h1>
-      <p class="hero-subtitle">by Hawk &amp; Heron</p>
-      <p class="hero-description">
+      <h1 class="hero-title" data-content-key="home.hero_title">The Mews</h1>
+      <p class="hero-subtitle" data-content-key="home.hero_subtitle">by Hawk &amp; Heron</p>
+      <p class="hero-description" data-content-key="home.hero_description">
         Welcome to The Mews! Here are a few projects that you may find interesting.
         If you want, you can sign up and log in to save notes or favorites, or just
         browse without logging in.
@@ -47,7 +48,16 @@
     </div>
 
     <footer class="site-footer">
-      <p>&copy; Hawk &amp; Heron</p>
+      <p data-content-key="home.footer">&copy; Hawk &amp; Heron</p>
     </footer>
+
+    <!-- Supabase JS (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <!-- Clerk JS (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.min.js"></script>
+    <!-- Config (served by Cloudflare Function in prod, local stub in dev) -->
+    <script src="/api/supabase-config"></script>
+    <!-- Editable content system -->
+    <script src="editable-content.js"></script>
   </body>
 </html>

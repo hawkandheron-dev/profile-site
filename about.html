@@ -1,10 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-page="about">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>About — The Mews</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="editable-content.css" />
   </head>
   <body>
     <nav class="top-nav" aria-label="Primary">
@@ -18,20 +19,20 @@
         <div class="about-card">
           <img class="avatar" src="profile_photo.png" alt="Portrait of Captain" />
           <div>
-            <h2 style="margin:0; font-size:1.4rem;">Captain</h2>
-            <p class="subtitle">Profile</p>
-            <p>Short bio goes here. (We'll refine this later.)</p>
+            <h2 style="margin:0; font-size:1.4rem;" data-content-key="about.profile_name">Captain</h2>
+            <p class="subtitle" data-content-key="about.profile_subtitle">Profile</p>
+            <p data-content-key="about.bio">Short bio goes here. (We'll refine this later.)</p>
           </div>
         </div>
 
         <div class="about-links">
-          <h2>Projects &amp; Links</h2>
+          <h2 data-content-key="about.projects_heading">Projects &amp; Links</h2>
           <ul class="project-list">
-            <li>
+            <li data-content-key="about.link.instagram">
               <a href="https://www.instagram.com/hawkandheron_co/">Hawk &amp; Heron on Instagram</a>
               <p>Go here for fun drawings and designs.</p>
             </li>
-            <li>
+            <li data-content-key="about.link.bandcamp">
               <a href="https://thenewempires.bandcamp.com/">The New Empires on Bandcamp</a>
               <p>This is my band. We've been playing together for 20 years.</p>
             </li>
@@ -43,5 +44,14 @@
     <footer class="site-footer">
       <p>&copy; Hawk &amp; Heron</p>
     </footer>
+
+    <!-- Supabase JS (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <!-- Clerk JS (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.min.js"></script>
+    <!-- Config (served by Cloudflare Function in prod, local stub in dev) -->
+    <script src="/api/supabase-config"></script>
+    <!-- Editable content system -->
+    <script src="editable-content.js"></script>
   </body>
 </html>

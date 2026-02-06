@@ -1,0 +1,193 @@
+/* ===================================================
+   Editable Content — Edit Mode Styles
+   =================================================== */
+
+/* ── Editable elements (edit mode active) ─────────────────────────────── */
+.ec-editable {
+  position: relative;
+  outline: 2px dashed var(--color-accent, #8b7355);
+  outline-offset: 4px;
+  border-radius: 4px;
+  transition: outline-color 160ms ease, background 160ms ease;
+}
+
+.ec-editable:hover {
+  outline-color: var(--color-accent-hover, #6d5a42);
+}
+
+.ec-editable[contenteditable="true"]:focus {
+  outline-style: solid;
+  outline-color: var(--color-accent-hover, #6d5a42);
+  background: rgba(245, 240, 225, 0.5);
+}
+
+/* Subtle label showing the content key */
+.ec-editable::before {
+  content: attr(data-content-key);
+  position: absolute;
+  top: -20px;
+  left: 0;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  color: var(--color-ink-faded, #7a6f5f);
+  background: var(--color-parchment-dark, #e8dfc8);
+  padding: 1px 6px;
+  border-radius: 3px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+/* ── Edit Mode toggle button ──────────────────────────────────────────── */
+.ec-edit-toggle {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 6px 16px;
+  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-ink-light, #4a3f2f);
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+  margin-right: 8px;
+}
+
+.ec-edit-toggle:hover {
+  background: rgba(120, 100, 70, 0.1);
+  border-color: var(--color-border-hover, rgba(120, 100, 70, 0.5));
+}
+
+.ec-edit-toggle.ec-edit-active {
+  background: var(--color-accent, #8b7355);
+  color: var(--color-parchment-light, #faf6eb);
+  border-color: var(--color-accent, #8b7355);
+}
+
+.ec-edit-toggle.ec-edit-active:hover {
+  background: var(--color-accent-hover, #6d5a42);
+  border-color: var(--color-accent-hover, #6d5a42);
+}
+
+/* ── Auth button ──────────────────────────────────────────────────────── */
+.ec-auth-btn {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 6px 16px;
+  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-ink-light, #4a3f2f);
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.ec-auth-btn:hover {
+  background: rgba(120, 100, 70, 0.1);
+  border-color: var(--color-border-hover, rgba(120, 100, 70, 0.5));
+}
+
+/* ── Save indicator ───────────────────────────────────────────────────── */
+.ec-save-indicator {
+  display: inline-block;
+  font-family: var(--font-body, sans-serif);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+  animation: ec-fade-in 200ms ease;
+}
+
+.ec-saving {
+  color: var(--color-ink-faded, #7a6f5f);
+  background: var(--color-parchment-dark, #e8dfc8);
+}
+
+.ec-saved {
+  color: #2d6a30;
+  background: #dff0df;
+}
+
+.ec-error {
+  color: #8b2020;
+  background: #f5dede;
+}
+
+@keyframes ec-fade-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Field editor (links, images) ─────────────────────────────────────── */
+.ec-field-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 12px;
+  background: var(--color-parchment-light, #faf6eb);
+  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.ec-field-editor label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-family: var(--font-body, sans-serif);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-ink-faded, #7a6f5f);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ec-field-editor input {
+  font-family: var(--font-body, sans-serif);
+  font-size: 14px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
+  border-radius: 6px;
+  background: white;
+  color: var(--color-ink, #2c2418);
+  transition: border-color 160ms ease;
+}
+
+.ec-field-editor input:focus {
+  outline: none;
+  border-color: var(--color-accent, #8b7355);
+}
+
+.ec-save-btn {
+  align-self: flex-end;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 16px;
+  border: 1px solid var(--color-accent, #8b7355);
+  border-radius: 999px;
+  background: var(--color-accent, #8b7355);
+  color: var(--color-parchment-light, #faf6eb);
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.ec-save-btn:hover {
+  background: var(--color-accent-hover, #6d5a42);
+}
+
+/* ── Body-level edit mode indicator ───────────────────────────────────── */
+body.ec-editing::after {
+  /* Override the vignette to add a subtle edit-mode tint */
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 45%,
+    rgba(245, 240, 225, 0.75) 0%,
+    rgba(245, 240, 225, 0.45) 50%,
+    rgba(245, 240, 225, 0) 100%
+  );
+}
