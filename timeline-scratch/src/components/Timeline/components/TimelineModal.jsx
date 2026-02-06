@@ -15,6 +15,19 @@ function linkifyDescription(description, itemIndex, currentItemId) {
   if (!description || !itemIndex) return description;
 
   try {
+    // Extract and strip trailing Wikipedia/Britannica URLs from the description,
+    // replacing them with a styled "Read more on Wikipedia" link.
+    const urlPattern = /\s*(https?:\/\/(?:en\.wikipedia\.org|www\.britannica\.com)\S+)\s*$/;
+    const urlMatch = description.match(urlPattern);
+    let cleanedDescription = description;
+    let wikiLinkHtml = '';
+    if (urlMatch) {
+      cleanedDescription = description.slice(0, urlMatch.index).trim();
+      const url = urlMatch[1];
+      const source = url.includes('wikipedia.org') ? 'Wikipedia' : 'Britannica';
+      wikiLinkHtml = ` <a class="modal-wiki-source" href="${url}" target="_blank" rel="noopener noreferrer">Read more on ${source}</a>`;
+    }
+
     const entries = Array.from(itemIndex.values())
       .map(({ item: entryItem, type }) => ({
         id: entryItem.id,
@@ -25,10 +38,10 @@ function linkifyDescription(description, itemIndex, currentItemId) {
       .map(entry => ({ ...entry, lowerName: entry.name.toLowerCase() }))
       .sort((a, b) => b.name.length - a.name.length);
 
-    if (entries.length === 0) return description;
+    if (entries.length === 0) return cleanedDescription + wikiLinkHtml;
 
     const parser = new DOMParser();
-    const doc = parser.parseFromString(`<div>${description}</div>`, 'text/html');
+    const doc = parser.parseFromString(`<div>${cleanedDescription}</div>`, 'text/html');
     const root = doc.body.firstChild;
     if (!root) return description;
 
@@ -95,7 +108,7 @@ function linkifyDescription(description, itemIndex, currentItemId) {
       node.replaceWith(fragment);
     });
 
-    return root.innerHTML;
+    return root.innerHTML + wikiLinkHtml;
   } catch (error) {
     console.warn('Failed to linkify modal description:', error);
     return description;
@@ -312,10 +325,11 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
           <p className="modal-location">{item.location}</p>
         )}
 
-        {itemType === 'person' && item.location && (
+        {(itemType === 'person' || itemType === 'point') && item.location && (
           <HistoricalMap
+            key={item.id}
             location={item.location}
-            birthYear={getYear(item.startDate)}
+            birthYear={getYear(item.startDate || item.date)}
           />
         )}
 
