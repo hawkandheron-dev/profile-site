@@ -12,6 +12,10 @@
  *   link        – JSONB with url, label, description; edited via a small form
  *   image       – JSONB with src, alt; edited via a small form
  *
+ * Auth UI:
+ *   If an element with id="ec-sign-in-btn" exists, it's wired up as the
+ *   sign-in / sign-out button. Otherwise a button is created in .top-nav.
+ *
  * Dependencies: Supabase JS (loaded via CDN), Clerk JS (loaded via CDN).
  * Config: Expects window.SUPABASE_URL / window.SUPABASE_ANON_KEY (set by
  *         /api/supabase-config or supabase-config.js) and
@@ -103,19 +107,25 @@
   }
 
   function renderLink(el, data) {
-    // Expects el to be an <li> (or container) holding an <a> and optional <p>
-    const anchor = el.querySelector('a') || document.createElement('a');
-    if (!anchor.parentNode) el.prepend(anchor);
-    anchor.href = data.url || '#';
-    anchor.textContent = data.label || '';
+    if (el.tagName === 'A') {
+      // Element itself is the anchor (e.g. nav links)
+      el.href = data.url || '#';
+      el.textContent = data.label || '';
+    } else {
+      // Element is a container (e.g. <li>) holding an <a> and optional <p>
+      const anchor = el.querySelector('a') || document.createElement('a');
+      if (!anchor.parentNode) el.prepend(anchor);
+      anchor.href = data.url || '#';
+      anchor.textContent = data.label || '';
 
-    let desc = el.querySelector('p');
-    if (data.description) {
-      if (!desc) {
-        desc = document.createElement('p');
-        el.appendChild(desc);
+      let desc = el.querySelector('p');
+      if (data.description) {
+        if (!desc) {
+          desc = document.createElement('p');
+          el.appendChild(desc);
+        }
+        desc.textContent = data.description;
       }
-      desc.textContent = data.description;
     }
   }
 
@@ -138,7 +148,7 @@
       await checkAdmin();
     }
 
-    // Mount a small sign-in button for admins in the nav
+    // Wire up sign-in / sign-out UI
     mountAuthUI();
   }
 
@@ -179,27 +189,37 @@
 
   // ── Auth UI ────────────────────────────────────────────────────────────
   function mountAuthUI() {
+    // Use the dedicated sign-in button if present in the page
+    const signInBtn = document.getElementById('ec-sign-in-btn');
+
+    if (signInBtn) {
+      wireUpAuthButton(signInBtn);
+      return;
+    }
+
+    // Fallback: create a button in the top nav
     const nav = document.querySelector('.top-nav');
     if (!nav) return;
 
-    const container = document.createElement('div');
-    container.id = 'clerk-auth';
-    container.style.cssText = 'margin-left: auto; order: 99;';
-    nav.prepend(container);
+    const btn = document.createElement('button');
+    btn.className = 'ec-auth-btn';
+    btn.id = 'ec-sign-in-btn';
+    nav.appendChild(btn);
+    wireUpAuthButton(btn);
+  }
 
+  function wireUpAuthButton(btn) {
     if (clerk.user) {
-      // Show small avatar + sign out
-      const btn = document.createElement('button');
-      btn.className = 'ec-auth-btn';
-      btn.textContent = clerk.user.firstName || 'Account';
-      btn.addEventListener('click', () => clerk.signOut());
-      container.appendChild(btn);
+      btn.textContent = clerk.user.firstName
+        ? 'Sign Out (' + clerk.user.firstName + ')'
+        : 'Sign Out';
+      btn.addEventListener('click', async () => {
+        await clerk.signOut();
+        window.location.reload();
+      });
     } else {
-      const btn = document.createElement('button');
-      btn.className = 'ec-auth-btn';
-      btn.textContent = 'Sign in';
+      btn.textContent = 'Sign Up / Sign In';
       btn.addEventListener('click', () => clerk.openSignIn());
-      container.appendChild(btn);
     }
   }
 
@@ -212,14 +232,7 @@
     btn.className = 'ec-edit-toggle';
     btn.textContent = 'Edit Mode';
     btn.addEventListener('click', () => toggleEditMode(btn));
-
-    // Insert before auth button
-    const authEl = document.getElementById('clerk-auth');
-    if (authEl) {
-      nav.insertBefore(btn, authEl);
-    } else {
-      nav.appendChild(btn);
-    }
+    nav.appendChild(btn);
   }
 
   function toggleEditMode(btn) {

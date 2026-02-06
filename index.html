@@ -12,7 +12,7 @@
     <img class="splash" src="highcountry_1.png" alt="High country landscape" />
 
     <nav class="top-nav" aria-label="Primary">
-      <a href="about.html">About</a>
+      <!-- Edit Mode and auth controls are injected here by editable-content.js -->
     </nav>
 
     <header class="hero">
@@ -26,9 +26,13 @@
     </header>
 
     <div class="main-actions">
-      <a class="button" href="timeline-scratch/dist/church-history-supabase.html">Church History Timeline</a>
-      <a class="button" href="timeline-scratch/dist/historical-eras.html">Image Board Timeline</a>
-      <a class="button" href="pantheons-supabase.html">Pantheons</a>
+      <a class="button button-primary" href="timeline-scratch/dist/church-history-supabase.html">Church History Timeline</a>
+    </div>
+
+    <div class="secondary-actions">
+      <a class="button" href="about.html" data-content-key="home.nav.about">About</a>
+      <a class="button" href="https://postapocalyptic.substack.com/?utm_campaign=hawkandheronmews.com" data-content-key="home.nav.substack">Substack</a>
+      <button class="button" id="ec-sign-in-btn" type="button">Sign Up / Sign In</button>
       <details class="more-projects">
         <summary>More Projects ▾</summary>
         <div class="more-projects-menu">

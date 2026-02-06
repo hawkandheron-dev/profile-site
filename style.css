@@ -221,6 +221,19 @@ code {
 }
 
 /* ===================================================
+   SECONDARY ACTIONS (About, Substack, Sign In, More)
+   =================================================== */
+.secondary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  max-width: var(--max-width-content);
+  margin: 16px auto 0;
+}
+
+/* ===================================================
    MORE PROJECTS DROPDOWN
    =================================================== */
 .more-projects {
