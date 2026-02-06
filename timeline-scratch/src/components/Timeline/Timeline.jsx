@@ -3,7 +3,7 @@
  * Combines Canvas rendering, overlays, and interactivity
  */
 
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo, forwardRef, useImperativeHandle } from 'react';
 import { useZoomPan } from './hooks/useZoomPan.js';
 import { useTimelineLayout } from './hooks/useTimelineLayout.js';
 import { useMobileDetect } from './hooks/useMobileDetect.js';
@@ -17,13 +17,14 @@ import { Icon } from './components/Icon.jsx';
 import { getYear, getYearRange } from './utils/dateUtils.js';
 import './Timeline.css';
 
-export function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }) {
+export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }, ref) {
   const isMobile = useMobileDetect();
 
   // Render mobile timeline on small viewports
   if (isMobile) {
     return (
       <MobileTimeline
+        ref={ref}
         data={data}
         config={config}
         onItemClick={onItemClick}
@@ -35,6 +36,7 @@ export function Timeline({ data, config, onViewportChange, onItemClick, suppress
 
   return (
     <DesktopTimeline
+      ref={ref}
       data={data}
       config={config}
       onViewportChange={onViewportChange}
@@ -44,9 +46,9 @@ export function Timeline({ data, config, onViewportChange, onItemClick, suppress
       allPeople={allPeople}
     />
   );
-}
+});
 
-function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }) {
+const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }, ref) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -64,6 +66,8 @@ function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppress
   const [pinnedYear, setPinnedYear] = useState(null);
   const [yearSummaryOpen, setYearSummaryOpen] = useState(false);
   const [isOverControls, setIsOverControls] = useState(false);
+  // Search highlight state: { matches: [], currentIdx: number, query: string } | null
+  const [searchHighlight, setSearchHighlight] = useState(null);
 
   // Default config
   const defaultConfig = {
@@ -126,6 +130,7 @@ function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppress
     endPan,
     reset,
     jumpToYear,
+    setVerticalOffset,
     isPanning
   } = useZoomPan({
     initialViewportStartYear: initialStartYear,
@@ -329,6 +334,93 @@ function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppress
     }));
   }, []);
 
+  // --- Search handlers ---
+  // Find an item's Y position in the layout for vertical centering
+  const getItemY = useCallback((type, itemId) => {
+    if (type === 'person') {
+      const found = layout.stackedPeople?.find(p => p.id === itemId);
+      return found ? found.y + (found.height || 0) / 2 : null;
+    }
+    if (type === 'point') {
+      const found = layout.stackedPoints?.find(p => p.id === itemId);
+      return found ? found.y : null;
+    }
+    if (type === 'period') {
+      const found = layout.stackedPeriods?.find(p => p.id === itemId);
+      return found ? found.y + (found.bracketHeight || 0) / 2 : null;
+    }
+    return null;
+  }, [layout]);
+
+  // Handle search autocomplete selection — scroll to item and open modal
+  const handleSearchSelect = useCallback((type, item) => {
+    // Clear any find highlights
+    setSearchHighlight(null);
+
+    // Get the item's year and scroll horizontally
+    const year = type === 'point' ? getYear(item.date) : getYear(item.startDate);
+    if (year != null) {
+      jumpToYear(year, dimensions.width);
+    }
+
+    // Calculate vertical offset to center the item
+    const itemY = getItemY(type, item.id);
+    if (itemY != null) {
+      const targetOffset = Math.max(0, itemY - dimensions.height / 2);
+      const maxOffset = Math.max(0, layout.totalHeight - dimensions.height);
+      setVerticalOffset(Math.min(targetOffset, maxOffset));
+    }
+
+    // Open the modal
+    if (!suppressModal) {
+      setSelectedItem({ type, item });
+    }
+    onItemClick?.(type, item);
+  }, [jumpToYear, dimensions, getItemY, layout.totalHeight, setVerticalOffset, suppressModal, onItemClick]);
+
+  // Handle search find mode — highlight matches and scroll to current
+  const handleSearchHighlight = useCallback((matches, currentIdx, query) => {
+    setSearchHighlight({ matches, currentIdx, query });
+
+    // Scroll to the current match
+    if (matches.length > 0 && currentIdx >= 0 && currentIdx < matches.length) {
+      const match = matches[currentIdx];
+      const year = match.type === 'point' ? getYear(match.item.date) : getYear(match.item.startDate);
+      if (year != null) {
+        jumpToYear(year, dimensions.width);
+      }
+      const itemY = getItemY(match.type, match.item.id);
+      if (itemY != null) {
+        const targetOffset = Math.max(0, itemY - dimensions.height / 2);
+        const maxOffset = Math.max(0, layout.totalHeight - dimensions.height);
+        setVerticalOffset(Math.min(targetOffset, maxOffset));
+      }
+    }
+  }, [jumpToYear, dimensions, getItemY, layout.totalHeight, setVerticalOffset]);
+
+  // Clear search highlights
+  const handleSearchClearHighlight = useCallback(() => {
+    setSearchHighlight(null);
+  }, []);
+
+  // Expose search methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    selectItem: handleSearchSelect,
+    highlight: handleSearchHighlight,
+    clearHighlight: handleSearchClearHighlight,
+  }), [handleSearchSelect, handleSearchHighlight, handleSearchClearHighlight]);
+
+  // Compute set of highlighted item IDs for rendering
+  const highlightedItemIds = useMemo(() => {
+    if (!searchHighlight || searchHighlight.matches.length === 0) return new Set();
+    return new Set(searchHighlight.matches.map(m => m.id));
+  }, [searchHighlight]);
+
+  const currentHighlightId = useMemo(() => {
+    if (!searchHighlight || searchHighlight.matches.length === 0) return null;
+    return searchHighlight.matches[searchHighlight.currentIdx]?.id ?? null;
+  }, [searchHighlight]);
+
   // Check if cursor is over an item (to hide the year line)
   const isOverItem = hoveredItem !== null;
 
@@ -462,6 +554,8 @@ function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppress
         hoveredPeriod={hoveredPeriod}
         onItemHover={handleItemHover}
         onItemClick={handleItemClickInternal}
+        highlightedItemIds={highlightedItemIds}
+        currentHighlightId={currentHighlightId}
       />
 
       <TimelineOverlay
@@ -474,6 +568,8 @@ function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppress
         config={defaultConfig}
         hoveredItem={hoveredItem}
         hoveredPeriod={hoveredPeriod}
+        highlightedItemIds={highlightedItemIds}
+        currentHighlightId={currentHighlightId}
       />
 
       {/* Cursor year display - follows cursor */}
@@ -557,4 +653,4 @@ function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppress
       </div>
     </div>
   );
-}
+});

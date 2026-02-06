@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   SignedIn,
   SignedOut,
@@ -8,6 +8,7 @@ import {
   useAuth,
 } from '@clerk/clerk-react';
 import { Timeline } from './components/Timeline/Timeline.jsx';
+import { TimelineSearch } from './components/Timeline/components/TimelineSearch.jsx';
 import { fetchChurchHistoryData } from './data/churchHistorySupabaseAdapter.js';
 import { churchHistoryConfig } from './data/churchHistoryData.js';
 import { AddNoteModal } from './components/Notes/AddNoteModal.jsx';
@@ -54,6 +55,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople }) {
   const { getToken, isSignedIn, userId } = useAuth();
   const [addNoteOpen, setAddNoteOpen] = useState(false);
   const [viewNotesOpen, setViewNotesOpen] = useState(false);
+  const timelineRef = useRef(null);
 
   const handleAddNoteClose = useCallback(() => {
     setAddNoteOpen(false);
@@ -63,18 +65,43 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople }) {
     ? { getToken, clerkUserId: userId, isSignedIn: true }
     : null;
 
+  // Search handlers that delegate to Timeline ref
+  const handleSearchSelect = useCallback((type, item) => {
+    timelineRef.current?.selectItem(type, item);
+  }, []);
+
+  const handleSearchHighlight = useCallback((matches, currentIdx, query) => {
+    timelineRef.current?.highlight(matches, currentIdx, query);
+  }, []);
+
+  const handleSearchClearHighlight = useCallback(() => {
+    timelineRef.current?.clearHighlight();
+  }, []);
+
   return (
     <>
       <header className="app-header">
         <div className="header-content">
-          <h1>Church History Timeline (Supabase)</h1>
+          <div className="header-left">
+            <h1 className="site-title"><strong>History of the Christian Church</strong> <span>Lifespans</span></h1>
+            {timelineData && (
+              <TimelineSearch
+                data={timelineData}
+                onSelectItem={handleSearchSelect}
+                onHighlight={handleSearchHighlight}
+                onClearHighlight={handleSearchClearHighlight}
+              />
+            )}
+          </div>
           <nav className="tab-nav">
             <a href="../../index.html" className="tab-button">Home</a>
             <a href="./church-history.html" className="tab-button">JSON Version</a>
             <a href="../../church-history-supabase.html" className="tab-button">Data Browser</a>
           </nav>
+          <div className="header-right">
+            <ClerkAuthHeader onAddNote={() => setAddNoteOpen(true)} onViewNotes={() => setViewNotesOpen(true)} />
+          </div>
         </div>
-        <ClerkAuthHeader onAddNote={() => setAddNoteOpen(true)} onViewNotes={() => setViewNotesOpen(true)} />
       </header>
 
       <div className="tab-content">
@@ -91,6 +118,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople }) {
         {!loading && !error && timelineData && (
           <div className="timeline-wrapper">
             <Timeline
+              ref={timelineRef}
               data={timelineData}
               config={churchHistoryConfig}
               authContext={authContext}
@@ -127,16 +155,48 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople }) {
  * Unauthenticated fallback (no Clerk key configured).
  */
 function UnauthenticatedApp({ timelineData, loading, error }) {
+  const timelineRef = useRef(null);
+
+  // Search handlers that delegate to Timeline ref
+  const handleSearchSelect = useCallback((type, item) => {
+    timelineRef.current?.selectItem(type, item);
+  }, []);
+
+  const handleSearchHighlight = useCallback((matches, currentIdx, query) => {
+    timelineRef.current?.highlight(matches, currentIdx, query);
+  }, []);
+
+  const handleSearchClearHighlight = useCallback(() => {
+    timelineRef.current?.clearHighlight();
+  }, []);
+
   return (
     <>
       <header className="app-header">
         <div className="header-content">
-          <h1>Church History Timeline (Supabase)</h1>
+          <div className="header-left">
+            <h1 className="site-title"><strong>History of the Christian Church</strong> <span>Lifespans</span></h1>
+            {timelineData && (
+              <TimelineSearch
+                data={timelineData}
+                onSelectItem={handleSearchSelect}
+                onHighlight={handleSearchHighlight}
+                onClearHighlight={handleSearchClearHighlight}
+              />
+            )}
+          </div>
           <nav className="tab-nav">
             <a href="../../index.html" className="tab-button">Home</a>
             <a href="./church-history.html" className="tab-button">JSON Version</a>
             <a href="../../church-history-supabase.html" className="tab-button">Data Browser</a>
           </nav>
+          <div className="header-right">
+            <div className="auth-actions">
+              <span className="auth-hint">Sign in to save notes</span>
+              <button>Sign Up</button>
+              <button>Sign In</button>
+            </div>
+          </div>
         </div>
       </header>
       <div className="tab-content">
@@ -153,6 +213,7 @@ function UnauthenticatedApp({ timelineData, loading, error }) {
         {!loading && !error && timelineData && (
           <div className="timeline-wrapper">
             <Timeline
+              ref={timelineRef}
               data={timelineData}
               config={churchHistoryConfig}
             />
