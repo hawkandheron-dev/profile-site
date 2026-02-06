@@ -341,7 +341,8 @@ export function TimelineCanvas({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Check hit map
+    // Check hit map - prioritize points/people over periods
+    const hoverPriority = { point: 0, person: 1, period: 2 };
     let foundItem = null;
 
     for (const [id, hitData] of hitMapRef.current) {
@@ -353,8 +354,9 @@ export function TimelineCanvas({
         y >= bounds.y &&
         y <= bounds.y + bounds.height
       ) {
-        foundItem = hitData;
-        break;
+        if (!foundItem || hoverPriority[hitData.type] < hoverPriority[foundItem.type]) {
+          foundItem = hitData;
+        }
       }
     }
 
@@ -376,7 +378,10 @@ export function TimelineCanvas({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Check hit map
+    // Check hit map - collect all matches and prioritize points/people over periods
+    const typePriority = { point: 0, person: 1, period: 2 };
+    let bestMatch = null;
+
     for (const [id, hitData] of hitMapRef.current) {
       const { bounds } = hitData;
 
@@ -386,9 +391,14 @@ export function TimelineCanvas({
         y >= bounds.y &&
         y <= bounds.y + bounds.height
       ) {
-        onItemClick?.(hitData.type, hitData.item);
-        return;
+        if (!bestMatch || typePriority[hitData.type] < typePriority[bestMatch.type]) {
+          bestMatch = hitData;
+        }
       }
+    }
+
+    if (bestMatch) {
+      onItemClick?.(bestMatch.type, bestMatch.item);
     }
   }
 
