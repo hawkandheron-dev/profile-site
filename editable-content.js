@@ -349,8 +349,8 @@
     el.removeEventListener('blur', handleBlur);
     el.removeEventListener('keydown', handleKeydown);
 
-    // Remove any open editors
-    const editor = el.querySelector('.ec-field-editor');
+    // Remove any open editors (sibling editors for link/image types)
+    const editor = getEditorForElement(el);
     if (editor) editor.remove();
   }
 
@@ -392,11 +392,14 @@
 
   // ── Link Editor ────────────────────────────────────────────────────────
   function attachLinkEditor(el, row) {
-    if (el.querySelector('.ec-field-editor')) return;
+    // If there's already an editor for this element, skip
+    const existingEditor = getEditorForElement(el);
+    if (existingEditor) return;
 
     const data = row.content || {};
     const editor = document.createElement('div');
     editor.className = 'ec-field-editor';
+    editor.dataset.editorFor = row.key;
     editor.innerHTML = `
       <label>Label <input type="text" data-field="label" value="${escapeAttr(data.label || '')}"></label>
       <label>URL <input type="url" data-field="url" value="${escapeAttr(data.url || '')}"></label>
@@ -412,19 +415,29 @@
       await saveContent(row.key, fields, el);
     });
 
-    // Prevent clicks inside editor from bubbling to contenteditable
+    // Prevent clicks inside editor from doing anything unexpected
     editor.addEventListener('click', (e) => e.stopPropagation());
 
-    el.appendChild(editor);
+    // Always insert editor as a sibling after the element, never inside it
+    // (avoids nesting interactive elements inside <a> tags)
+    el.insertAdjacentElement('afterend', editor);
+  }
+
+  /** Find the sibling editor associated with an element. */
+  function getEditorForElement(el) {
+    const key = el.dataset.contentKey;
+    return key ? document.querySelector(`.ec-field-editor[data-editor-for="${key}"]`) : null;
   }
 
   // ── Image Editor ───────────────────────────────────────────────────────
   function attachImageEditor(el, row) {
-    if (el.querySelector('.ec-field-editor')) return;
+    const existingEditor = getEditorForElement(el);
+    if (existingEditor) return;
 
     const data = row.content || {};
     const editor = document.createElement('div');
     editor.className = 'ec-field-editor';
+    editor.dataset.editorFor = row.key;
     editor.innerHTML = `
       <label>Image URL <input type="url" data-field="src" value="${escapeAttr(data.src || '')}"></label>
       <label>Alt text <input type="text" data-field="alt" value="${escapeAttr(data.alt || '')}"></label>
@@ -440,7 +453,7 @@
     });
 
     editor.addEventListener('click', (e) => e.stopPropagation());
-    el.appendChild(editor);
+    el.insertAdjacentElement('afterend', editor);
   }
 
   // ── Save to Supabase ───────────────────────────────────────────────────
