@@ -192,7 +192,11 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
       year,
       activePeriods: periods.filter(p => { const s = getYear(p.startDate), e = getYear(p.endDate); return year >= s && year <= e; }),
       alivePeople: people.filter(p => { const s = getYear(p.startDate), e = getYear(p.endDate); return year >= s && year <= e; }),
-      yearPoints: points.filter(p => getYear(p.date) === year)
+      yearPoints: points.filter(p => getYear(p.date) === year),
+      nearbyPoints: points
+        .filter(p => { const py = getYear(p.date); return py >= year - 25 && py <= year + 25; })
+        .map(p => ({ ...p, pointYear: getYear(p.date), yearDelta: getYear(p.date) - year }))
+        .sort((a, b) => a.pointYear - b.pointYear)
     };
   }, [filteredData]);
 

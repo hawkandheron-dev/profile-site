@@ -24,7 +24,7 @@ export function YearSummaryModal({ year, summary, config, onClose, itemIndex, on
     };
   }, [onClose]);
 
-  const { activePeriods, alivePeople, yearPoints } = summary;
+  const { activePeriods, alivePeople, yearPoints, nearbyPoints = [] } = summary;
 
   // Format year for display
   const formatYear = (yr) => {
@@ -147,8 +147,40 @@ export function YearSummaryModal({ year, summary, config, onClose, itemIndex, on
           </div>
         )}
 
+        {/* Nearby events and texts (±25 years) */}
+        {nearbyPoints.length > 0 && (
+          <div className="summary-section">
+            <h3 className="summary-section-title">Notable events and texts around {formatYear(year)}</h3>
+            <ul className="summary-list summary-nearby-list">
+              {nearbyPoints.map(point => {
+                const delta = point.yearDelta;
+                let relativeLabel;
+                if (delta === 0) {
+                  relativeLabel = 'This year';
+                } else if (delta < 0) {
+                  relativeLabel = `${Math.abs(delta)} year${Math.abs(delta) !== 1 ? 's' : ''} before`;
+                } else {
+                  relativeLabel = `${delta} year${delta !== 1 ? 's' : ''} after`;
+                }
+                return (
+                  <li key={point.id} className="summary-item summary-nearby-item">
+                    <span className="summary-nearby-label">{relativeLabel}</span>
+                    <span className="summary-nearby-event">
+                      <span
+                        className="summary-color-dot"
+                        style={{ backgroundColor: point.color }}
+                      />
+                      {point.name}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+
         {/* Empty state */}
-        {activePeriods.length === 0 && alivePeople.length === 0 && yearPoints.length === 0 && (
+        {activePeriods.length === 0 && alivePeople.length === 0 && yearPoints.length === 0 && nearbyPoints.length === 0 && (
           <p className="summary-empty">No data for this year.</p>
         )}
       </div>

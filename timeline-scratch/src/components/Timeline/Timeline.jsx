@@ -456,7 +456,20 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
       return pointYear === year;
     });
 
-    return { year, activePeriods, alivePeople, yearPoints };
+    // Find events and texts within ±25 years (50-year window)
+    const nearbyPoints = points
+      .filter(p => {
+        const pointYear = getYear(p.date);
+        return pointYear >= year - 25 && pointYear <= year + 25;
+      })
+      .map(p => ({
+        ...p,
+        pointYear: getYear(p.date),
+        yearDelta: getYear(p.date) - year
+      }))
+      .sort((a, b) => a.pointYear - b.pointYear);
+
+    return { year, activePeriods, alivePeople, yearPoints, nearbyPoints };
   }, [filteredData]);
 
   // Handle click on blank space (for year summary)
