@@ -25,7 +25,9 @@ export function TimelineCanvas({
   hoveredItem,
   hoveredPeriod,
   onItemHover,
-  onItemClick
+  onItemClick,
+  highlightedItemIds = new Set(),
+  currentHighlightId = null
 }) {
   const canvasRef = useRef(null);
   const hitMapRef = useRef(new Map()); // For click detection
@@ -75,7 +77,10 @@ export function TimelineCanvas({
     // Render all other items (they already have y positions calculated)
     renderPeople(ctx, layout.stackedPeople);
     renderPoints(ctx, layout.stackedPoints);
-  }, [width, height, viewportStartYear, yearsPerPixel, panOffsetY, layout, config, hoveredItem, hoveredPeriod]);
+
+    // Draw search highlights on top
+    renderSearchHighlights(ctx, layout);
+  }, [width, height, viewportStartYear, yearsPerPixel, panOffsetY, layout, config, hoveredItem, hoveredPeriod, highlightedItemIds, currentHighlightId]);
 
   // Render people
   function renderPeople(ctx, people) {
@@ -234,6 +239,69 @@ export function TimelineCanvas({
         bounds: { x: x - hitSize/2, y: y - 40, width: hitSize, height: 35 }
       });
     });
+  }
+
+  // Render search highlight overlays
+  function renderSearchHighlights(ctx, layout) {
+    if (highlightedItemIds.size === 0) return;
+
+    const highlightColor = '#c4a050'; // Gold/amber for highlight
+    const currentColor = '#d4b060';   // Brighter gold for current
+
+    // Helper to draw highlight ring around an item
+    const drawHighlightRing = (x, y, w, h, isCurrent) => {
+      ctx.save();
+      ctx.strokeStyle = isCurrent ? currentColor : highlightColor;
+      ctx.lineWidth = isCurrent ? 4 : 2;
+      ctx.shadowColor = isCurrent ? currentColor : highlightColor;
+      ctx.shadowBlur = isCurrent ? 12 : 6;
+      ctx.beginPath();
+      ctx.roundRect(x - 2, y - 2, w + 4, h + 4, 6);
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    // Highlight people
+    for (const person of layout.stackedPeople || []) {
+      if (!highlightedItemIds.has(person.id)) continue;
+      const { start, end } = getYearRange(person.startDate, person.endDate);
+      const x = yearToPixel(start, viewportStartYear, yearsPerPixel);
+      const boxWidth = Math.max(yearToPixel(end, viewportStartYear, yearsPerPixel) - x, 60);
+      const y = person.y - panOffsetY;
+      const boxHeight = person.height - 14;
+      const isCurrent = person.id === currentHighlightId;
+      drawHighlightRing(x, y, boxWidth, boxHeight, isCurrent);
+    }
+
+    // Highlight periods
+    for (const period of layout.stackedPeriods || []) {
+      if (!highlightedItemIds.has(period.id)) continue;
+      const { start, end } = getYearRange(period.startDate, period.endDate);
+      const x = yearToPixel(start, viewportStartYear, yearsPerPixel);
+      const periodWidth = yearToPixel(end, viewportStartYear, yearsPerPixel) - x;
+      const y = period.y - panOffsetY;
+      const bracketHeight = period.bracketHeight || period.height;
+      const isCurrent = period.id === currentHighlightId;
+      drawHighlightRing(x, y, periodWidth, bracketHeight, isCurrent);
+    }
+
+    // Highlight points (small circle around point marker area)
+    for (const point of layout.stackedPoints || []) {
+      if (!highlightedItemIds.has(point.id)) continue;
+      const year = getYearRange(point.date).start;
+      const x = yearToPixel(year, viewportStartYear, yearsPerPixel);
+      const y = point.y - panOffsetY + (point.height / 2);
+      const isCurrent = point.id === currentHighlightId;
+      ctx.save();
+      ctx.strokeStyle = isCurrent ? currentColor : highlightColor;
+      ctx.lineWidth = isCurrent ? 3 : 2;
+      ctx.shadowColor = isCurrent ? currentColor : highlightColor;
+      ctx.shadowBlur = isCurrent ? 10 : 5;
+      ctx.beginPath();
+      ctx.arc(x, y - 20, 14, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 
   // Convert hex color to rgba

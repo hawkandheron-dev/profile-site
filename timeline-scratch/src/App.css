@@ -30,8 +30,35 @@ body {
   gap: 20px;
 }
 
+.header-left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.site-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--color-ink, #2c2418);
+  line-height: 1.3;
+}
+
+.site-title strong {
+  font-weight: 700;
+}
+
+.site-title span {
+  font-weight: 400;
+}
+
+.header-right {
+  flex-shrink: 0;
+}
+
 .auth-actions {
-  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -57,12 +84,7 @@ body {
   background: var(--color-parchment, #f5f0e1);
 }
 
-.app-header h1 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--color-ink, #2c2418);
-}
+/* h1 styles are now in .header-left h1 */
 
 .tab-nav {
   display: flex;
@@ -168,21 +190,30 @@ body {
 
   .header-content {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
+    align-items: stretch;
+    gap: 8px;
   }
 
-  .auth-actions {
-    margin-top: 4px;
-  }
-
-  .app-header h1 {
-    font-size: 16px;
+  .header-left {
+    order: 1;
   }
 
   .tab-nav {
+    order: 2;
     gap: 2px;
     flex-wrap: wrap;
+  }
+
+  .header-right {
+    order: 3;
+  }
+
+  .auth-actions {
+    justify-content: flex-start;
+  }
+
+  .site-title {
+    font-size: 14px;
   }
 
   .tab-button {
@@ -202,7 +233,7 @@ body {
     border-bottom-color: #3a3528;
   }
 
-  .app-header h1 {
+  .site-title {
     color: #f0ebe0;
   }
 

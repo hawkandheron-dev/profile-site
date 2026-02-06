@@ -146,6 +146,13 @@ export function useZoomPan({
     setViewportStartYear(clampedStart);
   }, [yearsPerPixel, minYear, maxYear]);
 
+  /**
+   * Set vertical pan offset directly (for search centering)
+   */
+  const setVerticalOffset = useCallback((offset) => {
+    setPanOffsetY(offset);
+  }, []);
+
   return {
     viewportStartYear,
     yearsPerPixel,
@@ -158,6 +165,7 @@ export function useZoomPan({
     endPan,
     reset,
     jumpToYear,
+    setVerticalOffset,
     isPanning: isPanning.current
   };
 }

@@ -182,6 +182,24 @@
   z-index: 1;
 }
 
+/* Person lane search highlights */
+.mobile-person-lane.highlighted {
+  box-shadow:
+    0 0 0 2px #c4a050,
+    0 0 8px 2px rgba(196, 160, 80, 0.5),
+    0 1px 4px rgba(60, 50, 30, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.mobile-person-lane.current-highlight {
+  box-shadow:
+    0 0 0 3px #d4b060,
+    0 0 12px 4px rgba(212, 176, 96, 0.6),
+    0 1px 4px rgba(60, 50, 30, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+  z-index: 5;
+}
+
 /* ── Point markers (z-index 6, above lanes) ── */
 /* Outer button: absolutely positioned at the point's year, starts at gutter edge.
    Does NOT extend left of the gutter. */
