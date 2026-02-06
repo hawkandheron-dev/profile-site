@@ -138,14 +138,26 @@
 
   // ── Clerk & Admin Check ────────────────────────────────────────────────
 
-  /** Dynamically load Clerk JS from their CDN (avoids the static script tag
-   *  that errors when no data-clerk-publishable-key attribute is present). */
-  function loadClerkScript() {
+  /** Derive the Clerk Frontend API URL from a publishable key.
+   *  Keys are formatted as pk_test_<base64> or pk_live_<base64>. */
+  function getFrontendApi(publishableKey) {
+    const raw = publishableKey.replace(/^pk_(test|live)_/, '');
+    // atob gives us the Frontend API hostname (may have a trailing $)
+    return atob(raw).replace(/\$$/, '');
+  }
+
+  /** Dynamically load Clerk JS from the Clerk Frontend API CDN.
+   *  The script auto-initializes window.Clerk when loaded with the
+   *  data-clerk-publishable-key attribute. */
+  function loadClerkScript(publishableKey) {
     return new Promise((resolve, reject) => {
       if (window.Clerk) return resolve();
+      const frontendApi = getFrontendApi(publishableKey);
       const s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.min.js';
+      s.src = 'https://' + frontendApi + '/npm/@clerk/clerk-js@5/dist/clerk.browser.js';
       s.async = true;
+      s.crossOrigin = 'anonymous';
+      s.dataset.clerkPublishableKey = publishableKey;
       s.onload = resolve;
       s.onerror = () => reject(new Error('Failed to load Clerk JS'));
       document.head.appendChild(s);
@@ -157,13 +169,14 @@
     if (!clerkPubKey) return;
 
     try {
-      await loadClerkScript();
+      await loadClerkScript(clerkPubKey);
     } catch (err) {
       console.warn('[editable-content] Could not load Clerk:', err.message);
       return;
     }
 
-    clerk = new window.Clerk(clerkPubKey);
+    // The CDN script sets window.Clerk as a pre-configured instance
+    clerk = window.Clerk;
     await clerk.load();
 
     if (clerk.user) {
