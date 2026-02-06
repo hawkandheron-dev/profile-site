@@ -1,23 +1,24 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-page="home">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>The Mews — by Hawk &amp; Heron</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="editable-content.css" />
   </head>
   <body>
     <!-- Splash image kept in file but not displayed -->
     <img class="splash" src="highcountry_1.png" alt="High country landscape" />
 
     <nav class="top-nav" aria-label="Primary">
-      <a href="about.html">About</a>
+      <!-- Edit Mode and auth controls are injected here by editable-content.js -->
     </nav>
 
     <header class="hero">
-      <h1 class="hero-title">The Mews</h1>
-      <p class="hero-subtitle">by Hawk &amp; Heron</p>
-      <p class="hero-description">
+      <h1 class="hero-title" data-content-key="home.hero_title">The Mews</h1>
+      <p class="hero-subtitle" data-content-key="home.hero_subtitle">by Hawk &amp; Heron</p>
+      <p class="hero-description" data-content-key="home.hero_description">
         Welcome to The Mews! Here are a few projects that you may find interesting.
         If you want, you can sign up and log in to save notes or favorites, or just
         browse without logging in.
@@ -25,21 +26,22 @@
     </header>
 
     <div class="main-actions">
-      <a class="button" href="timeline-scratch/dist/church-history-supabase.html">Church History Timeline</a>
-      <a class="button" href="timeline-scratch/dist/historical-eras.html">Image Board Timeline</a>
-      <a class="button" href="pantheons-supabase.html">Pantheons</a>
+      <a class="button button-primary" href="timeline-scratch/dist/church-history-supabase.html">Church History Timeline</a>
+    </div>
+
+    <div class="secondary-actions">
+      <a class="button" href="about.html" data-content-key="home.nav.about">About</a>
+      <a class="button" href="https://postapocalyptic.substack.com/?utm_campaign=hawkandheronmews.com" data-content-key="home.nav.substack">Substack</a>
+      <button class="button" id="ec-sign-in-btn" type="button">Sign Up / Sign In</button>
       <details class="more-projects">
         <summary>More Projects ▾</summary>
         <div class="more-projects-menu">
-          <a href="timeline/">Timeline</a>
-          <a href="timeline-scratch/dist/index.html">Timeline Scratch</a>
-          <a href="timeline-scratch/dist/church-history.html">CH Timeline (JSON)</a>
-          <a href="timeline-scratch/dist/church-history-supabase.html">CH Timeline (Supabase)</a>
+          <a href="timeline/">Timeline Prototype</a>
+          <a href="timeline-scratch/dist/index.html">Timeline Base</a>
           <a href="church-history-supabase.html">CH Data Browser</a>
-          <a href="timeline-scratch/dist/historical-eras.html">Historical Eras</a>
+          <a href="timeline-scratch/dist/historical-eras.html">History Vision Boards</a>
           <div class="dropdown-divider"></div>
-          <a href="pantheons.html">Pantheons (SQLite)</a>
-          <a href="pantheons-supabase.html">Pantheons (Supabase)</a>
+          <a href="pantheons-supabase.html">Pantheons</a>
           <div class="dropdown-divider"></div>
           <a href="design-system.html">Design System</a>
         </div>
@@ -47,7 +49,17 @@
     </div>
 
     <footer class="site-footer">
-      <p>&copy; Hawk &amp; Heron</p>
+      <p data-content-key="home.footer">&copy; Hawk &amp; Heron</p>
     </footer>
+
+    <!-- Supabase JS (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <!-- Config (served by Cloudflare Function in prod, local stub in dev) -->
+    <!-- Note: Clerk JS is loaded dynamically by editable-content.js after config is available -->
+    <script src="/api/supabase-config"></script>
+    <!-- Site-wide behaviour (dropdown close, etc.) -->
+    <script src="site.js"></script>
+    <!-- Editable content system -->
+    <script src="editable-content.js"></script>
   </body>
 </html>
