@@ -60,6 +60,19 @@ const colorMap = {
   event: '#ff6f00'
 };
 
+// Colors for emperor/monarch types by empire/location
+const monarchColorMap = {
+  'roman-unified':  '#9C27B0', // Purple
+  'roman-western':  '#C62828', // Red
+  'roman-eastern':  '#1565C0', // Blue
+  'frankish':       '#F57F17', // Amber/Gold
+  'hre':            '#E65100', // Deep Orange
+  'english':        '#00695C', // Teal
+  'spanish':        '#AD1457', // Pink/Maroon
+  'french':         '#283593', // Indigo
+  'russian':        '#4E342E', // Brown
+};
+
 const shapeMap = {
   council: 'cross',
   document: 'book',
@@ -207,8 +220,10 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
 
   dbPeople.forEach(p => {
     if (p.is_emperor) {
-      // Emperor - below timeline
+      // Emperor/monarch - below timeline, colored by monarch_type
       const reignPreview = formatReignYears(p.birth_year, p.death_year);
+      const emperorColor = (p.monarch_type && monarchColorMap[p.monarch_type])
+        || colorMap.emperor;
       timelinePeople.push({
         id: p.person_id,
         name: p.name,
@@ -217,10 +232,12 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
         dateCertainty: 'year only',
         periodId: 'roman-emperors',
         preview: reignPreview,
-        color: colorMap.emperor,
+        color: emperorColor,
         aboveTimeline: false,
         isEmperor: true,
-        location: p.location
+        location: p.location,
+        description: p.description || null,
+        monarchType: p.monarch_type || null
       });
     } else {
       // Regular person - above timeline
@@ -260,7 +277,8 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
       preview: ev.name,
       aboveTimeline: ev.event_type !== 'document',
       itemType: ev.event_type === 'council' ? 'councils' : ev.event_type === 'document' ? 'documents' : 'events',
-      location: ev.location
+      location: ev.location,
+      description: ev.description || null
     });
   });
 
