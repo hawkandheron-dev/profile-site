@@ -181,6 +181,25 @@
   background: var(--color-accent-hover, #6d5a42);
 }
 
+/* ── Disabled links in edit mode ───────────────────────────────────────── */
+body.ec-editing a,
+body.ec-editing .button:not(.ec-edit-toggle):not(.ec-save-btn),
+body.ec-editing summary {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+body.ec-editing .ec-editable a,
+body.ec-editing .ec-editable {
+  opacity: 1;
+}
+
+body.ec-editing .ec-field-editor,
+body.ec-editing .ec-field-editor * {
+  cursor: auto;
+  opacity: 1;
+}
+
 /* ── Body-level edit mode indicator ───────────────────────────────────── */
 body.ec-editing::after {
   /* Override the vignette to add a subtle edit-mode tint */

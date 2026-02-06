@@ -270,11 +270,43 @@
     nav.appendChild(btn);
   }
 
+  /** Block all link navigation and clickable-element default actions while
+   *  edit mode is active. Allows the Edit Mode toggle itself through. */
+  function editModeClickGuard(e) {
+    const toggle = document.querySelector('.ec-edit-toggle');
+    if (toggle && toggle.contains(e.target)) return; // always allow toggle
+
+    // Allow clicks inside field editors (inputs, save buttons)
+    if (e.target.closest('.ec-field-editor')) return;
+
+    // Block <a> navigation
+    const anchor = e.target.closest('a');
+    if (anchor) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    // Block <details> toggling (More Projects dropdown etc.)
+    const summary = e.target.closest('summary');
+    if (summary) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+  }
+
   function toggleEditMode(btn) {
     editMode = !editMode;
     btn.classList.toggle('ec-edit-active', editMode);
     btn.textContent = editMode ? 'Exit Edit Mode' : 'Edit Mode';
     document.body.classList.toggle('ec-editing', editMode);
+
+    if (editMode) {
+      document.addEventListener('click', editModeClickGuard, true);
+    } else {
+      document.removeEventListener('click', editModeClickGuard, true);
+    }
 
     document.querySelectorAll('[data-content-key]').forEach((el) => {
       const key = el.dataset.contentKey;
