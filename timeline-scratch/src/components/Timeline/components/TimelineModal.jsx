@@ -314,6 +314,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
 
         {itemType === 'person' && item.location && (
           <HistoricalMap
+            key={item.id}
             location={item.location}
             birthYear={getYear(item.startDate)}
           />

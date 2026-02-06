@@ -162,6 +162,9 @@ export function YearSummaryModal({ year, summary, config, onClose, itemIndex, on
                 } else {
                   relativeLabel = `${delta} year${delta !== 1 ? 's' : ''} after`;
                 }
+                const displayYear = point.pointYear <= 0
+                  ? `${Math.abs(point.pointYear - 1)} BC`
+                  : `${point.pointYear}`;
                 return (
                   <li key={point.id} className="summary-item summary-nearby-item">
                     <span className="summary-nearby-label">{relativeLabel}</span>
@@ -170,7 +173,15 @@ export function YearSummaryModal({ year, summary, config, onClose, itemIndex, on
                         className="summary-color-dot"
                         style={{ backgroundColor: point.color }}
                       />
-                      {point.name}
+                      <button
+                        type="button"
+                        className="summary-nearby-link"
+                        data-item-id={point.id}
+                        data-item-type="point"
+                        onClick={handleReferenceClick}
+                      >
+                        {point.name} ({displayYear})
+                      </button>
                     </span>
                   </li>
                 );
