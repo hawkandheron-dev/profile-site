@@ -312,11 +312,11 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
           <p className="modal-location">{item.location}</p>
         )}
 
-        {itemType === 'person' && item.location && (
+        {(itemType === 'person' || itemType === 'point') && item.location && (
           <HistoricalMap
             key={item.id}
             location={item.location}
-            birthYear={getYear(item.startDate)}
+            birthYear={getYear(item.startDate || item.date)}
           />
         )}
 
