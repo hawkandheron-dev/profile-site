@@ -583,6 +583,8 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         hoveredPeriod={hoveredPeriod}
         highlightedItemIds={highlightedItemIds}
         currentHighlightId={currentHighlightId}
+        onItemHover={handleItemHover}
+        onItemClick={handleItemClickInternal}
       />
 
       {/* Cursor year display - follows cursor */}
