@@ -8,6 +8,7 @@ import { Icon } from './Icon.jsx';
 import { getWorksForAuthor } from '../../../data/works.js';
 import { fetchDescription } from '../../../services/wikipediaService.js';
 import { NotesSection } from '../../Notes/NotesSection.jsx';
+import { EditEntityForm } from '../../EditEntityForm/EditEntityForm.jsx';
 import { HistoricalMap } from './HistoricalMap.jsx';
 import './TimelineModal.css';
 
@@ -115,7 +116,14 @@ function linkifyDescription(description, itemIndex, currentItemId) {
   }
 }
 
-export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople }) {
+export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople, adminContext, onEntityUpdated }) {
+  const [editing, setEditing] = useState(false);
+
+  // Reset edit mode when item changes
+  useEffect(() => {
+    setEditing(false);
+  }, [item?.id, itemType]);
+
   // Handle escape key
   useEffect(() => {
     if (!isOpen) return;
@@ -314,6 +322,15 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
             >
               🔎
             </a>
+          )}
+          {adminContext?.isAdmin && (
+            <button
+              type="button"
+              className={`modal-edit-toggle${editing ? ' active' : ''}`}
+              onClick={() => setEditing(prev => !prev)}
+            >
+              {editing ? 'Close Editor' : 'Edit'}
+            </button>
           )}
         </h2>
 
@@ -536,6 +553,18 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
             getToken={authContext.getToken}
             clerkUserId={authContext.clerkUserId}
             itemIndex={itemIndex}
+          />
+        )}
+
+        {editing && adminContext?.isAdmin && (
+          <EditEntityForm
+            item={item}
+            itemType={itemType}
+            getToken={adminContext.getToken}
+            onSaved={(updatedRow, type) => {
+              onEntityUpdated?.(updatedRow, type);
+            }}
+            onCancel={() => setEditing(false)}
           />
         )}
       </div>
