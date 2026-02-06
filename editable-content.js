@@ -137,9 +137,31 @@
   }
 
   // ── Clerk & Admin Check ────────────────────────────────────────────────
+
+  /** Dynamically load Clerk JS from their CDN (avoids the static script tag
+   *  that errors when no data-clerk-publishable-key attribute is present). */
+  function loadClerkScript() {
+    return new Promise((resolve, reject) => {
+      if (window.Clerk) return resolve();
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.min.js';
+      s.async = true;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('Failed to load Clerk JS'));
+      document.head.appendChild(s);
+    });
+  }
+
   async function initClerk() {
     const clerkPubKey = window.CLERK_PUBLISHABLE_KEY;
-    if (!clerkPubKey || !window.Clerk) return;
+    if (!clerkPubKey) return;
+
+    try {
+      await loadClerkScript();
+    } catch (err) {
+      console.warn('[editable-content] Could not load Clerk:', err.message);
+      return;
+    }
 
     clerk = new window.Clerk(clerkPubKey);
     await clerk.load();

@@ -48,9 +48,8 @@
 
     <!-- Supabase JS (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <!-- Clerk JS (CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.min.js"></script>
     <!-- Config (served by Cloudflare Function in prod, local stub in dev) -->
+    <!-- Note: Clerk JS is loaded dynamically by editable-content.js after config is available -->
     <script src="/api/supabase-config"></script>
     <!-- Editable content system -->
     <script src="editable-content.js"></script>
