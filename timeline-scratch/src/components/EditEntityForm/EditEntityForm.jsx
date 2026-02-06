@@ -28,6 +28,7 @@ const PERSON_FIELDS = [
   { key: 'era_id', label: 'Era ID', type: 'text', placeholder: 'era-apostolic' },
   { key: 'is_emperor', label: 'Is Emperor', type: 'checkbox' },
   { key: 'monarch_type', label: 'Monarch Type', type: 'text', placeholder: 'roman-unified, frankish, etc.' },
+  { key: 'reference_url', label: 'Reference URL', type: 'text', placeholder: 'https://en.wikipedia.org/wiki/...' },
   { key: 'description', label: 'Description', type: 'textarea' },
   { key: 'notes', label: 'Notes', type: 'textarea' },
 ];
@@ -39,6 +40,7 @@ const EVENT_FIELDS = [
   { key: 'event_date', label: 'Event Date (ISO)', type: 'text', placeholder: '0325-01-01' },
   { key: 'end_date', label: 'End Date (ISO)', type: 'text', placeholder: '0325-12-31' },
   { key: 'location', label: 'Location', type: 'text' },
+  { key: 'reference_url', label: 'Reference URL', type: 'text', placeholder: 'https://en.wikipedia.org/wiki/...' },
   { key: 'description', label: 'Description', type: 'textarea' },
 ];
 
@@ -48,6 +50,7 @@ const ERA_FIELDS = [
   { key: 'start_year', label: 'Start Year', type: 'number' },
   { key: 'end_year', label: 'End Year', type: 'number' },
   { key: 'color', label: 'Color', type: 'color' },
+  { key: 'reference_url', label: 'Reference URL', type: 'text', placeholder: 'https://en.wikipedia.org/wiki/...' },
   { key: 'description', label: 'Description', type: 'textarea' },
 ];
 
