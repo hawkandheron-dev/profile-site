@@ -6,20 +6,33 @@
 const LOCATION_COORDINATES = {
   // Holy Land & Near East
   'Judea': [31.7, 35.2],
+  'Jerusalem': [31.77, 35.23],
   'Bethlehem': [31.71, 35.21],
+  'Holy Land': [31.77, 35.23],
   'Antioch': [36.2, 36.16],
   'Ephesus': [37.94, 27.34],
   'Smyrna': [38.42, 27.14],
   'Hierapolis': [37.93, 29.12],
   'Asia Minor': [39.0, 32.0],
+  'Galatia / Asia Minor': [39.65, 32.65],
 
   // Egypt & North Africa
   'Alexandria': [31.2, 29.92],
+  'Egypt': [30.04, 31.24],
+  'Egypt or Caesarea': [30.04, 31.24],
+  'Syrian Desert': [33.51, 36.29],
+  'Syria or Egypt': [33.51, 36.29],
   'Egyptian Desert': [28.5, 30.5],
   'Carthage': [36.85, 10.32],
   'North Africa': [34.0, 9.0],
   'Hippo Regius': [36.89, 7.77],
   'Calama, Numidia': [36.46, 7.43],
+
+  // Caesarea (Palestine)
+  'Caesarea': [32.5, 34.89],
+
+  // Thessalonica
+  'Thessalonica': [40.64, 22.94],
 
   // Asia Minor / Cappadocia / Pontus
   'Neocaesarea, Pontus': [40.33, 36.56],
@@ -32,6 +45,15 @@ const LOCATION_COORDINATES = {
   // Constantinople / Byzantine
   'Constantinople': [41.01, 28.98],
   'Constantinople / Nicomedia': [41.01, 28.98],
+  'Nicaea': [40.43, 29.72],
+  'Chalcedon': [40.98, 29.03],
+
+  // Empires (broad)
+  'Roman Empire': [41.9, 12.5],
+  'Western Roman Empire': [41.9, 12.5],
+  'Eastern Roman Empire': [41.01, 28.98],
+  'Holy Roman Empire': [50.0, 10.0],
+  'Bohemia': [49.82, 15.47],
 
   // Italy
   'Rome': [41.9, 12.5],
@@ -75,9 +97,13 @@ const LOCATION_COORDINATES = {
 
   // Germany
   'Mainz, Germania': [50.0, 8.27],
+  'Mainz, Germany': [50.0, 8.27],
   'Bingen, Germany': [49.97, 7.9],
   'Wittenberg, Germany': [51.87, 12.65],
   'Kues, Germany': [49.91, 7.07],
+  'Augsburg, Germany': [48.37, 10.9],
+  'Frankfurt': [50.11, 8.68],
+  'Worms, Germany': [49.63, 8.36],
 
   // England
   'Canterbury, England': [51.28, 1.08],
@@ -99,6 +125,7 @@ const LOCATION_COORDINATES = {
 
   // Scotland / Ireland
   'Iona': [56.33, -6.4],
+  'Iona, Scotland': [56.33, -6.4],
   'Ireland': [53.35, -6.26],
 
   // Belgium / Netherlands / Low Countries
@@ -112,6 +139,8 @@ const LOCATION_COORDINATES = {
   // Switzerland
   'Zurich, Switzerland': [47.37, 8.54],
   'Geneva, Switzerland': [46.2, 6.14],
+  'Basel / Geneva': [46.2, 6.14],
+  'Trent, Italy': [46.07, 11.12],
 
   // Spain / Iberia
   'Seville': [37.39, -5.98],
@@ -126,11 +155,17 @@ const LOCATION_COORDINATES = {
   'Central/Eastern Europe': [50.0, 20.0],
   'Prussia': [54.36, 19.68],
 
+  // France
+  'France': [48.86, 2.35],
+
   // Greece
   'Corinth, Greece': [37.91, 22.88],
 
   // Poland
   'Frauenburg, Poland': [54.36, 19.68],
+
+  // Russia
+  "Kievan Rus'": [50.45, 30.52],
 
   // Americas
   'Hispaniola': [19.0, -70.7],
