@@ -18,7 +18,8 @@ export function TimelineOverlay({
   hoveredItem,
   hoveredPeriod,
   onItemHover,
-  onItemClick
+  onItemClick,
+  wasDraggingRef
 }) {
   // Get hovered period date range for highlighting
   const hoveredPeriodRange = hoveredPeriod ? getYearRange(hoveredPeriod.startDate, hoveredPeriod.endDate) : null;
@@ -335,7 +336,7 @@ export function TimelineOverlay({
           }}
           onMouseEnter={() => onItemHover?.('point', point)}
           onMouseLeave={() => onItemHover?.(null, null)}
-          onClick={(e) => { e.stopPropagation(); onItemClick?.('point', point); }}
+          onClick={(e) => { e.stopPropagation(); if (!wasDraggingRef?.current) onItemClick?.('point', point); }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
             <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={14} />

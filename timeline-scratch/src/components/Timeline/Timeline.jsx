@@ -50,6 +50,7 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
 
 const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }, ref) {
   const containerRef = useRef(null);
+  const wasDraggingRef = useRef(false);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [hoveredItem, setHoveredItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -297,6 +298,16 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
 
     endPan();
     container.style.cursor = 'grab';
+
+    // If any significant movement happened, suppress the next canvas click
+    if (clickStart) {
+      const dx = Math.abs(mousePos.x - clickStart.x);
+      const dy = Math.abs(mousePos.y - clickStart.y);
+      if (dx >= 5 || dy >= 5) {
+        wasDraggingRef.current = true;
+        requestAnimationFrame(() => { wasDraggingRef.current = false; });
+      }
+    }
   }, [endPan, hoveredItem, isModalOpen, mousePos, cursorYear, isOverControls, selectedItem, yearSummaryOpen]);
 
   // Handle item hover
@@ -567,6 +578,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         hoveredPeriod={hoveredPeriod}
         onItemHover={handleItemHover}
         onItemClick={handleItemClickInternal}
+        wasDraggingRef={wasDraggingRef}
         highlightedItemIds={highlightedItemIds}
         currentHighlightId={currentHighlightId}
       />
@@ -585,6 +597,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         currentHighlightId={currentHighlightId}
         onItemHover={handleItemHover}
         onItemClick={handleItemClickInternal}
+        wasDraggingRef={wasDraggingRef}
       />
 
       {/* Cursor year display - follows cursor */}
