@@ -206,7 +206,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     yearsPerPixel,
     {
       personRowHeight: 34,
-      pointRowHeight: 22,
+      pointRowHeight: 20,
       periodRowHeight: 40,
       lanePadding: 8,
       axisHeight: 30

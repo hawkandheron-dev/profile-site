@@ -324,14 +324,14 @@ export function TimelineOverlay({
             cursor: 'pointer',
             color: '#333',
             backgroundColor: 'rgba(255, 255, 255, 0.92)',
-            padding: '1px 5px',
+            padding: '2px 6px',
             borderRadius: '2px',
             border: '1px solid #ccc',
             whiteSpace: 'nowrap',
             boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
             opacity: getPointOpacity(point),
             transition: 'opacity 0.15s ease',
-            lineHeight: '1'
+            lineHeight: '1.2'
           }}
           onMouseEnter={() => onItemHover?.('point', point)}
           onMouseLeave={() => onItemHover?.(null, null)}
@@ -339,7 +339,7 @@ export function TimelineOverlay({
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
             <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={10} />
-            <span style={{ fontSize: '10px', fontWeight: '600' }}>{point.name}</span>
+            <span style={{ fontSize: '11px', fontWeight: '600' }}>{point.name}</span>
             <span style={{ fontSize: '8px', opacity: 0.5 }}>{dateDisplay}</span>
           </div>
         </div>

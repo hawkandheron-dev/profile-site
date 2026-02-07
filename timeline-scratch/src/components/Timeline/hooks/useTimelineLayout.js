@@ -22,7 +22,7 @@ import { stackTimelineItems } from '../utils/stacking.js';
 export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
   const {
     personRowHeight = 34,
-    pointRowHeight = 22,
+    pointRowHeight = 20,
     periodRowHeight = 40,
     periodBracketHeight = 10,
     lanePadding = 8,
