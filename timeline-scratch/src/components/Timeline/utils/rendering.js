@@ -233,7 +233,7 @@ export function getCurlyBracePath(x, width, y, height) {
 export function drawPeriodBracket(ctx, x, width, y, height, color) {
   ctx.save();
   ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1.5;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 

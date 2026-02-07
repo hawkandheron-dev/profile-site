@@ -237,7 +237,7 @@ export function TimelineCanvas({
       hitMapRef.current.set(point.id, {
         type: 'point',
         item: point,
-        bounds: { x: x - hitSize/2, y: y - 28, width: hitSize, height: 26 }
+        bounds: { x: x - hitSize/2, y: y - 18, width: hitSize, height: 18 }
       });
     });
   }
@@ -299,7 +299,7 @@ export function TimelineCanvas({
       ctx.shadowColor = isCurrent ? currentColor : highlightColor;
       ctx.shadowBlur = isCurrent ? 10 : 5;
       ctx.beginPath();
-      ctx.arc(x, y - 14, 12, 0, Math.PI * 2);
+      ctx.arc(x, y - 9, 10, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }

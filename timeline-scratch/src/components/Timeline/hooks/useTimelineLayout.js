@@ -22,16 +22,16 @@ import { stackTimelineItems } from '../utils/stacking.js';
 export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
   const {
     personRowHeight = 34,
-    pointRowHeight = 34,
+    pointRowHeight = 22,
     periodRowHeight = 40,
-    periodBracketHeight = 18,
+    periodBracketHeight = 10,
     lanePadding = 8,
     axisHeight = 30
   } = sizes;
 
   // Stack all items with above/below separation
   const stacked = useMemo(() => {
-    return stackTimelineItems(data, 150, yearsPerPixel);
+    return stackTimelineItems(data, 120, yearsPerPixel);
   }, [data, yearsPerPixel]);
 
   // Calculate layout with positions

@@ -257,12 +257,12 @@ export function TimelineOverlay({
             top: `${bracketPointY + labelOffsetY}px`,
             transform: period.aboveTimeline ? 'translate(-50%, -100%)' : 'translateX(-50%)',
             pointerEvents: 'none',
-            fontSize: '11px',
+            fontSize: '10px',
             fontWeight: '600',
             color: labelTextColor,
             backgroundColor: labelBackgroundColor,
-            padding: '2px 8px',
-            borderRadius: '3px',
+            padding: '1px 6px',
+            borderRadius: '2px',
             whiteSpace: 'nowrap',
             zIndex: (isLeftSticky || isRightSticky) ? 10 : 1,
             textShadow: '0 0 2px rgba(0, 0, 0, 0.3)',
@@ -318,29 +318,29 @@ export function TimelineOverlay({
           style={{
             position: 'absolute',
             left: `${x}px`,
-            top: `${y - 28}px`,
+            top: `${y - 18}px`,
             transform: 'translateX(-50%)',
             pointerEvents: 'auto',
             cursor: 'pointer',
             color: '#333',
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            padding: '3px 7px',
-            borderRadius: '3px',
+            backgroundColor: 'rgba(255, 255, 255, 0.92)',
+            padding: '1px 5px',
+            borderRadius: '2px',
             border: '1px solid #ccc',
             whiteSpace: 'nowrap',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
             opacity: getPointOpacity(point),
             transition: 'opacity 0.15s ease',
-            lineHeight: '1.2'
+            lineHeight: '1'
           }}
           onMouseEnter={() => onItemHover?.('point', point)}
           onMouseLeave={() => onItemHover?.(null, null)}
           onClick={(e) => { e.stopPropagation(); if (!wasDraggingRef?.current) onItemClick?.('point', point); }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={12} />
-            <span style={{ fontSize: '11px', fontWeight: '600' }}>{point.name}</span>
-            <span style={{ fontSize: '9px', opacity: 0.6 }}>{dateDisplay}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+            <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={10} />
+            <span style={{ fontSize: '10px', fontWeight: '600' }}>{point.name}</span>
+            <span style={{ fontSize: '8px', opacity: 0.5 }}>{dateDisplay}</span>
           </div>
         </div>
       );
