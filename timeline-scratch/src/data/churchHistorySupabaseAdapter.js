@@ -128,6 +128,13 @@ export async function fetchChurchHistoryData() {
     throw new Error(`Supabase fetch errors: ${errors.map(e => e.message).join('; ')}`);
   }
 
+  // CH_EventConnections may not exist yet — fetch separately and swallow errors
+  let eventConnections = [];
+  const ecResult = await supabase.from('CH_EventConnections').select('*');
+  if (!ecResult.error) {
+    eventConnections = ecResult.data || [];
+  }
+
   return transformToTimelineFormat(
     eras || [],
     people || [],
@@ -135,13 +142,14 @@ export async function fetchChurchHistoryData() {
     connections || [],
     sources || [],
     sourceFigures || [],
-    works || []
+    works || [],
+    eventConnections
   );
 }
 
 // ── Transform Supabase data → Timeline component format ──────────────────
 
-function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSources, dbSourceFigures, dbWorks) {
+function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSources, dbSourceFigures, dbWorks, dbEventConnections) {
   // Build era color map from DB
   const eraColorMap = {};
   eras.forEach(era => {
@@ -203,6 +211,14 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
     });
   });
 
+  // Build event-person connections map (event_id → array of person_ids)
+  const eventConnectionMap = new Map();
+  (dbEventConnections || []).forEach(ec => {
+    if (!ec.event_id || !ec.person_id) return;
+    if (!eventConnectionMap.has(ec.event_id)) eventConnectionMap.set(ec.event_id, []);
+    eventConnectionMap.get(ec.event_id).push(ec.person_id);
+  });
+
   // Helper: determine era for a date
   function getEraForBirthYear(year) {
     if (year < 100) return 'era-apostolic';
@@ -256,6 +272,7 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
         color: eraColorMap[eraId] || '#5b7ee8',
         aboveTimeline: true,
         location: p.location,
+        description: p.description || null,
         connections: connectionMap.get(p.person_id) || [],
         sources: sourceMap.get(p.person_id) || [],
         works: worksMap.get(p.person_id) || [],
@@ -281,7 +298,9 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
       itemType: ev.event_type === 'council' ? 'councils' : ev.event_type === 'document' ? 'documents' : 'events',
       location: ev.location,
       description: ev.description || null,
-      referenceUrl: ev.reference_url || null
+      referenceUrl: ev.reference_url || null,
+      connectedPeople: eventConnectionMap.get(ev.event_id) || [],
+      sources: sourceMap.get(ev.event_id) || []
     });
   });
 

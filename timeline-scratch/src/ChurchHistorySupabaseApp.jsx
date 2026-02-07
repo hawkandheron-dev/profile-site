@@ -153,6 +153,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
               allPeople={allPeople}
               adminContext={adminContext}
               onEntityUpdated={handleEntityUpdated}
+              onDataChanged={handleEntityUpdated}
             />
           </div>
         )}
