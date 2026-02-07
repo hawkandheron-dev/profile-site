@@ -87,19 +87,33 @@ export function stackPeople(people) {
 }
 
 /**
+ * Estimate the pixel width of a point callout based on its text content
+ * @param {Object} point - Point item with name, date, endDate
+ * @param {number} fontSize - Font size in pixels (default 14)
+ * @returns {number} Estimated width in pixels
+ */
+function estimatePointCalloutWidth(point, fontSize = 14) {
+  const name = point.name || '';
+  // Approximate character width at 14px font: ~8.5px average for proportional font
+  const charWidth = fontSize * 0.6;
+  const nameWidth = name.length * charWidth;
+  // Icon (12px) + gap (3px) + name + gap (3px) + date text (~40-80px) + padding (12px)
+  const dateWidth = 50;
+  return 12 + nameWidth + 6 + dateWidth + 12;
+}
+
+/**
  * Stack points vertically when they overlap in time
- * Sorted by date, then alphabetically
+ * Uses per-point estimated widths for accurate collision detection
+ * Points extend rightward from their date position (left-aligned)
  *
  * @param {Array} points - Array of point items
- * @param {number} pointWidth - Width of point marker + label in pixels (for overlap detection)
+ * @param {number} pointWidth - Unused, kept for API compatibility
  * @param {number} yearsPerPixel - Current zoom scale
  * @returns {Array} Points with row assignments
  */
 export function stackPoints(points, pointWidth = 150, yearsPerPixel = 1) {
   if (!points || points.length === 0) return [];
-
-  // Calculate effective year range for each point based on callout/label width
-  const pointYearWidth = pointWidth * yearsPerPixel;
 
   // Sort by date, then alphabetically
   const sorted = [...points].sort((a, b) => {
@@ -115,8 +129,11 @@ export function stackPoints(points, pointWidth = 150, yearsPerPixel = 1) {
 
   const withRows = sorted.map(point => {
     const year = getYear(point.date);
-    const start = year - pointYearWidth / 2;
-    const end = year + pointYearWidth / 2;
+    // Left-aligned: callout extends rightward from the date position
+    const estimatedWidth = estimatePointCalloutWidth(point);
+    const widthInYears = estimatedWidth * yearsPerPixel;
+    const start = year;
+    const end = year + widthInYears;
 
     // Find first row where point fits
     let rowIndex = 0;

@@ -319,7 +319,6 @@ export function TimelineOverlay({
             position: 'absolute',
             left: `${x}px`,
             top: `${y - 18}px`,
-            transform: 'translateX(-50%)',
             pointerEvents: 'auto',
             cursor: 'pointer',
             color: '#333',

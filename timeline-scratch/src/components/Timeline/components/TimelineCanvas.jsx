@@ -232,12 +232,12 @@ export function TimelineCanvas({
       // Point markers are now rendered inside labels, so we don't draw them on canvas
       // Just set up hit detection
 
-      // Store in hit map for clicking (use label area)
-      const hitSize = 80; // Wider to match label width
+      // Store in hit map for clicking (left-aligned from date position)
+      const hitWidth = 120;
       hitMapRef.current.set(point.id, {
         type: 'point',
         item: point,
-        bounds: { x: x - hitSize/2, y: y - 18, width: hitSize, height: 18 }
+        bounds: { x: x, y: y - 18, width: hitWidth, height: 20 }
       });
     });
   }
