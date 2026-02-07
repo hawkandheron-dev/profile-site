@@ -1,5 +1,13 @@
 /**
- * Modal component for displaying full timeline item details
+ * Modal component for displaying full timeline item details.
+ *
+ * Changes from original:
+ *  - Delete person/point with "Are you sure?" confirmation
+ *  - Works displayed as comma-separated hyperlinks (not a list)
+ *  - Edit mode for Works, Sources, and Connections (save keeps modal open)
+ *  - PointConnections: events/texts can be related to People
+ *  - Description shown for People if present
+ *  - Wikipedia/Britannica attribution moved to top ("From Wikipedia")
  */
 
 import { useEffect, useMemo, useCallback, useState } from 'react';
@@ -7,6 +15,15 @@ import { formatDateRange, getYear } from '../utils/dateUtils.js';
 import { Icon } from './Icon.jsx';
 import { getWorksForAuthor } from '../../../data/works.js';
 import { fetchDescription } from '../../../services/wikipediaService.js';
+import {
+  deletePerson,
+  deletePoint,
+  updateWorksForPerson,
+  updateSourcesForPerson,
+  updateConnectionsForPerson,
+  updateEventConnections,
+} from '../../../services/timelineItemService.js';
+import { PeopleSelector } from '../../Notes/PeopleSelector.jsx';
 import { NotesSection } from '../../Notes/NotesSection.jsx';
 import { EditEntityForm } from '../../EditEntityForm/EditEntityForm.jsx';
 import { HistoricalMap } from './HistoricalMap.jsx';
@@ -116,13 +133,32 @@ function linkifyDescription(description, itemIndex, currentItemId) {
   }
 }
 
-export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople, adminContext, onEntityUpdated }) {
+export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople, onItemDeleted, onDataChanged, adminContext, onEntityUpdated }) {
+  // ── Delete confirmation state ──────────────────────────────────────────
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+
+  // ── Edit mode state ────────────────────────────────────────────────────
+  const [editSection, setEditSection] = useState(null); // 'works' | 'sources' | 'connections' | 'pointConnections' | null
+  const [editWorks, setEditWorks] = useState([]);
+  const [editSources, setEditSources] = useState([]);
+  const [editConnections, setEditConnections] = useState([]);
+  const [editPointPeople, setEditPointPeople] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [editing, setEditing] = useState(false);
 
-  // Reset edit mode when item changes
+  // Reset state when item changes
   useEffect(() => {
+    setDeleteConfirm(false);
+    setDeleting(false);
+    setDeleteError(null);
+    setEditSection(null);
+    setSaving(false);
+    setSaveError(null);
     setEditing(false);
-  }, [item?.id, itemType]);
+  }, [item?.id]);
 
   // Handle escape key
   useEffect(() => {
@@ -130,7 +166,13 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
 
     function handleEscape(e) {
       if (e.key === 'Escape') {
-        onClose();
+        if (deleteConfirm) {
+          setDeleteConfirm(false);
+        } else if (editSection) {
+          setEditSection(null);
+        } else {
+          onClose();
+        }
       }
     }
 
@@ -143,7 +185,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
       document.body.style.overflow = '';
       document.body.classList.remove('modal-open');
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, deleteConfirm, editSection]);
 
   const connections = useMemo(() => {
     if (itemType !== 'person' || !item?.connections?.length || !itemIndex) return [];
@@ -157,6 +199,18 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
           item: entry.item,
           itemType: entry.type
         };
+      })
+      .filter(Boolean);
+  }, [itemType, item, itemIndex]);
+
+  // Resolve connectedPeople for points (event-person connections)
+  const pointConnections = useMemo(() => {
+    if (itemType !== 'point' || !item?.connectedPeople?.length || !itemIndex) return [];
+    return item.connectedPeople
+      .map(personId => {
+        const entry = itemIndex.get(personId);
+        if (!entry || entry.type !== 'person') return null;
+        return entry;
       })
       .filter(Boolean);
   }, [itemType, item, itemIndex]);
@@ -195,8 +249,10 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
 
   const worksForPerson = useMemo(() => {
     if (itemType !== 'person') return [];
+    // Prefer works from item data (Supabase), fall back to static lookup
+    if (item?.works?.length) return item.works;
     return getWorksForAuthor(item?.name);
-  }, [itemType, item?.name]);
+  }, [itemType, item?.name, item?.works]);
 
   const searchQuery = useMemo(() => {
     if (itemType !== 'person') return '';
@@ -225,12 +281,130 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
     event.stopPropagation();
   }, []);
 
-  // ── Reference article description (Wikipedia etc.) ───────────────────
+  // ── Delete handlers ────────────────────────────────────────────────────
+  const handleDelete = useCallback(async () => {
+    if (!authContext?.getToken) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      if (itemType === 'person') {
+        await deletePerson(item.id, authContext.getToken);
+      } else if (itemType === 'point') {
+        await deletePoint(item.id, authContext.getToken);
+      }
+      onItemDeleted?.(itemType, item.id);
+      onClose();
+    } catch (err) {
+      setDeleteError(err.message || 'Delete failed.');
+      setDeleting(false);
+    }
+  }, [authContext, itemType, item, onItemDeleted, onClose]);
+
+  // ── Edit handlers ──────────────────────────────────────────────────────
+  const startEditWorks = useCallback(() => {
+    setEditWorks(worksForPerson.map(w => ({ name: w.name, textUrl: w.textUrl || '' })));
+    setEditSection('works');
+    setSaveError(null);
+  }, [worksForPerson]);
+
+  const startEditSources = useCallback(() => {
+    const sources = item?.sources || [];
+    setEditSources(sources.map(s => ({ ...s })));
+    setEditSection('sources');
+    setSaveError(null);
+  }, [item]);
+
+  const startEditConnections = useCallback(() => {
+    const conns = item?.connections || [];
+    setEditConnections(conns.map(c => ({ id: c.id, type: c.type || 'known' })));
+    setEditSection('connections');
+    setSaveError(null);
+  }, [item]);
+
+  const startEditPointPeople = useCallback(() => {
+    const ppl = item?.connectedPeople || [];
+    setEditPointPeople([...ppl]);
+    setEditSection('pointConnections');
+    setSaveError(null);
+  }, [item]);
+
+  const cancelEdit = useCallback(() => {
+    setEditSection(null);
+    setSaveError(null);
+  }, []);
+
+  const handleSaveEdit = useCallback(async () => {
+    if (!authContext?.getToken) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      if (editSection === 'works') {
+        const cleaned = editWorks.filter(w => w.name.trim());
+        await updateWorksForPerson(item.id, cleaned, authContext.getToken);
+      } else if (editSection === 'sources') {
+        const cleaned = editSources.filter(s => s.title?.trim());
+        await updateSourcesForPerson(item.id, cleaned, authContext.getToken);
+      } else if (editSection === 'connections') {
+        await updateConnectionsForPerson(item.id, editConnections, authContext.getToken);
+      } else if (editSection === 'pointConnections') {
+        await updateEventConnections(item.id, editPointPeople, authContext.getToken);
+      }
+      // Save succeeded — stay in modal, exit edit mode, refresh data
+      setEditSection(null);
+      onDataChanged?.();
+    } catch (err) {
+      setSaveError(err.message || 'Save failed.');
+    } finally {
+      setSaving(false);
+    }
+  }, [authContext, editSection, editWorks, editSources, editConnections, editPointPeople, item, onDataChanged]);
+
+  // ── Edit Works helpers ─────────────────────────────────────────────────
+  const addWork = useCallback(() => {
+    setEditWorks(prev => [...prev, { name: '', textUrl: '' }]);
+  }, []);
+
+  const removeWork = useCallback((idx) => {
+    setEditWorks(prev => prev.filter((_, i) => i !== idx));
+  }, []);
+
+  const updateWork = useCallback((idx, field, value) => {
+    setEditWorks(prev => prev.map((w, i) => i === idx ? { ...w, [field]: value } : w));
+  }, []);
+
+  // ── Edit Sources helpers ───────────────────────────────────────────────
+  const addSource = useCallback(() => {
+    setEditSources(prev => [...prev, { title: '', url: '', source: '', year: '', notes: '' }]);
+  }, []);
+
+  const removeSource = useCallback((idx) => {
+    setEditSources(prev => prev.filter((_, i) => i !== idx));
+  }, []);
+
+  const updateSource = useCallback((idx, field, value) => {
+    setEditSources(prev => prev.map((s, i) => i === idx ? { ...s, [field]: value } : s));
+  }, []);
+
+  // ── Edit Connections helpers ───────────────────────────────────────────
+  const addConnection = useCallback((personId) => {
+    if (editConnections.some(c => c.id === personId)) return;
+    setEditConnections(prev => [...prev, { id: personId, type: 'known' }]);
+  }, [editConnections]);
+
+  const removeConnection = useCallback((personId) => {
+    setEditConnections(prev => prev.filter(c => c.id !== personId));
+  }, []);
+
+  const updateConnectionType = useCallback((personId, type) => {
+    setEditConnections(prev => prev.map(c => c.id === personId ? { ...c, type } : c));
+  }, []);
+
+  // ── Wikipedia description for People & Points (not Periods) ──────────
   const [wikiDesc, setWikiDesc] = useState(null);
   const [wikiLoading, setWikiLoading] = useState(false);
 
   useEffect(() => {
-    if (!isOpen || !item) {
+    if (!isOpen || !item || itemType === 'period') {
       setWikiDesc(null);
       return;
     }
@@ -250,6 +424,8 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
   }, [isOpen, item?.id, item?.name, item?.referenceUrl, itemType]);
 
   if (!isOpen || !item) return null;
+
+  const canEdit = !!authContext?.getToken;
 
   // Format date based on item type
   let dateString = '';
@@ -320,7 +496,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
               rel="noopener noreferrer"
               aria-label={`Search for ${searchQuery}`}
             >
-              🔎
+              <Icon name="diamond" size={14} />
             </a>
           )}
           {adminContext?.isAdmin && (
@@ -369,6 +545,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
           </p>
         )}
 
+        {/* Description — shown for all item types that have one */}
         {item.description && (
           <div
             className="modal-description"
@@ -377,67 +554,94 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
           />
         )}
 
-        <div className="modal-wiki-description">
-          {wikiLoading && (
-            <p className="modal-wiki-loading">Loading description...</p>
-          )}
-          {wikiDesc && (
-            <>
-              {wikiDesc.text && (
+        {/* Wikipedia / Britannica — attribution at the TOP, "From Wikipedia" */}
+        {itemType !== 'period' && (
+          <div className="modal-wiki-description">
+            {wikiLoading && (
+              <p className="modal-wiki-loading">Loading description...</p>
+            )}
+            {wikiDesc && (
+              <>
+                <a
+                  className="modal-wiki-attribution"
+                  href={wikiDesc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  From {wikiDesc.source}
+                </a>
                 <div
                   className="modal-wiki-text"
                   dangerouslySetInnerHTML={{ __html: wikiDesc.text }}
                 />
-              )}
-              <a
-                className="modal-wiki-source"
-                href={wikiDesc.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Read more on {wikiDesc.source}
-              </a>
-            </>
-          )}
-        </div>
-
-        {worksForPerson.length > 0 && (
-          <div className="modal-links modal-works">
-            <h3>Works</h3>
-            <ul className="modal-reference-list">
-              {worksForPerson.map((work) => (
-                <li key={work.name}>
-                  <div className="modal-work-title">{work.name}</div>
-                  {work.textUrl ? (
-                    <div className="modal-work-links">
-                      <a href={work.textUrl} target="_blank" rel="noopener noreferrer">
-                        Text
-                      </a>
-                      {work.referenceUrl && (
-                        <>
-                          <span aria-hidden="true">|</span>
-                          <a href={work.referenceUrl} target="_blank" rel="noopener noreferrer">
-                            Wikipedia entry
-                          </a>
-                        </>
-                      )}
-                    </div>
-                  ) : work.referenceUrl ? (
-                    <div className="modal-work-links">
-                      <a href={work.referenceUrl} target="_blank" rel="noopener noreferrer">
-                        Wikipedia entry
-                      </a>
-                    </div>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
+              </>
+            )}
           </div>
         )}
 
-        {connections.length > 0 && (
+        {/* Works / Texts — comma-separated hyperlinks (not a list) */}
+        {worksForPerson.length > 0 && editSection !== 'works' && (
+          <div className="modal-links modal-works">
+            <h3>
+              Works
+              {canEdit && (
+                <button type="button" className="modal-edit-btn" onClick={startEditWorks}>Edit</button>
+              )}
+            </h3>
+            <p className="modal-works-inline">
+              {worksForPerson.map((work, i) => (
+                <span key={work.name}>
+                  {i > 0 && ', '}
+                  {work.textUrl ? (
+                    <a href={work.textUrl} target="_blank" rel="noopener noreferrer">
+                      {work.name}
+                    </a>
+                  ) : (
+                    <span>{work.name}</span>
+                  )}
+                </span>
+              ))}
+            </p>
+          </div>
+        )}
+
+        {/* Works — EDIT MODE */}
+        {editSection === 'works' && (
+          <div className="modal-links modal-edit-section">
+            <h3>Edit Works</h3>
+            {editWorks.map((work, idx) => (
+              <div key={idx} className="modal-edit-row">
+                <input
+                  type="text"
+                  className="modal-edit-input"
+                  placeholder="Work title"
+                  value={work.name}
+                  onChange={e => updateWork(idx, 'name', e.target.value)}
+                />
+                <input
+                  type="url"
+                  className="modal-edit-input modal-edit-input-url"
+                  placeholder="Text URL (optional)"
+                  value={work.textUrl}
+                  onChange={e => updateWork(idx, 'textUrl', e.target.value)}
+                />
+                <button type="button" className="modal-edit-remove" onClick={() => removeWork(idx)}>&times;</button>
+              </div>
+            ))}
+            <button type="button" className="note-btn note-btn-small" onClick={addWork}>+ Add work</button>
+            {renderEditActions()}
+          </div>
+        )}
+
+        {/* Connections — for People */}
+        {connections.length > 0 && editSection !== 'connections' && (
           <div className="modal-links">
-            <h3>Connections</h3>
+            <h3>
+              Connections
+              {canEdit && itemType === 'person' && (
+                <button type="button" className="modal-edit-btn" onClick={startEditConnections}>Edit</button>
+              )}
+            </h3>
             <ul className="modal-reference-list modal-pill-list">
               {connections.map(connection => (
                 <li key={connection.id} className="modal-pill-item">
@@ -460,6 +664,119 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {/* Connections — EDIT MODE */}
+        {editSection === 'connections' && (
+          <div className="modal-links modal-edit-section">
+            <h3>Edit Connections</h3>
+            {editConnections.map(conn => {
+              const entry = itemIndex?.get(conn.id);
+              const name = entry?.item?.name || conn.id;
+              return (
+                <div key={conn.id} className="modal-edit-row modal-edit-row-conn">
+                  <span className="modal-edit-conn-name">{name}</span>
+                  <select
+                    className="modal-edit-select"
+                    value={conn.type}
+                    onChange={e => updateConnectionType(conn.id, e.target.value)}
+                  >
+                    <option value="known">Known</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="student">Student</option>
+                    <option value="influenced">Influenced</option>
+                    <option value="influenced_by">Influenced by</option>
+                    <option value="opponent">Opponent</option>
+                    <option value="collaborator">Collaborator</option>
+                    <option value="contemporary">Contemporary</option>
+                  </select>
+                  <button type="button" className="modal-edit-remove" onClick={() => removeConnection(conn.id)}>&times;</button>
+                </div>
+              );
+            })}
+            <div className="modal-edit-add-person">
+              <PeopleSelector
+                people={allPeople || []}
+                selectedIds={[]}
+                onChange={(ids) => { if (ids.length) addConnection(ids[ids.length - 1]); }}
+                excludeId={item.id}
+              />
+            </div>
+            {renderEditActions()}
+          </div>
+        )}
+
+        {/* Connected People — for Points (event/text → person connections) */}
+        {pointConnections.length > 0 && editSection !== 'pointConnections' && (
+          <div className="modal-links">
+            <h3>
+              Related People
+              {canEdit && itemType === 'point' && (
+                <button type="button" className="modal-edit-btn" onClick={startEditPointPeople}>Edit</button>
+              )}
+            </h3>
+            <ul className="modal-reference-list modal-pill-list">
+              {pointConnections.map(entry => (
+                <li key={entry.item.id} className="modal-pill-item">
+                  <button
+                    type="button"
+                    className="modal-pill"
+                    data-item-id={entry.item.id}
+                    data-item-type={entry.type}
+                    onClick={handleReferenceClick}
+                  >
+                    <span
+                      className="summary-color-dot"
+                      style={{ backgroundColor: entry.item.color }}
+                    />
+                    <strong>{entry.item.name}</strong>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Point Connections — EDIT MODE */}
+        {editSection === 'pointConnections' && (
+          <div className="modal-links modal-edit-section">
+            <h3>Edit Related People</h3>
+            <div className="modal-edit-pill-list">
+              {editPointPeople.map(pid => {
+                const entry = itemIndex?.get(pid);
+                const name = entry?.item?.name || pid;
+                return (
+                  <span key={pid} className="modal-edit-pill">
+                    {name}
+                    <button type="button" className="modal-edit-remove-inline" onClick={() => setEditPointPeople(prev => prev.filter(id => id !== pid))}>&times;</button>
+                  </span>
+                );
+              })}
+            </div>
+            <PeopleSelector
+              people={allPeople || []}
+              selectedIds={[]}
+              onChange={(ids) => {
+                if (ids.length) {
+                  const newId = ids[ids.length - 1];
+                  if (!editPointPeople.includes(newId)) {
+                    setEditPointPeople(prev => [...prev, newId]);
+                  }
+                }
+              }}
+              excludeId={null}
+            />
+            {renderEditActions()}
+          </div>
+        )}
+
+        {/* Show "Add related people" button for points that have none */}
+        {itemType === 'point' && pointConnections.length === 0 && editSection !== 'pointConnections' && canEdit && (
+          <div className="modal-links">
+            <button type="button" className="note-btn note-btn-small" onClick={startEditPointPeople}>
+              + Add related people
+            </button>
           </div>
         )}
 
@@ -524,9 +841,15 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
           </div>
         )}
 
-        {itemType === 'person' && item.sources && item.sources.length > 0 && (
+        {/* Sources — for People and Points */}
+        {item.sources && item.sources.length > 0 && editSection !== 'sources' && (
           <div className="modal-links">
-            <h3>Sources</h3>
+            <h3>
+              Sources
+              {canEdit && (
+                <button type="button" className="modal-edit-btn" onClick={startEditSources}>Edit</button>
+              )}
+            </h3>
             <ul className="modal-reference-list">
               {item.sources.map((source) => {
                 const metaParts = [source.source, source.year].filter(Boolean);
@@ -542,6 +865,57 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
                 );
               })}
             </ul>
+          </div>
+        )}
+
+        {/* Sources — EDIT MODE */}
+        {editSection === 'sources' && (
+          <div className="modal-links modal-edit-section">
+            <h3>Edit Sources</h3>
+            {editSources.map((src, idx) => (
+              <div key={idx} className="modal-edit-card">
+                <input
+                  type="text"
+                  className="modal-edit-input"
+                  placeholder="Title"
+                  value={src.title || ''}
+                  onChange={e => updateSource(idx, 'title', e.target.value)}
+                />
+                <input
+                  type="url"
+                  className="modal-edit-input"
+                  placeholder="URL"
+                  value={src.url || ''}
+                  onChange={e => updateSource(idx, 'url', e.target.value)}
+                />
+                <div className="modal-edit-row-pair">
+                  <input
+                    type="text"
+                    className="modal-edit-input"
+                    placeholder="Source name"
+                    value={src.source || ''}
+                    onChange={e => updateSource(idx, 'source', e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    className="modal-edit-input modal-edit-input-short"
+                    placeholder="Year"
+                    value={src.year || ''}
+                    onChange={e => updateSource(idx, 'year', e.target.value)}
+                  />
+                </div>
+                <input
+                  type="text"
+                  className="modal-edit-input"
+                  placeholder="Notes (optional)"
+                  value={src.notes || ''}
+                  onChange={e => updateSource(idx, 'notes', e.target.value)}
+                />
+                <button type="button" className="modal-edit-remove-card" onClick={() => removeSource(idx)}>Remove</button>
+              </div>
+            ))}
+            <button type="button" className="note-btn note-btn-small" onClick={addSource}>+ Add source</button>
+            {renderEditActions()}
           </div>
         )}
 
@@ -567,7 +941,72 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
             onCancel={() => setEditing(false)}
           />
         )}
+
+        {/* Delete button — for People and Points when authenticated */}
+        {canEdit && (itemType === 'person' || itemType === 'point') && (
+          <div className="modal-delete-section">
+            {!deleteConfirm ? (
+              <button
+                type="button"
+                className="modal-delete-btn"
+                onClick={() => setDeleteConfirm(true)}
+              >
+                Delete {itemType === 'person' ? 'person' : 'event'}
+              </button>
+            ) : (
+              <div className="modal-delete-confirm">
+                <p className="modal-delete-confirm-text">
+                  Are you sure you want to delete <strong>{item.name}</strong>? This cannot be undone.
+                </p>
+                {deleteError && <p className="note-error">{deleteError}</p>}
+                <div className="modal-delete-confirm-actions">
+                  <button
+                    type="button"
+                    className="note-btn note-btn-primary modal-delete-confirm-btn"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                  >
+                    {deleting ? 'Deleting...' : 'Yes, delete'}
+                  </button>
+                  <button
+                    type="button"
+                    className="note-btn note-btn-secondary"
+                    onClick={() => { setDeleteConfirm(false); setDeleteError(null); }}
+                    disabled={deleting}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
+
+  // Shared edit action buttons (Save / Cancel)
+  function renderEditActions() {
+    return (
+      <div className="modal-edit-actions">
+        {saveError && <p className="note-error">{saveError}</p>}
+        <button
+          type="button"
+          className="note-btn note-btn-primary"
+          onClick={handleSaveEdit}
+          disabled={saving}
+        >
+          {saving ? 'Saving...' : 'Save'}
+        </button>
+        <button
+          type="button"
+          className="note-btn note-btn-secondary"
+          onClick={cancelEdit}
+          disabled={saving}
+        >
+          Cancel
+        </button>
+      </div>
+    );
+  }
 }

@@ -26,6 +26,7 @@ export function TimelineCanvas({
   hoveredPeriod,
   onItemHover,
   onItemClick,
+  wasDraggingRef,
   highlightedItemIds = new Set(),
   currentHighlightId = null
 }) {
@@ -371,6 +372,9 @@ export function TimelineCanvas({
 
   // Handle click
   function handleClick(e) {
+    // Ignore clicks that end a drag gesture
+    if (wasDraggingRef?.current) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
