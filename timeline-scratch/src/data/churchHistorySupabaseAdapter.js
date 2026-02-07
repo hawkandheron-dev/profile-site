@@ -104,7 +104,7 @@ function formatReignYears(startYear, endYear) {
 export async function fetchChurchHistoryData() {
   const supabase = await getSupabase();
 
-  // Fetch all tables in parallel
+  // Fetch all core tables in parallel
   const [
     { data: eras, error: erasErr },
     { data: people, error: peopleErr },
@@ -113,7 +113,6 @@ export async function fetchChurchHistoryData() {
     { data: sources, error: srcErr },
     { data: sourceFigures, error: sfErr },
     { data: works, error: worksErr },
-    { data: eventConnections, error: ecErr },
   ] = await Promise.all([
     supabase.from('CH_Eras').select('*').order('start_year'),
     supabase.from('CH_People').select('*').order('birth_year'),
@@ -122,18 +121,18 @@ export async function fetchChurchHistoryData() {
     supabase.from('CH_Sources').select('*'),
     supabase.from('CH_Source_Figures').select('*'),
     supabase.from('CH_Works').select('*').order('person_id'),
-    supabase.from('CH_EventConnections').select('*').then(
-      res => res,
-      // Table may not exist yet — treat as empty
-      () => ({ data: [], error: null })
-    ),
   ]);
 
-  // CH_EventConnections may not exist yet; ignore that error
   const errors = [erasErr, peopleErr, eventsErr, connErr, srcErr, sfErr, worksErr].filter(Boolean);
-  if (ecErr && ecErr.code !== '42P01') errors.push(ecErr);
   if (errors.length) {
     throw new Error(`Supabase fetch errors: ${errors.map(e => e.message).join('; ')}`);
+  }
+
+  // CH_EventConnections may not exist yet — fetch separately and swallow errors
+  let eventConnections = [];
+  const ecResult = await supabase.from('CH_EventConnections').select('*');
+  if (!ecResult.error) {
+    eventConnections = ecResult.data || [];
   }
 
   return transformToTimelineFormat(
@@ -144,7 +143,7 @@ export async function fetchChurchHistoryData() {
     sources || [],
     sourceFigures || [],
     works || [],
-    eventConnections || []
+    eventConnections
   );
 }
 
