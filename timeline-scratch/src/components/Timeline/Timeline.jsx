@@ -17,7 +17,7 @@ import { Icon } from './components/Icon.jsx';
 import { getYear, getYearRange } from './utils/dateUtils.js';
 import './Timeline.css';
 
-export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }, ref) {
+export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, onEntityUpdated }, ref) {
   const isMobile = useMobileDetect();
 
   // Render mobile timeline on small viewports
@@ -30,6 +30,8 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
         onItemClick={onItemClick}
         authContext={authContext}
         allPeople={allPeople}
+        adminContext={adminContext}
+        onEntityUpdated={onEntityUpdated}
       />
     );
   }
@@ -44,11 +46,13 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
       suppressModal={suppressModal}
       authContext={authContext}
       allPeople={allPeople}
+      adminContext={adminContext}
+      onEntityUpdated={onEntityUpdated}
     />
   );
 });
 
-const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }, ref) {
+const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, onEntityUpdated }, ref) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -629,6 +633,8 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         onSelectItem={handleModalItemSelect}
         authContext={authContext}
         allPeople={allPeople}
+        adminContext={adminContext}
+        onEntityUpdated={onEntityUpdated}
       />
 
       {/* Year Summary Modal */}

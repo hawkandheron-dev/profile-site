@@ -1,0 +1,360 @@
+/* ── Edit Entity Form ─────────────────────────────────────────────────── */
+
+.edit-entity-form {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 2px solid #8b7355;
+}
+
+.edit-form-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.edit-form-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #4a3f2f;
+}
+
+.edit-form-hint {
+  font-size: 11px;
+  color: #a09888;
+  font-style: italic;
+}
+
+/* ── Fields grid ─────────────────────────────────────────────────────── */
+
+.edit-form-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.edit-field-textarea {
+  grid-column: 1 / -1;
+}
+
+.edit-field-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #7a6f5f;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.edit-field input[type="text"],
+.edit-field input[type="number"],
+.edit-field select,
+.edit-field textarea {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 6px 10px;
+  border: 1px solid rgba(120, 100, 70, 0.25);
+  border-radius: 6px;
+  background: white;
+  color: #2c2418;
+  transition: border-color 160ms ease;
+}
+
+.edit-field input:focus,
+.edit-field select:focus,
+.edit-field textarea:focus {
+  outline: none;
+  border-color: #8b7355;
+  box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.15);
+}
+
+.edit-field input[readonly],
+.edit-field textarea[readonly] {
+  background: #f0ebe0;
+  color: #7a6f5f;
+  cursor: not-allowed;
+}
+
+.edit-field textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.edit-field select {
+  cursor: pointer;
+}
+
+/* ── Checkbox field ──────────────────────────────────────────────────── */
+
+.edit-field-checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.edit-field-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #8b7355;
+  cursor: pointer;
+}
+
+/* ── Color field ─────────────────────────────────────────────────────── */
+
+.edit-field-color-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-field-color-group input[type="color"] {
+  width: 36px;
+  height: 32px;
+  border: 1px solid rgba(120, 100, 70, 0.25);
+  border-radius: 6px;
+  padding: 2px;
+  cursor: pointer;
+  background: white;
+}
+
+.edit-field-color-text {
+  flex: 1;
+}
+
+/* ── Actions ─────────────────────────────────────────────────────────── */
+
+.edit-form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
+.edit-form-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, opacity 160ms ease;
+}
+
+.edit-form-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.edit-form-btn-primary {
+  background: #8b7355;
+  color: #faf6eb;
+  border: 1px solid #8b7355;
+}
+
+.edit-form-btn-primary:hover:not(:disabled) {
+  background: #6d5a42;
+  border-color: #6d5a42;
+}
+
+.edit-form-btn-secondary {
+  background: transparent;
+  color: #4a3f2f;
+  border: 1px solid rgba(120, 100, 70, 0.25);
+}
+
+.edit-form-btn-secondary:hover:not(:disabled) {
+  background: rgba(120, 100, 70, 0.08);
+  border-color: rgba(120, 100, 70, 0.4);
+}
+
+/* ── Result messages ─────────────────────────────────────────────────── */
+
+.edit-form-result {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.edit-form-result-success {
+  background: #dff0df;
+  color: #2d6a30;
+}
+
+.edit-form-result-error {
+  background: #f5dede;
+  color: #8b2020;
+}
+
+.edit-form-result-info {
+  background: #e8dfc8;
+  color: #4a3f2f;
+}
+
+/* ── Loading / Error states ──────────────────────────────────────────── */
+
+.edit-form-loading {
+  margin-top: 24px;
+  padding: 20px;
+  text-align: center;
+  color: #a09888;
+  font-style: italic;
+  border-top: 2px solid #8b7355;
+}
+
+.edit-form-error {
+  margin-top: 24px;
+  padding: 16px;
+  border-top: 2px solid #8b7355;
+  color: #8b2020;
+}
+
+.edit-form-error p {
+  margin: 0 0 12px;
+}
+
+/* ── Edit toggle button in modal header ──────────────────────────────── */
+
+.modal-edit-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border: 1px solid rgba(139, 115, 85, 0.4);
+  border-radius: 999px;
+  background: transparent;
+  color: #8b7355;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+  vertical-align: middle;
+}
+
+.modal-edit-toggle:hover {
+  background: rgba(139, 115, 85, 0.1);
+  border-color: #8b7355;
+}
+
+.modal-edit-toggle.active {
+  background: #8b7355;
+  color: #faf6eb;
+  border-color: #8b7355;
+}
+
+.modal-edit-toggle.active:hover {
+  background: #6d5a42;
+}
+
+/* ── Dark mode ───────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  .edit-entity-form {
+    border-top-color: #6d5a42;
+  }
+
+  .edit-form-header h3 {
+    color: #f0ebe0;
+  }
+
+  .edit-field-label {
+    color: #a09888;
+  }
+
+  .edit-field input[type="text"],
+  .edit-field input[type="number"],
+  .edit-field select,
+  .edit-field textarea {
+    background: #2a2518;
+    color: #f0ebe0;
+    border-color: #3a3528;
+  }
+
+  .edit-field input:focus,
+  .edit-field select:focus,
+  .edit-field textarea:focus {
+    border-color: #c4a67a;
+    box-shadow: 0 0 0 2px rgba(196, 166, 122, 0.15);
+  }
+
+  .edit-field input[readonly],
+  .edit-field textarea[readonly] {
+    background: #1e1b16;
+    color: #7a6f5f;
+  }
+
+  .edit-form-btn-primary {
+    background: #c4a67a;
+    color: #1e1b16;
+    border-color: #c4a67a;
+  }
+
+  .edit-form-btn-primary:hover:not(:disabled) {
+    background: #d4bc9a;
+    border-color: #d4bc9a;
+  }
+
+  .edit-form-btn-secondary {
+    color: #f0ebe0;
+    border-color: #3a3528;
+  }
+
+  .edit-form-btn-secondary:hover:not(:disabled) {
+    background: rgba(200, 180, 140, 0.1);
+  }
+
+  .edit-form-result-success {
+    background: #1a3a1a;
+    color: #7fd07f;
+  }
+
+  .edit-form-result-error {
+    background: #3a1a1a;
+    color: #f08080;
+  }
+
+  .edit-form-result-info {
+    background: #2a2518;
+    color: #d8d0c4;
+  }
+
+  .edit-form-loading {
+    border-top-color: #6d5a42;
+    color: #7a6f5f;
+  }
+
+  .edit-form-error {
+    border-top-color: #6d5a42;
+    color: #f08080;
+  }
+
+  .modal-edit-toggle {
+    color: #c4a67a;
+    border-color: rgba(196, 166, 122, 0.3);
+  }
+
+  .modal-edit-toggle:hover {
+    background: rgba(196, 166, 122, 0.1);
+    border-color: #c4a67a;
+  }
+
+  .modal-edit-toggle.active {
+    background: #c4a67a;
+    color: #1e1b16;
+    border-color: #c4a67a;
+  }
+
+  .edit-field-color-group input[type="color"] {
+    border-color: #3a3528;
+    background: #2a2518;
+  }
+}
