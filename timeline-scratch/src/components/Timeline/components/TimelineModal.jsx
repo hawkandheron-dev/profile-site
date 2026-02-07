@@ -25,6 +25,7 @@ import {
 } from '../../../services/timelineItemService.js';
 import { PeopleSelector } from '../../Notes/PeopleSelector.jsx';
 import { NotesSection } from '../../Notes/NotesSection.jsx';
+import { EditEntityForm } from '../../EditEntityForm/EditEntityForm.jsx';
 import { HistoricalMap } from './HistoricalMap.jsx';
 import './TimelineModal.css';
 
@@ -156,6 +157,13 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
     setSaving(false);
     setSaveError(null);
   }, [item?.id]);
+export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople, adminContext, onEntityUpdated }) {
+  const [editing, setEditing] = useState(false);
+
+  // Reset edit mode when item changes
+  useEffect(() => {
+    setEditing(false);
+  }, [item?.id, itemType]);
 
   // Handle escape key
   useEffect(() => {
@@ -397,11 +405,12 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
   }, []);
 
   // ── Wikipedia description for People & Points (not Periods) ──────────
+  // ── Reference article description (Wikipedia etc.) ───────────────────
   const [wikiDesc, setWikiDesc] = useState(null);
   const [wikiLoading, setWikiLoading] = useState(false);
 
   useEffect(() => {
-    if (!isOpen || !item || itemType === 'period') {
+    if (!isOpen || !item) {
       setWikiDesc(null);
       return;
     }
@@ -410,7 +419,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
     setWikiLoading(true);
     setWikiDesc(null);
 
-    fetchDescription(item.name).then(result => {
+    fetchDescription(item.name, item.referenceUrl).then(result => {
       if (!cancelled) {
         setWikiDesc(result);
         setWikiLoading(false);
@@ -418,7 +427,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
     });
 
     return () => { cancelled = true; };
-  }, [isOpen, item?.id, item?.name, itemType]);
+  }, [isOpen, item?.id, item?.name, item?.referenceUrl, itemType]);
 
   if (!isOpen || !item) return null;
 
@@ -496,6 +505,15 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
               <Icon name="diamond" size={14} />
             </a>
           )}
+          {adminContext?.isAdmin && (
+            <button
+              type="button"
+              className={`modal-edit-toggle${editing ? ' active' : ''}`}
+              onClick={() => setEditing(prev => !prev)}
+            >
+              {editing ? 'Close Editor' : 'Edit'}
+            </button>
+          )}
         </h2>
 
         {dateString && (
@@ -558,6 +576,13 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
                 >
                   From {wikiDesc.source}
                 </a>
+        <div className="modal-wiki-description">
+          {wikiLoading && (
+            <p className="modal-wiki-loading">Loading description...</p>
+          )}
+          {wikiDesc && (
+            <>
+              {wikiDesc.text && (
                 <div
                   className="modal-wiki-text"
                   dangerouslySetInnerHTML={{ __html: wikiDesc.text }}
@@ -566,6 +591,18 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
             )}
           </div>
         )}
+              )}
+              <a
+                className="modal-wiki-source"
+                href={wikiDesc.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Read more on {wikiDesc.source}
+              </a>
+            </>
+          )}
+        </div>
 
         {/* Works / Texts — comma-separated hyperlinks (not a list) */}
         {worksForPerson.length > 0 && editSection !== 'works' && (
@@ -956,6 +993,16 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
               </div>
             )}
           </div>
+        {editing && adminContext?.isAdmin && (
+          <EditEntityForm
+            item={item}
+            itemType={itemType}
+            getToken={adminContext.getToken}
+            onSaved={(updatedRow, type) => {
+              onEntityUpdated?.(updatedRow, type);
+            }}
+            onCancel={() => setEditing(false)}
+          />
         )}
       </div>
     </div>

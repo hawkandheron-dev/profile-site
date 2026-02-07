@@ -253,7 +253,8 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
         isEmperor: true,
         location: p.location,
         description: p.description || null,
-        monarchType: p.monarch_type || null
+        monarchType: p.monarch_type || null,
+        referenceUrl: p.reference_url || null
       });
     } else {
       // Regular person - above timeline
@@ -274,7 +275,8 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
         description: p.description || null,
         connections: connectionMap.get(p.person_id) || [],
         sources: sourceMap.get(p.person_id) || [],
-        works: worksMap.get(p.person_id) || []
+        works: worksMap.get(p.person_id) || [],
+        referenceUrl: p.reference_url || null
       });
     }
   });
@@ -298,6 +300,7 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
       description: ev.description || null,
       connectedPeople: eventConnectionMap.get(ev.event_id) || [],
       sources: sourceMap.get(ev.event_id) || []
+      referenceUrl: ev.reference_url || null
     });
   });
 
@@ -322,7 +325,8 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
       color: era.color || '#00acc1',
       preview: era.name,
       // Cluniac reforms go below; all others above
-      aboveTimeline: era.era_id !== 'era-cluniac-reforms'
+      aboveTimeline: era.era_id !== 'era-cluniac-reforms',
+      referenceUrl: era.reference_url || null
     });
   });
 

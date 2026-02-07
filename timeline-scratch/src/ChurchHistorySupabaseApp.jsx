@@ -13,6 +13,7 @@ import { fetchChurchHistoryData } from './data/churchHistorySupabaseAdapter.js';
 import { churchHistoryConfig } from './data/churchHistoryData.js';
 import { AddNoteModal } from './components/Notes/AddNoteModal.jsx';
 import { ViewMyNotesModal } from './components/Notes/ViewMyNotesModal.jsx';
+import { checkIsAdmin } from './services/adminService.js';
 import './App.css';
 
 const hasClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -52,10 +53,29 @@ function ClerkAuthHeader({ onAddNote, onViewNotes }) {
  * Inner app that calls useAuth — only rendered when ClerkProvider wraps us.
  */
 function AuthenticatedApp({ timelineData, loading, error, allPeople, refetchData }) {
+function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadData }) {
   const { getToken, isSignedIn, userId } = useAuth();
   const [addNoteOpen, setAddNoteOpen] = useState(false);
   const [viewNotesOpen, setViewNotesOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const timelineRef = useRef(null);
+
+  // Check admin status on sign-in
+  useEffect(() => {
+    if (!isSignedIn || !userId) {
+      setIsAdmin(false);
+      return;
+    }
+
+    let cancelled = false;
+    const getTokenForAdmin = () => getToken({ template: 'supabase' });
+
+    checkIsAdmin(getTokenForAdmin, userId).then(result => {
+      if (!cancelled) setIsAdmin(result);
+    });
+
+    return () => { cancelled = true; };
+  }, [isSignedIn, userId, getToken]);
 
   const handleAddNoteClose = useCallback(() => {
     setAddNoteOpen(false);
@@ -64,6 +84,15 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, refetchData
   const authContext = isSignedIn
     ? { getToken, clerkUserId: userId, isSignedIn: true }
     : null;
+
+  const adminContext = isAdmin
+    ? { isAdmin: true, getToken: () => getToken({ template: 'supabase' }) }
+    : null;
+
+  // When an entity is updated via edit form, reload all data
+  const handleEntityUpdated = useCallback(() => {
+    onReloadData?.();
+  }, [onReloadData]);
 
   // Search handlers that delegate to Timeline ref
   const handleSearchSelect = useCallback((type, item) => {
@@ -124,6 +153,8 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, refetchData
               authContext={authContext}
               allPeople={allPeople}
               onDataChanged={refetchData}
+              adminContext={adminContext}
+              onEntityUpdated={handleEntityUpdated}
             />
           </div>
         )}
@@ -230,6 +261,7 @@ function ChurchHistorySupabaseApp() {
   const [allPeople, setAllPeople] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const loadData = useCallback(async () => {
     try {
@@ -267,6 +299,12 @@ function ChurchHistorySupabaseApp() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+    return () => { cancelled = true; };
+  }, [reloadKey]);
+
+  const handleReloadData = useCallback(() => {
+    setReloadKey(k => k + 1);
+  }, []);
 
   return (
     <div className="app">
@@ -277,6 +315,7 @@ function ChurchHistorySupabaseApp() {
           error={error}
           allPeople={allPeople}
           refetchData={refetchData}
+          onReloadData={handleReloadData}
         />
       ) : (
         <UnauthenticatedApp
