@@ -17,7 +17,7 @@ import { Icon } from './components/Icon.jsx';
 import { getYear, getYearRange } from './utils/dateUtils.js';
 import './Timeline.css';
 
-export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, onEntityUpdated }, ref) {
+export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, onEntityUpdated, onDataChanged }, ref) {
   const isMobile = useMobileDetect();
 
   // Render mobile timeline on small viewports
@@ -32,6 +32,7 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
         allPeople={allPeople}
         adminContext={adminContext}
         onEntityUpdated={onEntityUpdated}
+        onDataChanged={onDataChanged}
       />
     );
   }
@@ -48,12 +49,14 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
       allPeople={allPeople}
       adminContext={adminContext}
       onEntityUpdated={onEntityUpdated}
+      onDataChanged={onDataChanged}
     />
   );
 });
 
-const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, onEntityUpdated }, ref) {
+const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, onEntityUpdated, onDataChanged }, ref) {
   const containerRef = useRef(null);
+  const wasDraggingRef = useRef(false);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [hoveredItem, setHoveredItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -186,6 +189,16 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     return map;
   }, [data]);
 
+  // Re-select the current item from fresh data after a refetch
+  useEffect(() => {
+    if (selectedItem && itemIndex) {
+      const fresh = itemIndex.get(selectedItem.item?.id);
+      if (fresh) {
+        setSelectedItem({ type: fresh.type, item: fresh.item });
+      }
+    }
+  }, [itemIndex]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Layout calculation
   const layout = useTimelineLayout(
     filteredData,
@@ -301,6 +314,16 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
 
     endPan();
     container.style.cursor = 'grab';
+
+    // If any significant movement happened, suppress the next canvas click
+    if (clickStart) {
+      const dx = Math.abs(mousePos.x - clickStart.x);
+      const dy = Math.abs(mousePos.y - clickStart.y);
+      if (dx >= 5 || dy >= 5) {
+        wasDraggingRef.current = true;
+        requestAnimationFrame(() => { wasDraggingRef.current = false; });
+      }
+    }
   }, [endPan, hoveredItem, isModalOpen, mousePos, cursorYear, isOverControls, selectedItem, yearSummaryOpen]);
 
   // Handle item hover
@@ -571,6 +594,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         hoveredPeriod={hoveredPeriod}
         onItemHover={handleItemHover}
         onItemClick={handleItemClickInternal}
+        wasDraggingRef={wasDraggingRef}
         highlightedItemIds={highlightedItemIds}
         currentHighlightId={currentHighlightId}
       />
@@ -589,6 +613,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         currentHighlightId={currentHighlightId}
         onItemHover={handleItemHover}
         onItemClick={handleItemClickInternal}
+        wasDraggingRef={wasDraggingRef}
       />
 
       {/* Cursor year display - follows cursor */}
@@ -635,6 +660,10 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         allPeople={allPeople}
         adminContext={adminContext}
         onEntityUpdated={onEntityUpdated}
+        onItemDeleted={(type, id) => {
+          setSelectedItem(null);
+        }}
+        onDataChanged={onDataChanged}
       />
 
       {/* Year Summary Modal */}
