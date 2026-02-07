@@ -17,7 +17,7 @@ import { Icon } from './components/Icon.jsx';
 import { getYear, getYearRange } from './utils/dateUtils.js';
 import './Timeline.css';
 
-export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }, ref) {
+export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, onDataChanged }, ref) {
   const isMobile = useMobileDetect();
 
   // Render mobile timeline on small viewports
@@ -30,6 +30,7 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
         onItemClick={onItemClick}
         authContext={authContext}
         allPeople={allPeople}
+        onDataChanged={onDataChanged}
       />
     );
   }
@@ -44,11 +45,12 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
       suppressModal={suppressModal}
       authContext={authContext}
       allPeople={allPeople}
+      onDataChanged={onDataChanged}
     />
   );
 });
 
-const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople }, ref) {
+const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, onDataChanged }, ref) {
   const containerRef = useRef(null);
   const wasDraggingRef = useRef(false);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
@@ -182,6 +184,16 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     });
     return map;
   }, [data]);
+
+  // Re-select the current item from fresh data after a refetch
+  useEffect(() => {
+    if (selectedItem && itemIndex) {
+      const fresh = itemIndex.get(selectedItem.item?.id);
+      if (fresh) {
+        setSelectedItem({ type: fresh.type, item: fresh.item });
+      }
+    }
+  }, [itemIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Layout calculation
   const layout = useTimelineLayout(
@@ -645,6 +657,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         onItemDeleted={(type, id) => {
           setSelectedItem(null);
         }}
+        onDataChanged={onDataChanged}
       />
 
       {/* Year Summary Modal */}

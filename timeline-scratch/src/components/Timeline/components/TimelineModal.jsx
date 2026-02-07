@@ -132,7 +132,7 @@ function linkifyDescription(description, itemIndex, currentItemId) {
   }
 }
 
-export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople, onItemDeleted }) {
+export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople, onItemDeleted, onDataChanged }) {
   // ── Delete confirmation state ──────────────────────────────────────────
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -346,14 +346,15 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
       } else if (editSection === 'pointConnections') {
         await updateEventConnections(item.id, editPointPeople, authContext.getToken);
       }
-      // Save succeeded — stay in modal, just exit edit mode
+      // Save succeeded — stay in modal, exit edit mode, refresh data
       setEditSection(null);
+      onDataChanged?.();
     } catch (err) {
       setSaveError(err.message || 'Save failed.');
     } finally {
       setSaving(false);
     }
-  }, [authContext, editSection, editWorks, editSources, editConnections, editPointPeople, item]);
+  }, [authContext, editSection, editWorks, editSources, editConnections, editPointPeople, item, onDataChanged]);
 
   // ── Edit Works helpers ─────────────────────────────────────────────────
   const addWork = useCallback(() => {

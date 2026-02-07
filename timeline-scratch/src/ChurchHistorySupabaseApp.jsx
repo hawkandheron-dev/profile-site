@@ -51,7 +51,7 @@ function ClerkAuthHeader({ onAddNote, onViewNotes }) {
 /**
  * Inner app that calls useAuth — only rendered when ClerkProvider wraps us.
  */
-function AuthenticatedApp({ timelineData, loading, error, allPeople }) {
+function AuthenticatedApp({ timelineData, loading, error, allPeople, refetchData }) {
   const { getToken, isSignedIn, userId } = useAuth();
   const [addNoteOpen, setAddNoteOpen] = useState(false);
   const [viewNotesOpen, setViewNotesOpen] = useState(false);
@@ -123,6 +123,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople }) {
               config={churchHistoryConfig}
               authContext={authContext}
               allPeople={allPeople}
+              onDataChanged={refetchData}
             />
           </div>
         )}
@@ -230,35 +231,42 @@ function ChurchHistorySupabaseApp() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadData() {
-      try {
-        setLoading(true);
-        setError(null);
-        const result = await fetchChurchHistoryData();
-        if (!cancelled) {
-          setTimelineData(result.data);
-          // Build a simple list of {id, name} for the people selector
-          const people = (result.data.people || []).map(p => ({
-            id: p.id,
-            name: p.name,
-          }));
-          setAllPeople(people);
-          setLoading(false);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err.message);
-          setLoading(false);
-        }
-      }
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await fetchChurchHistoryData();
+      setTimelineData(result.data);
+      const people = (result.data.people || []).map(p => ({
+        id: p.id,
+        name: p.name,
+      }));
+      setAllPeople(people);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
     }
-
-    loadData();
-    return () => { cancelled = true; };
   }, []);
+
+  // Refetch without showing the loading spinner (for background refreshes after edits)
+  const refetchData = useCallback(async () => {
+    try {
+      const result = await fetchChurchHistoryData();
+      setTimelineData(result.data);
+      const people = (result.data.people || []).map(p => ({
+        id: p.id,
+        name: p.name,
+      }));
+      setAllPeople(people);
+    } catch (err) {
+      console.warn('Background refetch failed:', err.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   return (
     <div className="app">
@@ -268,6 +276,7 @@ function ChurchHistorySupabaseApp() {
           loading={loading}
           error={error}
           allPeople={allPeople}
+          refetchData={refetchData}
         />
       ) : (
         <UnauthenticatedApp
