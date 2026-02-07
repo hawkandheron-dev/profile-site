@@ -91,7 +91,7 @@ export function TimelineCanvas({
       const x = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const boxWidth = yearToPixel(end, viewportStartYear, yearsPerPixel) - x;
       const y = person.y - panOffsetY;
-      const boxHeight = person.height - 14;
+      const boxHeight = person.height - 6;
 
       // Min width for readability
       const displayWidth = Math.max(boxWidth, 60);
@@ -237,7 +237,7 @@ export function TimelineCanvas({
       hitMapRef.current.set(point.id, {
         type: 'point',
         item: point,
-        bounds: { x: x - hitSize/2, y: y - 40, width: hitSize, height: 35 }
+        bounds: { x: x - hitSize/2, y: y - 28, width: hitSize, height: 26 }
       });
     });
   }
@@ -269,7 +269,7 @@ export function TimelineCanvas({
       const x = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const boxWidth = Math.max(yearToPixel(end, viewportStartYear, yearsPerPixel) - x, 60);
       const y = person.y - panOffsetY;
-      const boxHeight = person.height - 14;
+      const boxHeight = person.height - 6;
       const isCurrent = person.id === currentHighlightId;
       drawHighlightRing(x, y, boxWidth, boxHeight, isCurrent);
     }
@@ -299,7 +299,7 @@ export function TimelineCanvas({
       ctx.shadowColor = isCurrent ? currentColor : highlightColor;
       ctx.shadowBlur = isCurrent ? 10 : 5;
       ctx.beginPath();
-      ctx.arc(x, y - 20, 14, 0, Math.PI * 2);
+      ctx.arc(x, y - 14, 12, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }

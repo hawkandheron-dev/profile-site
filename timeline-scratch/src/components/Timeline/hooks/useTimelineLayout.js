@@ -21,12 +21,12 @@ import { stackTimelineItems } from '../utils/stacking.js';
  */
 export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
   const {
-    personRowHeight = 40,
-    pointRowHeight = 40,
-    periodRowHeight = 50,
-    periodBracketHeight = 30,
-    lanePadding = 10,
-    axisHeight = 40
+    personRowHeight = 34,
+    pointRowHeight = 34,
+    periodRowHeight = 40,
+    periodBracketHeight = 18,
+    lanePadding = 8,
+    axisHeight = 30
   } = sizes;
 
   // Stack all items with above/below separation

@@ -205,11 +205,11 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     defaultConfig.laneOrder,
     yearsPerPixel,
     {
-      personRowHeight: 56,
-      pointRowHeight: 50,
-      periodRowHeight: 60,
-      lanePadding: 20,
-      axisHeight: 40
+      personRowHeight: 34,
+      pointRowHeight: 34,
+      periodRowHeight: 40,
+      lanePadding: 8,
+      axisHeight: 30
     }
   );
 
