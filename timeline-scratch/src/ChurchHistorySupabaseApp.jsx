@@ -267,7 +267,10 @@ function ChurchHistorySupabaseApp() {
 
     async function loadData() {
       try {
-        setLoading(true);
+        // Only show loading spinner on initial load, not on background refetches
+        if (!timelineData) {
+          setLoading(true);
+        }
         setError(null);
         const result = await fetchChurchHistoryData();
         if (!cancelled) {
