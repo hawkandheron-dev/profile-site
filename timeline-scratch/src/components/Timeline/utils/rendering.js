@@ -314,7 +314,7 @@ export function drawTimeAxis(ctx, width, height, axisY, viewportStartYear, years
   ctx.save();
   ctx.strokeStyle = '#ccc';
   ctx.fillStyle = '#666';
-  ctx.font = '11px system-ui, sans-serif';
+  ctx.font = '14px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
 

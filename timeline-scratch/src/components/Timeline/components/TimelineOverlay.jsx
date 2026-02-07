@@ -176,7 +176,7 @@ export function TimelineOverlay({
             left: `${labelX}px`,
             top: `${labelY}px`,
             pointerEvents: 'none',
-            fontSize: '11px',
+            fontSize: '14px',
             fontWeight: '600',
             color: '#fff',
             backgroundColor: 'rgba(0, 0, 0, 0.75)',
@@ -193,10 +193,10 @@ export function TimelineOverlay({
           }}
         >
           {person.isEmperor && (
-            <Icon name="crown" size={10} color="#ffd700" />
+            <Icon name="crown" size={12} color="#ffd700" />
           )}
           <span>{person.name}</span>
-          <span style={{ opacity: 0.7, fontSize: '9px', fontWeight: '500' }}>
+          <span style={{ opacity: 0.7, fontSize: '11px', fontWeight: '500' }}>
             {yearRange}
           </span>
         </div>
@@ -257,7 +257,7 @@ export function TimelineOverlay({
             top: `${bracketPointY + labelOffsetY}px`,
             transform: period.aboveTimeline ? 'translate(-50%, -100%)' : 'translateX(-50%)',
             pointerEvents: 'none',
-            fontSize: '10px',
+            fontSize: '14px',
             fontWeight: '600',
             color: labelTextColor,
             backgroundColor: labelBackgroundColor,
@@ -338,9 +338,9 @@ export function TimelineOverlay({
           onClick={(e) => { e.stopPropagation(); if (!wasDraggingRef?.current) onItemClick?.('point', point); }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-            <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={10} />
-            <span style={{ fontSize: '11px', fontWeight: '600' }}>{point.name}</span>
-            <span style={{ fontSize: '8px', opacity: 0.5 }}>{dateDisplay}</span>
+            <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={12} />
+            <span style={{ fontSize: '14px', fontWeight: '600' }}>{point.name}</span>
+            <span style={{ fontSize: '10px', opacity: 0.5 }}>{dateDisplay}</span>
           </div>
         </div>
       );
