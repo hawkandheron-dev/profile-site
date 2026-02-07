@@ -3,6 +3,40 @@
 Comprehensive design review based on app and web design best practices.
 Covers: main view, modals, search, filters, mobile, overlay, and cross-cutting concerns.
 
+## Implemented Changes
+
+The following changes have been implemented (see commit):
+
+- **Delete person/point with confirmation** — "Delete person" / "Delete event" button at bottom
+  of Person and Point detail modals, with "Are you sure?" confirmation dialog.
+  (`TimelineModal.jsx`, `timelineItemService.js`)
+
+- **Works displayed as comma-separated hyperlinks** — The Works/Texts section now renders as
+  inline comma-separated links instead of a vertical `<ul>` list. Titles link to their text URL
+  when available. (`TimelineModal.jsx`)
+
+- **Edit mode for Works, Sources, and Connections** — Authenticated users see an "Edit" button
+  next to Works, Sources, and Connections headings. Clicking it opens an inline edit form.
+  Saving does NOT close the modal. (`TimelineModal.jsx`, `timelineItemService.js`)
+
+- **PointConnections (event/text → person)** — Events and texts can now be related to People
+  via a new `CH_EventConnections` table. The detail modal shows "Related People" for points
+  and allows editing when authenticated. The adapter fetches and includes `connectedPeople`
+  in point data. (`churchHistorySupabaseAdapter.js`, `TimelineModal.jsx`,
+  `timelineItemService.js`)
+
+- **Description shown for People** — The adapter now includes the `description` field for
+  regular people (previously only emperors had it). The modal already handled rendering it.
+  (`churchHistorySupabaseAdapter.js`)
+
+- **Wikipedia/Britannica attribution moved to top** — The "From Wikipedia" / "From Britannica"
+  label now appears above the description text (not as a "Read more" link at the bottom).
+  Styled as an uppercase label linking to the source. (`TimelineModal.jsx`, `TimelineModal.css`)
+
+- **Saving in edit mode keeps modal open** — `handleSaveEdit` exits edit mode on success but
+  does not call `onClose()`. The modal stays open with the read-only view of the updated data.
+  (`TimelineModal.jsx`)
+
 ---
 
 ## 1. Main Timeline View (Desktop)

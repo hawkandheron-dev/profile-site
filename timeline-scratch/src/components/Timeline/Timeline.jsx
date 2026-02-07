@@ -629,6 +629,9 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         onSelectItem={handleModalItemSelect}
         authContext={authContext}
         allPeople={allPeople}
+        onItemDeleted={(type, id) => {
+          setSelectedItem(null);
+        }}
       />
 
       {/* Year Summary Modal */}

@@ -471,6 +471,7 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
         onSelectItem={handleModalItemSelect}
         authContext={authContext}
         allPeople={allPeople}
+        onItemDeleted={() => setSelectedItem(null)}
       />
       {yearSummaryOpen && pinnedYear !== null && (
         <YearSummaryModal
