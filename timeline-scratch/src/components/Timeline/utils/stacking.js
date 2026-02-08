@@ -28,11 +28,12 @@ export function stackPeople(people) {
     return (a.name || '').localeCompare(b.name || '');
   });
 
-  // Assign emperors to rows using reign-date overlap detection
+  // Assign emperors to rows using full lifespan for overlap detection
+  // (the rendered bar spans birth–death, so collisions must use that range)
   const emperorRows = [];
   const emperorsWithRows = sortedEmperors.map(emperor => {
-    const start = emperor.reignStartYear ?? getYear(emperor.startDate);
-    const end = emperor.reignEndYear ?? getYear(emperor.endDate);
+    const start = getYear(emperor.startDate);
+    const end = getYear(emperor.endDate);
 
     let rowIndex = 0;
     let foundRow = false;
