@@ -13,7 +13,9 @@ import { fetchChurchHistoryData } from './data/churchHistorySupabaseAdapter.js';
 import { churchHistoryConfig } from './data/churchHistoryData.js';
 import { AddNoteModal } from './components/Notes/AddNoteModal.jsx';
 import { ViewMyNotesModal } from './components/Notes/ViewMyNotesModal.jsx';
-import { checkIsAdmin } from './services/adminService.js';
+import { checkUserRole } from './services/adminService.js';
+import { AdminSuggestionsPage } from './components/Suggestions/AdminSuggestionsPage.jsx';
+import { SuggestNewModal } from './components/Suggestions/SuggestNewModal.jsx';
 import './App.css';
 
 const hasClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -22,7 +24,7 @@ const hasClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
  * Auth header rendered only when Clerk is configured.
  * Isolated so the useAuth hook is always called inside ClerkProvider.
  */
-function ClerkAuthHeader({ onAddNote, onViewNotes }) {
+function ClerkAuthHeader({ onAddNote, onViewNotes, isAdmin, isContributor, onReviewSuggestions, onSuggestNew }) {
   const { isSignedIn } = useAuth();
 
   return (
@@ -35,6 +37,16 @@ function ClerkAuthHeader({ onAddNote, onViewNotes }) {
           <button type="button" className="header-add-note" onClick={onViewNotes}>
             View My Notes
           </button>
+          {isContributor && (
+            <button type="button" className="header-add-note header-suggest-new" onClick={onSuggestNew}>
+              + Suggest New Entry
+            </button>
+          )}
+          {isAdmin && (
+            <button type="button" className="header-add-note header-review-suggestions" onClick={onReviewSuggestions}>
+              Review Suggestions
+            </button>
+          )}
         </>
       )}
       <SignedOut>
@@ -56,21 +68,28 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
   const { getToken, isSignedIn, userId } = useAuth();
   const [addNoteOpen, setAddNoteOpen] = useState(false);
   const [viewNotesOpen, setViewNotesOpen] = useState(false);
+  const [suggestNewOpen, setSuggestNewOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isContributor, setIsContributor] = useState(false);
+  const [view, setView] = useState('timeline'); // 'timeline' | 'suggestions'
   const timelineRef = useRef(null);
 
-  // Check admin status on sign-in
+  // Check role on sign-in
   useEffect(() => {
     if (!isSignedIn || !userId) {
       setIsAdmin(false);
+      setIsContributor(false);
       return;
     }
 
     let cancelled = false;
-    const getTokenForAdmin = () => getToken({ template: 'supabase' });
+    const getTokenForRole = () => getToken({ template: 'supabase' });
 
-    checkIsAdmin(getTokenForAdmin, userId).then(result => {
-      if (!cancelled) setIsAdmin(result);
+    checkUserRole(getTokenForRole, userId).then(result => {
+      if (!cancelled) {
+        setIsAdmin(result.isAdmin);
+        setIsContributor(result.isContributor);
+      }
     });
 
     return () => { cancelled = true; };
@@ -88,12 +107,14 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
     ? { isAdmin: true, getToken: () => getToken({ template: 'supabase' }) }
     : null;
 
-  // When an entity is updated via edit form, reload all data
+  const contributorContext = isContributor
+    ? { isContributor: true, getToken: () => getToken({ template: 'supabase' }), clerkUserId: userId }
+    : null;
+
   const handleEntityUpdated = useCallback(() => {
     onReloadData?.();
   }, [onReloadData]);
 
-  // Search handlers that delegate to Timeline ref
   const handleSearchSelect = useCallback((type, item) => {
     timelineRef.current?.selectItem(type, item);
   }, []);
@@ -105,6 +126,38 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
   const handleSearchClearHighlight = useCallback(() => {
     timelineRef.current?.clearHighlight();
   }, []);
+
+  // When viewing the suggestions page
+  if (view === 'suggestions' && isAdmin) {
+    return (
+      <>
+        <header className="app-header">
+          <div className="header-content">
+            <div className="header-left">
+              <h1 className="site-title"><strong>History of the Christian Church</strong> <span>Lifespans</span></h1>
+            </div>
+            <div className="header-right">
+              <ClerkAuthHeader
+                onAddNote={() => setAddNoteOpen(true)}
+                onViewNotes={() => setViewNotesOpen(true)}
+                isAdmin={isAdmin}
+                isContributor={isContributor}
+                onReviewSuggestions={() => setView('suggestions')}
+                onSuggestNew={() => setSuggestNewOpen(true)}
+              />
+            </div>
+          </div>
+        </header>
+        <div className="tab-content" style={{ overflow: 'auto' }}>
+          <AdminSuggestionsPage
+            getToken={() => getToken({ template: 'supabase' })}
+            clerkUserId={userId}
+            onBack={() => setView('timeline')}
+          />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -127,7 +180,14 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
             <a href="../../church-history-supabase.html" className="tab-button">Data Browser</a>
           </nav>
           <div className="header-right">
-            <ClerkAuthHeader onAddNote={() => setAddNoteOpen(true)} onViewNotes={() => setViewNotesOpen(true)} />
+            <ClerkAuthHeader
+              onAddNote={() => setAddNoteOpen(true)}
+              onViewNotes={() => setViewNotesOpen(true)}
+              isAdmin={isAdmin}
+              isContributor={isContributor}
+              onReviewSuggestions={() => setView('suggestions')}
+              onSuggestNew={() => setSuggestNewOpen(true)}
+            />
           </div>
         </div>
       </header>
@@ -152,6 +212,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
               authContext={authContext}
               allPeople={allPeople}
               adminContext={adminContext}
+              contributorContext={contributorContext}
               onEntityUpdated={handleEntityUpdated}
               onDataChanged={handleEntityUpdated}
             />
@@ -178,6 +239,15 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
           clerkUserId={userId}
         />
       )}
+
+      {suggestNewOpen && (
+        <SuggestNewModal
+          isOpen
+          onClose={() => setSuggestNewOpen(false)}
+          getToken={() => getToken({ template: 'supabase' })}
+          clerkUserId={userId}
+        />
+      )}
     </>
   );
 }
@@ -188,7 +258,6 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
 function UnauthenticatedApp({ timelineData, loading, error }) {
   const timelineRef = useRef(null);
 
-  // Search handlers that delegate to Timeline ref
   const handleSearchSelect = useCallback((type, item) => {
     timelineRef.current?.selectItem(type, item);
   }, []);
@@ -267,7 +336,6 @@ function ChurchHistorySupabaseApp() {
 
     async function loadData() {
       try {
-        // Only show loading spinner on initial load, not on background refetches
         if (!timelineData) {
           setLoading(true);
         }
@@ -275,7 +343,6 @@ function ChurchHistorySupabaseApp() {
         const result = await fetchChurchHistoryData();
         if (!cancelled) {
           setTimelineData(result.data);
-          // Build a simple list of {id, name} for the people selector
           const people = (result.data.people || []).map(p => ({
             id: p.id,
             name: p.name,

@@ -1,8 +1,13 @@
 /**
  * Inline edit form for People, Events (Points), and Eras (Periods).
- * Rendered inside TimelineModal when an admin clicks "Edit".
- * Fetches the raw DB row on mount, shows editable fields,
- * and saves changes back to Supabase.
+ * Rendered inside TimelineModal when an admin clicks "Edit" or a
+ * contributor clicks "Suggest a Change".
+ *
+ * Props:
+ *   mode        — 'edit' (default, admin direct save) | 'suggest' (contributor suggestion)
+ *   clerkUserId — required when mode='suggest'
+ *   item        — null when creating a new entity via suggestion
+ *   newEntityType — 'person' | 'point' | 'period' (used only when item is null)
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -12,6 +17,7 @@ import {
   updateEvent,
   updateEra,
 } from '../../services/entityEditService.js';
+import { submitSuggestion } from '../../services/suggestionService.js';
 import './EditEntityForm.css';
 
 // ── Field definitions per entity type ─────────────────────────────────────
@@ -58,7 +64,7 @@ const ERA_FIELDS = [
   { key: 'description', label: 'Description', type: 'textarea' },
 ];
 
-function getFieldDefs(itemType) {
+export function getFieldDefs(itemType) {
   if (itemType === 'person') return PERSON_FIELDS;
   if (itemType === 'point') return EVENT_FIELDS;
   if (itemType === 'period') return ERA_FIELDS;
@@ -79,9 +85,16 @@ function getUpdateFn(itemType) {
   return null;
 }
 
+/** Map itemType to the entity_type stored in CH_Suggestions */
+function toEntityType(itemType) {
+  if (itemType === 'point') return 'event';
+  if (itemType === 'period') return 'era';
+  return itemType; // 'person'
+}
+
 // ── Component ─────────────────────────────────────────────────────────────
 
-export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel }) {
+export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel, mode = 'edit', clerkUserId, newEntityType }) {
   const [formData, setFormData] = useState(null);
   const [originalData, setOriginalData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -89,11 +102,34 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel }) 
   const [error, setError] = useState(null);
   const [saveResult, setSaveResult] = useState(null);
 
-  const fieldDefs = getFieldDefs(itemType);
-  const tableConfig = getTableConfig(itemType);
+  const isSuggest = mode === 'suggest';
+  const isNew = !item;
+  const effectiveItemType = item ? itemType : newEntityType;
+  const fieldDefs = getFieldDefs(effectiveItemType);
+  const tableConfig = getTableConfig(effectiveItemType);
 
-  // Fetch the raw DB row on mount
+  // In suggest mode for new entities, the ID field is editable
+  const adjustedFieldDefs = fieldDefs.map(f => {
+    if (isSuggest && isNew && f.readOnly) {
+      return { ...f, readOnly: false, placeholder: f.placeholder || 'e.g. person-new-name' };
+    }
+    return f;
+  });
+
+  // Fetch the raw DB row on mount (skip for new entities)
   useEffect(() => {
+    if (isNew) {
+      // Initialize empty form for new entity
+      const empty = {};
+      for (const f of fieldDefs) {
+        empty[f.key] = f.type === 'checkbox' ? false : '';
+      }
+      setFormData(empty);
+      setOriginalData(empty);
+      setLoading(false);
+      return;
+    }
+
     if (!item || !tableConfig) return;
 
     let cancelled = false;
@@ -114,7 +150,7 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel }) 
       });
 
     return () => { cancelled = true; };
-  }, [item?.id, itemType]);
+  }, [item?.id, effectiveItemType]);
 
   const handleChange = useCallback((key, value) => {
     setFormData(prev => ({ ...prev, [key]: value }));
@@ -122,9 +158,37 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel }) 
   }, []);
 
   const handleSave = useCallback(async () => {
-    if (!formData || !originalData || !tableConfig) return;
+    if (!formData || !tableConfig) return;
 
-    // Build a diff of changed fields (exclude PK and created_at)
+    if (isSuggest) {
+      // ── Suggestion mode: submit to CH_Suggestions ──
+      setSaving(true);
+      setError(null);
+      setSaveResult(null);
+
+      try {
+        const entityType = toEntityType(effectiveItemType);
+        const entityId = isNew ? null : item.id;
+        await submitSuggestion(
+          { entity_type: entityType, entity_id: entityId, suggested_data: formData },
+          clerkUserId,
+          getToken,
+        );
+        setSaveResult({ type: 'success', message: 'Suggestion submitted! An admin will review it.' });
+        // Close after a brief delay so user sees the message
+        setTimeout(() => onSaved?.(), 1500);
+      } catch (err) {
+        setError(err.message || 'Failed to submit suggestion');
+        setSaveResult({ type: 'error', message: err.message || 'Failed to submit suggestion' });
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
+    // ── Admin edit mode: direct save ──
+    if (!originalData) return;
+
     const changes = {};
     for (const field of fieldDefs) {
       if (field.readOnly) continue;
@@ -132,7 +196,6 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel }) 
       const newVal = formData[key];
       const oldVal = originalData[key];
 
-      // Normalize: treat empty string as null for nullable fields
       const normalizedNew = (newVal === '' || newVal === undefined) ? null : newVal;
       const normalizedOld = (oldVal === '' || oldVal === undefined) ? null : oldVal;
 
@@ -151,21 +214,21 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel }) 
     setSaveResult(null);
 
     try {
-      const updateFn = getUpdateFn(itemType);
+      const updateFn = getUpdateFn(effectiveItemType);
       const pkValue = formData[tableConfig.pk];
       const updated = await updateFn(pkValue, changes, getToken);
 
       setOriginalData({ ...updated });
       setFormData({ ...updated });
       setSaveResult({ type: 'success', message: 'Saved successfully.' });
-      onSaved?.(updated, itemType);
+      onSaved?.(updated, effectiveItemType);
     } catch (err) {
       setError(err.message || 'Save failed');
       setSaveResult({ type: 'error', message: err.message || 'Save failed' });
     } finally {
       setSaving(false);
     }
-  }, [formData, originalData, tableConfig, fieldDefs, itemType, getToken, onSaved]);
+  }, [formData, originalData, tableConfig, fieldDefs, effectiveItemType, getToken, onSaved, isSuggest, clerkUserId, isNew, item]);
 
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
@@ -189,17 +252,26 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel }) 
     );
   }
 
+  const entityLabel = effectiveItemType === 'person' ? 'Person' : effectiveItemType === 'point' ? 'Event' : 'Era';
+  const headerText = isSuggest
+    ? (isNew ? `Suggest New ${entityLabel}` : `Suggest Changes to ${entityLabel}`)
+    : `Edit ${entityLabel}`;
+
   return (
-    <div className="edit-entity-form" onKeyDown={handleKeyDown}>
+    <div className={`edit-entity-form${isSuggest ? ' edit-entity-form--suggest' : ''}`} onKeyDown={handleKeyDown}>
       <div className="edit-form-header">
-        <h3>
-          Edit {itemType === 'person' ? 'Person' : itemType === 'point' ? 'Event' : 'Era'}
-        </h3>
-        <span className="edit-form-hint">Ctrl+Enter to save</span>
+        <h3>{headerText}</h3>
+        <span className="edit-form-hint">Ctrl+Enter to {isSuggest ? 'submit' : 'save'}</span>
       </div>
 
+      {isSuggest && (
+        <p className="edit-form-suggest-note">
+          Your changes will be submitted for admin review. They won't appear on the timeline until approved.
+        </p>
+      )}
+
       <div className="edit-form-fields">
-        {fieldDefs.map(field => (
+        {adjustedFieldDefs.map(field => (
           <EditField
             key={field.key}
             field={field}
@@ -218,11 +290,13 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel }) 
       <div className="edit-form-actions">
         <button
           type="button"
-          className="edit-form-btn edit-form-btn-primary"
+          className={`edit-form-btn ${isSuggest ? 'edit-form-btn-suggest' : 'edit-form-btn-primary'}`}
           onClick={handleSave}
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving
+            ? (isSuggest ? 'Submitting...' : 'Saving...')
+            : (isSuggest ? 'Submit Suggestion' : 'Save Changes')}
         </button>
         <button
           type="button"

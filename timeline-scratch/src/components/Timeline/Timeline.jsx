@@ -17,7 +17,7 @@ import { Icon } from './components/Icon.jsx';
 import { getYear, getYearRange } from './utils/dateUtils.js';
 import './Timeline.css';
 
-export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, onEntityUpdated, onDataChanged }, ref) {
+export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged }, ref) {
   const isMobile = useMobileDetect();
 
   // Render mobile timeline on small viewports
@@ -31,6 +31,7 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
         authContext={authContext}
         allPeople={allPeople}
         adminContext={adminContext}
+        contributorContext={contributorContext}
         onEntityUpdated={onEntityUpdated}
         onDataChanged={onDataChanged}
       />
@@ -48,13 +49,14 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
       authContext={authContext}
       allPeople={allPeople}
       adminContext={adminContext}
+      contributorContext={contributorContext}
       onEntityUpdated={onEntityUpdated}
       onDataChanged={onDataChanged}
     />
   );
 });
 
-const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, onEntityUpdated, onDataChanged }, ref) {
+const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged }, ref) {
   const containerRef = useRef(null);
   const wasDraggingRef = useRef(false);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
@@ -659,6 +661,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         authContext={authContext}
         allPeople={allPeople}
         adminContext={adminContext}
+        contributorContext={contributorContext}
         onEntityUpdated={onEntityUpdated}
         onItemDeleted={(type, id) => {
           setSelectedItem(null);
