@@ -18,6 +18,7 @@ import {
   updateEra,
 } from '../../services/entityEditService.js';
 import { submitSuggestion } from '../../services/suggestionService.js';
+import { makeSupabaseClient } from '../../lib/supabase.ts';
 import './EditEntityForm.css';
 
 // ── Field definitions per entity type ─────────────────────────────────────
@@ -25,17 +26,17 @@ import './EditEntityForm.css';
 const PERSON_FIELDS = [
   { key: 'person_id', label: 'ID', type: 'text', readOnly: true },
   { key: 'name', label: 'Name', type: 'text' },
-  { key: 'birth_date', label: 'Birth Date (ISO)', type: 'text', placeholder: '0325-01-01' },
-  { key: 'death_date', label: 'Death Date (ISO)', type: 'text', placeholder: '0373-01-01' },
+  { key: 'birth_date', label: 'Birth Date', type: 'date', defaultValue: '1000-01-01' },
+  { key: 'death_date', label: 'Death Date', type: 'date', defaultValue: '1050-01-01' },
   { key: 'birth_year', label: 'Birth Year', type: 'number' },
   { key: 'death_year', label: 'Death Year', type: 'number' },
   { key: 'location', label: 'Location', type: 'text' },
   { key: 'role_type', label: 'Role Type', type: 'text', placeholder: 'person or emperor' },
-  { key: 'era_id', label: 'Era ID', type: 'text', placeholder: 'era-apostolic' },
+  { key: 'era_id', label: 'Era', type: 'era-select' },
   { key: 'is_monarch', label: 'Is Monarch', type: 'checkbox' },
   { key: 'monarch_type', label: 'Monarch Type', type: 'text', placeholder: 'roman-unified, frankish, etc.' },
-  { key: 'reign_start', label: 'Reign Start (ISO)', type: 'text', placeholder: '0306-01-01' },
-  { key: 'reign_end', label: 'Reign End (ISO)', type: 'text', placeholder: '0337-01-01' },
+  { key: 'reign_start', label: 'Reign Start', type: 'date' },
+  { key: 'reign_end', label: 'Reign End', type: 'date' },
   { key: 'reign_start_year', label: 'Reign Start Year', type: 'number' },
   { key: 'reign_end_year', label: 'Reign End Year', type: 'number' },
   { key: 'reference_url', label: 'Reference URL', type: 'text', placeholder: 'https://en.wikipedia.org/wiki/...' },
@@ -47,8 +48,8 @@ const EVENT_FIELDS = [
   { key: 'event_id', label: 'ID', type: 'text', readOnly: true },
   { key: 'name', label: 'Name', type: 'text' },
   { key: 'event_type', label: 'Event Type', type: 'select', options: ['council', 'document', 'event', 'era'] },
-  { key: 'event_date', label: 'Event Date (ISO)', type: 'text', placeholder: '0325-01-01' },
-  { key: 'end_date', label: 'End Date (ISO)', type: 'text', placeholder: '0325-12-31' },
+  { key: 'event_date', label: 'Event Date', type: 'date' },
+  { key: 'end_date', label: 'End Date', type: 'date' },
   { key: 'location', label: 'Location', type: 'text' },
   { key: 'reference_url', label: 'Reference URL', type: 'text', placeholder: 'https://en.wikipedia.org/wiki/...' },
   { key: 'description', label: 'Description', type: 'textarea' },
@@ -101,6 +102,7 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel, mo
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [saveResult, setSaveResult] = useState(null);
+  const [eras, setEras] = useState([]);
 
   const isSuggest = mode === 'suggest';
   const isNew = !item;
@@ -116,13 +118,42 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel, mo
     return f;
   });
 
+  // Fetch eras for the era picker (only when editing person entities)
+  const needsEras = fieldDefs.some(f => f.type === 'era-select');
+  useEffect(() => {
+    if (!needsEras) return;
+    let cancelled = false;
+    const fetchEras = async () => {
+      try {
+        const supabase = makeSupabaseClient(getToken);
+        const { data, error: eraErr } = await supabase
+          .from('CH_Eras')
+          .select('era_id, name, start_year, end_year')
+          .order('start_year', { ascending: true });
+        if (!cancelled && !eraErr && data) {
+          setEras(data);
+        }
+      } catch {
+        // Non-critical — era picker will just be empty
+      }
+    };
+    fetchEras();
+    return () => { cancelled = true; };
+  }, [needsEras, getToken]);
+
   // Fetch the raw DB row on mount (skip for new entities)
   useEffect(() => {
     if (isNew) {
-      // Initialize empty form for new entity
+      // Initialize empty form for new entity with sensible defaults
       const empty = {};
       for (const f of fieldDefs) {
-        empty[f.key] = f.type === 'checkbox' ? false : '';
+        if (f.type === 'checkbox') {
+          empty[f.key] = false;
+        } else if (isNew && f.defaultValue) {
+          empty[f.key] = f.defaultValue;
+        } else {
+          empty[f.key] = '';
+        }
       }
       setFormData(empty);
       setOriginalData(empty);
@@ -277,6 +308,7 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel, mo
             field={field}
             value={formData?.[field.key]}
             onChange={handleChange}
+            eras={eras}
           />
         ))}
       </div>
@@ -313,9 +345,43 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel, mo
 
 // ── Individual field renderer ─────────────────────────────────────────────
 
-function EditField({ field, value, onChange }) {
+function EditField({ field, value, onChange, eras }) {
   const { key, label, type, readOnly, placeholder, options } = field;
   const displayValue = value ?? '';
+
+  if (type === 'date') {
+    return (
+      <label className="edit-field">
+        <span className="edit-field-label">{label}</span>
+        <input
+          type="date"
+          value={displayValue}
+          readOnly={readOnly}
+          onChange={e => onChange(key, e.target.value)}
+        />
+      </label>
+    );
+  }
+
+  if (type === 'era-select') {
+    return (
+      <label className="edit-field">
+        <span className="edit-field-label">{label}</span>
+        <select
+          value={displayValue}
+          disabled={readOnly}
+          onChange={e => onChange(key, e.target.value)}
+        >
+          <option value="">-- Select Era --</option>
+          {eras.map(era => (
+            <option key={era.era_id} value={era.era_id}>
+              {era.name} ({era.start_year}–{era.end_year || '...'})
+            </option>
+          ))}
+        </select>
+      </label>
+    );
+  }
 
   if (type === 'checkbox') {
     return (
