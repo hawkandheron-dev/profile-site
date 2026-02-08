@@ -1,35 +1,63 @@
 /**
- * Admin / role check service.
- * Queries admin_users table via the Clerk-aware Supabase client.
+ * User role service.
+ * Queries the `users` table via the Clerk-aware Supabase client.
  */
 import { makeSupabaseClient } from '../lib/supabase.ts';
 
 /**
+ * Ensure the current user has a row in the users table.
+ * On first sign-in this creates a 'viewer' row; subsequent calls are no-ops.
+ */
+export async function ensureUserExists(getToken, clerkUserId, email, displayName) {
+  if (!getToken || !clerkUserId) return;
+
+  try {
+    const supabase = makeSupabaseClient(getToken);
+    await supabase
+      .from('users')
+      .upsert(
+        {
+          clerk_user_id: clerkUserId,
+          email: email || null,
+          display_name: displayName || null,
+          // role defaults to 'viewer' via the DB default — not sent here so
+          // existing admin/contributor rows aren't overwritten
+        },
+        { onConflict: 'clerk_user_id', ignoreDuplicates: true },
+      );
+  } catch (err) {
+    // Non-fatal — the user can still browse; they just won't have a row yet
+    console.warn('[adminService] ensureUserExists failed:', err);
+  }
+}
+
+/**
  * Check the current user's role.
- * Returns { isAdmin, isContributor, role } where role is 'admin' | 'contributor' | null.
+ * Returns { isAdmin, isContributor, isViewer, role }.
  */
 export async function checkUserRole(getToken, clerkUserId) {
-  if (!getToken || !clerkUserId) return { isAdmin: false, isContributor: false, role: null };
+  if (!getToken || !clerkUserId) return { isAdmin: false, isContributor: false, isViewer: false, role: null };
 
   try {
     const supabase = makeSupabaseClient(getToken);
     const { data } = await supabase
-      .from('admin_users')
+      .from('users')
       .select('clerk_user_id, role')
       .eq('clerk_user_id', clerkUserId)
       .maybeSingle();
 
-    if (!data) return { isAdmin: false, isContributor: false, role: null };
+    if (!data) return { isAdmin: false, isContributor: false, isViewer: false, role: null };
 
-    const role = data.role || 'admin'; // default for rows without role column yet
+    const role = data.role || 'viewer';
     return {
       isAdmin: role === 'admin',
       isContributor: role === 'contributor',
+      isViewer: role === 'viewer',
       role,
     };
   } catch (err) {
     console.warn('[adminService] Role check failed:', err);
-    return { isAdmin: false, isContributor: false, role: null };
+    return { isAdmin: false, isContributor: false, isViewer: false, role: null };
   }
 }
 

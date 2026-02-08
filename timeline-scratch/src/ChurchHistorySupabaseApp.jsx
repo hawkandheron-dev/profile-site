@@ -6,6 +6,7 @@ import {
   SignUpButton,
   UserButton,
   useAuth,
+  useUser,
 } from '@clerk/clerk-react';
 import { Timeline } from './components/Timeline/Timeline.jsx';
 import { TimelineSearch } from './components/Timeline/components/TimelineSearch.jsx';
@@ -13,7 +14,7 @@ import { fetchChurchHistoryData } from './data/churchHistorySupabaseAdapter.js';
 import { churchHistoryConfig } from './data/churchHistoryData.js';
 import { AddNoteModal } from './components/Notes/AddNoteModal.jsx';
 import { ViewMyNotesModal } from './components/Notes/ViewMyNotesModal.jsx';
-import { checkUserRole } from './services/adminService.js';
+import { checkUserRole, ensureUserExists } from './services/adminService.js';
 import { AdminSuggestionsPage } from './components/Suggestions/AdminSuggestionsPage.jsx';
 import { SuggestNewModal } from './components/Suggestions/SuggestNewModal.jsx';
 import './App.css';
@@ -66,6 +67,7 @@ function ClerkAuthHeader({ onAddNote, onViewNotes, isAdmin, isContributor, onRev
  */
 function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadData }) {
   const { getToken, isSignedIn, userId } = useAuth();
+  const { user: clerkUser } = useUser();
   const [addNoteOpen, setAddNoteOpen] = useState(false);
   const [viewNotesOpen, setViewNotesOpen] = useState(false);
   const [suggestNewOpen, setSuggestNewOpen] = useState(false);
@@ -74,7 +76,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
   const [view, setView] = useState('timeline'); // 'timeline' | 'suggestions'
   const timelineRef = useRef(null);
 
-  // Check role on sign-in
+  // Auto-register user on sign-in, then check their role
   useEffect(() => {
     if (!isSignedIn || !userId) {
       setIsAdmin(false);
@@ -83,17 +85,23 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
     }
 
     let cancelled = false;
-    const getTokenForRole = () => getToken({ template: 'supabase' });
+    const getTokenForSupabase = () => getToken({ template: 'supabase' });
 
-    checkUserRole(getTokenForRole, userId).then(result => {
-      if (!cancelled) {
-        setIsAdmin(result.isAdmin);
-        setIsContributor(result.isContributor);
-      }
-    });
+    const email = clerkUser?.primaryEmailAddress?.emailAddress;
+    const displayName = clerkUser?.fullName || clerkUser?.firstName || null;
+
+    // Ensure the user has a row in the users table (creates as 'viewer' if new)
+    ensureUserExists(getTokenForSupabase, userId, email, displayName)
+      .then(() => checkUserRole(getTokenForSupabase, userId))
+      .then(result => {
+        if (!cancelled) {
+          setIsAdmin(result.isAdmin);
+          setIsContributor(result.isContributor);
+        }
+      });
 
     return () => { cancelled = true; };
-  }, [isSignedIn, userId, getToken]);
+  }, [isSignedIn, userId, getToken, clerkUser]);
 
   const handleAddNoteClose = useCallback(() => {
     setAddNoteOpen(false);
