@@ -233,7 +233,7 @@ export function getCurlyBracePath(x, width, y, height) {
 export function drawPeriodBracket(ctx, x, width, y, height, color) {
   ctx.save();
   ctx.strokeStyle = color;
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 1.5;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
@@ -278,12 +278,12 @@ export function drawPersonBox(ctx, x, width, y, height, color, isHovered = false
 
   // Draw box
   ctx.fillStyle = color;
-  drawRoundedRect(ctx, x, y, width, height, 4);
+  drawRoundedRect(ctx, x, y, width, height, 3);
   ctx.fill();
 
   // Border
-  ctx.strokeStyle = isHovered ? '#000' : 'rgba(0, 0, 0, 0.3)';
-  ctx.lineWidth = isHovered ? 2 : 1;
+  ctx.strokeStyle = isHovered ? '#000' : 'rgba(0, 0, 0, 0.25)';
+  ctx.lineWidth = isHovered ? 1.5 : 0.5;
   ctx.stroke();
 
   ctx.restore();
@@ -314,7 +314,7 @@ export function drawTimeAxis(ctx, width, height, axisY, viewportStartYear, years
   ctx.save();
   ctx.strokeStyle = '#ccc';
   ctx.fillStyle = '#666';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.font = '14px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
 
@@ -337,7 +337,7 @@ export function drawTimeAxis(ctx, width, height, axisY, viewportStartYear, years
     // Draw tick mark
     ctx.beginPath();
     ctx.moveTo(x, axisY);
-    ctx.lineTo(x, axisY + 8);
+    ctx.lineTo(x, axisY + 6);
     ctx.stroke();
 
     // Format year label
@@ -346,7 +346,7 @@ export function drawTimeAxis(ctx, width, height, axisY, viewportStartYear, years
     const label = `${displayYear} ${era}`;
 
     // Draw label
-    ctx.fillText(label, x, axisY + 12);
+    ctx.fillText(label, x, axisY + 8);
   }
 
   ctx.restore();
