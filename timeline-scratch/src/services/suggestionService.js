@@ -19,12 +19,19 @@ function getClient(getToken) {
  */
 export async function submitSuggestion({ entity_type, entity_id, suggested_data }, clerkUserId, getToken) {
   const supabase = getClient(getToken);
+
+  // Sanitize: convert empty strings to null so JSONB is clean
+  const cleaned = {};
+  for (const [key, val] of Object.entries(suggested_data)) {
+    cleaned[key] = (val === '' || val === undefined) ? null : val;
+  }
+
   const { data, error } = await supabase
     .from('CH_Suggestions')
     .insert({
       entity_type,
       entity_id: entity_id || null,
-      suggested_data,
+      suggested_data: cleaned,
       submitted_by: clerkUserId,
       status: 'pending',
     })
@@ -114,8 +121,13 @@ export async function approveSuggestion(suggestion, reviewerUserId, getToken) {
   const config = tableMap[entity_type];
   if (!config) throw new Error(`Unknown entity type: ${entity_type}`);
 
-  // Strip out created_at so we don't overwrite it
-  const { created_at, ...fields } = suggested_data;
+  // Strip created_at and sanitize: convert empty strings to null
+  // (PostgreSQL rejects "" for integer, date, boolean columns)
+  const { created_at, ...raw } = suggested_data;
+  const fields = {};
+  for (const [key, val] of Object.entries(raw)) {
+    fields[key] = (val === '' || val === undefined) ? null : val;
+  }
 
   if (entity_id) {
     // Edit existing record
