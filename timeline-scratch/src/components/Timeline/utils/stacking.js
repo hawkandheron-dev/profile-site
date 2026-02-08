@@ -17,22 +17,48 @@ export function stackPeople(people) {
   if (!people || people.length === 0) return [];
 
   // Separate emperors from other people for different stacking strategies
-  const emperors = people.filter(p => p.isEmperor);
-  const nonEmperors = people.filter(p => !p.isEmperor);
+  const emperors = people.filter(p => p.isMonarch);
+  const nonEmperors = people.filter(p => !p.isMonarch);
 
-  // Sort emperors by start date for cascading
+  // Sort emperors by reign start (fall back to startDate/birth for monarchs without reign data)
   const sortedEmperors = [...emperors].sort((a, b) => {
-    const aStart = getYear(a.startDate);
-    const bStart = getYear(b.startDate);
+    const aStart = a.reignStartYear ?? getYear(a.startDate);
+    const bStart = b.reignStartYear ?? getYear(b.startDate);
     if (aStart !== bStart) return aStart - bStart;
     return (a.name || '').localeCompare(b.name || '');
   });
 
-  // Assign emperors to cascading rows (0, 1, 2, 3, 4, 0, 1, 2, ...)
-  const emperorsWithRows = sortedEmperors.map((emperor, index) => ({
-    ...emperor,
-    row: index % 5
-  }));
+  // Assign emperors to rows using full lifespan for overlap detection
+  // (the rendered bar spans birth–death, so collisions must use that range)
+  const emperorRows = [];
+  const emperorsWithRows = sortedEmperors.map(emperor => {
+    const start = getYear(emperor.startDate);
+    const end = getYear(emperor.endDate);
+
+    let rowIndex = 0;
+    let foundRow = false;
+
+    for (let i = 0; i < emperorRows.length; i++) {
+      const overlaps = emperorRows[i].some(item => rangesOverlap(start, end, item.start, item.end));
+      if (!overlaps) {
+        rowIndex = i;
+        foundRow = true;
+        break;
+      }
+    }
+
+    if (!foundRow) {
+      rowIndex = emperorRows.length;
+      emperorRows.push([]);
+    }
+
+    emperorRows[rowIndex].push({ start, end, emperor });
+
+    return {
+      ...emperor,
+      row: rowIndex
+    };
+  });
 
   // Sort non-emperors by start date, then alphabetically
   const sortedNonEmperors = [...nonEmperors].sort((a, b) => {

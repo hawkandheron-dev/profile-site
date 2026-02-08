@@ -92,7 +92,7 @@ export function TimelineLegend({ legend, isVisible = true, filters = {}, onFilte
               )}
 
               {/* Emperor crown icon */}
-              {item.isEmperor && (
+              {item.isMonarch && (
                 <span className="legend-emperor-icon" style={{ marginLeft: '-4px', opacity: isActive ? 1 : 0.4 }}>
                   <Icon name="crown" size={14} color={item.color} />
                 </span>

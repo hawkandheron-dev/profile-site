@@ -235,10 +235,13 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
   const timelinePeople = [];
 
   dbPeople.forEach(p => {
-    if (p.is_emperor) {
+    if (p.is_monarch) {
       // Emperor/monarch - below timeline, colored by monarch_type
-      const reignPreview = formatReignYears(p.birth_year, p.death_year);
-      const emperorColor = (p.monarch_type && monarchColorMap[p.monarch_type])
+      const reignPreview = formatReignYears(
+        p.reign_start_year ?? p.birth_year,
+        p.reign_end_year ?? p.death_year
+      );
+      const monarchColor = (p.monarch_type && monarchColorMap[p.monarch_type])
         || colorMap.emperor;
       timelinePeople.push({
         id: p.person_id,
@@ -248,13 +251,17 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
         dateCertainty: 'year only',
         periodId: 'roman-emperors',
         preview: reignPreview,
-        color: emperorColor,
+        color: monarchColor,
         aboveTimeline: false,
-        isEmperor: true,
+        isMonarch: true,
         location: p.location,
         description: p.description || null,
         monarchType: p.monarch_type || null,
-        referenceUrl: p.reference_url || null
+        referenceUrl: p.reference_url || null,
+        reignStart: p.reign_start || null,
+        reignEnd: p.reign_end || null,
+        reignStartYear: p.reign_start_year ?? null,
+        reignEndYear: p.reign_end_year ?? null
       });
     } else {
       // Regular person - above timeline

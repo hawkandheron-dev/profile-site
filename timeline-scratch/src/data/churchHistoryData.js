@@ -1105,7 +1105,7 @@ function transformData() {
         preview: reignPreview,
         color: colorMap[item.group],
         aboveTimeline: false,
-        isEmperor: true,
+        isMonarch: true,
         location: item.location
       });
     } else if (item.group === 'eras') {
@@ -1223,7 +1223,7 @@ export const churchHistoryConfig = {
       name: 'Emperors',
       color: '#d32f2f',
       filterKey: 'emperors',
-      isEmperor: true
+      isMonarch: true
     },
     {
       type: 'bracket',
