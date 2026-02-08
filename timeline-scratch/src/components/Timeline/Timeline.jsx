@@ -153,7 +153,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     const { people = [], points = [], periods = [] } = data;
 
     const filteredPeople = people.filter(person => {
-      if (person.isEmperor) {
+      if (person.isMonarch) {
         return filters.emperors;
       }
       return filters.people;

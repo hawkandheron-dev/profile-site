@@ -484,7 +484,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
         )}
 
         <h2 className="modal-title">
-          {item.isEmperor && (
+          {item.isMonarch && (
             <Icon name="crown" size={24} color="#ffd700" className="emperor-crown" />
           )}
           {item.name}

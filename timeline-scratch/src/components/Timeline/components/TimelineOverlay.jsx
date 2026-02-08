@@ -192,7 +192,7 @@ export function TimelineOverlay({
             lineHeight: '1.3'
           }}
         >
-          {person.isEmperor && (
+          {person.isMonarch && (
             <Icon name="crown" size={12} color="#ffd700" />
           )}
           <span>{person.name}</span>
