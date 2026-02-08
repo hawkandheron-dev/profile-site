@@ -235,7 +235,7 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
   const timelinePeople = [];
 
   dbPeople.forEach(p => {
-    if (p.is_emperor) {
+    if (p.is_monarch) {
       // Emperor/monarch - below timeline, colored by monarch_type
       const reignPreview = formatReignYears(p.birth_year, p.death_year);
       const emperorColor = (p.monarch_type && monarchColorMap[p.monarch_type])
@@ -250,7 +250,7 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
         preview: reignPreview,
         color: emperorColor,
         aboveTimeline: false,
-        isEmperor: true,
+        isMonarch: true,
         location: p.location,
         description: p.description || null,
         monarchType: p.monarch_type || null,

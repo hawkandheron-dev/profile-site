@@ -17,8 +17,8 @@ export function stackPeople(people) {
   if (!people || people.length === 0) return [];
 
   // Separate emperors from other people for different stacking strategies
-  const emperors = people.filter(p => p.isEmperor);
-  const nonEmperors = people.filter(p => !p.isEmperor);
+  const emperors = people.filter(p => p.isMonarch);
+  const nonEmperors = people.filter(p => !p.isMonarch);
 
   // Sort emperors by start date for cascading
   const sortedEmperors = [...emperors].sort((a, b) => {

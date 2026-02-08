@@ -255,7 +255,7 @@ rawData.items.filter(i => i.group === 'roman-emperors').forEach(e => {
   ]);
 });
 parts.push(batchInsert('CH_People',
-  ['person_id', 'name', 'birth_date', 'death_date', 'birth_year', 'death_year', 'location', 'role_type', 'era_id', 'is_emperor'],
+  ['person_id', 'name', 'birth_date', 'death_date', 'birth_year', 'death_year', 'location', 'role_type', 'era_id', 'is_monarch'],
   peopleRows));
 
 // ── 3. CH_Events ──────────────────────────────────────────────────────────

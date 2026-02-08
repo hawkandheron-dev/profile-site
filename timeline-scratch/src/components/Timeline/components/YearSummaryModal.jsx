@@ -35,8 +35,8 @@ export function YearSummaryModal({ year, summary, config, onClose, itemIndex, on
   };
 
   // Separate emperors from other people
-  const emperors = alivePeople.filter(p => p.isEmperor);
-  const otherPeople = alivePeople.filter(p => !p.isEmperor);
+  const emperors = alivePeople.filter(p => p.isMonarch);
+  const otherPeople = alivePeople.filter(p => !p.isMonarch);
 
   const handleReferenceClick = useCallback((event) => {
     const target = event.target;

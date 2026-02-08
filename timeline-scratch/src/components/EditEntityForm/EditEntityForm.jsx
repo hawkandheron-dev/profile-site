@@ -26,7 +26,7 @@ const PERSON_FIELDS = [
   { key: 'location', label: 'Location', type: 'text' },
   { key: 'role_type', label: 'Role Type', type: 'text', placeholder: 'person or emperor' },
   { key: 'era_id', label: 'Era ID', type: 'text', placeholder: 'era-apostolic' },
-  { key: 'is_emperor', label: 'Is Emperor', type: 'checkbox' },
+  { key: 'is_monarch', label: 'Is Monarch', type: 'checkbox' },
   { key: 'monarch_type', label: 'Monarch Type', type: 'text', placeholder: 'roman-unified, frankish, etc.' },
   { key: 'reference_url', label: 'Reference URL', type: 'text', placeholder: 'https://en.wikipedia.org/wiki/...' },
   { key: 'description', label: 'Description', type: 'textarea' },
