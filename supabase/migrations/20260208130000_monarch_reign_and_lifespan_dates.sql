@@ -26,12 +26,12 @@ UPDATE public."CH_People" AS p SET
 FROM (VALUES
   -- ── Unified Roman Emperors ──────────────────────────────────────────────
   --  person_id                       birth_date       death_date       b_yr  d_yr  reign_start      reign_end        rs_yr re_yr
-  ('roman-augustus',                  '-0062-01-01'::date, '0014-01-01'::date, -63,   14, '-0026-01-01'::date, '0014-01-01'::date, -27,   14),
-  ('roman-tiberius',                 '-0041-01-01'::date, '0037-01-01'::date, -42,   37, '0014-01-01'::date, '0037-01-01'::date,  14,   37),
+  ('roman-augustus',                  '0063-01-01 BC'::date, '0014-01-01'::date, -63,   14, '0027-01-01 BC'::date, '0014-01-01'::date, -27,   14),
+  ('roman-tiberius',                 '0042-01-01 BC'::date, '0037-01-01'::date, -42,   37, '0014-01-01'::date, '0037-01-01'::date,  14,   37),
   ('roman-caligula',                  '0012-01-01'::date, '0041-01-01'::date,  12,   41, '0037-01-01'::date, '0041-01-01'::date,  37,   41),
-  ('roman-claudius',                 '-0009-01-01'::date, '0054-01-01'::date, -10,   54, '0041-01-01'::date, '0054-01-01'::date,  41,   54),
+  ('roman-claudius',                 '0010-01-01 BC'::date, '0054-01-01'::date, -10,   54, '0041-01-01'::date, '0054-01-01'::date,  41,   54),
   ('roman-nero',                      '0037-01-01'::date, '0068-01-01'::date,  37,   68, '0054-01-01'::date, '0068-01-01'::date,  54,   68),
-  ('roman-galba-otho-vitellius',     '-0002-01-01'::date, '0069-01-01'::date,  -3,   69, '0068-01-01'::date, '0069-01-01'::date,  68,   69),
+  ('roman-galba-otho-vitellius',     '0003-01-01 BC'::date, '0069-01-01'::date,  -3,   69, '0068-01-01'::date, '0069-01-01'::date,  68,   69),
   ('roman-vespasian',                 '0009-01-01'::date, '0079-01-01'::date,   9,   79, '0069-01-01'::date, '0079-01-01'::date,  69,   79),
   ('roman-titus',                     '0039-01-01'::date, '0081-01-01'::date,  39,   81, '0079-01-01'::date, '0081-01-01'::date,  79,   81),
   ('roman-domitian',                  '0051-01-01'::date, '0096-01-01'::date,  51,   96, '0081-01-01'::date, '0096-01-01'::date,  81,   96),
