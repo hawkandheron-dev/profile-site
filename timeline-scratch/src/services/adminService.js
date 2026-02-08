@@ -19,11 +19,24 @@ export async function ensureUserExists(getToken, clerkUserId, email, displayName
     // Check if user already exists (any role)
     const { data: existing } = await supabase
       .from('users')
-      .select('clerk_user_id')
+      .select('clerk_user_id, display_name, email')
       .eq('clerk_user_id', clerkUserId)
       .maybeSingle();
 
-    if (existing) return; // Already registered — nothing to do
+    if (existing) {
+      // Update display_name/email if they were missing (e.g. first registration
+      // happened before Clerk user profile was fully loaded)
+      const updates = {};
+      if (!existing.display_name && displayName) updates.display_name = displayName;
+      if (!existing.email && email) updates.email = email;
+      if (Object.keys(updates).length > 0) {
+        await supabase
+          .from('users')
+          .update(updates)
+          .eq('clerk_user_id', clerkUserId);
+      }
+      return;
+    }
 
     // Insert new viewer row. The RLS policy requires role='viewer' explicitly.
     const { error } = await supabase

@@ -76,11 +76,16 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
   const [view, setView] = useState('timeline'); // 'timeline' | 'suggestions'
   const timelineRef = useRef(null);
 
-  // Auto-register user on sign-in, then check their role
+  // Auto-register user on sign-in, then check their role.
+  // Wait for clerkUser to be loaded so we capture display name & email.
+  const clerkUserLoaded = clerkUser && clerkUser.id;
+
   useEffect(() => {
-    if (!isSignedIn || !userId) {
-      setIsAdmin(false);
-      setIsContributor(false);
+    if (!isSignedIn || !userId || !clerkUserLoaded) {
+      if (!isSignedIn) {
+        setIsAdmin(false);
+        setIsContributor(false);
+      }
       return;
     }
 
@@ -101,7 +106,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
       });
 
     return () => { cancelled = true; };
-  }, [isSignedIn, userId, getToken, clerkUser]);
+  }, [isSignedIn, userId, getToken, clerkUserLoaded]);
 
   const handleAddNoteClose = useCallback(() => {
     setAddNoteOpen(false);
