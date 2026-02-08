@@ -7,24 +7,39 @@ import { makeSupabaseClient } from '../lib/supabase.ts';
 /**
  * Ensure the current user has a row in the users table.
  * On first sign-in this creates a 'viewer' row; subsequent calls are no-ops.
+ * Uses select-then-insert to avoid upsert RLS issues (upsert requires both
+ * INSERT and UPDATE policies, but only admins can UPDATE).
  */
 export async function ensureUserExists(getToken, clerkUserId, email, displayName) {
   if (!getToken || !clerkUserId) return;
 
   try {
     const supabase = makeSupabaseClient(getToken);
-    await supabase
+
+    // Check if user already exists (any role)
+    const { data: existing } = await supabase
       .from('users')
-      .upsert(
-        {
-          clerk_user_id: clerkUserId,
-          email: email || null,
-          display_name: displayName || null,
-          // role defaults to 'viewer' via the DB default — not sent here so
-          // existing admin/contributor rows aren't overwritten
-        },
-        { onConflict: 'clerk_user_id', ignoreDuplicates: true },
-      );
+      .select('clerk_user_id')
+      .eq('clerk_user_id', clerkUserId)
+      .maybeSingle();
+
+    if (existing) return; // Already registered — nothing to do
+
+    // Insert new viewer row. The RLS policy requires role='viewer' explicitly.
+    const { error } = await supabase
+      .from('users')
+      .insert({
+        clerk_user_id: clerkUserId,
+        email: email || null,
+        display_name: displayName || null,
+        role: 'viewer',
+      });
+
+    if (error) {
+      // 23505 = unique_violation — another request beat us to it, that's fine
+      if (error.code === '23505') return;
+      console.warn('[adminService] ensureUserExists insert failed:', error);
+    }
   } catch (err) {
     // Non-fatal — the user can still browse; they just won't have a row yet
     console.warn('[adminService] ensureUserExists failed:', err);
