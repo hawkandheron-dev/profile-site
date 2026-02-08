@@ -110,8 +110,24 @@ export function TimelineCanvas({
       ctx.save();
       ctx.globalAlpha = opacity;
 
-      // Draw box
-      drawPersonBox(ctx, x, displayWidth, y, boxHeight, color, isHovered);
+      // Monarchs: draw lifespan in lighter shade, reign in full color
+      if (person.isMonarch && person.reignStartYear != null && person.reignEndYear != null) {
+        const lifespanColor = lightenColor(color, 0.55);
+
+        // Draw full lifespan bar in light shade
+        drawPersonBox(ctx, x, displayWidth, y, boxHeight, lifespanColor, false);
+
+        // Calculate reign segment within the lifespan bar
+        const reignX = yearToPixel(person.reignStartYear, viewportStartYear, yearsPerPixel);
+        const reignEndX = yearToPixel(person.reignEndYear, viewportStartYear, yearsPerPixel);
+        const reignWidth = Math.max(reignEndX - reignX, 4);
+
+        // Draw reign segment in full color
+        drawPersonBox(ctx, reignX, reignWidth, y, boxHeight, color, isHovered);
+      } else {
+        // Regular person or monarch without reign data: single color box
+        drawPersonBox(ctx, x, displayWidth, y, boxHeight, color, isHovered);
+      }
 
       // Restore context
       ctx.restore();
@@ -303,6 +319,18 @@ export function TimelineCanvas({
       ctx.stroke();
       ctx.restore();
     }
+  }
+
+  // Lighten a hex color by mixing with white. Amount 0 = original, 1 = white.
+  function lightenColor(hex, amount) {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const lr = Math.round(r + (255 - r) * amount);
+    const lg = Math.round(g + (255 - g) * amount);
+    const lb = Math.round(b + (255 - b) * amount);
+    return `#${lr.toString(16).padStart(2, '0')}${lg.toString(16).padStart(2, '0')}${lb.toString(16).padStart(2, '0')}`;
   }
 
   // Convert hex color to rgba
