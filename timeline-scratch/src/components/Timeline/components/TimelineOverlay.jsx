@@ -319,6 +319,7 @@ export function TimelineOverlay({
             position: 'absolute',
             left: `${x}px`,
             top: `${y - 18}px`,
+            zIndex: Math.round(y),
             overflow: 'visible',
             pointerEvents: 'auto',
             cursor: 'pointer',
