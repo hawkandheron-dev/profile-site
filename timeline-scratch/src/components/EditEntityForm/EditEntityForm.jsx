@@ -110,12 +110,10 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel, mo
   const fieldDefs = getFieldDefs(effectiveItemType);
   const tableConfig = getTableConfig(effectiveItemType);
 
-  // In suggest mode for new entities, the ID field is editable
-  const adjustedFieldDefs = fieldDefs.map(f => {
-    if (isSuggest && isNew && f.readOnly) {
-      return { ...f, readOnly: false, placeholder: f.placeholder || 'e.g. person-new-name' };
-    }
-    return f;
+  // In suggest mode for new entities, hide the ID field (auto-generated from name)
+  const adjustedFieldDefs = fieldDefs.filter(f => {
+    if (isSuggest && isNew && f.readOnly) return false;
+    return true;
   });
 
   // Fetch eras for the era picker (only when editing person entities)

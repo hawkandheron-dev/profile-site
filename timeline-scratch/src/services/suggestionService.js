@@ -138,7 +138,16 @@ export async function approveSuggestion(suggestion, reviewerUserId, getToken) {
 
     if (updateError) throw updateError;
   } else {
-    // New record — insert
+    // New record — auto-generate ID from name if missing
+    const pk = config.pk;
+    if (!fields[pk] && fields.name) {
+      fields[pk] = fields.name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
+    }
+
     const { error: insertError } = await supabase
       .from(config.table)
       .insert(fields);
