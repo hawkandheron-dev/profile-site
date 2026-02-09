@@ -214,6 +214,22 @@
   opacity: 0.4;
 }
 
+/* Year map pin tooltip */
+.year-map-tooltip .maplibregl-popup-content {
+  background: #faf6eb;
+  color: #2c2418;
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 6px 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+}
+
+.year-map-tooltip .maplibregl-popup-tip {
+  border-top-color: #faf6eb;
+}
+
 .modal-period {
   margin: 0 0 20px;
   font-size: 14px;
@@ -950,6 +966,16 @@
   .summary-pill-highlighted {
     background: #3a3528;
     box-shadow: 0 0 0 2px #c4a67a;
+  }
+
+  .year-map-tooltip .maplibregl-popup-content {
+    background: #1e1b16;
+    color: #f0ebe0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .year-map-tooltip .maplibregl-popup-tip {
+    border-top-color: #1e1b16;
   }
 
   /* Works inline dark */

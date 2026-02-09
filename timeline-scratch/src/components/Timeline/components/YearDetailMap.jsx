@@ -64,11 +64,24 @@ export function YearDetailMap({ people, year, hoveredPersonId, onHoverPerson }) 
       el.style.setProperty('--pin-color', person.color || '#c0392b');
       el.setAttribute('data-person-id', person.id);
 
+      // Tooltip popup (shown on hover)
+      const tooltipLabel = person.location
+        ? `<strong>${person.name}</strong> in <em>${person.location}</em>`
+        : `<strong>${person.name}</strong>`;
+      const popup = new maplibregl.Popup({
+        offset: 12,
+        closeButton: false,
+        closeOnClick: false,
+        className: 'year-map-tooltip',
+      }).setHTML(tooltipLabel);
+
       // Hover events on the pin
       el.addEventListener('mouseenter', () => {
-        onHoverPerson?.(person.id);
+        popup.setLngLat([lng, lat]).addTo(map);
+        onHoverPerson?.(person.id, 'map');
       });
       el.addEventListener('mouseleave', () => {
+        popup.remove();
         onHoverPerson?.(null);
       });
 
@@ -76,7 +89,7 @@ export function YearDetailMap({ people, year, hoveredPersonId, onHoverPerson }) 
         .setLngLat([lng, lat])
         .addTo(map);
 
-      markersRef.current.set(person.id, { marker, el });
+      markersRef.current.set(person.id, { marker, el, popup });
     }
 
     // Fit bounds once loaded
@@ -105,13 +118,23 @@ export function YearDetailMap({ people, year, hoveredPersonId, onHoverPerson }) 
 
   // Update highlight state on markers when hoveredPersonId changes
   useEffect(() => {
-    for (const [id, { el }] of markersRef.current) {
+    const map = mapRef.current;
+    for (const [id, { el, popup, marker }] of markersRef.current) {
       if (hoveredPersonId && id === hoveredPersonId) {
         el.classList.add('year-map-pin-highlighted');
+        el.classList.remove('year-map-pin-dimmed');
+        // Show tooltip when highlighted from pill hover too
+        if (map && popup && !popup.isOpen()) {
+          const lngLat = marker.getLngLat();
+          popup.setLngLat(lngLat).addTo(map);
+        }
       } else if (hoveredPersonId && id !== hoveredPersonId) {
         el.classList.add('year-map-pin-dimmed');
+        el.classList.remove('year-map-pin-highlighted');
+        if (popup?.isOpen()) popup.remove();
       } else {
         el.classList.remove('year-map-pin-highlighted', 'year-map-pin-dimmed');
+        if (popup?.isOpen()) popup.remove();
       }
     }
   }, [hoveredPersonId]);

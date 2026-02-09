@@ -2,7 +2,7 @@
  * Modal component for displaying year summary (people alive, periods active, points)
  */
 
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { Icon } from './Icon.jsx';
 import { YearDetailMap } from './YearDetailMap.jsx';
 import './TimelineModal.css';
@@ -36,6 +36,23 @@ export function YearSummaryModal({ year, summary, config, onClose, itemIndex, on
   };
 
   const [hoveredPersonId, setHoveredPersonId] = useState(null);
+  const hoverSourceRef = useRef(null); // 'map' | 'pill' | null
+  const pillRefs = useRef(new Map()); // personId -> DOM element
+
+  // When a pin is hovered on the map, scroll the matching pill into view
+  const handleHoverPerson = useCallback((personId, source) => {
+    hoverSourceRef.current = source || null;
+    setHoveredPersonId(personId);
+  }, []);
+
+  useEffect(() => {
+    if (hoveredPersonId && hoverSourceRef.current === 'map') {
+      const el = pillRefs.current.get(hoveredPersonId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [hoveredPersonId]);
 
   // Separate emperors from other people
   const emperors = alivePeople.filter(p => p.isMonarch);
@@ -76,7 +93,7 @@ export function YearSummaryModal({ year, summary, config, onClose, itemIndex, on
             people={otherPeople}
             year={year}
             hoveredPersonId={hoveredPersonId}
-            onHoverPerson={setHoveredPersonId}
+            onHoverPerson={handleHoverPerson}
           />
         )}
 
@@ -127,13 +144,17 @@ export function YearSummaryModal({ year, summary, config, onClose, itemIndex, on
                 return (
                   <li
                     key={person.id}
+                    ref={el => {
+                      if (el) pillRefs.current.set(person.id, el);
+                      else pillRefs.current.delete(person.id);
+                    }}
                     className={
                       'summary-item' +
                       (isHighlighted ? ' summary-pill-highlighted' : '') +
                       (isDimmed ? ' summary-pill-dimmed' : '')
                     }
-                    onMouseEnter={() => setHoveredPersonId(person.id)}
-                    onMouseLeave={() => setHoveredPersonId(null)}
+                    onMouseEnter={() => handleHoverPerson(person.id, 'pill')}
+                    onMouseLeave={() => handleHoverPerson(null)}
                   >
                     <button
                       type="button"
