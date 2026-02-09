@@ -496,7 +496,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
               rel="noopener noreferrer"
               aria-label={`Search for ${searchQuery}`}
             >
-              <Icon name="diamond" size={14} />
+              <Icon name="search" size={14} />
             </a>
           )}
           {adminContext?.isAdmin && (

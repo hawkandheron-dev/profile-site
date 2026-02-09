@@ -13,7 +13,7 @@ import { getYear, getYearRange, rangesOverlap } from './dateUtils.js';
  * @param {Array} people - Array of person items
  * @returns {Array} People with row assignments
  */
-export function stackPeople(people) {
+export function stackPeople(people, yearsPerPixel = 0) {
   if (!people || people.length === 0) return [];
 
   // Separate emperors from other people for different stacking strategies
@@ -28,6 +28,11 @@ export function stackPeople(people) {
     return (a.name || '').localeCompare(b.name || '');
   });
 
+  // Minimum display width is 60px (see TimelineCanvas renderPeople).
+  // When zoomed out, 60px can span many years, so we must ensure the
+  // overlap ranges used for stacking are at least that wide.
+  const minDisplayYears = 60 * yearsPerPixel;
+
   // Assign emperors to rows using full lifespan for overlap detection
   // (the rendered bar spans birth–death, so collisions must use that range)
   const emperorRows = [];
@@ -35,11 +40,15 @@ export function stackPeople(people) {
     const start = getYear(emperor.startDate);
     const end = getYear(emperor.endDate);
 
+    // Extend range to account for minimum display width
+    const span = end - start;
+    const displayEnd = span < minDisplayYears ? start + minDisplayYears : end;
+
     let rowIndex = 0;
     let foundRow = false;
 
     for (let i = 0; i < emperorRows.length; i++) {
-      const overlaps = emperorRows[i].some(item => rangesOverlap(start, end, item.start, item.end));
+      const overlaps = emperorRows[i].some(item => rangesOverlap(start, displayEnd, item.start, item.end));
       if (!overlaps) {
         rowIndex = i;
         foundRow = true;
@@ -52,7 +61,7 @@ export function stackPeople(people) {
       emperorRows.push([]);
     }
 
-    emperorRows[rowIndex].push({ start, end, emperor });
+    emperorRows[rowIndex].push({ start, end: displayEnd, emperor });
 
     return {
       ...emperor,
@@ -78,13 +87,17 @@ export function stackPeople(people) {
   const nonEmperorsWithRows = sortedNonEmperors.map(person => {
     const { start, end } = getYearRange(person.startDate, person.endDate);
 
+    // Extend range to account for minimum display width
+    const span = end - start;
+    const displayEnd = span < minDisplayYears ? start + minDisplayYears : end;
+
     // Find the first (lowest index = visually higher) row where this person fits
     let rowIndex = 0;
     let foundRow = false;
 
     for (let i = 0; i < rows.length; i++) {
       // Check if person overlaps with any item in this row
-      const overlaps = rows[i].some(item => rangesOverlap(start, end, item.start, item.end));
+      const overlaps = rows[i].some(item => rangesOverlap(start, displayEnd, item.start, item.end));
 
       if (!overlaps) {
         // Found a row with no overlap
@@ -101,7 +114,7 @@ export function stackPeople(people) {
     }
 
     // Add this person to the row
-    rows[rowIndex].push({ start, end, person });
+    rows[rowIndex].push({ start, end: displayEnd, person });
 
     return {
       ...person,
@@ -376,8 +389,8 @@ export function stackTimelineItems(data, pointWidth = 150, yearsPerPixel = 1) {
   const abovePeriodsStacked = stackPeriods(abovePeriods);
   const belowPeriodsStacked = stackPeriods(belowPeriods);
 
-  const abovePeopleStacked = stackPeople(abovePeople);
-  const belowPeopleStacked = stackPeople(belowPeople);
+  const abovePeopleStacked = stackPeople(abovePeople, yearsPerPixel);
+  const belowPeopleStacked = stackPeople(belowPeople, yearsPerPixel);
 
   const abovePointsStacked = stackPoints(abovePoints, pointWidth, yearsPerPixel);
   const belowPointsStacked = stackPoints(belowPoints, pointWidth, yearsPerPixel);
