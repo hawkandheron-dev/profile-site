@@ -473,7 +473,12 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     });
 
     // Find people alive in this year
+    // For monarchs, filter by reign dates so only actually reigning
+    // emperors appear under "Reigning Emperor(s)"
     const alivePeople = people.filter(p => {
+      if (p.isMonarch && p.reignStartYear != null && p.reignEndYear != null) {
+        return year >= p.reignStartYear && year <= p.reignEndYear;
+      }
       const start = getYear(p.startDate);
       const end = getYear(p.endDate);
       return year >= start && year <= end;

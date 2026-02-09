@@ -15,9 +15,14 @@ export function parseISODate(dateString) {
   const match = dateString.match(/^(-?\d{1,4})(?:-(\d{2}))?(?:-(\d{2}))?/);
   if (!match) return null;
 
-  const year = parseInt(match[1], 10);
+  let year = parseInt(match[1], 10);
   const month = match[2] ? parseInt(match[2], 10) - 1 : 0; // JS months are 0-indexed
   const day = match[3] ? parseInt(match[3], 10) : 1;
+
+  // Handle PostgreSQL BC suffix
+  if (year > 0 && /\bBC\b/i.test(dateString)) {
+    year = -year;
+  }
 
   // JavaScript Date doesn't handle negative years well, so we'll use year 0 as 1 BCE
   // and work around this in our coordinate system
@@ -26,6 +31,7 @@ export function parseISODate(dateString) {
 
 /**
  * Get year from ISO date string
+ * Handles both ISO format (-0042-01-01) and PostgreSQL BC format (0042-01-01 BC)
  * @param {string} dateString - ISO 8601 date string
  * @returns {number} Year (negative for BCE)
  */
@@ -35,7 +41,14 @@ export function getYear(dateString) {
   const match = dateString.match(/^(-?\d{1,4})/);
   if (!match) return null;
 
-  return parseInt(match[1], 10);
+  let year = parseInt(match[1], 10);
+
+  // Handle PostgreSQL BC suffix: "0042-01-01 BC" → -42
+  if (year > 0 && /\bBC\b/i.test(dateString)) {
+    year = -year;
+  }
+
+  return year;
 }
 
 /**
@@ -51,7 +64,11 @@ export function formatDate(dateString, dateCertainty = 'year only', eraLabels = 
   const match = dateString.match(/^(-?\d{1,4})(?:-(\d{2}))?(?:-(\d{2}))?/);
   if (!match) return '';
 
-  const year = parseInt(match[1], 10);
+  let year = parseInt(match[1], 10);
+  // Handle PostgreSQL BC suffix
+  if (year > 0 && /\bBC\b/i.test(dateString)) {
+    year = -year;
+  }
   const month = match[2] ? parseInt(match[2], 10) : null;
   const day = match[3] ? parseInt(match[3], 10) : null;
 
