@@ -133,7 +133,7 @@ function linkifyDescription(description, itemIndex, currentItemId) {
   }
 }
 
-export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople, onItemDeleted, onDataChanged, adminContext, onEntityUpdated }) {
+export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople, onItemDeleted, onDataChanged, adminContext, contributorContext, onEntityUpdated }) {
   // ── Delete confirmation state ──────────────────────────────────────────
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -506,6 +506,15 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
               onClick={() => setEditing(prev => !prev)}
             >
               {editing ? 'Close Editor' : 'Edit'}
+            </button>
+          )}
+          {!adminContext?.isAdmin && contributorContext?.isContributor && (
+            <button
+              type="button"
+              className={`modal-edit-toggle modal-suggest-toggle${editing ? ' active' : ''}`}
+              onClick={() => setEditing(prev => !prev)}
+            >
+              {editing ? 'Close' : 'Suggest a Change'}
             </button>
           )}
         </h2>
@@ -946,6 +955,18 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
             onSaved={(updatedRow, type) => {
               onEntityUpdated?.(updatedRow, type);
             }}
+            onCancel={() => setEditing(false)}
+          />
+        )}
+
+        {editing && !adminContext?.isAdmin && contributorContext?.isContributor && (
+          <EditEntityForm
+            item={item}
+            itemType={itemType}
+            getToken={contributorContext.getToken}
+            mode="suggest"
+            clerkUserId={contributorContext.clerkUserId}
+            onSaved={() => setEditing(false)}
             onCancel={() => setEditing(false)}
           />
         )}
