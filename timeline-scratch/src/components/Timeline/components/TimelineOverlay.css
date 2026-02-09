@@ -17,24 +17,25 @@
   position: relative;
 }
 
+/* Pin shaft: runs from above the pinhead center down past the bottom of the card */
 .point-callout::before {
   content: '';
   position: absolute;
   left: 0px;
-  top: -8px;
-  width: 2px;
-  height: 12px;
-  background: #b71c1c;
-  border-radius: 1px;
+  top: -3px;
+  width: 1px;
+  height: calc(100% + 7px);
+  background: #333;
 }
 
+/* Pin head: centered on the top-left corner of the card */
 .point-callout::after {
   content: '';
   position: absolute;
   left: -3px;
-  top: -14px;
-  width: 8px;
-  height: 8px;
+  top: -3px;
+  width: 6px;
+  height: 6px;
   background: #d32f2f;
   border-radius: 50%;
   box-shadow: 0 1px 2px rgba(0,0,0,0.2);
