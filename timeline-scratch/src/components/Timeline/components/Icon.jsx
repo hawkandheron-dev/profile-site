@@ -20,6 +20,7 @@ const iconMap = {
   'arrow-up': { collection: 'universal', id: 'arrow-up' },
   'arrow-down': { collection: 'universal', id: 'arrow-down' },
   'book': { collection: 'universal', id: 'book' },
+  'search': { collection: 'universal', id: 'search' },
   // Period-themed icons
   'crown': { collection: 'medieval', id: 'crown' },
   'sword': { collection: 'medieval', id: 'sword' },
