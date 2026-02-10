@@ -16,6 +16,7 @@ import { TimelineLegend } from './components/TimelineLegend.jsx';
 import { MobileTimeline } from './components/MobileTimeline.jsx';
 import { Icon } from './components/Icon.jsx';
 import { getYear, getYearRange } from './utils/dateUtils.js';
+import bgManuscript from '/bg-manuscript.jpg?url';
 import './Timeline.css';
 
 export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged }, ref) {
@@ -600,6 +601,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
       <div
         className="timeline-bg-image"
         style={{
+          backgroundImage: `url(${bgManuscript})`,
           transform: `translate(${-100 + viewportStartYear * -0.005}%, ${-100 + panOffsetY * -0.02}%)`,
         }}
       />

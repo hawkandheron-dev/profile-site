@@ -82,18 +82,19 @@ body {
 
 .auth-actions button {
   padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(160, 140, 110, 0.25);
-  background: rgba(255, 252, 245, 0.92);
+  border-radius: var(--radius-pill, 999px);
+  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
+  background: var(--color-parchment-light, #faf6eb);
   backdrop-filter: blur(6px);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  color: #6b5d48;
+  color: var(--color-ink-light, #4a3f2f);
 }
 
 .auth-actions button:hover {
   background: #fff;
+  border-color: var(--color-border-hover, rgba(120, 100, 70, 0.5));
 }
 
 /* Navigation dropdown menu */
@@ -103,21 +104,21 @@ body {
 
 .nav-dropdown-toggle {
   padding: 6px 8px;
-  border: 1px solid rgba(160, 140, 110, 0.25);
-  background: rgba(255, 252, 245, 0.92);
+  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
+  background: var(--color-parchment-light, #faf6eb);
   backdrop-filter: blur(6px);
-  border-radius: 6px;
+  border-radius: var(--radius-sm, 6px);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b5d48;
+  color: var(--color-ink-light, #4a3f2f);
   transition: all 0.15s ease;
 }
 
 .nav-dropdown-toggle:hover {
   background: #fff;
-  border-color: #b8a890;
+  border-color: var(--color-border-hover, rgba(120, 100, 70, 0.5));
 }
 
 .nav-dropdown-menu {
@@ -126,10 +127,10 @@ body {
   right: 0;
   margin-top: 4px;
   min-width: 160px;
-  background: rgba(250, 246, 235, 0.95);
+  background: var(--color-parchment-light, #faf6eb);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(120,100,70,0.25);
-  border-radius: 8px;
+  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
+  border-radius: var(--radius-md, 12px);
   box-shadow: 0 4px 16px rgba(60, 50, 30, 0.15);
   overflow: hidden;
   z-index: 200;
