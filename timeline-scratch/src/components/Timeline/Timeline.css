@@ -3,9 +3,28 @@
   height: 100%;
   position: relative;
   overflow: hidden;
-  background: #f5f0e1;
+  background: #2c2416;
   cursor: grab;
   user-select: none;
+}
+
+/* Background manuscript image layer */
+.timeline-bg-image {
+  position: absolute;
+  inset: 0;
+  background: url('/bg-manuscript.jpg') center / cover no-repeat;
+  opacity: 0.18;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Semi-transparent parchment overlay on top of background image */
+.timeline-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(245, 240, 225, 0.82);
+  pointer-events: none;
+  z-index: 0;
 }
 
 body.modal-open .timeline-container {
@@ -100,7 +119,8 @@ body.modal-open .timeline-container {
   border-color: #a09888;
 }
 
-.compass-btn:active {
+.compass-btn:active,
+.compass-btn.active {
   transform: scale(0.92);
   background: #e8e0cc;
 }
@@ -133,7 +153,15 @@ body.modal-open .timeline-container {
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   .timeline-container {
-    background: #1e1b16;
+    background: #0e0b08;
+  }
+
+  .timeline-bg-image {
+    opacity: 0.08;
+  }
+
+  .timeline-bg-overlay {
+    background: rgba(30, 27, 22, 0.88);
   }
 
   .timeline-controls {
@@ -167,7 +195,8 @@ body.modal-open .timeline-container {
     border-color: #5a5548;
   }
 
-  .compass-btn:active {
+  .compass-btn:active,
+  .compass-btn.active {
     background: #4a4538;
   }
 

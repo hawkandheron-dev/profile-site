@@ -7,6 +7,7 @@ import { useState, useRef, useCallback, useEffect, useMemo, forwardRef, useImper
 import { useZoomPan } from './hooks/useZoomPan.js';
 import { useTimelineLayout } from './hooks/useTimelineLayout.js';
 import { useMobileDetect } from './hooks/useMobileDetect.js';
+import { useSmoothPan } from './hooks/useSmoothPan.js';
 import { TimelineCanvas } from './components/TimelineCanvas.jsx';
 import { TimelineOverlay } from './components/TimelineOverlay.jsx';
 import { TimelineModal } from './components/TimelineModal.jsx';
@@ -534,55 +535,44 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     handleZoom(2, centerX, dimensions.width); // Positive delta = zoom out
   }, [handleZoom, dimensions.width]);
 
-  // Directional navigation handlers (arrow keys + compass rose)
-  const panStep = 80; // pixels per step
+  // Smooth accelerating directional navigation (arrow keys + compass rose)
+  const { startDirection, stopDirection, activeDirections } = useSmoothPan({
+    handlePanX,
+    handlePanY,
+    dimensions,
+    layoutTotalHeight: layout.totalHeight,
+  });
 
-  const handlePanLeft = useCallback(() => {
-    handlePanX(panStep, dimensions.width);
-  }, [handlePanX, dimensions.width]);
-
-  const handlePanRight = useCallback(() => {
-    handlePanX(-panStep, dimensions.width);
-  }, [handlePanX, dimensions.width]);
-
-  const handlePanUp = useCallback(() => {
-    const maxOffsetY = Math.max(0, layout.totalHeight - dimensions.height);
-    handlePanY(panStep, maxOffsetY);
-  }, [handlePanY, layout.totalHeight, dimensions.height]);
-
-  const handlePanDown = useCallback(() => {
-    const maxOffsetY = Math.max(0, layout.totalHeight - dimensions.height);
-    handlePanY(-panStep, maxOffsetY);
-  }, [handlePanY, layout.totalHeight, dimensions.height]);
-
-  // Keyboard arrow key navigation
+  // Keyboard arrow key navigation with hold-to-accelerate
   useEffect(() => {
+    const keyToDir = {
+      ArrowLeft: 'left',
+      ArrowRight: 'right',
+      ArrowUp: 'up',
+      ArrowDown: 'down',
+    };
+
     const handleKeyDown = (e) => {
       if (isModalOpen) return;
-
-      switch (e.key) {
-        case 'ArrowLeft':
-          e.preventDefault();
-          handlePanLeft();
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          handlePanRight();
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          handlePanUp();
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          handlePanDown();
-          break;
+      const dir = keyToDir[e.key];
+      if (dir) {
+        e.preventDefault();
+        startDirection(dir);
       }
     };
 
+    const handleKeyUp = (e) => {
+      const dir = keyToDir[e.key];
+      if (dir) stopDirection(dir);
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isModalOpen, handlePanLeft, handlePanRight, handlePanUp, handlePanDown]);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [isModalOpen, startDirection, stopDirection]);
 
   // Notify viewport changes
   useEffect(() => {
@@ -606,6 +596,11 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
+      {/* Background manuscript image */}
+      <div className="timeline-bg-image" />
+      {/* Semi-transparent overlay on top of background */}
+      <div className="timeline-bg-overlay" />
+
       {/* Cursor year line - behind all elements */}
       {!isOverItem && !isPanning && !yearSummaryOpen && !isOverControls && (
         <div
@@ -743,23 +738,47 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         onMouseEnter={() => setIsOverControls(true)}
         onMouseLeave={() => setIsOverControls(false)}
       >
-        {/* Compass rose for directional navigation */}
+        {/* Compass rose for directional navigation (hold to accelerate) */}
         <div className="compass-rose">
-          <button onClick={handlePanUp} title="Scroll up" className="compass-btn compass-up">
+          <button
+            onMouseDown={() => startDirection('up')}
+            onMouseUp={() => stopDirection('up')}
+            onMouseLeave={() => stopDirection('up')}
+            title="Scroll up"
+            className={`compass-btn compass-up${activeDirections.has('up') ? ' active' : ''}`}
+          >
             <Icon name="arrow-up" size={12} />
           </button>
           <div className="compass-middle">
-            <button onClick={handlePanLeft} title="Scroll left" className="compass-btn compass-left">
+            <button
+              onMouseDown={() => startDirection('left')}
+              onMouseUp={() => stopDirection('left')}
+              onMouseLeave={() => stopDirection('left')}
+              title="Scroll left"
+              className={`compass-btn compass-left${activeDirections.has('left') ? ' active' : ''}`}
+            >
               <Icon name="arrow-left" size={12} />
             </button>
             <button onClick={reset} title="Reset view" className="compass-btn compass-center">
               <Icon name="quatrefoil" size={12} />
             </button>
-            <button onClick={handlePanRight} title="Scroll right" className="compass-btn compass-right">
+            <button
+              onMouseDown={() => startDirection('right')}
+              onMouseUp={() => stopDirection('right')}
+              onMouseLeave={() => stopDirection('right')}
+              title="Scroll right"
+              className={`compass-btn compass-right${activeDirections.has('right') ? ' active' : ''}`}
+            >
               <Icon name="arrow-right" size={12} />
             </button>
           </div>
-          <button onClick={handlePanDown} title="Scroll down" className="compass-btn compass-down">
+          <button
+            onMouseDown={() => startDirection('down')}
+            onMouseUp={() => stopDirection('down')}
+            onMouseLeave={() => stopDirection('down')}
+            title="Scroll down"
+            className={`compass-btn compass-down${activeDirections.has('down') ? ' active' : ''}`}
+          >
             <Icon name="arrow-down" size={12} />
           </button>
         </div>
