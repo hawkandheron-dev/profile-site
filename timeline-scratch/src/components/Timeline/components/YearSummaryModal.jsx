@@ -2,8 +2,9 @@
  * Modal component for displaying year summary (people alive, periods active, points)
  */
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { Icon } from './Icon.jsx';
+import { YearDetailMap } from './YearDetailMap.jsx';
 import './TimelineModal.css';
 
 export function YearSummaryModal({ year, summary, config, onClose, itemIndex, onSelectItem }) {
@@ -33,6 +34,25 @@ export function YearSummaryModal({ year, summary, config, onClose, itemIndex, on
     }
     return `${yr} AD`;
   };
+
+  const [hoveredPersonId, setHoveredPersonId] = useState(null);
+  const hoverSourceRef = useRef(null); // 'map' | 'pill' | null
+  const pillRefs = useRef(new Map()); // personId -> DOM element
+
+  // When a pin is hovered on the map, scroll the matching pill into view
+  const handleHoverPerson = useCallback((personId, source) => {
+    hoverSourceRef.current = source || null;
+    setHoveredPersonId(personId);
+  }, []);
+
+  useEffect(() => {
+    if (hoveredPersonId && hoverSourceRef.current === 'map') {
+      const el = pillRefs.current.get(hoveredPersonId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [hoveredPersonId]);
 
   // Separate emperors from other people
   const emperors = alivePeople.filter(p => p.isMonarch);
@@ -66,6 +86,16 @@ export function YearSummaryModal({ year, summary, config, onClose, itemIndex, on
         <h2 className="modal-title">
           {formatYear(year)}
         </h2>
+
+        {/* Historical Map with pins for all people */}
+        {otherPeople.length > 0 && (
+          <YearDetailMap
+            people={otherPeople}
+            year={year}
+            hoveredPersonId={hoveredPersonId}
+            onHoverPerson={handleHoverPerson}
+          />
+        )}
 
         {/* Active Periods */}
         {activePeriods.length > 0 && (
@@ -108,23 +138,40 @@ export function YearSummaryModal({ year, summary, config, onClose, itemIndex, on
           <div className="summary-section">
             <h3 className="summary-section-title">Who's where? ({otherPeople.length})</h3>
             <ul className="summary-list summary-list-compact">
-              {otherPeople.map(person => (
-                <li key={person.id} className="summary-item">
-                  <button
-                    type="button"
-                    className="summary-pill"
-                    data-item-id={person.id}
-                    data-item-type="person"
-                    onClick={handleReferenceClick}
+              {otherPeople.map(person => {
+                const isHighlighted = hoveredPersonId === person.id;
+                const isDimmed = hoveredPersonId && hoveredPersonId !== person.id;
+                return (
+                  <li
+                    key={person.id}
+                    ref={el => {
+                      if (el) pillRefs.current.set(person.id, el);
+                      else pillRefs.current.delete(person.id);
+                    }}
+                    className={
+                      'summary-item' +
+                      (isHighlighted ? ' summary-pill-highlighted' : '') +
+                      (isDimmed ? ' summary-pill-dimmed' : '')
+                    }
+                    onMouseEnter={() => handleHoverPerson(person.id, 'pill')}
+                    onMouseLeave={() => handleHoverPerson(null)}
                   >
-                    <span
-                      className="summary-color-dot"
-                      style={{ backgroundColor: person.color }}
-                    />
-                    <strong>{person.name}</strong>{person.location && <span>{'\u00A0'}in <em>{person.location}</em></span>}
-                  </button>
-                </li>
-              ))}
+                    <button
+                      type="button"
+                      className="summary-pill"
+                      data-item-id={person.id}
+                      data-item-type="person"
+                      onClick={handleReferenceClick}
+                    >
+                      <span
+                        className="summary-color-dot"
+                        style={{ backgroundColor: person.color }}
+                      />
+                      <strong>{person.name}</strong>{person.location && <span>{'\u00A0'}in <em>{person.location}</em></span>}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
