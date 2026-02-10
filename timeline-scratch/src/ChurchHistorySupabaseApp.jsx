@@ -327,8 +327,8 @@ function UnauthenticatedApp({ timelineData, loading, error }) {
           </div>
           <div className="header-right">
             <div className="auth-actions">
-              <button title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
               <button title="Sign in to save notes, add entries, or make suggestions">Sign In</button>
+              <button title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
             </div>
             <NavDropdown />
           </div>
