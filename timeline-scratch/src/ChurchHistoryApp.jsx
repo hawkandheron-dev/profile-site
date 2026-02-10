@@ -20,7 +20,7 @@ function NavDropdown() {
 
   return (
     <div className="nav-dropdown" ref={ref}>
-      <button className="nav-dropdown-toggle" onClick={() => setOpen(!open)} title="Navigation">
+      <button className="btn btn-icon nav-dropdown-toggle" onClick={() => setOpen(!open)} title="Navigation">
         <Icon name="menu" size={18} />
       </button>
       {open && (
@@ -72,8 +72,8 @@ function ChurchHistoryApp() {
           </div>
           <div className="header-right">
             <div className="auth-actions">
-              <button title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
-              <button title="Sign in to save notes, add entries, or make suggestions">Sign In</button>
+              <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign In</button>
+              <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
             </div>
             <NavDropdown />
           </div>

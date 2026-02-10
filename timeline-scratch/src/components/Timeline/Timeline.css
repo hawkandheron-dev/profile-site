@@ -55,37 +55,14 @@ body.modal-open .timeline-container {
   pointer-events: auto;
 }
 
-.timeline-controls button {
-  padding: 6px 10px;
-  border: 1px solid var(--color-border-hover, rgba(120, 100, 70, 0.5));
-  background: var(--color-parchment-light, #faf6eb);
-  backdrop-filter: blur(6px);
-  border-radius: var(--radius-sm, 6px);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  color: var(--color-ink-faded, #7a6f5f);
-  box-shadow: 0 2px 8px var(--color-shadow, rgba(60, 50, 30, 0.12));
-}
-
+/* Zoom buttons get .btn .btn-sm in JSX; only layout overrides here */
 .timeline-controls button .icon {
   display: flex;
   flex-shrink: 0;
 }
 
-.timeline-controls button:hover {
-  background: #fff;
-  border-color: var(--color-accent, #8b7355);
-  box-shadow: 0 3px 12px var(--color-shadow, rgba(60, 50, 30, 0.18));
-}
-
-.timeline-controls button:active {
-  transform: scale(0.96);
+.timeline-controls button {
+  color: var(--color-ink-faded);
 }
 
 /* Compass rose — self-contained cross */
@@ -102,33 +79,18 @@ body.modal-open .timeline-container {
   gap: 1px;
 }
 
+/* Compass buttons get .btn .btn-icon in JSX; only size overrides here */
 .compass-btn {
   width: 26px;
   height: 26px;
   padding: 0;
-  border: 1px solid var(--color-border-hover, rgba(120, 100, 70, 0.5));
-  background: var(--color-parchment-light, #faf6eb);
-  backdrop-filter: blur(6px);
   border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-ink-faded, #7a6f5f);
-  transition: all 0.15s ease;
-  box-shadow: 0 2px 8px var(--color-shadow, rgba(60, 50, 30, 0.12));
-}
-
-.compass-btn:hover {
-  background: #fff;
-  border-color: var(--color-accent, #8b7355);
-  box-shadow: 0 3px 12px var(--color-shadow, rgba(60, 50, 30, 0.18));
+  color: var(--color-ink-faded);
 }
 
 .compass-btn:active,
 .compass-btn.active {
   transform: scale(0.92);
-  background: var(--color-parchment-dark, #e8dfc8);
 }
 
 .compass-center {
@@ -144,14 +106,14 @@ body.modal-open .timeline-container {
 
 .zoom-info {
   font-size: 11px;
-  color: var(--color-ink-faded, #7a6f5f);
   font-weight: 600;
   padding: 3px 7px;
-  background: var(--color-parchment-light, #faf6eb);
+  color: var(--color-ink-faded);
+  background: var(--color-parchment-light);
   backdrop-filter: blur(6px);
+  border: 1px solid var(--color-border-hover);
   border-radius: 4px;
-  border: 1px solid var(--color-border-hover, rgba(120, 100, 70, 0.5));
-  box-shadow: 0 2px 8px var(--color-shadow, rgba(60, 50, 30, 0.12));
+  box-shadow: 0 2px 8px var(--color-shadow);
 }
 
 /* Dark mode */
@@ -168,33 +130,9 @@ body.modal-open .timeline-container {
     background: rgba(26, 22, 16, 0.80);
   }
 
-  .timeline-controls button {
-    background: rgba(40, 36, 28, 0.90);
-    border-color: rgba(80, 72, 56, 0.5);
-    color: #e0d8c8;
-  }
-
-  .timeline-controls button:hover {
-    background: rgba(55, 50, 38, 0.95);
-  }
-
   .zoom-info {
     color: rgba(180, 168, 148, 0.8);
     background: rgba(40, 36, 28, 0.7);
-  }
-
-  .compass-btn {
-    background: rgba(40, 36, 28, 0.90);
     border-color: rgba(80, 72, 56, 0.5);
-    color: #e0d8c8;
-  }
-
-  .compass-btn:hover {
-    background: rgba(55, 50, 38, 0.95);
-  }
-
-  .compass-btn:active,
-  .compass-btn.active {
-    background: rgba(70, 64, 50, 0.95);
   }
 }

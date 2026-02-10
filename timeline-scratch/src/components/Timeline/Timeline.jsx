@@ -753,7 +753,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
             onMouseUp={() => stopDirection('up')}
             onMouseLeave={() => stopDirection('up')}
             title="Scroll up"
-            className={`compass-btn compass-up${activeDirections.has('up') ? ' active' : ''}`}
+            className={`btn btn-icon compass-btn compass-up${activeDirections.has('up') ? ' active' : ''}`}
           >
             <Icon name="arrow-up" size={12} />
           </button>
@@ -763,11 +763,11 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
               onMouseUp={() => stopDirection('left')}
               onMouseLeave={() => stopDirection('left')}
               title="Scroll left"
-              className={`compass-btn compass-left${activeDirections.has('left') ? ' active' : ''}`}
+              className={`btn btn-icon compass-btn compass-left${activeDirections.has('left') ? ' active' : ''}`}
             >
               <Icon name="arrow-left" size={12} />
             </button>
-            <button onClick={reset} title="Reset view" className="compass-btn compass-center">
+            <button onClick={reset} title="Reset view" className="btn btn-icon compass-btn compass-center">
               <Icon name="quatrefoil" size={12} />
             </button>
             <button
@@ -775,7 +775,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
               onMouseUp={() => stopDirection('right')}
               onMouseLeave={() => stopDirection('right')}
               title="Scroll right"
-              className={`compass-btn compass-right${activeDirections.has('right') ? ' active' : ''}`}
+              className={`btn btn-icon compass-btn compass-right${activeDirections.has('right') ? ' active' : ''}`}
             >
               <Icon name="arrow-right" size={12} />
             </button>
@@ -785,7 +785,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
             onMouseUp={() => stopDirection('down')}
             onMouseLeave={() => stopDirection('down')}
             title="Scroll down"
-            className={`compass-btn compass-down${activeDirections.has('down') ? ' active' : ''}`}
+            className={`btn btn-icon compass-btn compass-down${activeDirections.has('down') ? ' active' : ''}`}
           >
             <Icon name="arrow-down" size={12} />
           </button>
@@ -793,11 +793,11 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
 
         {/* Zoom controls — aligned to compass middle row */}
         <div className="zoom-controls">
-          <button onClick={handleZoomIn} title="Zoom in" className="zoom-btn">
+          <button onClick={handleZoomIn} title="Zoom in" className="btn btn-sm">
             <Icon name="plus" size={14} />
             <span>Zoom in</span>
           </button>
-          <button onClick={handleZoomOut} title="Zoom out" className="zoom-btn">
+          <button onClick={handleZoomOut} title="Zoom out" className="btn btn-sm">
             <Icon name="minus" size={14} />
             <span>Zoom out</span>
           </button>

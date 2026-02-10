@@ -37,7 +37,7 @@ function NavDropdown() {
 
   return (
     <div className="nav-dropdown" ref={ref}>
-      <button className="nav-dropdown-toggle" onClick={() => setOpen(!open)} title="Navigation">
+      <button className="btn btn-icon nav-dropdown-toggle" onClick={() => setOpen(!open)} title="Navigation">
         <Icon name="menu" size={18} />
       </button>
       {open && (
@@ -62,19 +62,19 @@ function ClerkAuthHeader({ onAddNote, onViewNotes, isAdmin, isContributor, onRev
     <div className="auth-actions">
       {isSignedIn && (
         <>
-          <button type="button" className="header-add-note" onClick={onAddNote}>
+          <button type="button" className="btn" onClick={onAddNote}>
             + Add Note
           </button>
-          <button type="button" className="header-add-note" onClick={onViewNotes}>
+          <button type="button" className="btn" onClick={onViewNotes}>
             View My Notes
           </button>
           {isContributor && (
-            <button type="button" className="header-add-note header-suggest-new" onClick={onSuggestNew}>
+            <button type="button" className="btn btn-action" onClick={onSuggestNew}>
               + Suggest New Entry
             </button>
           )}
           {isAdmin && (
-            <button type="button" className="header-add-note header-review-suggestions" onClick={onReviewSuggestions}>
+            <button type="button" className="btn btn-warning" onClick={onReviewSuggestions}>
               Review Suggestions
             </button>
           )}
@@ -82,10 +82,10 @@ function ClerkAuthHeader({ onAddNote, onViewNotes, isAdmin, isContributor, onRev
       )}
       <SignedOut>
         <SignInButton mode="modal">
-          <button title="Sign in to save notes, add entries, or make suggestions">Sign In</button>
+          <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign In</button>
         </SignInButton>
         <SignUpButton mode="modal">
-          <button title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
+          <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
         </SignUpButton>
       </SignedOut>
       <SignedIn>
@@ -327,8 +327,8 @@ function UnauthenticatedApp({ timelineData, loading, error }) {
           </div>
           <div className="header-right">
             <div className="auth-actions">
-              <button title="Sign in to save notes, add entries, or make suggestions">Sign In</button>
-              <button title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
+              <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign In</button>
+              <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
             </div>
             <NavDropdown />
           </div>
