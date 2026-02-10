@@ -596,8 +596,13 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* Background manuscript image */}
-      <div className="timeline-bg-image" />
+      {/* Background manuscript image with parallax */}
+      <div
+        className="timeline-bg-image"
+        style={{
+          transform: `translate(${-viewportStartYear * 0.012 - 30}%, ${panOffsetY * -0.05 - 30}%)`,
+        }}
+      />
       {/* Semi-transparent overlay on top of background */}
       <div className="timeline-bg-overlay" />
 
@@ -783,20 +788,15 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
           </button>
         </div>
 
-        <div className="controls-divider" />
-
-        <button onClick={handleZoomIn} title="Zoom in" className="icon-button">
-          <Icon name="plus" size={16} />
-          <span>Zoom in</span>
+        <button onClick={handleZoomIn} title="Zoom in">
+          <Icon name="plus" size={14} />
         </button>
-        <button onClick={handleZoomOut} title="Zoom out" className="icon-button">
-          <Icon name="minus" size={16} />
-          <span>Zoom out</span>
+        <button onClick={handleZoomOut} title="Zoom out">
+          <Icon name="minus" size={14} />
         </button>
-        <div className="zoom-info">
-          <Icon name="diamond" size={14} />
-          <span>{yearsPerPixel > 0 ? (1 / yearsPerPixel).toFixed(2) : '1.00'}x</span>
-        </div>
+        <span className="zoom-info">
+          {yearsPerPixel > 0 ? (1 / yearsPerPixel).toFixed(1) : '1.0'}x
+        </span>
       </div>
     </div>
   );

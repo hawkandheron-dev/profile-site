@@ -11,7 +11,7 @@
 
 import { useRef, useCallback, useEffect, useState } from 'react';
 
-const INITIAL_STEP = 60;       // px for the first discrete tap
+const INITIAL_STEP = 16;       // px for the first discrete tap
 const BASE_SPEED   = 120;      // px/s when continuous scroll begins
 const MAX_SPEED    = 1200;      // px/s cap
 const ACCEL_TIME   = 1800;      // ms to reach max speed from base

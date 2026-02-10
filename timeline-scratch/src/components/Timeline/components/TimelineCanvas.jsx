@@ -168,7 +168,7 @@ export function TimelineCanvas({
       ctx.globalAlpha = opacity;
 
       // Convert color to rgba for fill (slightly stronger when hovered)
-      const fillAlpha = isThisPeriodHovered ? 0.25 : 0.15;
+      const fillAlpha = isThisPeriodHovered ? 0.35 : 0.25;
       const fillColor = hexToRgba(color, fillAlpha);
 
       const braceY = period.aboveTimeline ? y + bracketHeight : y;

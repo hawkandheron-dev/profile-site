@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   SignedIn,
   SignedOut,
@@ -17,9 +17,39 @@ import { ViewMyNotesModal } from './components/Notes/ViewMyNotesModal.jsx';
 import { checkUserRole, ensureUserExists } from './services/adminService.js';
 import { AdminSuggestionsPage } from './components/Suggestions/AdminSuggestionsPage.jsx';
 import { SuggestNewModal } from './components/Suggestions/SuggestNewModal.jsx';
+import { Icon } from './components/Timeline/components/Icon.jsx';
 import './App.css';
 
 const hasClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+function NavDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  return (
+    <div className="nav-dropdown" ref={ref}>
+      <button className="nav-dropdown-toggle" onClick={() => setOpen(!open)} title="Navigation">
+        <Icon name="menu" size={18} />
+      </button>
+      {open && (
+        <div className="nav-dropdown-menu">
+          <a href="../../index.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Home</a>
+          <a href="./church-history.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>JSON Version</a>
+          <a href="../../church-history-supabase.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Data Browser</a>
+        </div>
+      )}
+    </div>
+  );
+}
 
 /**
  * Auth header rendered only when Clerk is configured.
@@ -51,9 +81,12 @@ function ClerkAuthHeader({ onAddNote, onViewNotes, isAdmin, isContributor, onRev
         </>
       )}
       <SignedOut>
-        <span className="auth-hint">Sign in to save notes.</span>
-        <SignInButton mode="modal" />
-        <SignUpButton mode="modal" />
+        <SignInButton mode="modal">
+          <button title="Sign in to save notes, add entries, or make suggestions">Sign In</button>
+        </SignInButton>
+        <SignUpButton mode="modal">
+          <button title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
+        </SignUpButton>
       </SignedOut>
       <SignedIn>
         <UserButton />
@@ -187,11 +220,6 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
               />
             )}
           </div>
-          <nav className="tab-nav">
-            <a href="../../index.html" className="tab-button">Home</a>
-            <a href="./church-history.html" className="tab-button">JSON Version</a>
-            <a href="../../church-history-supabase.html" className="tab-button">Data Browser</a>
-          </nav>
           <div className="header-right">
             <ClerkAuthHeader
               onAddNote={() => setAddNoteOpen(true)}
@@ -201,6 +229,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
               onReviewSuggestions={() => setView('suggestions')}
               onSuggestNew={() => setSuggestNewOpen(true)}
             />
+            <NavDropdown />
           </div>
         </div>
       </header>
@@ -298,17 +327,12 @@ function UnauthenticatedApp({ timelineData, loading, error }) {
               />
             )}
           </div>
-          <nav className="tab-nav">
-            <a href="../../index.html" className="tab-button">Home</a>
-            <a href="./church-history.html" className="tab-button">JSON Version</a>
-            <a href="../../church-history-supabase.html" className="tab-button">Data Browser</a>
-          </nav>
           <div className="header-right">
             <div className="auth-actions">
-              <span className="auth-hint">Sign in to save notes</span>
-              <button>Sign Up</button>
-              <button>Sign In</button>
+              <button title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
+              <button title="Sign in to save notes, add entries, or make suggestions">Sign In</button>
             </div>
+            <NavDropdown />
           </div>
         </div>
       </header>

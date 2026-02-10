@@ -8,21 +8,24 @@
   user-select: none;
 }
 
-/* Background manuscript image layer */
+/* Background manuscript image layer — enlarged for parallax scrolling */
 .timeline-bg-image {
   position: absolute;
-  inset: 0;
+  /* Oversized so it can shift with parallax; top/left set via inline style */
+  width: 160%;
+  height: 160%;
   background: url('/bg-manuscript.jpg') center / cover no-repeat;
-  opacity: 0.18;
+  opacity: 0.35;
   pointer-events: none;
   z-index: 0;
+  will-change: transform;
 }
 
 /* Semi-transparent parchment overlay on top of background image */
 .timeline-bg-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(245, 240, 225, 0.82);
+  background: rgba(245, 240, 225, 0.72);
   pointer-events: none;
   z-index: 0;
 }
@@ -37,33 +40,29 @@ body.modal-open .timeline-container {
 
 .timeline-controls {
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  bottom: 16px;
+  left: 16px;
   display: flex;
-  align-items: center;
-  gap: 12px;
-  background: rgba(250, 246, 235, 0.95);
-  border: 1px solid rgba(120, 100, 70, 0.25);
-  border-radius: 8px;
-  padding: 10px 16px;
-  box-shadow: 0 2px 8px rgba(60, 50, 30, 0.1);
+  align-items: flex-end;
+  gap: 8px;
   z-index: 9000;
-  backdrop-filter: blur(10px);
+  pointer-events: none; /* let clicks through to timeline, children re-enable */
+}
+
+.timeline-controls > * {
+  pointer-events: auto;
 }
 
 .timeline-controls button {
-  padding: 6px 12px;
-  border: 1px solid rgba(120, 100, 70, 0.25);
-  background: #faf6eb;
+  padding: 6px 10px;
+  border: 1px solid rgba(120, 100, 70, 0.3);
+  background: rgba(250, 246, 235, 0.85);
+  backdrop-filter: blur(6px);
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.timeline-controls button.icon-button {
-  padding: 6px 10px;
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,18 +70,18 @@ body.modal-open .timeline-container {
   color: #4a3f2f;
 }
 
-.timeline-controls button.icon-button .icon {
+.timeline-controls button .icon {
   display: flex;
   flex-shrink: 0;
 }
 
 .timeline-controls button:hover {
-  background: #f5f0e1;
+  background: rgba(245, 240, 225, 0.95);
   border-color: #a09888;
 }
 
 .timeline-controls button:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
 }
 
 /* Compass rose */
@@ -103,8 +102,9 @@ body.modal-open .timeline-container {
   width: 26px;
   height: 26px;
   padding: 0;
-  border: 1px solid rgba(120, 100, 70, 0.25);
-  background: #faf6eb;
+  border: 1px solid rgba(120, 100, 70, 0.3);
+  background: rgba(250, 246, 235, 0.85);
+  backdrop-filter: blur(6px);
   border-radius: 4px;
   cursor: pointer;
   display: flex;
@@ -115,39 +115,29 @@ body.modal-open .timeline-container {
 }
 
 .compass-btn:hover {
-  background: #f0ead6;
+  background: rgba(245, 240, 225, 0.95);
   border-color: #a09888;
 }
 
 .compass-btn:active,
 .compass-btn.active {
   transform: scale(0.92);
-  background: #e8e0cc;
+  background: rgba(232, 224, 204, 0.95);
 }
 
 .compass-center {
   border-radius: 50%;
 }
 
-.controls-divider {
-  width: 1px;
-  height: 48px;
-  background: rgba(120, 100, 70, 0.2);
-  align-self: center;
-}
-
 .zoom-info {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #7a6f5f;
-  font-weight: 500;
-  min-width: 80px;
-}
-
-.zoom-info .icon {
-  opacity: 0.6;
+  font-size: 11px;
+  color: rgba(74, 63, 47, 0.7);
+  font-weight: 600;
+  padding: 3px 7px;
+  background: rgba(250, 246, 235, 0.7);
+  backdrop-filter: blur(6px);
+  border-radius: 4px;
+  align-self: center;
 }
 
 /* Dark mode */
@@ -157,50 +147,40 @@ body.modal-open .timeline-container {
   }
 
   .timeline-bg-image {
-    opacity: 0.08;
+    opacity: 0.12;
   }
 
   .timeline-bg-overlay {
-    background: rgba(30, 27, 22, 0.88);
-  }
-
-  .timeline-controls {
-    background: rgba(30, 27, 22, 0.95);
-    border-color: #4a4538;
+    background: rgba(30, 27, 22, 0.82);
   }
 
   .timeline-controls button {
-    background: #2a2518;
-    border-color: #4a4538;
+    background: rgba(42, 37, 24, 0.85);
+    border-color: rgba(74, 69, 56, 0.6);
     color: #f0ebe0;
   }
 
   .timeline-controls button:hover {
-    background: #3a3528;
-    border-color: #4a4538;
+    background: rgba(58, 53, 40, 0.95);
   }
 
   .zoom-info {
-    color: #a09888;
+    color: rgba(160, 152, 136, 0.8);
+    background: rgba(42, 37, 24, 0.7);
   }
 
   .compass-btn {
-    background: #2a2518;
-    border-color: #4a4538;
+    background: rgba(42, 37, 24, 0.85);
+    border-color: rgba(74, 69, 56, 0.6);
     color: #f0ebe0;
   }
 
   .compass-btn:hover {
-    background: #3a3528;
-    border-color: #5a5548;
+    background: rgba(58, 53, 40, 0.95);
   }
 
   .compass-btn:active,
   .compass-btn.active {
-    background: #4a4538;
-  }
-
-  .controls-divider {
-    background: rgba(160, 152, 136, 0.3);
+    background: rgba(74, 69, 56, 0.95);
   }
 }
