@@ -602,7 +602,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         className="timeline-bg-image"
         style={{
           backgroundImage: `url(${bgManuscript})`,
-          transform: `translate(${-100 + viewportStartYear * -0.005}%, ${-100 + panOffsetY * -0.02}%)`,
+          transform: `translate(${-33.33 + viewportStartYear * -0.002}%, ${-33.33 + panOffsetY * -0.008}%)`,
         }}
       />
       {/* Semi-transparent overlay on top of background */}
