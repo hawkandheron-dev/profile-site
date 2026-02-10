@@ -3,29 +3,28 @@
   height: 100%;
   position: relative;
   overflow: hidden;
-  background: #2c2416;
+  background: #3a2e1e;
   cursor: grab;
   user-select: none;
 }
 
-/* Background manuscript image layer — enlarged for parallax scrolling */
+/* Background manuscript image layer — oversized so edges are never visible */
 .timeline-bg-image {
   position: absolute;
-  /* Oversized so it can shift with parallax; top/left set via inline style */
-  width: 160%;
-  height: 160%;
+  width: 250%;
+  height: 250%;
   background: url('/bg-manuscript.jpg') center / cover no-repeat;
-  opacity: 0.35;
+  opacity: 0.30;
   pointer-events: none;
   z-index: 0;
   will-change: transform;
 }
 
-/* Semi-transparent parchment overlay on top of background image */
+/* Semi-transparent warm parchment overlay */
 .timeline-bg-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(245, 240, 225, 0.72);
+  background: rgba(248, 243, 232, 0.78);
   pointer-events: none;
   z-index: 0;
 }
@@ -96,6 +95,14 @@ body.modal-open .timeline-container {
   display: flex;
   align-items: center;
   gap: 1px;
+}
+
+.compass-middle .zoom-btn {
+  margin-left: 6px;
+}
+
+.compass-middle .zoom-info {
+  margin-left: 4px;
 }
 
 .compass-btn {

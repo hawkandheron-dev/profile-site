@@ -314,30 +314,10 @@ export function drawVerticalGuideLines(ctx, width, height, viewportStartYear, ye
   // Primary lines at major tick intervals - subtle vertical rules
   const firstLabelYear = Math.ceil(viewportStartYear / labelInterval) * labelInterval;
 
-  ctx.strokeStyle = 'rgba(100, 80, 50, 0.22)';
+  ctx.strokeStyle = 'rgba(120, 100, 70, 0.16)';
   ctx.lineWidth = 1;
 
   for (let year = firstLabelYear; year < viewportStartYear + (width * yearsPerPixel); year += labelInterval) {
-    const x = (year - viewportStartYear) / yearsPerPixel;
-    if (x < 0 || x > width) continue;
-
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
-    ctx.stroke();
-  }
-
-  // Secondary finer lines at half-intervals for parallax depth
-  const halfInterval = labelInterval / 2;
-  const firstHalfYear = Math.ceil(viewportStartYear / halfInterval) * halfInterval;
-
-  ctx.strokeStyle = 'rgba(100, 80, 50, 0.10)';
-  ctx.lineWidth = 1;
-
-  for (let year = firstHalfYear; year < viewportStartYear + (width * yearsPerPixel); year += halfInterval) {
-    // Skip positions that overlap with primary lines
-    if (year % labelInterval === 0) continue;
-
     const x = (year - viewportStartYear) / yearsPerPixel;
     if (x < 0 || x > width) continue;
 
@@ -363,8 +343,8 @@ export function drawVerticalGuideLines(ctx, width, height, viewportStartYear, ye
  */
 export function drawTimeAxis(ctx, width, height, axisY, viewportStartYear, yearsPerPixel, labelInterval, eraLabels = 'BC/AD') {
   ctx.save();
-  ctx.strokeStyle = '#999';
-  ctx.fillStyle = '#3a3020';
+  ctx.strokeStyle = '#bbb0a0';
+  ctx.fillStyle = '#5a4e3a';
   ctx.font = '14px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';

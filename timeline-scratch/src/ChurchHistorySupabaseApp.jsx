@@ -210,7 +210,6 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
-            <h1 className="site-title"><strong>History of the Christian Church</strong> <span>Lifespans</span></h1>
             {timelineData && (
               <TimelineSearch
                 data={timelineData}
@@ -317,7 +316,6 @@ function UnauthenticatedApp({ timelineData, loading, error }) {
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
-            <h1 className="site-title"><strong>History of the Christian Church</strong> <span>Lifespans</span></h1>
             {timelineData && (
               <TimelineSearch
                 data={timelineData}

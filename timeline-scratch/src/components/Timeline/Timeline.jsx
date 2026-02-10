@@ -600,7 +600,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
       <div
         className="timeline-bg-image"
         style={{
-          transform: `translate(${-viewportStartYear * 0.012 - 30}%, ${panOffsetY * -0.05 - 30}%)`,
+          transform: `translate(${Math.max(-75, Math.min(-75 + viewportStartYear * -0.008, 0))}%, ${Math.max(-75, Math.min(-75 + panOffsetY * -0.03, 0))}%)`,
         }}
       />
       {/* Semi-transparent overlay on top of background */}
@@ -704,6 +704,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         onFilterToggle={handleFilterToggle}
         onMouseEnter={() => setIsOverControls(true)}
         onMouseLeave={() => setIsOverControls(false)}
+        siteTitle={defaultConfig.siteTitle}
       />
 
       <TimelineModal
@@ -776,6 +777,18 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
             >
               <Icon name="arrow-right" size={12} />
             </button>
+
+            <button onClick={handleZoomIn} title="Zoom in" className="zoom-btn">
+              <Icon name="plus" size={14} />
+              <span>Zoom in</span>
+            </button>
+            <button onClick={handleZoomOut} title="Zoom out" className="zoom-btn">
+              <Icon name="minus" size={14} />
+              <span>Zoom out</span>
+            </button>
+            <span className="zoom-info">
+              {yearsPerPixel > 0 ? (1 / yearsPerPixel).toFixed(1) : '1.0'}x
+            </span>
           </div>
           <button
             onMouseDown={() => startDirection('down')}
@@ -787,16 +800,6 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
             <Icon name="arrow-down" size={12} />
           </button>
         </div>
-
-        <button onClick={handleZoomIn} title="Zoom in">
-          <Icon name="plus" size={14} />
-        </button>
-        <button onClick={handleZoomOut} title="Zoom out">
-          <Icon name="minus" size={14} />
-        </button>
-        <span className="zoom-info">
-          {yearsPerPixel > 0 ? (1 / yearsPerPixel).toFixed(1) : '1.0'}x
-        </span>
       </div>
     </div>
   );

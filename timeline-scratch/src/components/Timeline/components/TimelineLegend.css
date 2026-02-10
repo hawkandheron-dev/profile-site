@@ -1,8 +1,8 @@
 .timeline-legend {
   position: absolute;
-  top: 20px;
+  top: 50px;
   right: 20px;
-  background: rgba(250, 246, 235, 0.95);
+  background: rgba(250, 246, 235, 0.92);
   border: 1px solid rgba(120, 100, 70, 0.25);
   border-radius: 8px;
   padding: 16px;
@@ -12,11 +12,21 @@
   backdrop-filter: blur(10px);
 }
 
+.legend-site-title {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2c2418;
+  line-height: 1.3;
+  border-bottom: 1px solid rgba(120, 100, 70, 0.2);
+  padding-bottom: 10px;
+}
+
 .legend-title {
   margin: 0 0 12px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-  color: #4a3f2f;
+  color: #7a6f5f;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -96,8 +106,13 @@
     border-color: #4a4538;
   }
 
-  .legend-title {
+  .legend-site-title {
     color: #f0ebe0;
+    border-bottom-color: rgba(160, 152, 136, 0.3);
+  }
+
+  .legend-title {
+    color: #a09888;
   }
 
   .legend-item {

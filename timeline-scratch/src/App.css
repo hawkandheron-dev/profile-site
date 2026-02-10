@@ -27,15 +27,18 @@ body {
   pointer-events: none; /* let clicks through to timeline below */
 }
 
-.app-header * {
-  pointer-events: auto;
-}
-
 .header-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
+  pointer-events: none;
+}
+
+/* Only give pointer-events to actual interactive leaf containers */
+.header-left,
+.header-right {
+  pointer-events: auto;
 }
 
 .header-left {
