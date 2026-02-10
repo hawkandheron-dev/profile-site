@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates';
+import MaplibreLanguage from '@openhistoricalmap/maplibre-gl-language';
 import { getCoordinatesForLocation } from '../../../data/locationCoordinates.js';
 
 const OHM_STYLE_URL = 'https://www.openhistoricalmap.org/map-styles/main/main.json';
@@ -36,6 +37,9 @@ export function HistoricalMap({ location, birthYear }) {
     });
 
     mapRef.current = map;
+
+    // Use English labels on the map
+    map.addControl(new MaplibreLanguage({ defaultLanguage: 'en' }));
 
     // Add navigation controls (zoom in/out, compass)
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
