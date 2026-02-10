@@ -16,7 +16,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.25;
+  opacity: 0.5;
   pointer-events: none;
   z-index: 0;
   will-change: transform;
@@ -27,7 +27,7 @@
   position: absolute;
   inset: 0;
   background: var(--color-parchment, #f5f0e1);
-  opacity: 0.75;
+  opacity: 0.45;
   pointer-events: none;
   z-index: 0;
 }

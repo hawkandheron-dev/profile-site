@@ -16,7 +16,7 @@ import { TimelineLegend } from './components/TimelineLegend.jsx';
 import { MobileTimeline } from './components/MobileTimeline.jsx';
 import { Icon } from './components/Icon.jsx';
 import { getYear, getYearRange } from './utils/dateUtils.js';
-import bgManuscript from '/bg-manuscript.jpg?url';
+import bgManuscript from '../../assets/bg-manuscript.jpg';
 import './Timeline.css';
 
 export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged }, ref) {
