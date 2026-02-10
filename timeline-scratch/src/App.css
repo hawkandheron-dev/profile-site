@@ -83,17 +83,17 @@ body {
 .auth-actions button {
   padding: 6px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(120,100,70,0.3);
-  background: rgba(250, 246, 235, 0.85);
+  border: 1px solid rgba(160, 140, 110, 0.25);
+  background: rgba(255, 252, 245, 0.92);
   backdrop-filter: blur(6px);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  color: var(--color-ink, #2c2418);
+  color: #6b5d48;
 }
 
 .auth-actions button:hover {
-  background: rgba(245, 240, 225, 0.95);
+  background: #fff;
 }
 
 /* Navigation dropdown menu */
@@ -103,21 +103,21 @@ body {
 
 .nav-dropdown-toggle {
   padding: 6px 8px;
-  border: 1px solid rgba(120,100,70,0.3);
-  background: rgba(250, 246, 235, 0.85);
+  border: 1px solid rgba(160, 140, 110, 0.25);
+  background: rgba(255, 252, 245, 0.92);
   backdrop-filter: blur(6px);
   border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-ink, #2c2418);
+  color: #6b5d48;
   transition: all 0.15s ease;
 }
 
 .nav-dropdown-toggle:hover {
-  background: rgba(245, 240, 225, 0.95);
-  border-color: #a09888;
+  background: #fff;
+  border-color: #b8a890;
 }
 
 .nav-dropdown-menu {

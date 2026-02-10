@@ -600,7 +600,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
       <div
         className="timeline-bg-image"
         style={{
-          transform: `translate(${Math.max(-75, Math.min(-75 + viewportStartYear * -0.008, 0))}%, ${Math.max(-75, Math.min(-75 + panOffsetY * -0.03, 0))}%)`,
+          transform: `translate(${-100 + viewportStartYear * -0.005}%, ${-100 + panOffsetY * -0.02}%)`,
         }}
       />
       {/* Semi-transparent overlay on top of background */}
@@ -744,7 +744,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         onMouseEnter={() => setIsOverControls(true)}
         onMouseLeave={() => setIsOverControls(false)}
       >
-        {/* Compass rose for directional navigation (hold to accelerate) */}
+        {/* Compass rose — self-contained cross of 4 arrows + center */}
         <div className="compass-rose">
           <button
             onMouseDown={() => startDirection('up')}
@@ -755,7 +755,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
           >
             <Icon name="arrow-up" size={12} />
           </button>
-          <div className="compass-middle">
+          <div className="compass-middle-row">
             <button
               onMouseDown={() => startDirection('left')}
               onMouseUp={() => stopDirection('left')}
@@ -777,18 +777,6 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
             >
               <Icon name="arrow-right" size={12} />
             </button>
-
-            <button onClick={handleZoomIn} title="Zoom in" className="zoom-btn">
-              <Icon name="plus" size={14} />
-              <span>Zoom in</span>
-            </button>
-            <button onClick={handleZoomOut} title="Zoom out" className="zoom-btn">
-              <Icon name="minus" size={14} />
-              <span>Zoom out</span>
-            </button>
-            <span className="zoom-info">
-              {yearsPerPixel > 0 ? (1 / yearsPerPixel).toFixed(1) : '1.0'}x
-            </span>
           </div>
           <button
             onMouseDown={() => startDirection('down')}
@@ -799,6 +787,21 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
           >
             <Icon name="arrow-down" size={12} />
           </button>
+        </div>
+
+        {/* Zoom controls — aligned to compass middle row */}
+        <div className="zoom-controls">
+          <button onClick={handleZoomIn} title="Zoom in" className="zoom-btn">
+            <Icon name="plus" size={14} />
+            <span>Zoom in</span>
+          </button>
+          <button onClick={handleZoomOut} title="Zoom out" className="zoom-btn">
+            <Icon name="minus" size={14} />
+            <span>Zoom out</span>
+          </button>
+          <span className="zoom-info">
+            {yearsPerPixel > 0 ? (1 / yearsPerPixel).toFixed(1) : '1.0'}x
+          </span>
         </div>
       </div>
     </div>
