@@ -300,6 +300,57 @@ export function clearCanvas(ctx, width, height) {
 }
 
 /**
+ * Draw vertical guide lines aligned with tick marks for parallax depth
+ * @param {CanvasRenderingContext2D} ctx - Canvas context
+ * @param {number} width - Canvas width
+ * @param {number} height - Canvas height
+ * @param {number} viewportStartYear - Starting year of viewport
+ * @param {number} yearsPerPixel - Scale factor
+ * @param {number} labelInterval - Year interval between labels
+ */
+export function drawVerticalGuideLines(ctx, width, height, viewportStartYear, yearsPerPixel, labelInterval) {
+  ctx.save();
+
+  // Primary lines at major tick intervals - subtle vertical rules
+  const firstLabelYear = Math.ceil(viewportStartYear / labelInterval) * labelInterval;
+
+  ctx.strokeStyle = 'rgba(140, 120, 90, 0.10)';
+  ctx.lineWidth = 1;
+
+  for (let year = firstLabelYear; year < viewportStartYear + (width * yearsPerPixel); year += labelInterval) {
+    const x = (year - viewportStartYear) / yearsPerPixel;
+    if (x < 0 || x > width) continue;
+
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.stroke();
+  }
+
+  // Secondary finer lines at half-intervals for parallax depth
+  const halfInterval = labelInterval / 2;
+  const firstHalfYear = Math.ceil(viewportStartYear / halfInterval) * halfInterval;
+
+  ctx.strokeStyle = 'rgba(140, 120, 90, 0.04)';
+  ctx.lineWidth = 1;
+
+  for (let year = firstHalfYear; year < viewportStartYear + (width * yearsPerPixel); year += halfInterval) {
+    // Skip positions that overlap with primary lines
+    if (year % labelInterval === 0) continue;
+
+    const x = (year - viewportStartYear) / yearsPerPixel;
+    if (x < 0 || x > width) continue;
+
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+/**
  * Draw the time axis with year labels
  * @param {CanvasRenderingContext2D} ctx - Canvas context
  * @param {number} width - Canvas width

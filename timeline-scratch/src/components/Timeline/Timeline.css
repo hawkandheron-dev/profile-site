@@ -66,6 +66,56 @@ body.modal-open .timeline-container {
   transform: scale(0.98);
 }
 
+/* Compass rose */
+.compass-rose {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.compass-middle {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.compass-btn {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid rgba(120, 100, 70, 0.25);
+  background: #faf6eb;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a3f2f;
+  transition: all 0.15s ease;
+}
+
+.compass-btn:hover {
+  background: #f0ead6;
+  border-color: #a09888;
+}
+
+.compass-btn:active {
+  transform: scale(0.92);
+  background: #e8e0cc;
+}
+
+.compass-center {
+  border-radius: 50%;
+}
+
+.controls-divider {
+  width: 1px;
+  height: 48px;
+  background: rgba(120, 100, 70, 0.2);
+  align-self: center;
+}
+
 .zoom-info {
   display: flex;
   align-items: center;
@@ -104,5 +154,24 @@ body.modal-open .timeline-container {
 
   .zoom-info {
     color: #a09888;
+  }
+
+  .compass-btn {
+    background: #2a2518;
+    border-color: #4a4538;
+    color: #f0ebe0;
+  }
+
+  .compass-btn:hover {
+    background: #3a3528;
+    border-color: #5a5548;
+  }
+
+  .compass-btn:active {
+    background: #4a4538;
+  }
+
+  .controls-divider {
+    background: rgba(160, 152, 136, 0.3);
   }
 }

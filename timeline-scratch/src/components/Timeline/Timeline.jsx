@@ -534,6 +534,56 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     handleZoom(2, centerX, dimensions.width); // Positive delta = zoom out
   }, [handleZoom, dimensions.width]);
 
+  // Directional navigation handlers (arrow keys + compass rose)
+  const panStep = 80; // pixels per step
+
+  const handlePanLeft = useCallback(() => {
+    handlePanX(panStep, dimensions.width);
+  }, [handlePanX, dimensions.width]);
+
+  const handlePanRight = useCallback(() => {
+    handlePanX(-panStep, dimensions.width);
+  }, [handlePanX, dimensions.width]);
+
+  const handlePanUp = useCallback(() => {
+    const maxOffsetY = Math.max(0, layout.totalHeight - dimensions.height);
+    handlePanY(panStep, maxOffsetY);
+  }, [handlePanY, layout.totalHeight, dimensions.height]);
+
+  const handlePanDown = useCallback(() => {
+    const maxOffsetY = Math.max(0, layout.totalHeight - dimensions.height);
+    handlePanY(-panStep, maxOffsetY);
+  }, [handlePanY, layout.totalHeight, dimensions.height]);
+
+  // Keyboard arrow key navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (isModalOpen) return;
+
+      switch (e.key) {
+        case 'ArrowLeft':
+          e.preventDefault();
+          handlePanLeft();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          handlePanRight();
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          handlePanUp();
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          handlePanDown();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen, handlePanLeft, handlePanRight, handlePanUp, handlePanDown]);
+
   // Notify viewport changes
   useEffect(() => {
     if (onViewportChange) {
@@ -693,6 +743,29 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         onMouseEnter={() => setIsOverControls(true)}
         onMouseLeave={() => setIsOverControls(false)}
       >
+        {/* Compass rose for directional navigation */}
+        <div className="compass-rose">
+          <button onClick={handlePanUp} title="Scroll up" className="compass-btn compass-up">
+            <Icon name="arrow-up" size={12} />
+          </button>
+          <div className="compass-middle">
+            <button onClick={handlePanLeft} title="Scroll left" className="compass-btn compass-left">
+              <Icon name="arrow-left" size={12} />
+            </button>
+            <button onClick={reset} title="Reset view" className="compass-btn compass-center">
+              <Icon name="quatrefoil" size={12} />
+            </button>
+            <button onClick={handlePanRight} title="Scroll right" className="compass-btn compass-right">
+              <Icon name="arrow-right" size={12} />
+            </button>
+          </div>
+          <button onClick={handlePanDown} title="Scroll down" className="compass-btn compass-down">
+            <Icon name="arrow-down" size={12} />
+          </button>
+        </div>
+
+        <div className="controls-divider" />
+
         <button onClick={handleZoomIn} title="Zoom in" className="icon-button">
           <Icon name="plus" size={16} />
           <span>Zoom in</span>
@@ -700,10 +773,6 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         <button onClick={handleZoomOut} title="Zoom out" className="icon-button">
           <Icon name="minus" size={16} />
           <span>Zoom out</span>
-        </button>
-        <button onClick={reset} title="Reset view" className="icon-button">
-          <Icon name="quatrefoil" size={16} />
-          <span>Reset</span>
         </button>
         <div className="zoom-info">
           <Icon name="diamond" size={14} />

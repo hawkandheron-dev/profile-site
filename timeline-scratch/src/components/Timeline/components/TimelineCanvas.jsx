@@ -8,6 +8,7 @@ import { getYearRange } from '../utils/dateUtils.js';
 import {
   clearCanvas,
   drawTimeAxis,
+  drawVerticalGuideLines,
   drawPersonBox,
   drawPeriodBracket,
   getCurlyBracePath,
@@ -60,6 +61,9 @@ export function TimelineCanvas({
     // Draw time axis
     const labelInterval = getYearLabelInterval(yearsPerPixel);
     const axisY = layout.axisY - panOffsetY;
+
+    // Draw vertical guide lines behind everything for parallax depth
+    drawVerticalGuideLines(ctx, width, height, viewportStartYear, yearsPerPixel, labelInterval);
 
     // Render periods BEFORE axis so year labels appear on top of period fills
     renderPeriods(ctx, layout.stackedPeriods, axisY);
