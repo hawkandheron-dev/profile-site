@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates';
+import MaplibreLanguage from '@openhistoricalmap/maplibre-gl-language';
 import { getCoordinatesForLocation } from '../../../data/locationCoordinates.js';
 
 const OHM_STYLE_URL = 'https://www.openhistoricalmap.org/map-styles/main/main.json';
@@ -53,6 +54,10 @@ export function YearDetailMap({ people, year, hoveredPersonId, onHoverPerson }) 
     });
 
     mapRef.current = map;
+
+    // Use English labels on the map
+    map.addControl(new MaplibreLanguage({ defaultLanguage: 'en' }));
+
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
     // Add markers for each person
