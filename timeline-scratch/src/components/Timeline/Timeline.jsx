@@ -339,6 +339,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
 
   // Handle item click
   const handleItemClickInternal = useCallback((type, item) => {
+    setHoveredItem(null);
     if (!suppressModal) {
       setSelectedItem({ type, item });
     }
