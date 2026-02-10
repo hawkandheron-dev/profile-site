@@ -371,7 +371,7 @@ export function TimelineOverlay({
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
           padding: '12px',
           pointerEvents: 'none',
-          zIndex: 100,
+          zIndex: 10000,
           fontSize: '13px',
           lineHeight: '1.5'
         }}
@@ -389,14 +389,21 @@ export function TimelineOverlay({
             }}
           />
         )}
-        <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+        <div style={{ fontWeight: '600', fontSize: '16px', marginBottom: '4px' }}>
           {item.name}
         </div>
-        {item.preview && (
+        {(item.date || item.location) && (
           <div style={{ fontSize: '12px', color: '#666' }}>
-            {item.preview.length > 150
-              ? item.preview.substring(0, 150) + '...'
-              : item.preview}
+            {(() => {
+              const parts = [];
+              if (item.date) {
+                const year = parseInt(item.date.replace(/^-/, ''));
+                const bc = item.date.startsWith('-');
+                parts.push(bc ? `${year} BC` : `${year} AD`);
+              }
+              if (item.location) parts.push(item.location);
+              return parts.join(' · ');
+            })()}
           </div>
         )}
       </div>
