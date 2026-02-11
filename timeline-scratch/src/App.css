@@ -35,9 +35,14 @@ body {
   pointer-events: none;
 }
 
-/* Only give pointer-events to actual interactive leaf containers */
+/* Only give pointer-events to actual interactive children, not the flex containers */
 .header-left,
 .header-right {
+  pointer-events: none;
+}
+
+.header-left > *,
+.header-right > * {
   pointer-events: auto;
 }
 

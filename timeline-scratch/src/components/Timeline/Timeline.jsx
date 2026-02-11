@@ -93,10 +93,12 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     ...config
   };
 
-  // Parse initial viewport
+  // Parse initial viewport — keep zoom level from config, but center on year 1000
   const initialStartYear = getYear(defaultConfig.initialViewport.startDate);
   const initialEndYear = getYear(defaultConfig.initialViewport.endDate);
   const initialYearsPerPixel = (initialEndYear - initialStartYear) / dimensions.width;
+  const initialCenterYear = 1000;
+  const centeredViewportStart = initialCenterYear - (dimensions.width / 2 * initialYearsPerPixel);
 
   // Derive min/max year from actual data extent (not just initial viewport)
   const dataExtent = useMemo(() => {
@@ -144,7 +146,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     setVerticalOffset,
     isPanning
   } = useZoomPan({
-    initialViewportStartYear: initialStartYear,
+    initialViewportStartYear: centeredViewportStart,
     initialYearsPerPixel: initialYearsPerPixel,
     minYearsPerPixel: 0.1,
     maxYearsPerPixel: 50,
@@ -216,6 +218,17 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
       axisHeight: 30
     }
   );
+
+  // Center the axis vertically on initial load
+  const initialCenterDone = useRef(false);
+  useEffect(() => {
+    if (!initialCenterDone.current && layout.axisY > 0 && dimensions.height > 0) {
+      initialCenterDone.current = true;
+      const targetOffset = Math.max(0, layout.axisY - dimensions.height / 2);
+      const maxOffset = Math.max(0, layout.totalHeight - dimensions.height);
+      setVerticalOffset(Math.min(targetOffset, maxOffset));
+    }
+  }, [layout.axisY, layout.totalHeight, dimensions.height, setVerticalOffset]);
 
   // Handle container resize
   useEffect(() => {
