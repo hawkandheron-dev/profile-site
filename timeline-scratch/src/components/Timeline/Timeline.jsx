@@ -19,7 +19,7 @@ import { getYear, getYearRange } from './utils/dateUtils.js';
 import bgManuscript from '../../assets/bg-manuscript.jpg';
 import './Timeline.css';
 
-export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged }, ref) {
+export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged, showBackgroundImage = false }, ref) {
   const isMobile = useMobileDetect();
 
   // Render mobile timeline on small viewports
@@ -54,11 +54,12 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
       contributorContext={contributorContext}
       onEntityUpdated={onEntityUpdated}
       onDataChanged={onDataChanged}
+      showBackgroundImage={showBackgroundImage}
     />
   );
 });
 
-const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged }, ref) {
+const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged, showBackgroundImage = false }, ref) {
   const containerRef = useRef(null);
   const wasDraggingRef = useRef(false);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
@@ -611,15 +612,19 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
       onMouseLeave={handleMouseUp}
     >
       {/* Background manuscript image with parallax */}
-      <div
-        className="timeline-bg-image"
-        style={{
-          backgroundImage: `url(${bgManuscript})`,
-          transform: `translate(${-33.33 + viewportStartYear * -0.002}%, ${-33.33 + panOffsetY * -0.008}%)`,
-        }}
-      />
-      {/* Semi-transparent overlay on top of background */}
-      <div className="timeline-bg-overlay" />
+      {showBackgroundImage && (
+        <>
+          <div
+            className="timeline-bg-image"
+            style={{
+              backgroundImage: `url(${bgManuscript})`,
+              transform: `translate(${-33.33 + viewportStartYear * -0.002}%, ${-33.33 + panOffsetY * -0.008}%)`,
+            }}
+          />
+          {/* Semi-transparent overlay on top of background */}
+          <div className="timeline-bg-overlay" />
+        </>
+      )}
 
       {/* Cursor year line - behind all elements */}
       {!isOverItem && !isPanning && !yearSummaryOpen && !isOverControls && (

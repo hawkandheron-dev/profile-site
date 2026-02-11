@@ -87,6 +87,7 @@ function ChurchHistoryApp() {
             config={churchHistoryConfig}
             onViewportChange={handleViewportChange}
             onItemClick={handleItemClick}
+            showBackgroundImage
           />
         </div>
       </div>
