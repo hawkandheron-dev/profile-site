@@ -97,13 +97,13 @@ export function YearDetailMap({ people, year, hoveredPersonId, onHoverPerson }) 
       markersRef.current.set(person.id, { marker, el, popup });
     }
 
-    // Fit bounds once loaded
-    map.once('load', () => {
+    // Filter map to the historical date as soon as the style is parsed,
+    // BEFORE tiles are fetched — so the first tiles already reflect the correct year.
+    map.once('style.load', () => {
       if (bounds) {
         map.fitBounds(bounds, { padding: 50, maxZoom: 8 });
       }
 
-      // Filter map to historical date
       if (year != null) {
         const yearStr = formatYearForOHM(year);
         try {
