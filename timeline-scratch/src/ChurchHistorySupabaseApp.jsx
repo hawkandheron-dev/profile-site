@@ -250,6 +250,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
               ref={timelineRef}
               data={timelineData}
               config={churchHistoryConfig}
+              showBackgroundImage
               authContext={authContext}
               allPeople={allPeople}
               adminContext={adminContext}
@@ -351,6 +352,7 @@ function UnauthenticatedApp({ timelineData, loading, error }) {
               ref={timelineRef}
               data={timelineData}
               config={churchHistoryConfig}
+              showBackgroundImage
             />
           </div>
         )}
