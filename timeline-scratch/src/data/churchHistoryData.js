@@ -1202,6 +1202,7 @@ function getEraForDate(dateStr) {
 export const churchHistoryData = transformData();
 
 export const churchHistoryConfig = {
+  siteTitle: 'History of the Christian Church',
   initialViewport: {
     startDate: '0001-01-01',
     endDate: '0500-12-31'

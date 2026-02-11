@@ -1,8 +1,38 @@
-import { useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Timeline } from './components/Timeline/Timeline.jsx';
 import { TimelineSearch } from './components/Timeline/components/TimelineSearch.jsx';
+import { Icon } from './components/Timeline/components/Icon.jsx';
 import { churchHistoryData, churchHistoryConfig } from './data/churchHistoryData.js';
 import './App.css';
+
+function NavDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  return (
+    <div className="nav-dropdown" ref={ref}>
+      <button className="btn btn-icon nav-dropdown-toggle" onClick={() => setOpen(!open)} title="Navigation">
+        <Icon name="menu" size={18} />
+      </button>
+      {open && (
+        <div className="nav-dropdown-menu">
+          <a href="../../index.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Home</a>
+          <a href="./church-history-supabase.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Supabase Version</a>
+          <a href="../../church-history-supabase.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Data Browser</a>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ChurchHistoryApp() {
   const timelineRef = useRef(null);
@@ -33,7 +63,6 @@ function ChurchHistoryApp() {
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
-            <h1 className="site-title"><strong>History of the Christian Church</strong> <span>Lifespans</span></h1>
             <TimelineSearch
               data={churchHistoryData}
               onSelectItem={handleSearchSelect}
@@ -41,17 +70,12 @@ function ChurchHistoryApp() {
               onClearHighlight={handleSearchClearHighlight}
             />
           </div>
-          <nav className="tab-nav">
-            <a href="../../index.html" className="tab-button">Home</a>
-            <a href="./church-history-supabase.html" className="tab-button">Supabase Version</a>
-            <a href="../../church-history-supabase.html" className="tab-button">Data Browser</a>
-          </nav>
           <div className="header-right">
             <div className="auth-actions">
-              <span className="auth-hint">Sign in to save notes</span>
-              <button>Sign Up</button>
-              <button>Sign In</button>
+              <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign In</button>
+              <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
             </div>
+            <NavDropdown />
           </div>
         </div>
       </header>
