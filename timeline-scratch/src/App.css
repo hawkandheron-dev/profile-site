@@ -11,16 +11,20 @@ body {
 .app {
   width: 100vw;
   height: 100vh;
-  display: flex;
-  flex-direction: column;
+  position: relative;
   overflow: hidden;
 }
 
 .app-header {
-  padding: 16px 30px;
-  background: linear-gradient(to bottom, var(--color-parchment-light, #faf6eb), var(--color-parchment, #f5f0e1));
-  border-bottom: 1px solid var(--color-border, rgba(120,100,70,0.25));
-  flex-shrink: 0;
+  padding: 10px 20px;
+  background: transparent;
+  border-bottom: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  pointer-events: none; /* let clicks through to timeline below */
 }
 
 .header-content {
@@ -28,6 +32,18 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
+  pointer-events: none;
+}
+
+/* Only give pointer-events to actual interactive children, not the flex containers */
+.header-left,
+.header-right {
+  pointer-events: none;
+}
+
+.header-left > *,
+.header-right > * {
+  pointer-events: auto;
 }
 
 .header-left {
@@ -44,6 +60,7 @@ body {
   font-weight: 400;
   color: var(--color-ink, #2c2418);
   line-height: 1.3;
+  text-shadow: 0 1px 4px rgba(245, 240, 225, 0.9), 0 0px 8px rgba(245, 240, 225, 0.7);
 }
 
 .site-title strong {
@@ -56,66 +73,55 @@ body {
 
 .header-right {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .auth-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
-.auth-hint {
-  font-size: 13px;
-  color: var(--color-ink-faded, #7a6f5f);
+/* Navigation dropdown menu */
+.nav-dropdown {
+  position: relative;
 }
 
-.auth-actions button {
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--color-border, rgba(120,100,70,0.25));
+.nav-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  min-width: 160px;
   background: var(--color-parchment-light, #faf6eb);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border-hover, rgba(120, 100, 70, 0.5));
+  border-radius: var(--radius-md, 12px);
+  box-shadow: 0 4px 16px rgba(60, 50, 30, 0.2);
+  overflow: hidden;
+  z-index: 200;
 }
 
-.auth-actions button:hover {
-  background: var(--color-parchment, #f5f0e1);
-}
-
-/* h1 styles are now in .header-left h1 */
-
-.tab-nav {
-  display: flex;
-  gap: 4px;
-}
-
-.tab-button {
-  padding: 8px 20px;
-  border: none;
-  background: transparent;
+.nav-dropdown-item {
+  display: block;
+  padding: 10px 16px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-ink-faded, #7a6f5f);
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-  font-family: inherit;
+  color: var(--color-ink, #2c2418);
+  text-decoration: none;
+  transition: background 0.1s ease;
 }
 
-.tab-button:hover {
+.nav-dropdown-item:hover {
   background: rgba(120, 100, 70, 0.1);
-  color: var(--color-ink-light, #4a3f2f);
-}
-
-.tab-button.active {
-  background: var(--color-ink, #2c2418);
-  color: var(--color-parchment-light, #faf6eb);
 }
 
 .tab-content {
-  flex: 1;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   position: relative;
 }
@@ -183,26 +189,7 @@ body {
 }
 
 /* ── Contributor / Admin header buttons ──────────────────────────────── */
-
-.header-suggest-new {
-  background: #5b7ee8 !important;
-  color: #fff !important;
-  border-color: #5b7ee8 !important;
-}
-
-.header-suggest-new:hover {
-  background: #4a6bd4 !important;
-}
-
-.header-review-suggestions {
-  background: #f9a825 !important;
-  color: #2c2418 !important;
-  border-color: #f9a825 !important;
-}
-
-.header-review-suggestions:hover {
-  background: #f0960a !important;
-}
+/* Uses .btn-action and .btn-warning from design system */
 
 /* Mobile-friendly header */
 @media (max-width: 768px) {
@@ -220,14 +207,8 @@ body {
     order: 1;
   }
 
-  .tab-nav {
-    order: 2;
-    gap: 2px;
-    flex-wrap: wrap;
-  }
-
   .header-right {
-    order: 3;
+    order: 2;
   }
 
   .auth-actions {
@@ -238,11 +219,6 @@ body {
     font-size: 14px;
   }
 
-  .tab-button {
-    padding: 5px 10px;
-    font-size: 12px;
-  }
-
   .supabase-test {
     padding: 10px 12px;
   }
@@ -251,40 +227,29 @@ body {
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   .app-header {
-    background: linear-gradient(to bottom, #1e1b16, #252118);
-    border-bottom-color: #3a3528;
+    background: transparent;
+    border-bottom: none;
+  }
+
+  .site-title {
+    text-shadow: 0 1px 4px rgba(14, 11, 8, 0.9), 0 0px 8px rgba(14, 11, 8, 0.7);
   }
 
   .site-title {
     color: #f0ebe0;
   }
 
-  .tab-button {
-    color: #a09888;
+  .nav-dropdown-menu {
+    background: rgba(30, 27, 22, 0.95);
+    border-color: rgba(58, 53, 40, 0.6);
   }
 
-  .tab-button:hover {
-    background: rgba(200, 180, 140, 0.1);
-    color: #d8d0c4;
-  }
-
-  .tab-button.active {
-    background: #f0ebe0;
-    color: #1e1b16;
-  }
-
-  .auth-hint {
-    color: #a09888;
-  }
-
-  .auth-actions button {
-    background: #1e1b16;
-    border-color: #3a3528;
+  .nav-dropdown-item {
     color: #f0ebe0;
   }
 
-  .auth-actions button:hover {
-    background: #2a2518;
+  .nav-dropdown-item:hover {
+    background: rgba(200, 180, 140, 0.1);
   }
 
   .subtitle {

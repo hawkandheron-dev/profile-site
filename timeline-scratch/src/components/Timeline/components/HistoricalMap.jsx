@@ -49,8 +49,9 @@ export function HistoricalMap({ location, birthYear }) {
       .setLngLat([lng, lat])
       .addTo(map);
 
-    // Filter map to the historical date once loaded
-    map.once('load', () => {
+    // Filter map to the historical date as soon as the style is parsed,
+    // BEFORE tiles are fetched — so the first tiles already reflect the correct year.
+    map.once('style.load', () => {
       if (birthYear != null) {
         const yearStr = formatYearForOHM(birthYear);
         try {

@@ -1,5 +1,6 @@
 .timeline-overlay {
   user-select: none;
+  z-index: 10;
 }
 
 .person-label.sticky {

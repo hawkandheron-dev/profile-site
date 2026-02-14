@@ -66,9 +66,12 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
     const aboveHeight = abovePeriodTotalHeight + abovePeopleHeight;
     const belowHeight = belowPeriodTotalHeight + belowPeopleHeight;
 
-    // Axis position
-    const axisY = aboveHeight + lanePadding;
-    const totalHeight = aboveHeight + axisHeight + belowHeight + lanePadding * 2;
+    // Virtual padding above and below all entries for comfortable panning
+    const worldPadding = 600;
+
+    // Axis position (shifted down by worldPadding)
+    const axisY = worldPadding + aboveHeight + lanePadding;
+    const totalHeight = worldPadding + aboveHeight + axisHeight + belowHeight + lanePadding * 2 + worldPadding;
 
     // Calculate Y positions for each section
     // Above timeline (from axis going up): points → period brackets → people

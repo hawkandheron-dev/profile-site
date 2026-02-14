@@ -300,6 +300,37 @@ export function clearCanvas(ctx, width, height) {
 }
 
 /**
+ * Draw vertical guide lines aligned with tick marks for parallax depth
+ * @param {CanvasRenderingContext2D} ctx - Canvas context
+ * @param {number} width - Canvas width
+ * @param {number} height - Canvas height
+ * @param {number} viewportStartYear - Starting year of viewport
+ * @param {number} yearsPerPixel - Scale factor
+ * @param {number} labelInterval - Year interval between labels
+ */
+export function drawVerticalGuideLines(ctx, width, height, viewportStartYear, yearsPerPixel, labelInterval) {
+  ctx.save();
+
+  // Primary lines at major tick intervals - subtle vertical rules
+  const firstLabelYear = Math.ceil(viewportStartYear / labelInterval) * labelInterval;
+
+  ctx.strokeStyle = 'rgba(120, 100, 70, 0.16)';
+  ctx.lineWidth = 1;
+
+  for (let year = firstLabelYear; year < viewportStartYear + (width * yearsPerPixel); year += labelInterval) {
+    const x = (year - viewportStartYear) / yearsPerPixel;
+    if (x < 0 || x > width) continue;
+
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+/**
  * Draw the time axis with year labels
  * @param {CanvasRenderingContext2D} ctx - Canvas context
  * @param {number} width - Canvas width
@@ -312,8 +343,8 @@ export function clearCanvas(ctx, width, height) {
  */
 export function drawTimeAxis(ctx, width, height, axisY, viewportStartYear, yearsPerPixel, labelInterval, eraLabels = 'BC/AD') {
   ctx.save();
-  ctx.strokeStyle = '#ccc';
-  ctx.fillStyle = '#666';
+  ctx.strokeStyle = '#bbb0a0';
+  ctx.fillStyle = '#5a4e3a';
   ctx.font = '14px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
