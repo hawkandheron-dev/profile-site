@@ -147,6 +147,22 @@ code {
 }
 
 /* ===================================================
+   WINDHOVER LOGO
+   =================================================== */
+.windhover-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+  color: var(--color-ink);
+}
+
+.windhover-logo-svg {
+  width: 320px;
+  max-width: 80vw;
+  height: auto;
+}
+
+/* ===================================================
    HERO / HEADER
    =================================================== */
 .hero {

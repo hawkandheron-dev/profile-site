@@ -4,7 +4,7 @@ Personal profile/portfolio site with several sub-projects: a static HTML landing
 
 ## Zones
 
-- **`/` (root HTML)** — Static profile pages (`index.html`, `about.html`, `design-system.html`, `pantheons.html`, `pantheons-supabase.html`, `church-history-supabase.html`). Shared CSS (`style.css`, `supabase.css`, `editable-content.css`) and JS (`site.js`, `supabase-app.js`, `church-history-app.js`, `editable-content.js`). Changes here affect the public-facing static site.
+- **`/` (root HTML)** — Static profile pages (`index.html`, `about.html`, `design-system.html`, `pantheons.html`, `pantheons-supabase.html`, `church-history-supabase.html`). Shared CSS (`style.css`, `supabase.css`, `editable-content.css`) and JS (`site.js`, `supabase-app.js`, `church-history-app.js`, `editable-content.js`). The homepage (`index.html`) includes an inline SVG Windhover logo (bird silhouette + wordmark) in the hero section, styled via `.windhover-logo` in `style.css`. Changes here affect the public-facing static site.
 - **`timeline-scratch/`** — React + Vite app. The main actively-developed timeline UI.
   - `src/components/Timeline/` — Canvas-based timeline renderer (zoom, pan, stacking).
   - `src/components/` — Feature UIs: `EditEntityForm/`, `Notes/`, `Suggestions/`, `VisionBoard/`, `IconStickerSheet/`.
