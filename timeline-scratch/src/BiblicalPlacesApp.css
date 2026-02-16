@@ -1,0 +1,151 @@
+/* ── Biblical Places App layout ─────────────────────────────────────────── */
+
+.bp-app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Floating header ───────────────────────────────────────────────────── */
+
+.bp-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  pointer-events: none;
+}
+
+.bp-header > * {
+  pointer-events: auto;
+}
+
+.bp-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(250, 246, 235, 0.92);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 8px 14px;
+  box-shadow: 0 2px 12px rgba(60, 50, 30, 0.15);
+}
+
+.bp-home-link {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.bp-bird-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.bp-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2c2418;
+  white-space: nowrap;
+}
+
+/* ── Loading / Error states ────────────────────────────────────────────── */
+
+.bp-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #888;
+  background: #faf6eb;
+}
+
+.bp-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #d32f2f;
+  background: #faf6eb;
+}
+
+/* ── Mobile responsive ─────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .bp-header-left {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px 10px;
+  }
+
+  .bp-title {
+    font-size: 14px;
+  }
+
+  .bp-search {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .bp-age-filter {
+    bottom: 12px;
+    gap: 4px;
+    padding: 6px 8px;
+  }
+
+  .bp-age-pill {
+    font-size: 10px;
+    padding: 3px 7px;
+  }
+
+  .bp-age-pill-label {
+    max-width: 80px;
+  }
+
+  .bp-modal-content {
+    padding: 20px;
+    max-height: 85vh;
+    border-radius: 12px 12px 0 0;
+    align-self: flex-end;
+    width: 100vw;
+    max-width: 100vw;
+  }
+}
+
+/* ── Dark mode ─────────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  .bp-header-left {
+    background: rgba(30, 27, 22, 0.92);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .bp-title {
+    color: #f0ebe0;
+  }
+
+  .bp-bird-logo {
+    filter: invert(1);
+  }
+
+  .bp-loading {
+    background: #1e1b16;
+    color: #a09888;
+  }
+
+  .bp-error {
+    background: #1e1b16;
+  }
+}
