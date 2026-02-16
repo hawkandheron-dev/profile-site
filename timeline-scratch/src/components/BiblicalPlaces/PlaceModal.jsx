@@ -1,35 +1,41 @@
 import { useMemo } from 'react';
 import { HistoricalMap } from '../Timeline/components/HistoricalMap.jsx';
-import { VideoEmbed } from './VideoEmbed.jsx';
 import { WikimediaImageGallery } from './WikimediaImageGallery.jsx';
 import './PlaceModal.css';
 
 /**
- * Modal showing a biblical place with its narrative timeline of events and people.
+ * Modal showing a biblical place with people and their events in timeline order.
  */
 export function PlaceModal({
-  place, events, people, ageMap, eventPeopleMap, sourceMap, resourceMap,
+  place, events, people, ageMap, eventPeopleMap, sourceMap,
   onSelectEntity, onClose, canGoBack, onBack,
 }) {
   if (!place) return null;
 
-  // Group events by narrative age
-  const eventsByAge = useMemo(() => {
-    const groups = new Map();
+  // Build a lookup: person_id -> events at this place involving that person
+  const personEventsAtPlace = useMemo(() => {
+    const map = new Map();
     events.forEach(ev => {
-      const ageId = ev.narrative_age_id;
-      if (!groups.has(ageId)) groups.set(ageId, []);
-      groups.get(ageId).push(ev);
+      const evPeople = eventPeopleMap.get(ev.event_id) || [];
+      evPeople.forEach(p => {
+        if (!map.has(p.person_id)) map.set(p.person_id, []);
+        map.get(p.person_id).push(ev);
+      });
     });
-    return Array.from(groups.entries())
-      .map(([ageId, evts]) => ({
-        age: ageMap.get(ageId),
-        events: evts.sort((a, b) => (a.sort_within_age ?? 0) - (b.sort_within_age ?? 0)),
-      }))
-      .sort((a, b) => (a.age?.sort_order ?? 99) - (b.age?.sort_order ?? 99));
-  }, [events, ageMap]);
+    // Sort each person's events by age sort_order, then sort_within_age
+    for (const [, evts] of map) {
+      evts.sort((a, b) => {
+        const ageA = ageMap.get(a.narrative_age_id);
+        const ageB = ageMap.get(b.narrative_age_id);
+        const orderDiff = (ageA?.sort_order ?? 99) - (ageB?.sort_order ?? 99);
+        if (orderDiff !== 0) return orderDiff;
+        return (a.sort_within_age ?? 0) - (b.sort_within_age ?? 0);
+      });
+    }
+    return map;
+  }, [events, eventPeopleMap, ageMap]);
 
-  // Group people by narrative age
+  // Group people by narrative age, timeline ordered
   const peopleByAge = useMemo(() => {
     const groups = new Map();
     people.forEach(p => {
@@ -46,7 +52,6 @@ export function PlaceModal({
   }, [people, ageMap]);
 
   const sources = sourceMap.get(place.place_id) || [];
-  const resources = resourceMap?.get(place.place_id) || [];
 
   // Use the earliest event's age for OHM date
   const approxYear = events.length > 0
@@ -72,9 +77,6 @@ export function PlaceModal({
           <p className="bp-modal-subtitle">{place.region}</p>
         )}
 
-        {/* BibleProject video embed */}
-        <VideoEmbed resources={resources} />
-
         {place.description && (
           <p className="bp-modal-description">{place.description}</p>
         )}
@@ -82,11 +84,11 @@ export function PlaceModal({
         {/* Small historical map */}
         <HistoricalMap location={place.name} birthYear={approxYear} />
 
-        {/* Narrative Timeline: events grouped by age */}
-        {eventsByAge.length > 0 && (
+        {/* People & Events — ordered by narrative timeline */}
+        {peopleByAge.length > 0 && (
           <div className="bp-section">
-            <h3 className="bp-section-title">Narrative Timeline</h3>
-            {eventsByAge.map(({ age, events: ageEvents }) => (
+            <h3 className="bp-section-title">People &amp; Events</h3>
+            {peopleByAge.map(({ age, people: agePeople }) => (
               <div key={age?.age_id || 'unknown'} className="bp-age-group">
                 <div className="bp-age-header">
                   <span
@@ -99,37 +101,44 @@ export function PlaceModal({
                     <span className="bp-age-scripture">{age.scripture_range}</span>
                   )}
                 </div>
-                {ageEvents.map(ev => {
-                  const evPeople = eventPeopleMap.get(ev.event_id) || [];
+                {agePeople.map((p, i) => {
+                  const personEvents = personEventsAtPlace.get(p.person_id) || [];
                   return (
-                    <div key={ev.event_id} className="bp-event-card">
+                    <div key={`${p.person_id}-${i}`} className="bp-person-card">
                       <button
-                        className="bp-event-name"
-                        onClick={() => onSelectEntity('event', ev.event_id)}
+                        className="bp-person-name-btn"
+                        onClick={() => onSelectEntity('person', p.person_id)}
                       >
-                        {ev.name}
+                        {p.name}
                       </button>
-                      {ev.event_type !== 'event' && (
-                        <span className="bp-event-type">{ev.event_type}</span>
+                      {p.context && (
+                        <span className="bp-person-context">{p.context}</span>
                       )}
-                      {ev.scripture_ref && (
-                        <span className="bp-scripture-ref">{ev.scripture_ref}</span>
-                      )}
-                      {ev.description && (
-                        <p className="bp-event-desc">{ev.description}</p>
-                      )}
-                      {evPeople.length > 0 && (
-                        <div className="bp-pill-list">
-                          {evPeople.map(p => (
-                            <button
-                              key={p.person_id}
-                              className="bp-pill"
-                              onClick={() => onSelectEntity('person', p.person_id)}
-                            >
-                              {p.name}
-                            </button>
+
+                      {/* Events this person was involved in at this place */}
+                      {personEvents.length > 0 && (
+                        <div className="bp-person-events">
+                          {personEvents.map(ev => (
+                            <div key={ev.event_id} className="bp-person-event-item">
+                              <button
+                                className="bp-person-event-title"
+                                onClick={() => onSelectEntity('event', ev.event_id)}
+                              >
+                                {ev.name}
+                              </button>
+                              {ev.scripture_ref && (
+                                <span className="bp-scripture-ref">{ev.scripture_ref}</span>
+                              )}
+                            </div>
                           ))}
                         </div>
+                      )}
+
+                      {/* Scripture verse from person-place connection */}
+                      {p.scripture_verse && (
+                        <blockquote className="bp-verse">
+                          {p.scripture_verse}
+                        </blockquote>
                       )}
                     </div>
                   );
@@ -139,50 +148,14 @@ export function PlaceModal({
           </div>
         )}
 
-        {/* People associated with this place */}
-        {peopleByAge.length > 0 && (
-          <div className="bp-section">
-            <h3 className="bp-section-title">People Associated</h3>
-            {peopleByAge.map(({ age, people: agePeople }) => (
-              <div key={age?.age_id || 'unknown'} className="bp-age-group">
-                <div className="bp-age-header">
-                  <span
-                    className="bp-age-badge"
-                    style={{ backgroundColor: age?.color || '#8b7355' }}
-                  >
-                    {age?.name || 'Unknown'}
-                  </span>
-                </div>
-                {agePeople.map((p, i) => (
-                  <div key={`${p.person_id}-${i}`} className="bp-person-card">
-                    <button
-                      className="bp-pill"
-                      onClick={() => onSelectEntity('person', p.person_id)}
-                    >
-                      {p.name}
-                      {p.context && (
-                        <span className="bp-pill-context"> &mdash; {p.context}</span>
-                      )}
-                    </button>
-                    {p.scripture_verse && (
-                      <blockquote className="bp-verse">
-                        {p.scripture_verse}
-                      </blockquote>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        )}
-
         {/* Image gallery from Wikimedia Commons */}
         <div className="bp-section">
-          <h3 className="bp-section-title">Historical Images</h3>
+          <h3 className="bp-section-title">Image Gallery</h3>
           <WikimediaImageGallery
             placeName={place.name}
             lat={place.lat}
             lng={place.lng}
+            region={place.region}
           />
         </div>
 

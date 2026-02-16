@@ -1,17 +1,15 @@
-import { VideoEmbed } from './VideoEmbed.jsx';
 import './PlaceModal.css';
 
 /**
  * Modal showing a biblical person with their places, events, and narrative ages.
  */
 export function PersonModal({
-  person, ages, places, events, ageMap, placeMap, sourceMap, resourceMap,
+  person, ages, places, events, ageMap, placeMap, sourceMap,
   onSelectEntity, onClose, canGoBack, onBack,
 }) {
   if (!person) return null;
 
   const sources = sourceMap.get(person.person_id) || [];
-  const resources = resourceMap?.get(person.person_id) || [];
 
   return (
     <div className="bp-modal" onClick={onClose}>
@@ -47,9 +45,6 @@ export function PersonModal({
         {person.scripture_refs && (
           <p className="bp-modal-subtitle bp-scripture-ref">{person.scripture_refs}</p>
         )}
-
-        {/* BibleProject video embed */}
-        <VideoEmbed resources={resources} />
 
         {person.description && (
           <p className="bp-modal-description">{person.description}</p>

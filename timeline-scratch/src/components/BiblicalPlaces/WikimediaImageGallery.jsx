@@ -5,75 +5,110 @@ const IMAGES_PER_PAGE = 6;
 
 /**
  * Fetches and displays images from Wikimedia Commons for a biblical place.
- * Uses keyword search with optional geo-coordinates for relevance.
+ * Uses a two-pass strategy: first geo-search near coordinates, then keyword fallback.
  */
-export function WikimediaImageGallery({ placeName, lat, lng }) {
+export function WikimediaImageGallery({ placeName, lat, lng, region }) {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [totalAvailable, setTotalAvailable] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
 
+    async function fetchByGeo() {
+      // Geo-search: find images taken near these coordinates
+      const params = new URLSearchParams({
+        action: 'query',
+        generator: 'geosearch',
+        ggscoord: `${lat}|${lng}`,
+        ggsradius: '10000', // 10km radius
+        ggslimit: '30',
+        ggsnamespace: '6', // File namespace
+        prop: 'imageinfo',
+        iiprop: 'url|extmetadata|size|mime',
+        iiurlwidth: '400',
+        format: 'json',
+        origin: '*',
+      });
+      const res = await fetch(`${COMMONS_API}?${params}`);
+      return res.json();
+    }
+
+    async function fetchByKeyword() {
+      // Keyword search with place-specific terms
+      const searchTerm = `"${placeName}" archaeological OR ancient OR ruins OR excavation OR site`;
+      const params = new URLSearchParams({
+        action: 'query',
+        generator: 'search',
+        gsrsearch: searchTerm,
+        gsrnamespace: '6',
+        gsrlimit: '30',
+        prop: 'imageinfo',
+        iiprop: 'url|extmetadata|size|mime',
+        iiurlwidth: '400',
+        format: 'json',
+        origin: '*',
+      });
+      const res = await fetch(`${COMMONS_API}?${params}`);
+      return res.json();
+    }
+
+    function extractImages(data) {
+      if (!data.query?.pages) return [];
+      return Object.values(data.query.pages)
+        .filter(p => p.imageinfo?.[0]?.mime?.startsWith('image/'))
+        .map(p => {
+          const info = p.imageinfo[0];
+          const meta = info.extmetadata || {};
+          return {
+            pageId: p.pageid,
+            title: p.title.replace('File:', '').replace(/\.[^.]+$/, '').replace(/_/g, ' '),
+            thumbUrl: info.thumburl,
+            fullUrl: info.url,
+            descriptionUrl: info.descriptionurl,
+            width: info.width,
+            height: info.height,
+            artist: meta.Artist?.value?.replace(/<[^>]+>/g, '') || 'Unknown',
+            license: meta.LicenseShortName?.value || '',
+          };
+        });
+    }
+
     async function fetchImages() {
       setLoading(true);
       try {
-        // Search by place name + "biblical" or "archaeological" for relevance
-        const searchTerm = `${placeName} biblical OR archaeological OR ancient`;
-        const params = new URLSearchParams({
-          action: 'query',
-          generator: 'search',
-          gsrsearch: searchTerm,
-          gsrnamespace: '6', // File namespace
-          gsrlimit: '30',
-          prop: 'imageinfo',
-          iiprop: 'url|extmetadata|size|mime',
-          iiurlwidth: '400',
-          format: 'json',
-          origin: '*',
-        });
-
-        const res = await fetch(`${COMMONS_API}?${params}`);
-        const data = await res.json();
-
-        if (cancelled) return;
-
-        if (!data.query?.pages) {
-          setImages([]);
-          setTotalAvailable(0);
-          setLoading(false);
-          return;
+        // Try geo-search first if we have coordinates
+        let results = [];
+        if (lat && lng) {
+          const geoData = await fetchByGeo();
+          if (!cancelled) results = extractImages(geoData);
         }
 
-        const pages = Object.values(data.query.pages)
-          .filter(p => p.imageinfo?.[0]?.mime?.startsWith('image/'))
-          .map(p => {
-            const info = p.imageinfo[0];
-            const meta = info.extmetadata || {};
-            return {
-              title: p.title.replace('File:', '').replace(/\.[^.]+$/, '').replace(/_/g, ' '),
-              thumbUrl: info.thumburl,
-              fullUrl: info.url,
-              descriptionUrl: info.descriptionurl,
-              width: info.width,
-              height: info.height,
-              artist: meta.Artist?.value?.replace(/<[^>]+>/g, '') || 'Unknown',
-              license: meta.LicenseShortName?.value || '',
-            };
-          });
+        // If geo-search found fewer than 6, supplement with keyword search
+        if (results.length < IMAGES_PER_PAGE && !cancelled) {
+          const kwData = await fetchByKeyword();
+          if (!cancelled) {
+            const kwResults = extractImages(kwData);
+            // Merge, deduplicating by page ID
+            const seen = new Set(results.map(r => r.pageId));
+            for (const img of kwResults) {
+              if (!seen.has(img.pageId)) {
+                results.push(img);
+                seen.add(img.pageId);
+              }
+            }
+          }
+        }
 
         if (!cancelled) {
-          setImages(pages);
-          setTotalAvailable(pages.length);
+          setImages(results);
           setPage(0);
           setLoading(false);
         }
       } catch {
         if (!cancelled) {
           setImages([]);
-          setTotalAvailable(0);
           setLoading(false);
         }
       }
@@ -81,7 +116,7 @@ export function WikimediaImageGallery({ placeName, lat, lng }) {
 
     if (placeName) fetchImages();
     return () => { cancelled = true; };
-  }, [placeName, lat, lng]);
+  }, [placeName, lat, lng, region]);
 
   const totalPages = Math.ceil(images.length / IMAGES_PER_PAGE);
   const visibleImages = images.slice(page * IMAGES_PER_PAGE, (page + 1) * IMAGES_PER_PAGE);
@@ -105,7 +140,7 @@ export function WikimediaImageGallery({ placeName, lat, lng }) {
       <div className="bp-gallery-grid">
         {visibleImages.map((img, i) => (
           <button
-            key={img.fullUrl}
+            key={img.pageId}
             className="bp-gallery-item"
             onClick={() => setLightboxIdx(page * IMAGES_PER_PAGE + i)}
             title={img.title}

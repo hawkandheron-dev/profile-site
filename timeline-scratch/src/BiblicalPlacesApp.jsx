@@ -10,6 +10,13 @@ import './BiblicalPlacesApp.css';
 
 const BIRD_LOGO = new URL('../../../resources/logos/Windhover_BLK.png', import.meta.url).href;
 
+function formatYear(year) {
+  if (year == null) return '';
+  if (year < 0) return `${Math.abs(year)} BC`;
+  if (year === 0) return '1 BC';
+  return `${year} AD`;
+}
+
 function BiblicalPlacesApp() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -165,6 +172,23 @@ function BiblicalPlacesApp() {
             activeAgeFilter={activeAgeFilter}
             onFilter={handleAgeFilter}
           />
+
+          {/* Date range for active narrative age */}
+          {activeAgeFilter && (() => {
+            const age = data.ageMap.get(activeAgeFilter);
+            if (!age) return null;
+            const start = formatYear(age.approx_start_year);
+            const end = formatYear(age.approx_end_year);
+            if (!start && !end) return null;
+            return (
+              <div className="bp-date-range">
+                <span className="bp-date-range-label">{age.name}</span>
+                <span className="bp-date-range-years">
+                  {start && end ? `${start} – ${end}` : start || end}
+                </span>
+              </div>
+            );
+          })()}
         </>
       )}
 
@@ -177,7 +201,6 @@ function BiblicalPlacesApp() {
           ageMap={data.ageMap}
           eventPeopleMap={data.eventPeopleMap}
           sourceMap={data.sourceMap}
-          resourceMap={data.resourceMap}
           onSelectEntity={handleSelectEntity}
           onClose={popModal}
           canGoBack={modalStack.length > 1}
@@ -193,7 +216,6 @@ function BiblicalPlacesApp() {
           ageMap={data.ageMap}
           placeMap={data.placeMap}
           sourceMap={data.sourceMap}
-          resourceMap={data.resourceMap}
           onSelectEntity={handleSelectEntity}
           onClose={popModal}
           canGoBack={modalStack.length > 1}
@@ -207,7 +229,6 @@ function BiblicalPlacesApp() {
           ageMap={data.ageMap}
           placeMap={data.placeMap}
           sourceMap={data.sourceMap}
-          resourceMap={data.resourceMap}
           onSelectEntity={handleSelectEntity}
           onClose={popModal}
           canGoBack={modalStack.length > 1}

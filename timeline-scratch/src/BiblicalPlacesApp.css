@@ -106,6 +106,36 @@
   background: #faf6eb;
 }
 
+/* ── Date range display ───────────────────────────────────────────────── */
+
+.bp-date-range {
+  position: absolute;
+  bottom: 80px;
+  left: 16px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.bp-date-range-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(44, 36, 24, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
+}
+
+.bp-date-range-years {
+  font-size: 32px;
+  font-weight: 700;
+  color: rgba(44, 36, 24, 0.7);
+  line-height: 1.1;
+  text-shadow: 0 1px 4px rgba(255, 255, 255, 0.9);
+  letter-spacing: -0.5px;
+}
+
 /* ── Mobile responsive ─────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
@@ -146,6 +176,14 @@
     width: 100vw;
     max-width: 100vw;
   }
+
+  .bp-date-range {
+    bottom: 70px;
+  }
+
+  .bp-date-range-years {
+    font-size: 24px;
+  }
 }
 
 /* ── Dark mode ─────────────────────────────────────────────────────────── */
@@ -182,5 +220,15 @@
 
   .bp-error {
     background: #1e1b16;
+  }
+
+  .bp-date-range-label {
+    color: rgba(240, 235, 224, 0.5);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  .bp-date-range-years {
+    color: rgba(240, 235, 224, 0.6);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
   }
 }
