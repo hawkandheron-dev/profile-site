@@ -1,11 +1,12 @@
 import { HistoricalMap } from '../Timeline/components/HistoricalMap.jsx';
+import { VideoEmbed } from './VideoEmbed.jsx';
 import './PlaceModal.css';
 
 /**
  * Modal showing a biblical event with its place, people, and narrative context.
  */
 export function EventModal({
-  event, people, ageMap, placeMap, sourceMap,
+  event, people, ageMap, placeMap, sourceMap, resourceMap,
   onSelectEntity, onClose, canGoBack, onBack,
 }) {
   if (!event) return null;
@@ -13,6 +14,7 @@ export function EventModal({
   const age = ageMap.get(event.narrative_age_id);
   const place = event.place_id ? placeMap.get(event.place_id) : null;
   const sources = sourceMap.get(event.event_id) || [];
+  const resources = resourceMap?.get(event.event_id) || [];
 
   return (
     <div className="bp-modal" onClick={onClose}>
@@ -48,6 +50,9 @@ export function EventModal({
         {event.scripture_ref && (
           <p className="bp-scripture-ref bp-modal-subtitle">{event.scripture_ref}</p>
         )}
+
+        {/* BibleProject video embed */}
+        <VideoEmbed resources={resources} />
 
         {event.description && (
           <p className="bp-modal-description">{event.description}</p>

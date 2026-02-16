@@ -1,15 +1,17 @@
+import { VideoEmbed } from './VideoEmbed.jsx';
 import './PlaceModal.css';
 
 /**
  * Modal showing a biblical person with their places, events, and narrative ages.
  */
 export function PersonModal({
-  person, ages, places, events, ageMap, placeMap, sourceMap,
+  person, ages, places, events, ageMap, placeMap, sourceMap, resourceMap,
   onSelectEntity, onClose, canGoBack, onBack,
 }) {
   if (!person) return null;
 
   const sources = sourceMap.get(person.person_id) || [];
+  const resources = resourceMap?.get(person.person_id) || [];
 
   return (
     <div className="bp-modal" onClick={onClose}>
@@ -46,6 +48,9 @@ export function PersonModal({
           <p className="bp-modal-subtitle bp-scripture-ref">{person.scripture_refs}</p>
         )}
 
+        {/* BibleProject video embed */}
+        <VideoEmbed resources={resources} />
+
         {person.description && (
           <p className="bp-modal-description">{person.description}</p>
         )}
@@ -54,10 +59,9 @@ export function PersonModal({
         {places.length > 0 && (
           <div className="bp-section">
             <h3 className="bp-section-title">Places</h3>
-            <div className="bp-pill-list">
-              {places.map((p, i) => (
+            {places.map((p, i) => (
+              <div key={`${p.place_id}-${i}`} className="bp-person-card">
                 <button
-                  key={`${p.place_id}-${i}`}
                   className="bp-pill"
                   onClick={() => onSelectEntity('place', p.place_id)}
                 >
@@ -66,8 +70,13 @@ export function PersonModal({
                     <span className="bp-pill-context"> &mdash; {p.context}</span>
                   )}
                 </button>
-              ))}
-            </div>
+                {p.scripture_verse && (
+                  <blockquote className="bp-verse">
+                    {p.scripture_verse}
+                  </blockquote>
+                )}
+              </div>
+            ))}
           </div>
         )}
 

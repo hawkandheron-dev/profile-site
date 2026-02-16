@@ -1,12 +1,14 @@
 import { useMemo } from 'react';
 import { HistoricalMap } from '../Timeline/components/HistoricalMap.jsx';
+import { VideoEmbed } from './VideoEmbed.jsx';
+import { WikimediaImageGallery } from './WikimediaImageGallery.jsx';
 import './PlaceModal.css';
 
 /**
  * Modal showing a biblical place with its narrative timeline of events and people.
  */
 export function PlaceModal({
-  place, events, people, ageMap, eventPeopleMap, sourceMap,
+  place, events, people, ageMap, eventPeopleMap, sourceMap, resourceMap,
   onSelectEntity, onClose, canGoBack, onBack,
 }) {
   if (!place) return null;
@@ -19,7 +21,6 @@ export function PlaceModal({
       if (!groups.has(ageId)) groups.set(ageId, []);
       groups.get(ageId).push(ev);
     });
-    // Sort groups by age sort_order
     return Array.from(groups.entries())
       .map(([ageId, evts]) => ({
         age: ageMap.get(ageId),
@@ -45,6 +46,7 @@ export function PlaceModal({
   }, [people, ageMap]);
 
   const sources = sourceMap.get(place.place_id) || [];
+  const resources = resourceMap?.get(place.place_id) || [];
 
   // Use the earliest event's age for OHM date
   const approxYear = events.length > 0
@@ -69,6 +71,9 @@ export function PlaceModal({
         {place.region && (
           <p className="bp-modal-subtitle">{place.region}</p>
         )}
+
+        {/* BibleProject video embed */}
+        <VideoEmbed resources={resources} />
 
         {place.description && (
           <p className="bp-modal-description">{place.description}</p>
@@ -148,10 +153,9 @@ export function PlaceModal({
                     {age?.name || 'Unknown'}
                   </span>
                 </div>
-                <div className="bp-pill-list">
-                  {agePeople.map((p, i) => (
+                {agePeople.map((p, i) => (
+                  <div key={`${p.person_id}-${i}`} className="bp-person-card">
                     <button
-                      key={`${p.person_id}-${i}`}
                       className="bp-pill"
                       onClick={() => onSelectEntity('person', p.person_id)}
                     >
@@ -160,12 +164,27 @@ export function PlaceModal({
                         <span className="bp-pill-context"> &mdash; {p.context}</span>
                       )}
                     </button>
-                  ))}
-                </div>
+                    {p.scripture_verse && (
+                      <blockquote className="bp-verse">
+                        {p.scripture_verse}
+                      </blockquote>
+                    )}
+                  </div>
+                ))}
               </div>
             ))}
           </div>
         )}
+
+        {/* Image gallery from Wikimedia Commons */}
+        <div className="bp-section">
+          <h3 className="bp-section-title">Historical Images</h3>
+          <WikimediaImageGallery
+            placeName={place.name}
+            lat={place.lat}
+            lng={place.lng}
+          />
+        </div>
 
         {/* Sources */}
         {sources.length > 0 && (

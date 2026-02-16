@@ -69,11 +69,48 @@ function BiblicalPlacesApp() {
     }
   }, [pushModal, data]);
 
+  // ── Reset view ─────────────────────────────────────────────────────────
+
+  const handleReset = useCallback(() => {
+    setActiveAgeFilter(null);
+    closeAllModals();
+    mapRef.current?.reset?.();
+  }, [closeAllModals]);
+
   // ── Age filter ──────────────────────────────────────────────────────────
 
   const handleAgeFilter = useCallback((ageId) => {
-    setActiveAgeFilter(prev => prev === ageId ? null : ageId);
-  }, []);
+    const newFilter = activeAgeFilter === ageId ? null : ageId;
+    setActiveAgeFilter(newFilter);
+
+    // Zoom to the geographic region for this age
+    if (newFilter && data) {
+      const age = data.ageMap.get(newFilter);
+      if (age?.map_bounds) {
+        // map_bounds is [sw_lng, sw_lat, ne_lng, ne_lat]
+        const b = age.map_bounds;
+        mapRef.current?.fitBounds?.([[b[0], b[1]], [b[2], b[3]]]);
+      } else {
+        // Fall back: fit to all visible places for this age
+        const visiblePlaces = data.places.filter(p => {
+          const events = data.placeEventsMap.get(p.place_id) || [];
+          return events.some(e => e.narrative_age_id === newFilter);
+        });
+        if (visiblePlaces.length > 1) {
+          const lngs = visiblePlaces.map(p => p.lng);
+          const lats = visiblePlaces.map(p => p.lat);
+          mapRef.current?.fitBounds?.([
+            [Math.min(...lngs), Math.min(...lats)],
+            [Math.max(...lngs), Math.max(...lats)],
+          ]);
+        } else if (visiblePlaces.length === 1) {
+          mapRef.current?.flyTo?.(visiblePlaces[0].lng, visiblePlaces[0].lat);
+        }
+      }
+    } else if (!newFilter) {
+      mapRef.current?.reset?.();
+    }
+  }, [activeAgeFilter, data]);
 
   // ── Search → fly to place ──────────────────────────────────────────────
 
@@ -85,18 +122,25 @@ function BiblicalPlacesApp() {
     <div className="bp-app">
       {/* Header overlay */}
       <header className="bp-header">
-        <div className="bp-header-left">
+        <div className="bp-header-brand">
           <a href="../../index.html" className="bp-home-link" title="Back to Windhover">
             <img src={BIRD_LOGO} alt="Windhover" className="bp-bird-logo" />
           </a>
           <h1 className="bp-title">Biblical Places</h1>
-          {data && (
+          {(activeAgeFilter || modalStack.length > 0) && (
+            <button className="bp-reset-btn" onClick={handleReset} title="Reset view">
+              Reset
+            </button>
+          )}
+        </div>
+        {data && (
+          <div className="bp-header-search">
             <BiblicalPlacesSearch
               data={data}
               onSelect={handleSearchSelect}
             />
-          )}
-        </div>
+          </div>
+        )}
       </header>
 
       {/* Main content */}
@@ -133,6 +177,7 @@ function BiblicalPlacesApp() {
           ageMap={data.ageMap}
           eventPeopleMap={data.eventPeopleMap}
           sourceMap={data.sourceMap}
+          resourceMap={data.resourceMap}
           onSelectEntity={handleSelectEntity}
           onClose={popModal}
           canGoBack={modalStack.length > 1}
@@ -148,6 +193,7 @@ function BiblicalPlacesApp() {
           ageMap={data.ageMap}
           placeMap={data.placeMap}
           sourceMap={data.sourceMap}
+          resourceMap={data.resourceMap}
           onSelectEntity={handleSelectEntity}
           onClose={popModal}
           canGoBack={modalStack.length > 1}
@@ -161,6 +207,7 @@ function BiblicalPlacesApp() {
           ageMap={data.ageMap}
           placeMap={data.placeMap}
           sourceMap={data.sourceMap}
+          resourceMap={data.resourceMap}
           onSelectEntity={handleSelectEntity}
           onClose={popModal}
           canGoBack={modalStack.length > 1}

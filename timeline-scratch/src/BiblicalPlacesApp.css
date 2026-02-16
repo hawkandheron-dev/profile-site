@@ -13,11 +13,10 @@
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
   z-index: 10;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 8px;
   padding: 12px 16px;
   pointer-events: none;
 }
@@ -26,15 +25,20 @@
   pointer-events: auto;
 }
 
-.bp-header-left {
+.bp-header-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   background: rgba(250, 246, 235, 0.92);
   backdrop-filter: blur(8px);
   border-radius: 12px;
   padding: 8px 14px;
   box-shadow: 0 2px 12px rgba(60, 50, 30, 0.15);
+  width: fit-content;
+}
+
+.bp-header-search {
+  width: 320px;
 }
 
 .bp-home-link {
@@ -55,6 +59,27 @@
   font-weight: 700;
   color: #2c2418;
   white-space: nowrap;
+}
+
+/* ── Reset button ──────────────────────────────────────────────────────── */
+
+.bp-reset-btn {
+  border: 1px solid rgba(120, 100, 70, 0.3);
+  background: rgba(250, 246, 235, 0.8);
+  color: #4a3f2f;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.bp-reset-btn:hover {
+  background: #e8dfc8;
+  border-color: rgba(120, 100, 70, 0.5);
 }
 
 /* ── Loading / Error states ────────────────────────────────────────────── */
@@ -84,19 +109,18 @@
 /* ── Mobile responsive ─────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
-  .bp-header-left {
-    flex-wrap: wrap;
+  .bp-header-brand {
     gap: 8px;
     padding: 6px 10px;
   }
 
-  .bp-title {
-    font-size: 14px;
+  .bp-header-search {
+    width: calc(100vw - 32px);
+    max-width: 320px;
   }
 
-  .bp-search {
-    max-width: 100%;
-    width: 100%;
+  .bp-title {
+    font-size: 14px;
   }
 
   .bp-age-filter {
@@ -127,7 +151,7 @@
 /* ── Dark mode ─────────────────────────────────────────────────────────── */
 
 @media (prefers-color-scheme: dark) {
-  .bp-header-left {
+  .bp-header-brand {
     background: rgba(30, 27, 22, 0.92);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   }
@@ -138,6 +162,17 @@
 
   .bp-bird-logo {
     filter: invert(1);
+  }
+
+  .bp-reset-btn {
+    background: rgba(30, 27, 22, 0.8);
+    border-color: rgba(200, 180, 140, 0.2);
+    color: #d8d0c4;
+  }
+
+  .bp-reset-btn:hover {
+    background: #3a3528;
+    border-color: rgba(200, 180, 140, 0.4);
   }
 
   .bp-loading {

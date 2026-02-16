@@ -30,11 +30,24 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
   const mapRef = useRef(null);
   const popupRef = useRef(null);
 
-  // Expose flyTo to parent
+  // Expose flyTo and reset to parent
   useImperativeHandle(ref, () => ({
     flyTo(lng, lat) {
       if (mapRef.current) {
         mapRef.current.flyTo({ center: [lng, lat], zoom: 9, duration: 1200 });
+      }
+    },
+    fitBounds(bounds, options) {
+      if (mapRef.current) {
+        mapRef.current.fitBounds(bounds, { padding: 50, duration: 1200, ...options });
+      }
+    },
+    reset() {
+      if (mapRef.current) {
+        mapRef.current.flyTo({ center: DEFAULT_CENTER, zoom: DEFAULT_ZOOM, duration: 1000 });
+        try {
+          filterByDate(mapRef.current, formatYearForOHM(-1000));
+        } catch { /* ignore */ }
       }
     }
   }), []);
