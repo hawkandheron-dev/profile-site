@@ -61,6 +61,8 @@ export async function fetchBiblicalPlacesData() {
     { data: eventPeople, error: epErr },
     { data: sources, error: srcErr },
     { data: sourceFigures, error: sfErr },
+    { data: resources, error: resErr },
+    { data: resourceLinks, error: rlErr },
   ] = await Promise.all([
     supabase.from('BP_NarrativeAges').select('*').order('sort_order'),
     supabase.from('BP_Places').select('*'),
@@ -71,9 +73,11 @@ export async function fetchBiblicalPlacesData() {
     supabase.from('BP_EventPeople').select('*'),
     supabase.from('BP_Sources').select('*'),
     supabase.from('BP_SourceFigures').select('*'),
+    supabase.from('BP_Resources').select('*'),
+    supabase.from('BP_ResourceLinks').select('*'),
   ]);
 
-  const errors = [agesErr, placesErr, peopleErr, paErr, eventsErr, ppErr, epErr, srcErr, sfErr].filter(Boolean);
+  const errors = [agesErr, placesErr, peopleErr, paErr, eventsErr, ppErr, epErr, srcErr, sfErr, resErr, rlErr].filter(Boolean);
   if (errors.length) {
     throw new Error(`Supabase fetch errors: ${errors.map(e => e.message).join('; ')}`);
   }
@@ -88,6 +92,8 @@ export async function fetchBiblicalPlacesData() {
     eventPeople || [],
     sources || [],
     sourceFigures || [],
+    resources || [],
+    resourceLinks || [],
   );
 }
 
@@ -95,7 +101,8 @@ export async function fetchBiblicalPlacesData() {
 
 function transformToBiblicalPlacesFormat(
   dbAges, dbPlaces, dbPeople, dbPersonAges, dbEvents,
-  dbPersonPlaces, dbEventPeople, dbSources, dbSourceFigures
+  dbPersonPlaces, dbEventPeople, dbSources, dbSourceFigures,
+  dbResources, dbResourceLinks
 ) {
   // ── Lookup maps ─────────────────────────────────────────────────────────
 
@@ -162,6 +169,7 @@ function transformToBiblicalPlacesFormat(
         context: pp.context,
         age,
         notes: pp.notes,
+        scripture_verse: pp.scripture_verse,
       });
     }
   });
@@ -215,6 +223,7 @@ function transformToBiblicalPlacesFormat(
         context: pp.context,
         age,
         notes: pp.notes,
+        scripture_verse: pp.scripture_verse,
       });
     }
   });
@@ -241,6 +250,24 @@ function transformToBiblicalPlacesFormat(
     }
   });
 
+  // ── Resource maps: entity_id -> resources[] ─────────────────────────
+
+  const resourceById = new Map();
+  (dbResources || []).forEach(r => resourceById.set(r.resource_id, r));
+
+  const resourceMap = new Map(); // generic: any entity_id -> resources[]
+  (dbResourceLinks || []).forEach(rl => {
+    const res = resourceById.get(rl.resource_id);
+    if (!res) return;
+    const key = rl.place_id || rl.person_id || rl.event_id || rl.age_id;
+    if (!key) return;
+    if (!resourceMap.has(key)) resourceMap.set(key, []);
+    const entries = resourceMap.get(key);
+    if (!entries.some(e => e.resource_id === res.resource_id)) {
+      entries.push(res);
+    }
+  });
+
   // ── Entity index for search and cross-reference ──────────────────────
 
   const entityIndex = new Map();
@@ -264,6 +291,7 @@ function transformToBiblicalPlacesFormat(
     personPlacesMap,
     personAgesMap,
     sourceMap,
+    resourceMap,
     entityIndex,
   };
 }
