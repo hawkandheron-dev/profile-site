@@ -212,15 +212,17 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
-            <a href="../../index.html" className="header-bird-link" title="Back to Windhover">
-              <img src={BIRD_LOGO} alt="Windhover" className="header-bird-logo" />
-            </a>
             {timelineData && (
               <TimelineSearch
                 data={timelineData}
                 onSelectItem={handleSearchSelect}
                 onHighlight={handleSearchHighlight}
                 onClearHighlight={handleSearchClearHighlight}
+                homeLink={
+                  <a href="../../index.html" className="header-bird-link" title="Back to Windhover">
+                    <img src={BIRD_LOGO} alt="Windhover" className="header-bird-logo" />
+                  </a>
+                }
               />
             )}
           </div>
@@ -322,15 +324,17 @@ function UnauthenticatedApp({ timelineData, loading, error }) {
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
-            <a href="../../index.html" className="header-bird-link" title="Back to Windhover">
-              <img src={BIRD_LOGO} alt="Windhover" className="header-bird-logo" />
-            </a>
             {timelineData && (
               <TimelineSearch
                 data={timelineData}
                 onSelectItem={handleSearchSelect}
                 onHighlight={handleSearchHighlight}
                 onClearHighlight={handleSearchClearHighlight}
+                homeLink={
+                  <a href="../../index.html" className="header-bird-link" title="Back to Windhover">
+                    <img src={BIRD_LOGO} alt="Windhover" className="header-bird-logo" />
+                  </a>
+                }
               />
             )}
           </div>

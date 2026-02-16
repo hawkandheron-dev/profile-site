@@ -60,26 +60,20 @@ body {
   flex: 1;
   min-width: 0;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* Bird logo link — left of search bar */
+/* Bird logo link — inside the search bar, left of magnifying glass */
 .header-bird-link {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   line-height: 0;
-  padding: 6px;
-  background: var(--color-parchment-light, #faf6eb);
-  border: 1px solid var(--color-border-hover, rgba(120, 100, 70, 0.5));
-  border-radius: 999px;
-  box-shadow: 0 2px 8px var(--color-shadow, rgba(60, 50, 30, 0.12));
 }
 
 .header-bird-logo {
-  height: 32px;  /* match search bar height */
+  height: 16px;
   width: auto;
   /* Tint black PNG to match --color-ink (#2c2418) */
   filter: invert(12%) sepia(20%) saturate(800%) hue-rotate(10deg) brightness(95%);
@@ -265,11 +259,6 @@ body {
   .app-header {
     background: transparent;
     border-bottom: none;
-  }
-
-  .header-bird-link {
-    background: #252118;
-    border-color: #3a3528;
   }
 
   .header-bird-logo {
