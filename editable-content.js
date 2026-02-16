@@ -208,7 +208,10 @@
       .maybeSingle();
 
     isAdmin = data?.role === 'admin';
-    if (isAdmin) showEditToggle();
+    if (isAdmin) {
+      showEditToggle();
+      showAdminOnlyElements();
+    }
   }
 
   /** Get a fresh authenticated Supabase client for write operations. */
@@ -268,6 +271,13 @@
     btn.textContent = 'Edit Mode';
     btn.addEventListener('click', () => toggleEditMode(btn));
     nav.appendChild(btn);
+  }
+
+  /** Show elements that are only visible to admins. */
+  function showAdminOnlyElements() {
+    document.querySelectorAll('.admin-only').forEach(function (el) {
+      el.style.display = '';
+    });
   }
 
   /** Block all link navigation and clickable-element default actions while
