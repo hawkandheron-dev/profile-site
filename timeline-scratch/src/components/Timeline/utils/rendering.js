@@ -233,7 +233,7 @@ export function getCurlyBracePath(x, width, y, height) {
 export function drawPeriodBracket(ctx, x, width, y, height, color) {
   ctx.save();
   ctx.strokeStyle = color;
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 1.5;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
@@ -278,12 +278,12 @@ export function drawPersonBox(ctx, x, width, y, height, color, isHovered = false
 
   // Draw box
   ctx.fillStyle = color;
-  drawRoundedRect(ctx, x, y, width, height, 4);
+  drawRoundedRect(ctx, x, y, width, height, 3);
   ctx.fill();
 
   // Border
-  ctx.strokeStyle = isHovered ? '#000' : 'rgba(0, 0, 0, 0.3)';
-  ctx.lineWidth = isHovered ? 2 : 1;
+  ctx.strokeStyle = isHovered ? '#000' : 'rgba(0, 0, 0, 0.25)';
+  ctx.lineWidth = isHovered ? 1.5 : 0.5;
   ctx.stroke();
 
   ctx.restore();
@@ -300,6 +300,37 @@ export function clearCanvas(ctx, width, height) {
 }
 
 /**
+ * Draw vertical guide lines aligned with tick marks for parallax depth
+ * @param {CanvasRenderingContext2D} ctx - Canvas context
+ * @param {number} width - Canvas width
+ * @param {number} height - Canvas height
+ * @param {number} viewportStartYear - Starting year of viewport
+ * @param {number} yearsPerPixel - Scale factor
+ * @param {number} labelInterval - Year interval between labels
+ */
+export function drawVerticalGuideLines(ctx, width, height, viewportStartYear, yearsPerPixel, labelInterval) {
+  ctx.save();
+
+  // Primary lines at major tick intervals - subtle vertical rules
+  const firstLabelYear = Math.ceil(viewportStartYear / labelInterval) * labelInterval;
+
+  ctx.strokeStyle = 'rgba(120, 100, 70, 0.16)';
+  ctx.lineWidth = 1;
+
+  for (let year = firstLabelYear; year < viewportStartYear + (width * yearsPerPixel); year += labelInterval) {
+    const x = (year - viewportStartYear) / yearsPerPixel;
+    if (x < 0 || x > width) continue;
+
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+/**
  * Draw the time axis with year labels
  * @param {CanvasRenderingContext2D} ctx - Canvas context
  * @param {number} width - Canvas width
@@ -312,9 +343,9 @@ export function clearCanvas(ctx, width, height) {
  */
 export function drawTimeAxis(ctx, width, height, axisY, viewportStartYear, yearsPerPixel, labelInterval, eraLabels = 'BC/AD') {
   ctx.save();
-  ctx.strokeStyle = '#ccc';
-  ctx.fillStyle = '#666';
-  ctx.font = '12px system-ui, sans-serif';
+  ctx.strokeStyle = '#bbb0a0';
+  ctx.fillStyle = '#5a4e3a';
+  ctx.font = '14px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
 
@@ -337,7 +368,7 @@ export function drawTimeAxis(ctx, width, height, axisY, viewportStartYear, years
     // Draw tick mark
     ctx.beginPath();
     ctx.moveTo(x, axisY);
-    ctx.lineTo(x, axisY + 8);
+    ctx.lineTo(x, axisY + 6);
     ctx.stroke();
 
     // Format year label
@@ -346,7 +377,7 @@ export function drawTimeAxis(ctx, width, height, axisY, viewportStartYear, years
     const label = `${displayYear} ${era}`;
 
     // Draw label
-    ctx.fillText(label, x, axisY + 12);
+    ctx.fillText(label, x, axisY + 8);
   }
 
   ctx.restore();

@@ -3,7 +3,7 @@
  *
  * Fetches page content from the Supabase `site_content` table and injects it
  * into elements with `data-content-key` attributes. When the current user is
- * an admin (checked against the `admin_users` table), an "Edit Mode" toggle
+ * an admin (checked against the `users` table with role='admin'), an "Edit Mode" toggle
  * appears that makes content editable inline and saves changes back to Supabase.
  *
  * Content types supported:
@@ -202,13 +202,16 @@
     });
 
     const { data } = await authClient
-      .from('admin_users')
-      .select('clerk_user_id')
+      .from('users')
+      .select('clerk_user_id, role')
       .eq('clerk_user_id', clerk.user.id)
       .maybeSingle();
 
-    isAdmin = !!data;
-    if (isAdmin) showEditToggle();
+    isAdmin = data?.role === 'admin';
+    if (isAdmin) {
+      showEditToggle();
+      showAdminOnlyElements();
+    }
   }
 
   /** Get a fresh authenticated Supabase client for write operations. */
@@ -268,6 +271,13 @@
     btn.textContent = 'Edit Mode';
     btn.addEventListener('click', () => toggleEditMode(btn));
     nav.appendChild(btn);
+  }
+
+  /** Show elements that are only visible to admins. */
+  function showAdminOnlyElements() {
+    document.querySelectorAll('.admin-only').forEach(function (el) {
+      el.style.display = '';
+    });
   }
 
   /** Block all link navigation and clickable-element default actions while

@@ -137,12 +137,12 @@ export function TimelineOverlay({
       const startX = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const endX = yearToPixel(end, viewportStartYear, yearsPerPixel);
       const boxWidth = Math.max(endX - startX, 60); // Min width for readability
-      const boxHeight = person.height - 8;
+      const boxHeight = person.height - 6;
       const boxY = person.y - panOffsetY;
 
-      // Position label at bottom-left of the box
-      let labelX = startX + 6; // 6px from left edge of box
-      const labelY = boxY + 6; // align top padding with left padding
+      // Position label at left of the box, vertically centered
+      let labelX = startX + 4;
+      const labelY = boxY + 3;
 
       // Sticky behavior: stick to left edge if box extends left of viewport
       const isSticky = startX < 0 && endX > 0;
@@ -176,29 +176,27 @@ export function TimelineOverlay({
             left: `${labelX}px`,
             top: `${labelY}px`,
             pointerEvents: 'none',
-            fontSize: '12px',
+            fontSize: '14px',
             fontWeight: '600',
             color: '#fff',
             backgroundColor: 'rgba(0, 0, 0, 0.75)',
-            padding: '4px 8px',
-            borderRadius: '4px',
+            padding: '2px 6px',
+            borderRadius: '3px',
             whiteSpace: 'nowrap',
             zIndex: isSticky ? 10 : 1,
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-            gap: '0px',
+            alignItems: 'center',
+            gap: '4px',
             opacity: getPersonOpacity(person),
-            transition: 'opacity 0.15s ease'
+            transition: 'opacity 0.15s ease',
+            lineHeight: '1.3'
           }}
         >
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            {person.isEmperor && (
-              <Icon name="crown" size={12} color="#ffd700" />
-            )}
-            {person.name}
-          </span>
-          <span style={{ opacity: 0.85, fontSize: '10px', fontWeight: '500' }}>
+          {person.isMonarch && (
+            <Icon name="crown" size={12} color="#ffd700" />
+          )}
+          <span>{person.name}</span>
+          <span style={{ opacity: 0.7, fontSize: '11px', fontWeight: '500' }}>
             {yearRange}
           </span>
         </div>
@@ -259,12 +257,12 @@ export function TimelineOverlay({
             top: `${bracketPointY + labelOffsetY}px`,
             transform: period.aboveTimeline ? 'translate(-50%, -100%)' : 'translateX(-50%)',
             pointerEvents: 'none',
-            fontSize: '13px',
+            fontSize: '14px',
             fontWeight: '600',
             color: labelTextColor,
             backgroundColor: labelBackgroundColor,
-            padding: '4px 12px',
-            borderRadius: '4px',
+            padding: '1px 6px',
+            borderRadius: '2px',
             whiteSpace: 'nowrap',
             zIndex: (isLeftSticky || isRightSticky) ? 10 : 1,
             textShadow: '0 0 2px rgba(0, 0, 0, 0.3)',
@@ -320,30 +318,30 @@ export function TimelineOverlay({
           style={{
             position: 'absolute',
             left: `${x}px`,
-            top: `${y - 40}px`,
-            transform: 'translateX(-50%)',
+            top: `${y - 18}px`,
+            zIndex: Math.round(y),
+            overflow: 'visible',
             pointerEvents: 'auto',
             cursor: 'pointer',
             color: '#333',
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            padding: '6px 10px',
-            borderRadius: '4px',
+            backgroundColor: 'rgba(255, 255, 255, 0.92)',
+            padding: '2px 6px',
+            borderRadius: '2px',
             border: '1px solid #ccc',
             whiteSpace: 'nowrap',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
             opacity: getPointOpacity(point),
-            transition: 'opacity 0.15s ease'
+            transition: 'opacity 0.15s ease',
+            lineHeight: '1.2'
           }}
           onMouseEnter={() => onItemHover?.('point', point)}
           onMouseLeave={() => onItemHover?.(null, null)}
           onClick={(e) => { e.stopPropagation(); if (!wasDraggingRef?.current) onItemClick?.('point', point); }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-            <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={14} />
-            <div style={{ fontSize: '12px', fontWeight: '600' }}>{point.name}</div>
-          </div>
-          <div style={{ fontSize: '10px', opacity: 0.7, paddingLeft: '20px' }}>
-            {dateDisplay}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+            <ShapeIcon shape={point.shape || 'circle'} color={point.color || '#ff6f00'} size={12} />
+            <span style={{ fontSize: '14px', fontWeight: '600' }}>{point.name}</span>
+            <span style={{ fontSize: '10px', opacity: 0.5 }}>{dateDisplay}</span>
           </div>
         </div>
       );
@@ -373,7 +371,7 @@ export function TimelineOverlay({
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
           padding: '12px',
           pointerEvents: 'none',
-          zIndex: 100,
+          zIndex: 10000,
           fontSize: '13px',
           lineHeight: '1.5'
         }}
@@ -391,14 +389,21 @@ export function TimelineOverlay({
             }}
           />
         )}
-        <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+        <div style={{ fontWeight: '600', fontSize: '16px', marginBottom: '4px' }}>
           {item.name}
         </div>
-        {item.preview && (
+        {(item.date || item.location) && (
           <div style={{ fontSize: '12px', color: '#666' }}>
-            {item.preview.length > 150
-              ? item.preview.substring(0, 150) + '...'
-              : item.preview}
+            {(() => {
+              const parts = [];
+              if (item.date) {
+                const year = parseInt(item.date.replace(/^-/, ''));
+                const bc = item.date.startsWith('-');
+                parts.push(bc ? `${year} BC` : `${year} AD`);
+              }
+              if (item.location) parts.push(item.location);
+              return parts.join(' · ');
+            })()}
           </div>
         )}
       </div>

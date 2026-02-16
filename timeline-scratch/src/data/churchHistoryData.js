@@ -1105,7 +1105,7 @@ function transformData() {
         preview: reignPreview,
         color: colorMap[item.group],
         aboveTimeline: false,
-        isEmperor: true,
+        isMonarch: true,
         location: item.location
       });
     } else if (item.group === 'eras') {
@@ -1202,6 +1202,7 @@ function getEraForDate(dateStr) {
 export const churchHistoryData = transformData();
 
 export const churchHistoryConfig = {
+  siteTitle: 'History of the Christian Church',
   initialViewport: {
     startDate: '0001-01-01',
     endDate: '0500-12-31'
@@ -1223,7 +1224,7 @@ export const churchHistoryConfig = {
       name: 'Emperors',
       color: '#d32f2f',
       filterKey: 'emperors',
-      isEmperor: true
+      isMonarch: true
     },
     {
       type: 'bracket',

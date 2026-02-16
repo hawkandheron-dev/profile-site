@@ -32,7 +32,7 @@ function lightenColor(hex, floor = 160) {
   return `rgb(${lr}, ${lg}, ${lb})`;
 }
 
-export const MobileTimeline = forwardRef(function MobileTimeline({ data, config, onItemClick, authContext, allPeople, adminContext, onEntityUpdated, onDataChanged }, ref) {
+export const MobileTimeline = forwardRef(function MobileTimeline({ data, config, onItemClick, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged }, ref) {
   const scrollRef = useRef(null);
   const [pixelsPerYear, setPixelsPerYear] = useState(DEFAULT_PIXELS_PER_YEAR);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -85,7 +85,7 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
   const filteredData = useMemo(() => {
     const { people = [], points = [], periods = [] } = data;
     return {
-      people: people.filter(p => p.isEmperor ? filters.emperors : filters.people),
+      people: people.filter(p => p.isMonarch ? filters.emperors : filters.people),
       points: points.filter(p => {
         if (p.itemType === 'councils') return filters.councils;
         if (p.itemType === 'documents') return filters.documents;
@@ -319,7 +319,7 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
                   <span className="mobile-filter-swatch" style={{ backgroundColor: item.color }} />
                 )}
                 {item.type === 'point' && <ShapeIcon shape={item.shape} color={item.color} size={14} />}
-                {item.isEmperor && <Icon name="crown" size={12} color={item.color} />}
+                {item.isMonarch && <Icon name="crown" size={12} color={item.color} />}
                 <span>{item.name}</span>
               </label>
             );
@@ -375,7 +375,7 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
                   onClick={() => handleItemClick('person', person)}
                 >
                   <span className="mobile-person-header">
-                    {person.isEmperor && <Icon name="crown" size={10} color="#ffd700" />}
+                    {person.isMonarch && <Icon name="crown" size={10} color="#ffd700" />}
                     <span className="mobile-person-name">{person.name}</span>
                   </span>
                   <span className="mobile-person-dates">
@@ -472,6 +472,7 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
         authContext={authContext}
         allPeople={allPeople}
         adminContext={adminContext}
+        contributorContext={contributorContext}
         onEntityUpdated={onEntityUpdated}
         onItemDeleted={() => setSelectedItem(null)}
         onDataChanged={onDataChanged}

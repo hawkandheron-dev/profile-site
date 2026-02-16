@@ -8,6 +8,7 @@ import { getYearRange } from '../utils/dateUtils.js';
 import {
   clearCanvas,
   drawTimeAxis,
+  drawVerticalGuideLines,
   drawPersonBox,
   drawPeriodBracket,
   getCurlyBracePath,
@@ -61,6 +62,9 @@ export function TimelineCanvas({
     const labelInterval = getYearLabelInterval(yearsPerPixel);
     const axisY = layout.axisY - panOffsetY;
 
+    // Draw vertical guide lines behind everything for parallax depth
+    drawVerticalGuideLines(ctx, width, height, viewportStartYear, yearsPerPixel, labelInterval);
+
     // Render periods BEFORE axis so year labels appear on top of period fills
     renderPeriods(ctx, layout.stackedPeriods, axisY);
 
@@ -91,7 +95,7 @@ export function TimelineCanvas({
       const x = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const boxWidth = yearToPixel(end, viewportStartYear, yearsPerPixel) - x;
       const y = person.y - panOffsetY;
-      const boxHeight = person.height - 14;
+      const boxHeight = person.height - 6;
 
       // Min width for readability
       const displayWidth = Math.max(boxWidth, 60);
@@ -110,8 +114,24 @@ export function TimelineCanvas({
       ctx.save();
       ctx.globalAlpha = opacity;
 
-      // Draw box
-      drawPersonBox(ctx, x, displayWidth, y, boxHeight, color, isHovered);
+      // Monarchs: draw lifespan in lighter shade, reign in full color
+      if (person.isMonarch && person.reignStartYear != null && person.reignEndYear != null) {
+        const lifespanColor = lightenColor(color, 0.55);
+
+        // Draw full lifespan bar in light shade
+        drawPersonBox(ctx, x, displayWidth, y, boxHeight, lifespanColor, false);
+
+        // Calculate reign segment within the lifespan bar
+        const reignX = yearToPixel(person.reignStartYear, viewportStartYear, yearsPerPixel);
+        const reignEndX = yearToPixel(person.reignEndYear, viewportStartYear, yearsPerPixel);
+        const reignWidth = Math.max(reignEndX - reignX, 4);
+
+        // Draw reign segment in full color
+        drawPersonBox(ctx, reignX, reignWidth, y, boxHeight, color, isHovered);
+      } else {
+        // Regular person or monarch without reign data: single color box
+        drawPersonBox(ctx, x, displayWidth, y, boxHeight, color, isHovered);
+      }
 
       // Restore context
       ctx.restore();
@@ -148,7 +168,7 @@ export function TimelineCanvas({
       ctx.globalAlpha = opacity;
 
       // Convert color to rgba for fill (slightly stronger when hovered)
-      const fillAlpha = isThisPeriodHovered ? 0.25 : 0.15;
+      const fillAlpha = isThisPeriodHovered ? 0.35 : 0.25;
       const fillColor = hexToRgba(color, fillAlpha);
 
       const braceY = period.aboveTimeline ? y + bracketHeight : y;
@@ -232,12 +252,12 @@ export function TimelineCanvas({
       // Point markers are now rendered inside labels, so we don't draw them on canvas
       // Just set up hit detection
 
-      // Store in hit map for clicking (use label area)
-      const hitSize = 80; // Wider to match label width
+      // Store in hit map for clicking (left-aligned from date position)
+      const hitWidth = 120;
       hitMapRef.current.set(point.id, {
         type: 'point',
         item: point,
-        bounds: { x: x - hitSize/2, y: y - 40, width: hitSize, height: 35 }
+        bounds: { x: x, y: y - 18, width: hitWidth, height: 20 }
       });
     });
   }
@@ -269,7 +289,7 @@ export function TimelineCanvas({
       const x = yearToPixel(start, viewportStartYear, yearsPerPixel);
       const boxWidth = Math.max(yearToPixel(end, viewportStartYear, yearsPerPixel) - x, 60);
       const y = person.y - panOffsetY;
-      const boxHeight = person.height - 14;
+      const boxHeight = person.height - 6;
       const isCurrent = person.id === currentHighlightId;
       drawHighlightRing(x, y, boxWidth, boxHeight, isCurrent);
     }
@@ -299,10 +319,22 @@ export function TimelineCanvas({
       ctx.shadowColor = isCurrent ? currentColor : highlightColor;
       ctx.shadowBlur = isCurrent ? 10 : 5;
       ctx.beginPath();
-      ctx.arc(x, y - 20, 14, 0, Math.PI * 2);
+      ctx.arc(x, y - 9, 10, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }
+  }
+
+  // Lighten a hex color by mixing with white. Amount 0 = original, 1 = white.
+  function lightenColor(hex, amount) {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const lr = Math.round(r + (255 - r) * amount);
+    const lg = Math.round(g + (255 - g) * amount);
+    const lb = Math.round(b + (255 - b) * amount);
+    return `#${lr.toString(16).padStart(2, '0')}${lg.toString(16).padStart(2, '0')}${lb.toString(16).padStart(2, '0')}`;
   }
 
   // Convert hex color to rgba

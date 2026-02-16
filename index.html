@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>The Mews — by Hawk &amp; Heron</title>
+    <title>Windhover History</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="editable-content.css" />
   </head>
@@ -16,40 +16,24 @@
     </nav>
 
     <header class="hero">
-      <h1 class="hero-title" data-content-key="home.hero_title">The Mews</h1>
-      <p class="hero-subtitle" data-content-key="home.hero_subtitle">by Hawk &amp; Heron</p>
-      <p class="hero-description" data-content-key="home.hero_description">
-        Welcome to The Mews! Here are a few projects that you may find interesting.
-        If you want, you can sign up and log in to save notes or favorites, or just
-        browse without logging in.
-      </p>
+      <div class="hero-brand">
+        <img class="hero-logo" src="resources/logos/Windhover_BLK.png" alt="Windhover bird logo" />
+        <div class="hero-text">
+          <h1 class="hero-title">Windhover</h1>
+          <p class="hero-tagline" data-content-key="home.hero_tagline"></p>
+        </div>
+      </div>
     </header>
 
-    <div class="main-actions">
-      <a class="button button-primary" href="timeline-scratch/dist/church-history-supabase.html">Church History Timeline</a>
-    </div>
-
-    <div class="secondary-actions">
-      <a class="button" href="about.html" data-content-key="home.nav.about">About</a>
-      <a class="button" href="https://postapocalyptic.substack.com/?utm_campaign=hawkandheronmews.com" data-content-key="home.nav.substack">Substack</a>
-      <button class="button" id="ec-sign-in-btn" type="button">Sign Up / Sign In</button>
-      <details class="more-projects">
-        <summary>More Projects ▾</summary>
-        <div class="more-projects-menu">
-          <a href="timeline/">Timeline Prototype</a>
-          <a href="timeline-scratch/dist/index.html">Timeline Base</a>
-          <a href="church-history-supabase.html">CH Data Browser</a>
-          <a href="timeline-scratch/dist/historical-eras.html">History Vision Boards</a>
-          <div class="dropdown-divider"></div>
-          <a href="pantheons-supabase.html">Pantheons</a>
-          <div class="dropdown-divider"></div>
-          <a href="design-system.html">Design System</a>
-        </div>
-      </details>
-    </div>
+    <nav class="landing-nav" aria-label="Tools">
+      <a class="button landing-nav-link" href="timeline-scratch/dist/index.html">Timeline</a>
+      <a class="button landing-nav-link" href="timeline-scratch/dist/church-history-supabase.html">Church History Timeline</a>
+      <a class="button landing-nav-link" href="pantheons-supabase.html">Pantheons</a>
+      <a class="button landing-nav-link admin-only" href="design-system.html" style="display:none;">Design System</a>
+    </nav>
 
     <footer class="site-footer">
-      <p data-content-key="home.footer">&copy; Hawk &amp; Heron</p>
+      <p>&copy; Windhover History</p>
     </footer>
 
     <!-- Supabase JS (CDN) -->

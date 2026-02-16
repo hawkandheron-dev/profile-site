@@ -21,17 +21,17 @@ import { stackTimelineItems } from '../utils/stacking.js';
  */
 export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
   const {
-    personRowHeight = 40,
-    pointRowHeight = 40,
-    periodRowHeight = 50,
-    periodBracketHeight = 30,
-    lanePadding = 10,
-    axisHeight = 40
+    personRowHeight = 34,
+    pointRowHeight = 20,
+    periodRowHeight = 40,
+    periodBracketHeight = 10,
+    lanePadding = 8,
+    axisHeight = 30
   } = sizes;
 
   // Stack all items with above/below separation
   const stacked = useMemo(() => {
-    return stackTimelineItems(data, 150, yearsPerPixel);
+    return stackTimelineItems(data, 120, yearsPerPixel);
   }, [data, yearsPerPixel]);
 
   // Calculate layout with positions
@@ -66,9 +66,12 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
     const aboveHeight = abovePeriodTotalHeight + abovePeopleHeight;
     const belowHeight = belowPeriodTotalHeight + belowPeopleHeight;
 
-    // Axis position
-    const axisY = aboveHeight + lanePadding;
-    const totalHeight = aboveHeight + axisHeight + belowHeight + lanePadding * 2;
+    // Virtual padding above and below all entries for comfortable panning
+    const worldPadding = 600;
+
+    // Axis position (shifted down by worldPadding)
+    const axisY = worldPadding + aboveHeight + lanePadding;
+    const totalHeight = worldPadding + aboveHeight + axisHeight + belowHeight + lanePadding * 2 + worldPadding;
 
     // Calculate Y positions for each section
     // Above timeline (from axis going up): points → period brackets → people

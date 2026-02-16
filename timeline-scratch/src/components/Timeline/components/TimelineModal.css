@@ -181,6 +181,55 @@
   font-style: italic;
 }
 
+/* Year Detail Map pins */
+.year-map-pin {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--pin-color, #c0392b);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.year-map-pin-highlighted {
+  transform: scale(1.6);
+  box-shadow: 0 0 0 3px var(--pin-color, #c0392b), 0 2px 8px rgba(0, 0, 0, 0.4);
+  z-index: 10 !important;
+}
+
+.year-map-pin-dimmed {
+  opacity: 0.35;
+}
+
+/* Highlighted pill in the Who's Where list */
+.summary-pill-highlighted {
+  background: #e8dfc8;
+  box-shadow: 0 0 0 2px #8b7355;
+  border-radius: 12px;
+}
+
+.summary-pill-dimmed {
+  opacity: 0.4;
+}
+
+/* Year map pin tooltip */
+.year-map-tooltip .maplibregl-popup-content {
+  background: #faf6eb;
+  color: #2c2418;
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 6px 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+}
+
+.year-map-tooltip .maplibregl-popup-tip {
+  border-top-color: #faf6eb;
+}
+
 .modal-period {
   margin: 0 0 20px;
   font-size: 14px;
@@ -912,6 +961,21 @@
 
   .historical-map-date {
     color: #7a6f5f;
+  }
+
+  .summary-pill-highlighted {
+    background: #3a3528;
+    box-shadow: 0 0 0 2px #c4a67a;
+  }
+
+  .year-map-tooltip .maplibregl-popup-content {
+    background: #1e1b16;
+    color: #f0ebe0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .year-map-tooltip .maplibregl-popup-tip {
+    border-top-color: #1e1b16;
   }
 
   /* Works inline dark */

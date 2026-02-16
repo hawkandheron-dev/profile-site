@@ -5,7 +5,9 @@
 import { Icon, ShapeIcon } from './Icon.jsx';
 import './TimelineLegend.css';
 
-export function TimelineLegend({ legend, isVisible = true, filters = {}, onFilterToggle, onMouseEnter, onMouseLeave }) {
+const LOGO_PATH = new URL('../../../../../../resources/logos/Windhover_BLK.png', import.meta.url).href;
+
+export function TimelineLegend({ legend, isVisible = true, filters = {}, onFilterToggle, onMouseEnter, onMouseLeave, siteTitle }) {
   if (!isVisible || !legend || legend.length === 0) return null;
 
   const handleToggle = (filterKey) => {
@@ -16,6 +18,13 @@ export function TimelineLegend({ legend, isVisible = true, filters = {}, onFilte
 
   return (
     <div className="timeline-legend" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+      <div className="legend-brand">
+        <img className="legend-brand-logo" src={LOGO_PATH} alt="Windhover" />
+        <span className="legend-brand-title">Windhover</span>
+      </div>
+      {siteTitle && (
+        <h1 className="legend-site-title">{siteTitle}</h1>
+      )}
       <h3 className="legend-title">Legend</h3>
       <div className="legend-items">
         {legend.map(item => {
@@ -92,7 +101,7 @@ export function TimelineLegend({ legend, isVisible = true, filters = {}, onFilte
               )}
 
               {/* Emperor crown icon */}
-              {item.isEmperor && (
+              {item.isMonarch && (
                 <span className="legend-emperor-icon" style={{ marginLeft: '-4px', opacity: isActive ? 1 : 0.4 }}>
                   <Icon name="crown" size={14} color={item.color} />
                 </span>

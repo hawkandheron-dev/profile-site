@@ -7,6 +7,7 @@ import { useState, useRef, useCallback, useEffect, useMemo, forwardRef, useImper
 import { useZoomPan } from './hooks/useZoomPan.js';
 import { useTimelineLayout } from './hooks/useTimelineLayout.js';
 import { useMobileDetect } from './hooks/useMobileDetect.js';
+import { useSmoothPan } from './hooks/useSmoothPan.js';
 import { TimelineCanvas } from './components/TimelineCanvas.jsx';
 import { TimelineOverlay } from './components/TimelineOverlay.jsx';
 import { TimelineModal } from './components/TimelineModal.jsx';
@@ -15,9 +16,10 @@ import { TimelineLegend } from './components/TimelineLegend.jsx';
 import { MobileTimeline } from './components/MobileTimeline.jsx';
 import { Icon } from './components/Icon.jsx';
 import { getYear, getYearRange } from './utils/dateUtils.js';
+import bgManuscript from '../../assets/bg-manuscript.jpg';
 import './Timeline.css';
 
-export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, onEntityUpdated, onDataChanged }, ref) {
+export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged, showBackgroundImage = false }, ref) {
   const isMobile = useMobileDetect();
 
   // Render mobile timeline on small viewports
@@ -31,6 +33,7 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
         authContext={authContext}
         allPeople={allPeople}
         adminContext={adminContext}
+        contributorContext={contributorContext}
         onEntityUpdated={onEntityUpdated}
         onDataChanged={onDataChanged}
       />
@@ -48,13 +51,15 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
       authContext={authContext}
       allPeople={allPeople}
       adminContext={adminContext}
+      contributorContext={contributorContext}
       onEntityUpdated={onEntityUpdated}
       onDataChanged={onDataChanged}
+      showBackgroundImage={showBackgroundImage}
     />
   );
 });
 
-const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, onEntityUpdated, onDataChanged }, ref) {
+const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged, showBackgroundImage = false }, ref) {
   const containerRef = useRef(null);
   const wasDraggingRef = useRef(false);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
@@ -89,10 +94,12 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     ...config
   };
 
-  // Parse initial viewport
+  // Parse initial viewport — keep zoom level from config, but center on year 1000
   const initialStartYear = getYear(defaultConfig.initialViewport.startDate);
   const initialEndYear = getYear(defaultConfig.initialViewport.endDate);
   const initialYearsPerPixel = (initialEndYear - initialStartYear) / dimensions.width;
+  const initialCenterYear = 1000;
+  const centeredViewportStart = initialCenterYear - (dimensions.width / 2 * initialYearsPerPixel);
 
   // Derive min/max year from actual data extent (not just initial viewport)
   const dataExtent = useMemo(() => {
@@ -140,7 +147,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     setVerticalOffset,
     isPanning
   } = useZoomPan({
-    initialViewportStartYear: initialStartYear,
+    initialViewportStartYear: centeredViewportStart,
     initialYearsPerPixel: initialYearsPerPixel,
     minYearsPerPixel: 0.1,
     maxYearsPerPixel: 50,
@@ -153,7 +160,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     const { people = [], points = [], periods = [] } = data;
 
     const filteredPeople = people.filter(person => {
-      if (person.isEmperor) {
+      if (person.isMonarch) {
         return filters.emperors;
       }
       return filters.people;
@@ -205,13 +212,24 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     defaultConfig.laneOrder,
     yearsPerPixel,
     {
-      personRowHeight: 56,
-      pointRowHeight: 50,
-      periodRowHeight: 60,
-      lanePadding: 20,
-      axisHeight: 40
+      personRowHeight: 34,
+      pointRowHeight: 20,
+      periodRowHeight: 40,
+      lanePadding: 8,
+      axisHeight: 30
     }
   );
+
+  // Center the axis vertically on initial load
+  const initialCenterDone = useRef(false);
+  useEffect(() => {
+    if (!initialCenterDone.current && layout.axisY > 0 && dimensions.height > 0) {
+      initialCenterDone.current = true;
+      const targetOffset = Math.max(0, layout.axisY - dimensions.height / 2);
+      const maxOffset = Math.max(0, layout.totalHeight - dimensions.height);
+      setVerticalOffset(Math.min(targetOffset, maxOffset));
+    }
+  }, [layout.axisY, layout.totalHeight, dimensions.height, setVerticalOffset]);
 
   // Handle container resize
   useEffect(() => {
@@ -337,6 +355,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
 
   // Handle item click
   const handleItemClickInternal = useCallback((type, item) => {
+    setHoveredItem(null);
     if (!suppressModal) {
       setSelectedItem({ type, item });
     }
@@ -471,7 +490,12 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     });
 
     // Find people alive in this year
+    // For monarchs, filter by reign dates so only actually reigning
+    // emperors appear under "Reigning Emperor(s)"
     const alivePeople = people.filter(p => {
+      if (p.isMonarch && p.reignStartYear != null && p.reignEndYear != null) {
+        return year >= p.reignStartYear && year <= p.reignEndYear;
+      }
       const start = getYear(p.startDate);
       const end = getYear(p.endDate);
       return year >= start && year <= end;
@@ -526,6 +550,45 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     handleZoom(2, centerX, dimensions.width); // Positive delta = zoom out
   }, [handleZoom, dimensions.width]);
 
+  // Smooth accelerating directional navigation (arrow keys + compass rose)
+  const { startDirection, stopDirection, activeDirections } = useSmoothPan({
+    handlePanX,
+    handlePanY,
+    dimensions,
+    layoutTotalHeight: layout.totalHeight,
+  });
+
+  // Keyboard arrow key navigation with hold-to-accelerate
+  useEffect(() => {
+    const keyToDir = {
+      ArrowLeft: 'left',
+      ArrowRight: 'right',
+      ArrowUp: 'up',
+      ArrowDown: 'down',
+    };
+
+    const handleKeyDown = (e) => {
+      if (isModalOpen) return;
+      const dir = keyToDir[e.key];
+      if (dir) {
+        e.preventDefault();
+        startDirection(dir);
+      }
+    };
+
+    const handleKeyUp = (e) => {
+      const dir = keyToDir[e.key];
+      if (dir) stopDirection(dir);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [isModalOpen, startDirection, stopDirection]);
+
   // Notify viewport changes
   useEffect(() => {
     if (onViewportChange) {
@@ -548,6 +611,21 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
+      {/* Background manuscript image with parallax */}
+      {showBackgroundImage && (
+        <>
+          <div
+            className="timeline-bg-image"
+            style={{
+              backgroundImage: `url(${bgManuscript})`,
+              transform: `translate(${-33.33 + viewportStartYear * -0.002}%, ${-33.33 + panOffsetY * -0.008}%)`,
+            }}
+          />
+          {/* Semi-transparent overlay on top of background */}
+          <div className="timeline-bg-overlay" />
+        </>
+      )}
+
       {/* Cursor year line - behind all elements */}
       {!isOverItem && !isPanning && !yearSummaryOpen && !isOverControls && (
         <div
@@ -646,6 +724,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         onFilterToggle={handleFilterToggle}
         onMouseEnter={() => setIsOverControls(true)}
         onMouseLeave={() => setIsOverControls(false)}
+        siteTitle={defaultConfig.siteTitle}
       />
 
       <TimelineModal
@@ -659,6 +738,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         authContext={authContext}
         allPeople={allPeople}
         adminContext={adminContext}
+        contributorContext={contributorContext}
         onEntityUpdated={onEntityUpdated}
         onItemDeleted={(type, id) => {
           setSelectedItem(null);
@@ -684,21 +764,64 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         onMouseEnter={() => setIsOverControls(true)}
         onMouseLeave={() => setIsOverControls(false)}
       >
-        <button onClick={handleZoomIn} title="Zoom in" className="icon-button">
-          <Icon name="plus" size={16} />
-          <span>Zoom in</span>
-        </button>
-        <button onClick={handleZoomOut} title="Zoom out" className="icon-button">
-          <Icon name="minus" size={16} />
-          <span>Zoom out</span>
-        </button>
-        <button onClick={reset} title="Reset view" className="icon-button">
-          <Icon name="quatrefoil" size={16} />
-          <span>Reset</span>
-        </button>
-        <div className="zoom-info">
-          <Icon name="diamond" size={14} />
-          <span>{yearsPerPixel > 0 ? (1 / yearsPerPixel).toFixed(2) : '1.00'}x</span>
+        {/* Compass rose — self-contained cross of 4 arrows + center */}
+        <div className="compass-rose">
+          <button
+            onMouseDown={() => startDirection('up')}
+            onMouseUp={() => stopDirection('up')}
+            onMouseLeave={() => stopDirection('up')}
+            title="Scroll up"
+            className={`btn btn-icon compass-btn compass-up${activeDirections.has('up') ? ' active' : ''}`}
+          >
+            <Icon name="arrow-up" size={12} />
+          </button>
+          <div className="compass-middle-row">
+            <button
+              onMouseDown={() => startDirection('left')}
+              onMouseUp={() => stopDirection('left')}
+              onMouseLeave={() => stopDirection('left')}
+              title="Scroll left"
+              className={`btn btn-icon compass-btn compass-left${activeDirections.has('left') ? ' active' : ''}`}
+            >
+              <Icon name="arrow-left" size={12} />
+            </button>
+            <button onClick={reset} title="Reset view" className="btn btn-icon compass-btn compass-center">
+              <Icon name="quatrefoil" size={12} />
+            </button>
+            <button
+              onMouseDown={() => startDirection('right')}
+              onMouseUp={() => stopDirection('right')}
+              onMouseLeave={() => stopDirection('right')}
+              title="Scroll right"
+              className={`btn btn-icon compass-btn compass-right${activeDirections.has('right') ? ' active' : ''}`}
+            >
+              <Icon name="arrow-right" size={12} />
+            </button>
+          </div>
+          <button
+            onMouseDown={() => startDirection('down')}
+            onMouseUp={() => stopDirection('down')}
+            onMouseLeave={() => stopDirection('down')}
+            title="Scroll down"
+            className={`btn btn-icon compass-btn compass-down${activeDirections.has('down') ? ' active' : ''}`}
+          >
+            <Icon name="arrow-down" size={12} />
+          </button>
+        </div>
+
+        {/* Zoom controls — aligned to compass middle row */}
+        <div className="zoom-controls">
+          <button onClick={handleZoomIn} title="Zoom in" className="btn btn-sm">
+            <Icon name="plus" size={14} />
+            <span>Zoom in</span>
+          </button>
+          <button onClick={handleZoomOut} title="Zoom out" className="btn btn-sm">
+            <Icon name="minus" size={14} />
+            <span>Zoom out</span>
+          </button>
+          <span className="zoom-info">
+            {yearsPerPixel > 0 ? (1 / yearsPerPixel).toFixed(1) : '1.0'}x
+          </span>
         </div>
       </div>
     </div>

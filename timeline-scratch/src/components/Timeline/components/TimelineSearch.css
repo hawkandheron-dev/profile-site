@@ -12,14 +12,15 @@
   gap: 8px;
   padding: 8px 12px;
   background: var(--color-parchment-light, #faf6eb);
-  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
+  border: 1px solid var(--color-border-hover, rgba(120, 100, 70, 0.5));
   border-radius: 999px;
+  box-shadow: 0 2px 8px var(--color-shadow, rgba(60, 50, 30, 0.12));
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .timeline-search-input-wrap:focus-within {
-  border-color: var(--color-border-hover, rgba(120, 100, 70, 0.5));
-  box-shadow: 0 0 0 3px rgba(120, 100, 70, 0.08);
+  border-color: var(--color-accent, #8b7355);
+  box-shadow: 0 2px 8px var(--color-shadow, rgba(60, 50, 30, 0.12)), 0 0 0 3px rgba(120, 100, 70, 0.08);
 }
 
 .timeline-search-input-wrap.find-mode {
@@ -134,9 +135,9 @@
   padding: 6px;
   list-style: none;
   background: var(--color-parchment-light, #faf6eb);
-  border: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
+  border: 1px solid var(--color-border-hover, rgba(120, 100, 70, 0.5));
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(60, 50, 30, 0.15);
+  box-shadow: 0 8px 24px rgba(60, 50, 30, 0.18);
   z-index: 1000;
 }
 

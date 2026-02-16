@@ -1,0 +1,456 @@
+/* ── Suggestions Page ─────────────────────────────────────────────────── */
+
+.suggestions-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  font-family: inherit;
+  color: #2c2418;
+}
+
+.suggestions-page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.suggestions-page-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #2c2418;
+}
+
+.suggestions-back-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(120, 100, 70, 0.25);
+  background: transparent;
+  color: #4a3f2f;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.suggestions-back-btn:hover {
+  background: rgba(120, 100, 70, 0.08);
+}
+
+/* ── Filters ─────────────────────────────────────────────────────────── */
+
+.suggestions-filters {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.suggestions-filter-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(120, 100, 70, 0.25);
+  background: transparent;
+  color: #7a6f5f;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.suggestions-filter-btn:hover {
+  background: rgba(120, 100, 70, 0.08);
+  color: #4a3f2f;
+}
+
+.suggestions-filter-btn.active {
+  background: #2c2418;
+  color: #faf6eb;
+  border-color: #2c2418;
+}
+
+/* ── Loading / Error / Empty ─────────────────────────────────────────── */
+
+.suggestions-loading,
+.suggestions-empty {
+  text-align: center;
+  color: #a09888;
+  font-style: italic;
+  padding: 40px 0;
+}
+
+.suggestions-error,
+.suggestion-error {
+  color: #8b2020;
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+/* ── Suggestion Cards ────────────────────────────────────────────────── */
+
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.suggestion-card {
+  border: 1px solid rgba(120, 100, 70, 0.2);
+  border-radius: 10px;
+  background: #faf6eb;
+  overflow: hidden;
+  transition: box-shadow 160ms ease;
+}
+
+.suggestion-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.suggestion-card--approved {
+  border-left: 3px solid #4caf50;
+}
+
+.suggestion-card--rejected {
+  border-left: 3px solid #d32f2f;
+  opacity: 0.7;
+}
+
+.suggestion-card--pending {
+  border-left: 3px solid #f9a825;
+}
+
+.suggestion-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.suggestion-card-header:hover {
+  background: rgba(120, 100, 70, 0.04);
+}
+
+.suggestion-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.suggestion-card-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.suggestion-status {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.suggestion-status--pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.suggestion-status--approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.suggestion-status--rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.suggestion-card-type {
+  font-size: 13px;
+  color: #7a6f5f;
+}
+
+.suggestion-card-name {
+  font-size: 14px;
+  color: #2c2418;
+}
+
+.suggestion-card-date {
+  font-size: 12px;
+  color: #a09888;
+}
+
+.suggestion-card-chevron {
+  font-size: 12px;
+  color: #a09888;
+}
+
+/* ── Card Body / Diff ────────────────────────────────────────────────── */
+
+.suggestion-card-body {
+  padding: 0 18px 18px;
+}
+
+.suggestion-loading {
+  color: #a09888;
+  font-style: italic;
+  font-size: 13px;
+}
+
+.suggestion-diff-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.suggestion-diff-table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #7a6f5f;
+  padding: 6px 10px;
+  border-bottom: 2px solid rgba(120, 100, 70, 0.15);
+}
+
+.suggestion-diff-table td {
+  padding: 5px 10px;
+  border-bottom: 1px solid rgba(120, 100, 70, 0.08);
+  vertical-align: top;
+  max-width: 300px;
+  overflow-wrap: break-word;
+}
+
+.suggestion-diff-label {
+  font-weight: 500;
+  color: #7a6f5f;
+  white-space: nowrap;
+  width: 140px;
+}
+
+.suggestion-diff-current {
+  color: #7a6f5f;
+}
+
+.suggestion-diff-highlight {
+  background: #fffde7;
+  font-weight: 500;
+  color: #2c2418;
+}
+
+.suggestion-diff-changed .suggestion-diff-current {
+  text-decoration: line-through;
+  color: #b0a090;
+}
+
+.suggestion-reviewer-notes {
+  margin: 10px 0;
+  padding: 8px 12px;
+  background: #f0ebe0;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #4a3f2f;
+}
+
+/* ── Actions ─────────────────────────────────────────────────────────── */
+
+.suggestion-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.suggestion-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.suggestion-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.suggestion-btn-approve {
+  background: #4caf50;
+  color: white;
+  border: 1px solid #4caf50;
+}
+
+.suggestion-btn-approve:hover:not(:disabled) {
+  background: #43a047;
+}
+
+.suggestion-btn-reject {
+  background: #d32f2f;
+  color: white;
+  border: 1px solid #d32f2f;
+}
+
+.suggestion-btn-reject:hover:not(:disabled) {
+  background: #c62828;
+}
+
+.suggestion-btn-cancel {
+  background: transparent;
+  color: #7a6f5f;
+  border: 1px solid rgba(120, 100, 70, 0.25);
+}
+
+.suggestion-btn-cancel:hover:not(:disabled) {
+  background: rgba(120, 100, 70, 0.08);
+}
+
+.suggestion-reject-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.suggestion-reject-input {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 6px 12px;
+  border: 1px solid rgba(120, 100, 70, 0.25);
+  border-radius: 6px;
+  min-width: 200px;
+  background: white;
+  color: #2c2418;
+}
+
+.suggestion-reject-input:focus {
+  outline: none;
+  border-color: #8b7355;
+  box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.15);
+}
+
+/* ── Dark mode ───────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  .suggestions-page {
+    color: #f0ebe0;
+  }
+
+  .suggestions-page-header h2 {
+    color: #f0ebe0;
+  }
+
+  .suggestions-back-btn {
+    color: #d8d0c4;
+    border-color: #3a3528;
+  }
+
+  .suggestions-back-btn:hover {
+    background: rgba(200, 180, 140, 0.1);
+  }
+
+  .suggestions-filter-btn {
+    color: #a09888;
+    border-color: #3a3528;
+  }
+
+  .suggestions-filter-btn:hover {
+    background: rgba(200, 180, 140, 0.1);
+    color: #d8d0c4;
+  }
+
+  .suggestions-filter-btn.active {
+    background: #f0ebe0;
+    color: #1e1b16;
+  }
+
+  .suggestion-card {
+    background: #1e1b16;
+    border-color: #3a3528;
+  }
+
+  .suggestion-card-header:hover {
+    background: rgba(200, 180, 140, 0.05);
+  }
+
+  .suggestion-card-name {
+    color: #f0ebe0;
+  }
+
+  .suggestion-diff-table th {
+    color: #a09888;
+    border-bottom-color: #3a3528;
+  }
+
+  .suggestion-diff-table td {
+    border-bottom-color: #2a2518;
+  }
+
+  .suggestion-diff-highlight {
+    background: #2a2a18;
+    color: #f0ebe0;
+  }
+
+  .suggestion-diff-current {
+    color: #7a6f5f;
+  }
+
+  .suggestion-reviewer-notes {
+    background: #2a2518;
+    color: #d8d0c4;
+  }
+
+  .suggestion-reject-input {
+    background: #2a2518;
+    color: #f0ebe0;
+    border-color: #3a3528;
+  }
+
+  .suggestion-reject-input:focus {
+    border-color: #c4a67a;
+    box-shadow: 0 0 0 2px rgba(196, 166, 122, 0.15);
+  }
+}
+
+/* ── Mobile ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .suggestions-page {
+    padding: 16px 12px;
+  }
+
+  .suggestion-card-header {
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .suggestion-diff-table {
+    font-size: 12px;
+  }
+
+  .suggestion-diff-label {
+    width: auto;
+  }
+
+  .suggestion-reject-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .suggestion-reject-input {
+    min-width: 0;
+  }
+}

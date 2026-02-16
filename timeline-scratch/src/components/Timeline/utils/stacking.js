@@ -13,26 +13,61 @@ import { getYear, getYearRange, rangesOverlap } from './dateUtils.js';
  * @param {Array} people - Array of person items
  * @returns {Array} People with row assignments
  */
-export function stackPeople(people) {
+export function stackPeople(people, yearsPerPixel = 0) {
   if (!people || people.length === 0) return [];
 
   // Separate emperors from other people for different stacking strategies
-  const emperors = people.filter(p => p.isEmperor);
-  const nonEmperors = people.filter(p => !p.isEmperor);
+  const emperors = people.filter(p => p.isMonarch);
+  const nonEmperors = people.filter(p => !p.isMonarch);
 
-  // Sort emperors by start date for cascading
+  // Sort emperors by reign start (fall back to startDate/birth for monarchs without reign data)
   const sortedEmperors = [...emperors].sort((a, b) => {
-    const aStart = getYear(a.startDate);
-    const bStart = getYear(b.startDate);
+    const aStart = a.reignStartYear ?? getYear(a.startDate);
+    const bStart = b.reignStartYear ?? getYear(b.startDate);
     if (aStart !== bStart) return aStart - bStart;
     return (a.name || '').localeCompare(b.name || '');
   });
 
-  // Assign emperors to cascading rows (0, 1, 2, 3, 4, 0, 1, 2, ...)
-  const emperorsWithRows = sortedEmperors.map((emperor, index) => ({
-    ...emperor,
-    row: index % 5
-  }));
+  // Minimum display width is 60px (see TimelineCanvas renderPeople).
+  // When zoomed out, 60px can span many years, so we must ensure the
+  // overlap ranges used for stacking are at least that wide.
+  const minDisplayYears = 60 * yearsPerPixel;
+
+  // Assign emperors to rows using full lifespan for overlap detection
+  // (the rendered bar spans birth–death, so collisions must use that range)
+  const emperorRows = [];
+  const emperorsWithRows = sortedEmperors.map(emperor => {
+    const start = getYear(emperor.startDate);
+    const end = getYear(emperor.endDate);
+
+    // Extend range to account for minimum display width
+    const span = end - start;
+    const displayEnd = span < minDisplayYears ? start + minDisplayYears : end;
+
+    let rowIndex = 0;
+    let foundRow = false;
+
+    for (let i = 0; i < emperorRows.length; i++) {
+      const overlaps = emperorRows[i].some(item => rangesOverlap(start, displayEnd, item.start, item.end));
+      if (!overlaps) {
+        rowIndex = i;
+        foundRow = true;
+        break;
+      }
+    }
+
+    if (!foundRow) {
+      rowIndex = emperorRows.length;
+      emperorRows.push([]);
+    }
+
+    emperorRows[rowIndex].push({ start, end: displayEnd, emperor });
+
+    return {
+      ...emperor,
+      row: rowIndex
+    };
+  });
 
   // Sort non-emperors by start date, then alphabetically
   const sortedNonEmperors = [...nonEmperors].sort((a, b) => {
@@ -52,13 +87,17 @@ export function stackPeople(people) {
   const nonEmperorsWithRows = sortedNonEmperors.map(person => {
     const { start, end } = getYearRange(person.startDate, person.endDate);
 
+    // Extend range to account for minimum display width
+    const span = end - start;
+    const displayEnd = span < minDisplayYears ? start + minDisplayYears : end;
+
     // Find the first (lowest index = visually higher) row where this person fits
     let rowIndex = 0;
     let foundRow = false;
 
     for (let i = 0; i < rows.length; i++) {
       // Check if person overlaps with any item in this row
-      const overlaps = rows[i].some(item => rangesOverlap(start, end, item.start, item.end));
+      const overlaps = rows[i].some(item => rangesOverlap(start, displayEnd, item.start, item.end));
 
       if (!overlaps) {
         // Found a row with no overlap
@@ -75,7 +114,7 @@ export function stackPeople(people) {
     }
 
     // Add this person to the row
-    rows[rowIndex].push({ start, end, person });
+    rows[rowIndex].push({ start, end: displayEnd, person });
 
     return {
       ...person,
@@ -87,19 +126,33 @@ export function stackPeople(people) {
 }
 
 /**
+ * Estimate the pixel width of a point callout based on its text content
+ * @param {Object} point - Point item with name, date, endDate
+ * @param {number} fontSize - Font size in pixels (default 14)
+ * @returns {number} Estimated width in pixels
+ */
+function estimatePointCalloutWidth(point, fontSize = 14) {
+  const name = point.name || '';
+  // Approximate character width at 14px font: ~8.5px average for proportional font
+  const charWidth = fontSize * 0.6;
+  const nameWidth = name.length * charWidth;
+  // Icon (12px) + gap (3px) + name + gap (3px) + date text (~40-80px) + padding (12px)
+  const dateWidth = 50;
+  return 12 + nameWidth + 6 + dateWidth + 12;
+}
+
+/**
  * Stack points vertically when they overlap in time
- * Sorted by date, then alphabetically
+ * Uses per-point estimated widths for accurate collision detection
+ * Points extend rightward from their date position (left-aligned)
  *
  * @param {Array} points - Array of point items
- * @param {number} pointWidth - Width of point marker + label in pixels (for overlap detection)
+ * @param {number} pointWidth - Unused, kept for API compatibility
  * @param {number} yearsPerPixel - Current zoom scale
  * @returns {Array} Points with row assignments
  */
 export function stackPoints(points, pointWidth = 150, yearsPerPixel = 1) {
   if (!points || points.length === 0) return [];
-
-  // Calculate effective year range for each point based on callout/label width
-  const pointYearWidth = pointWidth * yearsPerPixel;
 
   // Sort by date, then alphabetically
   const sorted = [...points].sort((a, b) => {
@@ -115,8 +168,11 @@ export function stackPoints(points, pointWidth = 150, yearsPerPixel = 1) {
 
   const withRows = sorted.map(point => {
     const year = getYear(point.date);
-    const start = year - pointYearWidth / 2;
-    const end = year + pointYearWidth / 2;
+    // Left-aligned: callout extends rightward from the date position
+    const estimatedWidth = estimatePointCalloutWidth(point);
+    const widthInYears = estimatedWidth * yearsPerPixel;
+    const start = year;
+    const end = year + widthInYears;
 
     // Find first row where point fits
     let rowIndex = 0;
@@ -333,8 +389,8 @@ export function stackTimelineItems(data, pointWidth = 150, yearsPerPixel = 1) {
   const abovePeriodsStacked = stackPeriods(abovePeriods);
   const belowPeriodsStacked = stackPeriods(belowPeriods);
 
-  const abovePeopleStacked = stackPeople(abovePeople);
-  const belowPeopleStacked = stackPeople(belowPeople);
+  const abovePeopleStacked = stackPeople(abovePeople, yearsPerPixel);
+  const belowPeopleStacked = stackPeople(belowPeople, yearsPerPixel);
 
   const abovePointsStacked = stackPoints(abovePoints, pointWidth, yearsPerPixel);
   const belowPointsStacked = stackPoints(belowPoints, pointWidth, yearsPerPixel);

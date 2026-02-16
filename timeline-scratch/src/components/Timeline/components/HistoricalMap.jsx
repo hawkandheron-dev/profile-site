@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates';
+import MaplibreLanguage from '@openhistoricalmap/maplibre-gl-language';
 import { getCoordinatesForLocation } from '../../../data/locationCoordinates.js';
 
 const OHM_STYLE_URL = 'https://www.openhistoricalmap.org/map-styles/main/main.json';
@@ -37,6 +38,9 @@ export function HistoricalMap({ location, birthYear }) {
 
     mapRef.current = map;
 
+    // Use English labels on the map
+    map.addControl(new MaplibreLanguage({ defaultLanguage: 'en' }));
+
     // Add navigation controls (zoom in/out, compass)
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
@@ -45,8 +49,9 @@ export function HistoricalMap({ location, birthYear }) {
       .setLngLat([lng, lat])
       .addTo(map);
 
-    // Filter map to the historical date once loaded
-    map.once('load', () => {
+    // Filter map to the historical date as soon as the style is parsed,
+    // BEFORE tiles are fetched — so the first tiles already reflect the correct year.
+    map.once('style.load', () => {
       if (birthYear != null) {
         const yearStr = formatYearForOHM(birthYear);
         try {

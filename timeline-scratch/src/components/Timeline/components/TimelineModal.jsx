@@ -133,7 +133,7 @@ function linkifyDescription(description, itemIndex, currentItemId) {
   }
 }
 
-export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople, onItemDeleted, onDataChanged, adminContext, onEntityUpdated }) {
+export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople, onItemDeleted, onDataChanged, adminContext, contributorContext, onEntityUpdated }) {
   // ── Delete confirmation state ──────────────────────────────────────────
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -484,7 +484,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
         )}
 
         <h2 className="modal-title">
-          {item.isEmperor && (
+          {item.isMonarch && (
             <Icon name="crown" size={24} color="#ffd700" className="emperor-crown" />
           )}
           {item.name}
@@ -496,7 +496,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
               rel="noopener noreferrer"
               aria-label={`Search for ${searchQuery}`}
             >
-              <Icon name="diamond" size={14} />
+              <Icon name="search" size={14} />
             </a>
           )}
           {adminContext?.isAdmin && (
@@ -506,6 +506,15 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
               onClick={() => setEditing(prev => !prev)}
             >
               {editing ? 'Close Editor' : 'Edit'}
+            </button>
+          )}
+          {!adminContext?.isAdmin && contributorContext?.isContributor && (
+            <button
+              type="button"
+              className={`modal-edit-toggle modal-suggest-toggle${editing ? ' active' : ''}`}
+              onClick={() => setEditing(prev => !prev)}
+            >
+              {editing ? 'Close' : 'Suggest a Change'}
             </button>
           )}
         </h2>
@@ -634,36 +643,40 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
         )}
 
         {/* Connections — for People */}
-        {connections.length > 0 && editSection !== 'connections' && (
+        {(connections.length > 0 || (canEdit && itemType === 'person')) && editSection !== 'connections' && (
           <div className="modal-links">
             <h3>
               Connections
               {canEdit && itemType === 'person' && (
-                <button type="button" className="modal-edit-btn" onClick={startEditConnections}>Edit</button>
+                <button type="button" className="modal-edit-btn" onClick={startEditConnections}>
+                  {connections.length > 0 ? 'Edit' : '+ Add'}
+                </button>
               )}
             </h3>
-            <ul className="modal-reference-list modal-pill-list">
-              {connections.map(connection => (
-                <li key={connection.id} className="modal-pill-item">
-                  <button
-                    type="button"
-                    className="modal-pill"
-                    data-item-id={connection.id}
-                    data-item-type={connection.itemType}
-                    onClick={handleReferenceClick}
-                  >
-                    <span
-                      className="summary-color-dot"
-                      style={{ backgroundColor: connection.item.color }}
-                    />
-                    <strong>{connection.item.name}</strong>
-                    {connection.item.location && (
-                      <span>{'\u00A0'}in <em>{connection.item.location}</em></span>
-                    )}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            {connections.length > 0 && (
+              <ul className="modal-reference-list modal-pill-list">
+                {connections.map(connection => (
+                  <li key={connection.id} className="modal-pill-item">
+                    <button
+                      type="button"
+                      className="modal-pill"
+                      data-item-id={connection.id}
+                      data-item-type={connection.itemType}
+                      onClick={handleReferenceClick}
+                    >
+                      <span
+                        className="summary-color-dot"
+                        style={{ backgroundColor: connection.item.color }}
+                      />
+                      <strong>{connection.item.name}</strong>
+                      {connection.item.location && (
+                        <span>{'\u00A0'}in <em>{connection.item.location}</em></span>
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         )}
 
@@ -708,33 +721,37 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
         )}
 
         {/* Connected People — for Points (event/text → person connections) */}
-        {pointConnections.length > 0 && editSection !== 'pointConnections' && (
+        {(pointConnections.length > 0 || (canEdit && itemType === 'point')) && editSection !== 'pointConnections' && (
           <div className="modal-links">
             <h3>
               Related People
               {canEdit && itemType === 'point' && (
-                <button type="button" className="modal-edit-btn" onClick={startEditPointPeople}>Edit</button>
+                <button type="button" className="modal-edit-btn" onClick={startEditPointPeople}>
+                  {pointConnections.length > 0 ? 'Edit' : '+ Add'}
+                </button>
               )}
             </h3>
-            <ul className="modal-reference-list modal-pill-list">
-              {pointConnections.map(entry => (
-                <li key={entry.item.id} className="modal-pill-item">
-                  <button
-                    type="button"
-                    className="modal-pill"
-                    data-item-id={entry.item.id}
-                    data-item-type={entry.type}
-                    onClick={handleReferenceClick}
-                  >
-                    <span
-                      className="summary-color-dot"
-                      style={{ backgroundColor: entry.item.color }}
-                    />
-                    <strong>{entry.item.name}</strong>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            {pointConnections.length > 0 && (
+              <ul className="modal-reference-list modal-pill-list">
+                {pointConnections.map(entry => (
+                  <li key={entry.item.id} className="modal-pill-item">
+                    <button
+                      type="button"
+                      className="modal-pill"
+                      data-item-id={entry.item.id}
+                      data-item-type={entry.type}
+                      onClick={handleReferenceClick}
+                    >
+                      <span
+                        className="summary-color-dot"
+                        style={{ backgroundColor: entry.item.color }}
+                      />
+                      <strong>{entry.item.name}</strong>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         )}
 
@@ -938,6 +955,18 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
             onSaved={(updatedRow, type) => {
               onEntityUpdated?.(updatedRow, type);
             }}
+            onCancel={() => setEditing(false)}
+          />
+        )}
+
+        {editing && !adminContext?.isAdmin && contributorContext?.isContributor && (
+          <EditEntityForm
+            item={item}
+            itemType={itemType}
+            getToken={contributorContext.getToken}
+            mode="suggest"
+            clerkUserId={contributorContext.clerkUserId}
+            onSaved={() => setEditing(false)}
             onCancel={() => setEditing(false)}
           />
         )}
