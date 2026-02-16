@@ -125,6 +125,8 @@ function BiblicalPlacesApp() {
     handleSelectEntity(type, id);
   }, [handleSelectEntity]);
 
+  const showReset = !!(activeAgeFilter || modalStack.length > 0);
+
   return (
     <div className="bp-app">
       {/* Header overlay */}
@@ -134,11 +136,6 @@ function BiblicalPlacesApp() {
             <img src={BIRD_LOGO} alt="Windhover" className="bp-bird-logo" />
           </a>
           <h1 className="bp-title">Biblical Places</h1>
-          {(activeAgeFilter || modalStack.length > 0) && (
-            <button className="bp-reset-btn" onClick={handleReset} title="Reset view">
-              Reset
-            </button>
-          )}
         </div>
         {data && (
           <div className="bp-header-search">
@@ -171,6 +168,8 @@ function BiblicalPlacesApp() {
             ages={data.ages}
             activeAgeFilter={activeAgeFilter}
             onFilter={handleAgeFilter}
+            showReset={showReset}
+            onReset={handleReset}
           />
 
           {/* Date range for active narrative age */}
@@ -192,48 +191,52 @@ function BiblicalPlacesApp() {
         </>
       )}
 
-      {/* Modals */}
-      {currentModal?.type === 'place' && data && (
-        <PlaceModal
-          place={data.placeMap.get(currentModal.id)}
-          events={data.placeEventsMap.get(currentModal.id) || []}
-          people={data.placePeopleMap.get(currentModal.id) || []}
-          ageMap={data.ageMap}
-          eventPeopleMap={data.eventPeopleMap}
-          sourceMap={data.sourceMap}
-          onSelectEntity={handleSelectEntity}
-          onClose={popModal}
-          canGoBack={modalStack.length > 1}
-          onBack={popModal}
-        />
-      )}
-      {currentModal?.type === 'person' && data && (
-        <PersonModal
-          person={data.personMap.get(currentModal.id)}
-          ages={data.personAgesMap.get(currentModal.id) || []}
-          places={data.personPlacesMap.get(currentModal.id) || []}
-          events={data.personEventsMap.get(currentModal.id) || []}
-          ageMap={data.ageMap}
-          placeMap={data.placeMap}
-          sourceMap={data.sourceMap}
-          onSelectEntity={handleSelectEntity}
-          onClose={popModal}
-          canGoBack={modalStack.length > 1}
-          onBack={popModal}
-        />
-      )}
-      {currentModal?.type === 'event' && data && (
-        <EventModal
-          event={data.eventMap.get(currentModal.id)}
-          people={data.eventPeopleMap.get(currentModal.id) || []}
-          ageMap={data.ageMap}
-          placeMap={data.placeMap}
-          sourceMap={data.sourceMap}
-          onSelectEntity={handleSelectEntity}
-          onClose={popModal}
-          canGoBack={modalStack.length > 1}
-          onBack={popModal}
-        />
+      {/* Side panel */}
+      {currentModal && data && (
+        <div className="bp-side-panel">
+          {currentModal.type === 'place' && (
+            <PlaceModal
+              place={data.placeMap.get(currentModal.id)}
+              events={data.placeEventsMap.get(currentModal.id) || []}
+              people={data.placePeopleMap.get(currentModal.id) || []}
+              ageMap={data.ageMap}
+              eventPeopleMap={data.eventPeopleMap}
+              sourceMap={data.sourceMap}
+              onSelectEntity={handleSelectEntity}
+              onClose={popModal}
+              canGoBack={modalStack.length > 1}
+              onBack={popModal}
+            />
+          )}
+          {currentModal.type === 'person' && (
+            <PersonModal
+              person={data.personMap.get(currentModal.id)}
+              ages={data.personAgesMap.get(currentModal.id) || []}
+              places={data.personPlacesMap.get(currentModal.id) || []}
+              events={data.personEventsMap.get(currentModal.id) || []}
+              ageMap={data.ageMap}
+              placeMap={data.placeMap}
+              sourceMap={data.sourceMap}
+              onSelectEntity={handleSelectEntity}
+              onClose={popModal}
+              canGoBack={modalStack.length > 1}
+              onBack={popModal}
+            />
+          )}
+          {currentModal.type === 'event' && (
+            <EventModal
+              event={data.eventMap.get(currentModal.id)}
+              people={data.eventPeopleMap.get(currentModal.id) || []}
+              ageMap={data.ageMap}
+              placeMap={data.placeMap}
+              sourceMap={data.sourceMap}
+              onSelectEntity={handleSelectEntity}
+              onClose={popModal}
+              canGoBack={modalStack.length > 1}
+              onBack={popModal}
+            />
+          )}
+        </div>
       )}
     </div>
   );

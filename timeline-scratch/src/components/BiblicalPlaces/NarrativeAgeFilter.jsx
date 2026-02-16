@@ -2,13 +2,22 @@ import './BiblicalPlacesMap.css';
 
 /**
  * Horizontal bar of colored pill buttons for filtering by narrative age.
- * Floats at the bottom of the map.
+ * Floats at the bottom of the map. Includes a reset button when a filter is active.
  */
-export function NarrativeAgeFilter({ ages, activeAgeFilter, onFilter }) {
+export function NarrativeAgeFilter({ ages, activeAgeFilter, onFilter, showReset, onReset }) {
   if (!ages || ages.length === 0) return null;
 
   return (
     <div className="bp-age-filter">
+      {showReset && (
+        <button
+          className="bp-reset-btn"
+          onClick={onReset}
+          title="Reset view"
+        >
+          Reset
+        </button>
+      )}
       {ages.map(age => {
         const isActive = activeAgeFilter === age.age_id;
         return (
