@@ -1,0 +1,127 @@
+/* ── Full-screen map container ──────────────────────────────────────────── */
+
+.bp-map-container {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.bp-map-container .maplibregl-canvas {
+  outline: none;
+}
+
+/* ── Map tooltip popup ─────────────────────────────────────────────────── */
+
+.bp-map-tooltip .maplibregl-popup-content {
+  background: #faf6eb;
+  color: #2c2418;
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+}
+
+.bp-map-tooltip .maplibregl-popup-tip {
+  border-top-color: #faf6eb;
+}
+
+.bp-popup-count {
+  font-size: 11px;
+  color: #7a6f5f;
+}
+
+/* ── Narrative Age filter bar ──────────────────────────────────────────── */
+
+.bp-age-filter {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 90vw;
+  padding: 8px 12px;
+  background: rgba(250, 246, 235, 0.92);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(60, 50, 30, 0.2);
+}
+
+.bp-age-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: rgba(139, 115, 85, 0.08);
+  color: #4a3f2f;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bp-age-pill:hover {
+  background: rgba(139, 115, 85, 0.16);
+}
+
+.bp-age-pill-active {
+  background: rgba(139, 115, 85, 0.2);
+  box-shadow: 0 0 0 2px var(--age-color, #8b7355);
+}
+
+.bp-age-pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--age-color, #8b7355);
+  flex-shrink: 0;
+}
+
+.bp-age-pill-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Dark mode ─────────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  .bp-map-tooltip .maplibregl-popup-content {
+    background: #1e1b16;
+    color: #f0ebe0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .bp-map-tooltip .maplibregl-popup-tip {
+    border-top-color: #1e1b16;
+  }
+
+  .bp-popup-count {
+    color: #a09888;
+  }
+
+  .bp-age-filter {
+    background: rgba(30, 27, 22, 0.92);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  .bp-age-pill {
+    background: rgba(200, 180, 140, 0.08);
+    color: #d8d0c4;
+  }
+
+  .bp-age-pill:hover {
+    background: rgba(200, 180, 140, 0.16);
+  }
+
+  .bp-age-pill-active {
+    background: rgba(200, 180, 140, 0.2);
+  }
+}
