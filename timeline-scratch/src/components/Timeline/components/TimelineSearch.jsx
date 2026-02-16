@@ -197,7 +197,6 @@ export function TimelineSearch({ data, onSelectItem, onHighlight, onClearHighlig
     <div className="timeline-search">
       <div className={`timeline-search-input-wrap ${isFindMode ? 'find-mode' : ''}`}>
         {homeLink}
-        <Icon name="search" size={14} />
         <input
           ref={inputRef}
           type="text"
@@ -211,6 +210,7 @@ export function TimelineSearch({ data, onSelectItem, onHighlight, onClearHighlig
           autoComplete="off"
           spellCheck={false}
         />
+        <Icon name="search" size={14} />
         {isFindMode && (
           <div className="timeline-search-find-nav">
             <span className="timeline-search-find-count">
