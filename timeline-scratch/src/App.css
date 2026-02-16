@@ -71,6 +71,11 @@ body {
   display: flex;
   align-items: center;
   line-height: 0;
+  padding: 6px;
+  background: var(--color-parchment-light, #faf6eb);
+  border: 1px solid var(--color-border-hover, rgba(120, 100, 70, 0.5));
+  border-radius: 999px;
+  box-shadow: 0 2px 8px var(--color-shadow, rgba(60, 50, 30, 0.12));
 }
 
 .header-bird-logo {
@@ -260,6 +265,11 @@ body {
   .app-header {
     background: transparent;
     border-bottom: none;
+  }
+
+  .header-bird-link {
+    background: #252118;
+    border-color: #3a3528;
   }
 
   .header-bird-logo {
