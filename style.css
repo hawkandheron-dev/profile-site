@@ -168,32 +168,19 @@ code {
 
 .hero-brand {
   display: flex;
-  align-items: stretch;
-  gap: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hero-title {
+  margin: 0;
+  line-height: 0;    /* collapse around the image, no extra space */
 }
 
 .hero-logo {
   width: auto;
-  height: clamp(80px, 14vw, 130px);
+  height: clamp(80px, 16vw, 140px);
   object-fit: contain;
-  flex-shrink: 0;
-}
-
-.hero-text {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-
-.hero-title {
-  font-family: var(--font-display);
-  font-size: clamp(3rem, 8vw, 5.5rem);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0;
-  color: var(--color-ink);
-  line-height: 1;
 }
 
 .hero-tagline {
@@ -203,16 +190,8 @@ code {
   color: var(--color-accent);
   margin: 8px 0 0;
   letter-spacing: 0.04em;
-}
-
-.hero-subtitle {
-  font-family: var(--font-display);
-  font-size: clamp(1.1rem, 3vw, 1.5rem);
-  font-weight: 400;
-  font-style: italic;
-  color: var(--color-ink-faded);
-  margin: -4px 0 0;
-  letter-spacing: 0.03em;
+  /* Offset to align with the wordmark portion of the logo (right of bird) */
+  padding-left: 28%;
 }
 
 .hero-description {
@@ -584,21 +563,12 @@ code {
    RESPONSIVE
    =================================================== */
 @media (max-width: 600px) {
-  .hero-brand {
-    gap: 10px;
-  }
   .hero-logo {
-    height: 70px;
-  }
-  .hero-title {
-    font-size: 2.2rem;
+    height: 60px;
   }
   .hero-tagline {
     font-size: 0.75rem;
     margin-top: 4px;
-  }
-  .hero-subtitle {
-    font-size: 1.1rem;
   }
   .hero {
     margin-top: 32px;
