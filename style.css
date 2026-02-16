@@ -177,6 +177,8 @@ code {
   height: clamp(72px, 12vw, 110px);
   object-fit: contain;
   flex-shrink: 0;
+  /* Tint the black logo to match --color-ink (#2c2418) */
+  filter: invert(12%) sepia(20%) saturate(800%) hue-rotate(10deg) brightness(95%);
 }
 
 .hero-text {
@@ -196,11 +198,11 @@ code {
 }
 
 .hero-tagline {
-  font-family: var(--font-body);
-  font-size: clamp(0.85rem, 1.8vw, 1.05rem);
+  font-family: 'Alegreya Sans', var(--font-body);
+  font-size: clamp(1.5rem, 4vw, 3rem);   /* ≈48px at desktop */
   font-weight: 400;
   color: var(--color-accent);
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   letter-spacing: 0.04em;
 }
 
@@ -229,7 +231,7 @@ code {
   align-items: center;
   gap: 8px;
   padding: 10px 22px;
-  font-family: var(--font-display);
+  font-family: 'Alegreya Sans', var(--font-body);
   font-size: 1rem;
   font-weight: 500;
   border-radius: var(--radius-pill);
@@ -583,7 +585,7 @@ code {
     font-size: 2rem;
   }
   .hero-tagline {
-    font-size: 0.75rem;
+    font-size: 1.2rem;
     margin-top: 4px;
   }
   .hero {
