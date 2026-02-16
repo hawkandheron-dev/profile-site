@@ -20,6 +20,8 @@ import { SuggestNewModal } from './components/Suggestions/SuggestNewModal.jsx';
 import { Icon } from './components/Timeline/components/Icon.jsx';
 import './App.css';
 
+const BIRD_LOGO = new URL('../../../resources/logos/Windhover_BLK.png', import.meta.url).href;
+
 const hasClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 function NavDropdown() {
@@ -210,6 +212,9 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
+            <a href="../../index.html" className="header-bird-link" title="Back to Windhover">
+              <img src={BIRD_LOGO} alt="Windhover" className="header-bird-logo" />
+            </a>
             {timelineData && (
               <TimelineSearch
                 data={timelineData}
@@ -317,6 +322,9 @@ function UnauthenticatedApp({ timelineData, loading, error }) {
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
+            <a href="../../index.html" className="header-bird-link" title="Back to Windhover">
+              <img src={BIRD_LOGO} alt="Windhover" className="header-bird-logo" />
+            </a>
             {timelineData && (
               <TimelineSearch
                 data={timelineData}
