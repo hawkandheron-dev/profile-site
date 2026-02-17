@@ -17,12 +17,39 @@ function formatYear(year) {
   return `${year} AD`;
 }
 
+/** Compute 3 tick values evenly spaced between start and end, snapped to nice round numbers. */
+function computeTicks(start, end) {
+  const span = end - start;
+  // Pick a nice step: find the order of magnitude of span/4, round to a "nice" value
+  const rawStep = span / 4;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(Math.abs(rawStep))));
+  const niceMultiples = [1, 2, 5, 10];
+  let step = magnitude;
+  for (const m of niceMultiples) {
+    if (magnitude * m >= rawStep) { step = magnitude * m; break; }
+  }
+  // Generate ticks starting from the first nice number after start
+  const firstTick = Math.ceil(start / step) * step;
+  const ticks = [];
+  for (let t = firstTick; t <= end; t += step) {
+    if (t > start && t < end) ticks.push(t);
+  }
+  // If we got too many, thin to ~3
+  while (ticks.length > 3) {
+    const filtered = ticks.filter((_, i) => i % 2 === 0);
+    ticks.length = 0;
+    ticks.push(...filtered);
+  }
+  return ticks;
+}
+
 function BiblicalPlacesApp() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalStack, setModalStack] = useState([]); // [{ type, id }]
   const [activeAgeFilter, setActiveAgeFilter] = useState(null);
+  const [mapYear, setMapYear] = useState(null);
   const mapRef = useRef(null);
 
   useEffect(() => {
@@ -80,6 +107,7 @@ function BiblicalPlacesApp() {
 
   const handleReset = useCallback(() => {
     setActiveAgeFilter(null);
+    setMapYear(null);
     closeAllModals();
     mapRef.current?.reset?.();
   }, [closeAllModals]);
@@ -89,6 +117,20 @@ function BiblicalPlacesApp() {
   const handleAgeFilter = useCallback((ageId) => {
     const newFilter = activeAgeFilter === ageId ? null : ageId;
     setActiveAgeFilter(newFilter);
+
+    // Set map year to midpoint of the age's date range and apply immediately
+    if (newFilter && data) {
+      const age = data.ageMap.get(newFilter);
+      if (age?.approx_start_year != null && age?.approx_end_year != null) {
+        const midpoint = Math.round((age.approx_start_year + age.approx_end_year) / 2);
+        setMapYear(midpoint);
+        mapRef.current?.setYear?.(midpoint);
+      } else {
+        setMapYear(null);
+      }
+    } else {
+      setMapYear(null);
+    }
 
     // Zoom to the geographic region for this age
     if (newFilter && data) {
@@ -162,6 +204,7 @@ function BiblicalPlacesApp() {
             placeEventsMap={data.placeEventsMap}
             ageMap={data.ageMap}
             activeAgeFilter={activeAgeFilter}
+            mapYear={mapYear}
             onSelectPlace={(placeId) => handleSelectEntity('place', placeId)}
           />
           <NarrativeAgeFilter
@@ -172,19 +215,43 @@ function BiblicalPlacesApp() {
             onReset={handleReset}
           />
 
-          {/* Date range for active narrative age */}
+          {/* Date range + year slider for active narrative age */}
           {activeAgeFilter && (() => {
             const age = data.ageMap.get(activeAgeFilter);
             if (!age) return null;
-            const start = formatYear(age.approx_start_year);
-            const end = formatYear(age.approx_end_year);
-            if (!start && !end) return null;
+            const startY = age.approx_start_year;
+            const endY = age.approx_end_year;
+            if (startY == null || endY == null) return null;
+            const ticks = computeTicks(startY, endY);
             return (
               <div className="bp-date-range">
                 <span className="bp-date-range-label">{age.name}</span>
                 <span className="bp-date-range-years">
-                  {start && end ? `${start} – ${end}` : start || end}
+                  {formatYear(mapYear)}
                 </span>
+                <div className="bp-year-slider-wrap">
+                  <input
+                    type="range"
+                    className="bp-year-slider"
+                    min={startY}
+                    max={endY}
+                    value={mapYear ?? Math.round((startY + endY) / 2)}
+                    onChange={(e) => setMapYear(Number(e.target.value))}
+                  />
+                  <div className="bp-year-slider-labels">
+                    <span>{formatYear(startY)}</span>
+                    {ticks.map(t => (
+                      <span
+                        key={t}
+                        style={{ left: `${((t - startY) / (endY - startY)) * 100}%` }}
+                        className="bp-year-slider-tick"
+                      >
+                        {formatYear(t)}
+                      </span>
+                    ))}
+                    <span>{formatYear(endY)}</span>
+                  </div>
+                </div>
               </div>
             );
           })()}

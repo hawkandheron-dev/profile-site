@@ -23,14 +23,14 @@ function formatYearForOHM(year) {
  * Uses GeoJSON source with clustering for performance.
  */
 export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
-  { places, placeEventsMap, ageMap, activeAgeFilter, onSelectPlace },
+  { places, placeEventsMap, ageMap, activeAgeFilter, mapYear, onSelectPlace },
   ref
 ) {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const popupRef = useRef(null);
 
-  // Expose flyTo and reset to parent
+  // Expose flyTo, fitBounds, reset, and setYear to parent
   useImperativeHandle(ref, () => ({
     flyTo(lng, lat) {
       if (mapRef.current) {
@@ -41,6 +41,13 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       if (mapRef.current) {
         mapRef.current.fitBounds(bounds, { padding: 50, duration: 1200, ...options });
       }
+    },
+    setYear(year) {
+      const map = mapRef.current;
+      if (!map) return;
+      try {
+        filterByDate(map, formatYearForOHM(year));
+      } catch { /* ignore */ }
     },
     reset() {
       if (mapRef.current) {
@@ -191,17 +198,34 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
         }
       });
 
-      // Click on cluster -> zoom in
-      map.on('click', 'clusters', (e) => {
+      // Click on cluster -> zoom to show all individual places
+      map.on('click', 'clusters', async (e) => {
         const features = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
         const clusterId = features[0].properties.cluster_id;
-        map.getSource('places').getClusterExpansionZoom(clusterId, (err, zoom) => {
-          if (err) return;
-          map.easeTo({
-            center: features[0].geometry.coordinates,
-            zoom: zoom,
+        const pointCount = features[0].properties.point_count;
+        const source = map.getSource('places');
+
+        try {
+          const leaves = await source.getClusterLeaves(clusterId, pointCount, 0);
+          if (!leaves || leaves.length === 0) {
+            const zoom = await source.getClusterExpansionZoom(clusterId);
+            map.easeTo({ center: features[0].geometry.coordinates, zoom });
+            return;
+          }
+
+          // Compute bounds around all leaves and fit to them
+          const bounds = new maplibregl.LngLatBounds();
+          leaves.forEach(leaf => {
+            bounds.extend(leaf.geometry.coordinates);
           });
-        });
+          map.fitBounds(bounds, { padding: 60, maxZoom: 14, duration: 800 });
+        } catch {
+          // Fallback to expansion zoom
+          try {
+            const zoom = await source.getClusterExpansionZoom(clusterId);
+            map.easeTo({ center: features[0].geometry.coordinates, zoom });
+          } catch { /* silently fail */ }
+        }
       });
 
       // Hover effects on pins
@@ -244,8 +268,8 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       });
     });
 
-    // Date filtering on style load
-    map.once('style.load', () => {
+    // Date filtering on style data ready
+    map.once('styledata', () => {
       // Default: show an ancient date (roughly 1000 BC)
       try {
         filterByDate(map, formatYearForOHM(-1000));
@@ -270,22 +294,27 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
     if (source) {
       source.setData(buildGeoJSON());
     }
+  }, [activeAgeFilter, buildGeoJSON]);
 
-    // Update OHM date filter
-    if (activeAgeFilter) {
-      const age = ageMap.get(activeAgeFilter);
-      if (age?.approx_start_year != null) {
-        try {
-          filterByDate(map, formatYearForOHM(age.approx_start_year));
-        } catch { /* ignore */ }
-      }
-    } else {
-      // Reset to a default ancient date
+  // Update OHM date filter when mapYear changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const applyFilter = () => {
+      const year = mapYear != null ? mapYear : -1000;
       try {
-        filterByDate(map, formatYearForOHM(-1000));
+        filterByDate(map, formatYearForOHM(year));
       } catch { /* ignore */ }
+    };
+
+    if (map.isStyleLoaded()) {
+      applyFilter();
+    } else {
+      map.once('styledata', applyFilter);
+      return () => map.off('styledata', applyFilter);
     }
-  }, [activeAgeFilter, buildGeoJSON, ageMap]);
+  }, [mapYear]);
 
   return (
     <div className="bp-map-container" ref={mapContainerRef} />

@@ -124,7 +124,7 @@
   background: #faf6eb;
 }
 
-/* ── Date range display ───────────────────────────────────────────────── */
+/* ── Date range display & year slider ─────────────────────────────────── */
 
 .bp-date-range {
   position: absolute;
@@ -133,12 +133,13 @@
   z-index: 10;
   display: flex;
   flex-direction: column;
-  pointer-events: none;
+  pointer-events: auto;
   background: rgba(250, 246, 235, 0.92);
   backdrop-filter: blur(8px);
   border-radius: 12px;
   padding: 10px 16px;
   box-shadow: 0 2px 12px rgba(60, 50, 30, 0.15);
+  min-width: 220px;
 }
 
 .bp-date-range-label {
@@ -155,6 +156,60 @@
   color: rgba(44, 36, 24, 0.8);
   line-height: 1.1;
   letter-spacing: -0.5px;
+}
+
+/* Year slider */
+.bp-year-slider-wrap {
+  margin-top: 8px;
+  position: relative;
+}
+
+.bp-year-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(44, 36, 24, 0.15);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.bp-year-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8b7355;
+  border: 2px solid #faf6eb;
+  box-shadow: 0 1px 4px rgba(60, 50, 30, 0.3);
+  cursor: pointer;
+}
+
+.bp-year-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8b7355;
+  border: 2px solid #faf6eb;
+  box-shadow: 0 1px 4px rgba(60, 50, 30, 0.3);
+  cursor: pointer;
+}
+
+.bp-year-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(44, 36, 24, 0.45);
+}
+
+.bp-year-slider-tick {
+  position: absolute;
+  transform: translateX(-50%);
 }
 
 /* ── Mobile responsive ─────────────────────────────────────────────────── */
@@ -249,5 +304,23 @@
 
   .bp-date-range-years {
     color: rgba(240, 235, 224, 0.7);
+  }
+
+  .bp-year-slider {
+    background: rgba(240, 235, 224, 0.15);
+  }
+
+  .bp-year-slider::-webkit-slider-thumb {
+    background: #b8a07a;
+    border-color: #2a2520;
+  }
+
+  .bp-year-slider::-moz-range-thumb {
+    background: #b8a07a;
+    border-color: #2a2520;
+  }
+
+  .bp-year-slider-labels {
+    color: rgba(240, 235, 224, 0.4);
   }
 }
