@@ -11,13 +11,10 @@
 
 .bp-header {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 12px;
+  left: 16px;
   z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 16px;
+  width: min(92vw, 460px);
   pointer-events: none;
 }
 
@@ -25,40 +22,8 @@
   pointer-events: auto;
 }
 
-.bp-header-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(250, 246, 235, 0.92);
-  backdrop-filter: blur(8px);
-  border-radius: 12px;
-  padding: 8px 14px;
-  box-shadow: 0 2px 12px rgba(60, 50, 30, 0.15);
-  width: fit-content;
-}
-
 .bp-header-search {
-  width: 320px;
-}
-
-.bp-home-link {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.bp-bird-logo {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-}
-
-.bp-title {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-  color: #2c2418;
-  white-space: nowrap;
+  width: 100%;
 }
 
 /* ── Reset button ──────────────────────────────────────────────────────── */
@@ -215,18 +180,9 @@
 /* ── Mobile responsive ─────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
-  .bp-header-brand {
-    gap: 8px;
-    padding: 6px 10px;
-  }
-
-  .bp-header-search {
-    width: calc(100vw - 32px);
-    max-width: 320px;
-  }
-
-  .bp-title {
-    font-size: 14px;
+  .bp-header {
+    left: 10px;
+    width: calc(100vw - 20px);
   }
 
   .bp-age-filter {
@@ -260,19 +216,6 @@
 /* ── Dark mode ─────────────────────────────────────────────────────────── */
 
 @media (prefers-color-scheme: dark) {
-  .bp-header-brand {
-    background: rgba(30, 27, 22, 0.92);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-  }
-
-  .bp-title {
-    color: #f0ebe0;
-  }
-
-  .bp-bird-logo {
-    filter: invert(1);
-  }
-
   .bp-reset-btn {
     background: rgba(30, 27, 22, 0.8);
     border-color: rgba(200, 180, 140, 0.2);
