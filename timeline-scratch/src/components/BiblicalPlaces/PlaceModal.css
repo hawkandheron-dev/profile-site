@@ -41,26 +41,59 @@
   color: #4a3f2f;
 }
 
-.bp-modal-back {
-  border: none;
-  background: transparent;
-  font-size: 22px;
-  cursor: pointer;
-  padding: 4px 10px;
-  min-width: 44px;
-  min-height: 44px;
+/* ── Narrative age navigation (prev / next) ───────────────────────────── */
+
+.bp-age-nav {
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  color: #7a6f5f;
-  margin-right: auto;
-  transition: background-color 0.2s ease;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
 
-.bp-modal-back:hover {
-  background-color: rgba(120, 100, 70, 0.1);
+.bp-age-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: rgba(120, 100, 70, 0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 12px;
+  color: #7a6f5f;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  max-width: 50%;
+  min-width: 0;
+}
+
+.bp-age-nav-btn:hover {
+  background-color: rgba(120, 100, 70, 0.15);
   color: #4a3f2f;
+}
+
+.bp-age-nav-prev {
+  margin-right: auto;
+}
+
+.bp-age-nav-next {
+  margin-left: auto;
+}
+
+.bp-age-nav-arrow {
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.bp-age-nav-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bp-age-nav-spacer {
+  flex: 1;
 }
 
 /* ── Title and subtitle ────────────────────────────────────────────────── */
@@ -77,6 +110,19 @@
   margin: 0 0 8px;
   font-size: 15px;
   color: #7a6f5f;
+}
+
+.bp-modal-age-context {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.bp-modal-year-range {
+  font-size: 14px;
+  color: #7a6f5f;
+  font-style: italic;
 }
 
 .bp-modal-description {
@@ -377,6 +423,33 @@
   font-style: italic;
 }
 
+/* ── Section variants: during (focus) vs before/after (context) ────────── */
+
+.bp-section-during .bp-section-title {
+  color: #4a3f2f;
+  font-size: 15px;
+}
+
+.bp-section-context {
+  opacity: 0.75;
+}
+
+.bp-section-context .bp-section-title {
+  font-size: 13px;
+  color: #a09888;
+}
+
+.bp-section-context .bp-person-card {
+  padding: 8px 10px;
+}
+
+.bp-empty-message {
+  font-size: 14px;
+  color: #a09888;
+  font-style: italic;
+  margin: 0;
+}
+
 /* ── Dark mode ─────────────────────────────────────────────────────────── */
 
 @media (prefers-color-scheme: dark) {
@@ -407,13 +480,30 @@
     color: #f0ebe0;
   }
 
-  .bp-modal-back {
+  .bp-age-nav-btn {
+    background: rgba(200, 180, 140, 0.08);
     color: #a09888;
   }
 
-  .bp-modal-back:hover {
-    background-color: rgba(200, 180, 140, 0.1);
+  .bp-age-nav-btn:hover {
+    background: rgba(200, 180, 140, 0.15);
     color: #f0ebe0;
+  }
+
+  .bp-modal-year-range {
+    color: #7a6f5f;
+  }
+
+  .bp-section-during .bp-section-title {
+    color: #d8d0c4;
+  }
+
+  .bp-section-context .bp-section-title {
+    color: #7a6f5f;
+  }
+
+  .bp-empty-message {
+    color: #7a6f5f;
   }
 
   .bp-section {

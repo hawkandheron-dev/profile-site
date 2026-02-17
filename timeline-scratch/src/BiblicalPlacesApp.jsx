@@ -159,6 +159,25 @@ function BiblicalPlacesApp() {
     }
   }, [activeAgeFilter, data]);
 
+  // ── Age change from PlaceModal nav (always sets, never toggles) ────────
+
+  const handleAgeChange = useCallback((ageId) => {
+    if (!ageId || !data) return;
+    setActiveAgeFilter(ageId);
+    const age = data.ageMap.get(ageId);
+    if (age?.approx_start_year != null && age?.approx_end_year != null) {
+      const midpoint = Math.round((age.approx_start_year + age.approx_end_year) / 2);
+      setMapYear(midpoint);
+      mapRef.current?.setYear?.(midpoint);
+    } else {
+      setMapYear(null);
+    }
+    if (age?.map_bounds) {
+      const b = age.map_bounds;
+      mapRef.current?.fitBounds?.([[b[0], b[1]], [b[2], b[3]]]);
+    }
+  }, [data]);
+
   // ── Search → fly to place ──────────────────────────────────────────────
 
   const handleSearchSelect = useCallback((type, id) => {
@@ -263,10 +282,13 @@ function BiblicalPlacesApp() {
               ageMap={data.ageMap}
               eventPeopleMap={data.eventPeopleMap}
               sourceMap={data.sourceMap}
+              ages={data.ages}
+              activeAgeFilter={activeAgeFilter}
+              placeNamesMap={data.placeNamesMap}
+              placeAgeSummariesMap={data.placeAgeSummariesMap}
+              onAgeChange={handleAgeChange}
               onSelectEntity={handleSelectEntity}
-              onClose={popModal}
-              canGoBack={modalStack.length > 1}
-              onBack={popModal}
+              onClose={closeAllModals}
             />
           )}
           {currentModal.type === 'person' && (

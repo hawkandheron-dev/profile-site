@@ -63,6 +63,8 @@ export async function fetchBiblicalPlacesData() {
     { data: sourceFigures, error: sfErr },
     { data: resources, error: resErr },
     { data: resourceLinks, error: rlErr },
+    { data: placePeriodNames, error: ppnErr },
+    { data: placeAgeSummaries, error: pasErr },
   ] = await Promise.all([
     supabase.from('BP_NarrativeAges').select('*').order('sort_order'),
     supabase.from('BP_Places').select('*'),
@@ -75,9 +77,11 @@ export async function fetchBiblicalPlacesData() {
     supabase.from('BP_SourceFigures').select('*'),
     supabase.from('BP_Resources').select('*'),
     supabase.from('BP_ResourceLinks').select('*'),
+    supabase.from('BP_PlacePeriodNames').select('*'),
+    supabase.from('BP_PlaceAgeSummaries').select('*'),
   ]);
 
-  const errors = [agesErr, placesErr, peopleErr, paErr, eventsErr, ppErr, epErr, srcErr, sfErr, resErr, rlErr].filter(Boolean);
+  const errors = [agesErr, placesErr, peopleErr, paErr, eventsErr, ppErr, epErr, srcErr, sfErr, resErr, rlErr, ppnErr, pasErr].filter(Boolean);
   if (errors.length) {
     throw new Error(`Supabase fetch errors: ${errors.map(e => e.message).join('; ')}`);
   }
@@ -94,6 +98,8 @@ export async function fetchBiblicalPlacesData() {
     sourceFigures || [],
     resources || [],
     resourceLinks || [],
+    placePeriodNames || [],
+    placeAgeSummaries || [],
   );
 }
 
@@ -102,7 +108,7 @@ export async function fetchBiblicalPlacesData() {
 function transformToBiblicalPlacesFormat(
   dbAges, dbPlaces, dbPeople, dbPersonAges, dbEvents,
   dbPersonPlaces, dbEventPeople, dbSources, dbSourceFigures,
-  dbResources, dbResourceLinks
+  dbResources, dbResourceLinks, dbPlacePeriodNames, dbPlaceAgeSummaries
 ) {
   // ── Lookup maps ─────────────────────────────────────────────────────────
 
@@ -268,6 +274,22 @@ function transformToBiblicalPlacesFormat(
     }
   });
 
+  // ── Place period names: place_id -> Map<age_id, name> ───────────────
+
+  const placeNamesMap = new Map();
+  (dbPlacePeriodNames || []).forEach(pn => {
+    if (!placeNamesMap.has(pn.place_id)) placeNamesMap.set(pn.place_id, new Map());
+    placeNamesMap.get(pn.place_id).set(pn.age_id, pn.name);
+  });
+
+  // ── Place age summaries: place_id -> Map<age_id, summary> ──────────
+
+  const placeAgeSummariesMap = new Map();
+  (dbPlaceAgeSummaries || []).forEach(pas => {
+    if (!placeAgeSummariesMap.has(pas.place_id)) placeAgeSummariesMap.set(pas.place_id, new Map());
+    placeAgeSummariesMap.get(pas.place_id).set(pas.age_id, pas.summary);
+  });
+
   // ── Entity index for search and cross-reference ──────────────────────
 
   const entityIndex = new Map();
@@ -292,6 +314,8 @@ function transformToBiblicalPlacesFormat(
     personAgesMap,
     sourceMap,
     resourceMap,
+    placeNamesMap,
+    placeAgeSummariesMap,
     entityIndex,
   };
 }
