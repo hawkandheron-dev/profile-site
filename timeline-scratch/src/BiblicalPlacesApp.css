@@ -1,0 +1,269 @@
+/* ── Biblical Places App layout ─────────────────────────────────────────── */
+
+.bp-app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Floating header ───────────────────────────────────────────────────── */
+
+.bp-header {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  z-index: 10;
+  width: min(92vw, 460px);
+  pointer-events: none;
+}
+
+.bp-header > * {
+  pointer-events: auto;
+}
+
+.bp-header-search {
+  width: 100%;
+}
+
+/* ── Reset button ──────────────────────────────────────────────────────── */
+
+.bp-reset-btn {
+  border: 1px solid rgba(120, 100, 70, 0.3);
+  background: rgba(250, 246, 235, 0.8);
+  color: #4a3f2f;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.bp-reset-btn:hover {
+  background: #e8dfc8;
+  border-color: rgba(120, 100, 70, 0.5);
+}
+
+/* ── Side panel ───────────────────────────────────────────────────────── */
+
+.bp-side-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 100;
+  width: 420px;
+  max-width: 100vw;
+  height: 100vh;
+  animation: bpPanelSlideIn 0.25s ease-out;
+}
+
+@keyframes bpPanelSlideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ── Loading / Error states ────────────────────────────────────────────── */
+
+.bp-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #888;
+  background: #faf6eb;
+}
+
+.bp-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #d32f2f;
+  background: #faf6eb;
+}
+
+/* ── Date range display & year slider (left-edge tab) ────────────────── */
+
+.bp-date-range {
+  position: absolute;
+  bottom: 140px;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  background: rgba(250, 246, 235, 0.92);
+  backdrop-filter: blur(8px);
+  border-radius: 0 12px 12px 0;
+  padding: 10px 16px 10px 20px;
+  box-shadow: 2px 2px 12px rgba(60, 50, 30, 0.15);
+  min-width: 220px;
+}
+
+.bp-date-range-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(44, 36, 24, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bp-date-range-years {
+  font-size: 32px;
+  font-weight: 700;
+  color: rgba(44, 36, 24, 0.8);
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+
+/* Year slider */
+.bp-year-slider-wrap {
+  margin-top: 8px;
+  position: relative;
+}
+
+.bp-year-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(44, 36, 24, 0.15);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.bp-year-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8b7355;
+  border: 2px solid #faf6eb;
+  box-shadow: 0 1px 4px rgba(60, 50, 30, 0.3);
+  cursor: pointer;
+}
+
+.bp-year-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8b7355;
+  border: 2px solid #faf6eb;
+  box-shadow: 0 1px 4px rgba(60, 50, 30, 0.3);
+  cursor: pointer;
+}
+
+.bp-year-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(44, 36, 24, 0.45);
+}
+
+.bp-year-slider-tick {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+/* ── Mobile responsive ─────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .bp-header {
+    left: 10px;
+    width: calc(100vw - 20px);
+  }
+
+  .bp-age-filter {
+    bottom: 12px;
+    gap: 4px;
+    padding: 6px 8px;
+  }
+
+  .bp-age-pill {
+    font-size: 10px;
+    padding: 3px 7px;
+  }
+
+  .bp-age-pill-label {
+    max-width: 80px;
+  }
+
+  .bp-side-panel {
+    width: 100vw;
+  }
+
+  .bp-date-range {
+    bottom: 120px;
+  }
+
+  .bp-date-range-years {
+    font-size: 24px;
+  }
+}
+
+/* ── Dark mode ─────────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  .bp-reset-btn {
+    background: rgba(30, 27, 22, 0.8);
+    border-color: rgba(200, 180, 140, 0.2);
+    color: #d8d0c4;
+  }
+
+  .bp-reset-btn:hover {
+    background: #3a3528;
+    border-color: rgba(200, 180, 140, 0.4);
+  }
+
+  .bp-loading {
+    background: #1e1b16;
+    color: #a09888;
+  }
+
+  .bp-error {
+    background: #1e1b16;
+  }
+
+  .bp-date-range {
+    background: rgba(30, 27, 22, 0.92);
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .bp-date-range-label {
+    color: rgba(240, 235, 224, 0.5);
+  }
+
+  .bp-date-range-years {
+    color: rgba(240, 235, 224, 0.7);
+  }
+
+  .bp-year-slider {
+    background: rgba(240, 235, 224, 0.15);
+  }
+
+  .bp-year-slider::-webkit-slider-thumb {
+    background: #b8a07a;
+    border-color: #2a2520;
+  }
+
+  .bp-year-slider::-moz-range-thumb {
+    background: #b8a07a;
+    border-color: #2a2520;
+  }
+
+  .bp-year-slider-labels {
+    color: rgba(240, 235, 224, 0.4);
+  }
+}

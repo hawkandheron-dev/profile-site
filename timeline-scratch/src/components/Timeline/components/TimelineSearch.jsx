@@ -52,7 +52,7 @@ function buildIndex(data) {
 
 const TYPE_LABELS = { person: 'Person', point: 'Event', period: 'Period' };
 
-export function TimelineSearch({ data, onSelectItem, onHighlight, onClearHighlight }) {
+export function TimelineSearch({ data, onSelectItem, onHighlight, onClearHighlight, homeLink }) {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
@@ -196,7 +196,7 @@ export function TimelineSearch({ data, onSelectItem, onHighlight, onClearHighlig
   return (
     <div className="timeline-search">
       <div className={`timeline-search-input-wrap ${isFindMode ? 'find-mode' : ''}`}>
-        <Icon name="search" size={14} />
+        {homeLink}
         <input
           ref={inputRef}
           type="text"
@@ -210,6 +210,7 @@ export function TimelineSearch({ data, onSelectItem, onHighlight, onClearHighlig
           autoComplete="off"
           spellCheck={false}
         />
+        <Icon name="search" size={14} />
         {isFindMode && (
           <div className="timeline-search-find-nav">
             <span className="timeline-search-find-count">
