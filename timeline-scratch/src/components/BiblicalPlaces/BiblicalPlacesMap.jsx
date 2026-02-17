@@ -192,19 +192,17 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       });
 
       // Click on cluster -> zoom to show all individual places
-      map.on('click', 'clusters', (e) => {
+      map.on('click', 'clusters', async (e) => {
         const features = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
         const clusterId = features[0].properties.cluster_id;
         const pointCount = features[0].properties.point_count;
         const source = map.getSource('places');
 
-        source.getClusterLeaves(clusterId, pointCount, 0, (err, leaves) => {
-          if (err || !leaves || leaves.length === 0) {
-            // Fallback to expansion zoom
-            source.getClusterExpansionZoom(clusterId, (err2, zoom) => {
-              if (err2) return;
-              map.easeTo({ center: features[0].geometry.coordinates, zoom });
-            });
+        try {
+          const leaves = await source.getClusterLeaves(clusterId, pointCount, 0);
+          if (!leaves || leaves.length === 0) {
+            const zoom = await source.getClusterExpansionZoom(clusterId);
+            map.easeTo({ center: features[0].geometry.coordinates, zoom });
             return;
           }
 
@@ -214,7 +212,13 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
             bounds.extend(leaf.geometry.coordinates);
           });
           map.fitBounds(bounds, { padding: 60, maxZoom: 14, duration: 800 });
-        });
+        } catch {
+          // Fallback to expansion zoom
+          try {
+            const zoom = await source.getClusterExpansionZoom(clusterId);
+            map.easeTo({ center: features[0].geometry.coordinates, zoom });
+          } catch { /* silently fail */ }
+        }
       });
 
       // Hover effects on pins
@@ -257,8 +261,8 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       });
     });
 
-    // Date filtering on style load
-    map.once('style.load', () => {
+    // Date filtering on style data ready
+    map.once('styledata', () => {
       // Default: show an ancient date (roughly 1000 BC)
       try {
         filterByDate(map, formatYearForOHM(-1000));
@@ -288,12 +292,21 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
   // Update OHM date filter when mapYear changes
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+    if (!map) return;
 
-    const year = mapYear != null ? mapYear : -1000;
-    try {
-      filterByDate(map, formatYearForOHM(year));
-    } catch { /* ignore */ }
+    const applyFilter = () => {
+      const year = mapYear != null ? mapYear : -1000;
+      try {
+        filterByDate(map, formatYearForOHM(year));
+      } catch { /* ignore */ }
+    };
+
+    if (map.isStyleLoaded()) {
+      applyFilter();
+    } else {
+      map.once('styledata', applyFilter);
+      return () => map.off('styledata', applyFilter);
+    }
   }, [mapYear]);
 
   return (
