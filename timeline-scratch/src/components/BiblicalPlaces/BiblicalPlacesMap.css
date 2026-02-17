@@ -42,9 +42,9 @@
   z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   width: min(92vw, 1160px);
-  padding: 12px 16px;
+  padding: 0;
   background: rgba(250, 246, 235, 0.96);
   backdrop-filter: blur(8px);
   border-radius: 12px;
@@ -53,16 +53,17 @@
 
 .bp-age-filter-header {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(120, 100, 70, 0.25);
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--color-parchment, #f5f0e1);
+  border-radius: 12px 12px 0 0;
 }
 
 .bp-age-filter-brand {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .bp-age-filter-brand-logo {
@@ -83,17 +84,9 @@
 
 .bp-age-filter-site-title {
   margin: 0;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: #2c2418;
-}
-
-.bp-age-filter-label {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #7a6f5f;
+  color: var(--color-ink-faded, #7a6f5f);
 }
 
 .bp-age-filter-pills {
@@ -101,6 +94,7 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 6px;
+  padding: 12px 16px;
 }
 
 .bp-age-pill {
@@ -164,19 +158,18 @@
   }
 
   .bp-age-filter-header {
-    border-bottom-color: rgba(160, 152, 136, 0.3);
+    background: #252118;
   }
 
   .bp-age-filter-brand-logo {
     filter: invert(90%) sepia(10%) saturate(300%) hue-rotate(10deg) brightness(110%);
   }
 
-  .bp-age-filter-brand-title,
-  .bp-age-filter-site-title {
+  .bp-age-filter-brand-title {
     color: #f0ebe0;
   }
 
-  .bp-age-filter-label {
+  .bp-age-filter-site-title {
     color: #a09888;
   }
 

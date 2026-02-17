@@ -11,11 +11,10 @@
 
 .bp-header {
   position: absolute;
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 12px;
+  left: 16px;
   z-index: 10;
-  width: min(92vw, 680px);
+  width: min(92vw, 460px);
   pointer-events: none;
 }
 
@@ -182,6 +181,7 @@
 
 @media (max-width: 640px) {
   .bp-header {
+    left: 10px;
     width: calc(100vw - 20px);
   }
 

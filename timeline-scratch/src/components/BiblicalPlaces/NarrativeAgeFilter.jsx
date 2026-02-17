@@ -15,37 +15,36 @@ export function NarrativeAgeFilter({ ages, activeAgeFilter, onFilter, showReset,
         <div className="bp-age-filter-brand">
           <img className="bp-age-filter-brand-logo" src={LOGO_PATH} alt="Windhover" />
           <span className="bp-age-filter-brand-title">Windhover</span>
+          {siteTitle && <h2 className="bp-age-filter-site-title">{siteTitle}</h2>}
         </div>
-        {siteTitle && <h2 className="bp-age-filter-site-title">{siteTitle}</h2>}
       </div>
-      <div className="bp-age-filter-label">Legend</div>
       <div className="bp-age-filter-pills">
-      {showReset && (
-        <button
-          className="bp-reset-btn"
-          onClick={onReset}
-          title="Reset view"
-        >
-          Reset
-        </button>
-      )}
-      {ages.map(age => {
-        const isActive = activeAgeFilter === age.age_id;
-        return (
+        {showReset && (
           <button
-            key={age.age_id}
-            className={`bp-age-pill ${isActive ? 'bp-age-pill-active' : ''}`}
-            style={{
-              '--age-color': age.color || '#8b7355',
-            }}
-            onClick={() => onFilter(age.age_id)}
-            title={age.scripture_range || age.name}
+            className="bp-reset-btn"
+            onClick={onReset}
+            title="Reset view"
           >
-            <span className="bp-age-pill-dot" />
-            <span className="bp-age-pill-label">{age.name}</span>
+            Reset
           </button>
-        );
-      })}
+        )}
+        {ages.map(age => {
+          const isActive = activeAgeFilter === age.age_id;
+          return (
+            <button
+              key={age.age_id}
+              className={`bp-age-pill ${isActive ? 'bp-age-pill-active' : ''}`}
+              style={{
+                '--age-color': age.color || '#8b7355',
+              }}
+              onClick={() => onFilter(age.age_id)}
+              title={age.scripture_range || age.name}
+            >
+              <span className="bp-age-pill-dot" />
+              <span className="bp-age-pill-label">{age.name}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

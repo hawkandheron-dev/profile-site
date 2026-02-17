@@ -86,7 +86,7 @@ export function BiblicalPlacesSearch({ data, onSelect, homeHref = '../../index.h
           ref={inputRef}
           type="text"
           className="bp-search-input"
-          placeholder="Search timeline..."
+          placeholder="Search atlas..."
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
