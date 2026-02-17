@@ -8,8 +8,6 @@ import { PersonModal } from './components/BiblicalPlaces/PersonModal.jsx';
 import { EventModal } from './components/BiblicalPlaces/EventModal.jsx';
 import './BiblicalPlacesApp.css';
 
-const BIRD_LOGO = new URL('../../../resources/logos/Windhover_BLK.png', import.meta.url).href;
-
 function formatYear(year) {
   if (year == null) return '';
   if (year < 0) return `${Math.abs(year)} BC`;
@@ -173,17 +171,12 @@ function BiblicalPlacesApp() {
     <div className="bp-app">
       {/* Header overlay */}
       <header className="bp-header">
-        <div className="bp-header-brand">
-          <a href="../../index.html" className="bp-home-link" title="Back to Windhover">
-            <img src={BIRD_LOGO} alt="Windhover" className="bp-bird-logo" />
-          </a>
-          <h1 className="bp-title">Biblical Places</h1>
-        </div>
         {data && (
           <div className="bp-header-search">
             <BiblicalPlacesSearch
               data={data}
               onSelect={handleSearchSelect}
+              homeHref="../../index.html"
             />
           </div>
         )}
@@ -213,6 +206,7 @@ function BiblicalPlacesApp() {
             onFilter={handleAgeFilter}
             showReset={showReset}
             onReset={handleReset}
+            siteTitle="Bible Atlas: Who's Where, When?"
           />
 
           {/* Date range + year slider for active narrative age */}

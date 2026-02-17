@@ -41,15 +41,66 @@
   transform: translateX(-50%);
   z-index: 10;
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
-  max-width: 90vw;
-  padding: 8px 12px;
-  background: rgba(250, 246, 235, 0.92);
+  flex-direction: column;
+  gap: 8px;
+  width: min(92vw, 1160px);
+  padding: 12px 16px;
+  background: rgba(250, 246, 235, 0.96);
   backdrop-filter: blur(8px);
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(60, 50, 30, 0.2);
+}
+
+.bp-age-filter-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(120, 100, 70, 0.25);
+}
+
+.bp-age-filter-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bp-age-filter-brand-logo {
+  height: 20px;
+  width: auto;
+  filter: invert(12%) sepia(20%) saturate(800%) hue-rotate(10deg) brightness(95%);
+}
+
+.bp-age-filter-brand-title {
+  font-family: 'Outfit', 'Century Gothic', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-ink, #2c2418);
+  line-height: 1;
+}
+
+.bp-age-filter-site-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c2418;
+}
+
+.bp-age-filter-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7a6f5f;
+}
+
+.bp-age-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
 }
 
 .bp-age-pill {
@@ -110,6 +161,23 @@
   .bp-age-filter {
     background: rgba(30, 27, 22, 0.92);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  .bp-age-filter-header {
+    border-bottom-color: rgba(160, 152, 136, 0.3);
+  }
+
+  .bp-age-filter-brand-logo {
+    filter: invert(90%) sepia(10%) saturate(300%) hue-rotate(10deg) brightness(110%);
+  }
+
+  .bp-age-filter-brand-title,
+  .bp-age-filter-site-title {
+    color: #f0ebe0;
+  }
+
+  .bp-age-filter-label {
+    color: #a09888;
   }
 
   .bp-age-pill {

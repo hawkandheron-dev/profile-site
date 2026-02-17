@@ -1,14 +1,25 @@
 import './BiblicalPlacesMap.css';
 
+const LOGO_PATH = new URL('../../../../../resources/logos/Windhover_BLK.png', import.meta.url).href;
+
 /**
  * Horizontal bar of colored pill buttons for filtering by narrative age.
  * Floats at the bottom of the map. Includes a reset button when a filter is active.
  */
-export function NarrativeAgeFilter({ ages, activeAgeFilter, onFilter, showReset, onReset }) {
+export function NarrativeAgeFilter({ ages, activeAgeFilter, onFilter, showReset, onReset, siteTitle }) {
   if (!ages || ages.length === 0) return null;
 
   return (
     <div className="bp-age-filter">
+      <div className="bp-age-filter-header">
+        <div className="bp-age-filter-brand">
+          <img className="bp-age-filter-brand-logo" src={LOGO_PATH} alt="Windhover" />
+          <span className="bp-age-filter-brand-title">Windhover</span>
+        </div>
+        {siteTitle && <h2 className="bp-age-filter-site-title">{siteTitle}</h2>}
+      </div>
+      <div className="bp-age-filter-label">Legend</div>
+      <div className="bp-age-filter-pills">
       {showReset && (
         <button
           className="bp-reset-btn"
@@ -35,6 +46,7 @@ export function NarrativeAgeFilter({ ages, activeAgeFilter, onFilter, showReset,
           </button>
         );
       })}
+      </div>
     </div>
   );
 }

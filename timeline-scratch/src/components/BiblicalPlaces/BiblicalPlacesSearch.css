@@ -2,30 +2,60 @@
 
 .bp-search {
   position: relative;
-  flex: 1;
-  max-width: 320px;
+  width: 100%;
 }
 
-.bp-search-input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid rgba(120, 100, 70, 0.25);
-  border-radius: 8px;
-  font: inherit;
-  font-size: 14px;
-  background: rgba(250, 246, 235, 0.95);
-  color: #2c2418;
-  outline: none;
+.bp-search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--color-parchment-light, #faf6eb);
+  border: 1px solid var(--color-border-hover, rgba(120, 100, 70, 0.5));
+  border-radius: 999px;
+  box-shadow: 0 2px 8px var(--color-shadow, rgba(60, 50, 30, 0.12));
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.bp-search-input:focus {
-  border-color: #8b7355;
-  box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.2);
+.bp-search-input-wrap:focus-within {
+  border-color: var(--color-accent, #8b7355);
+  box-shadow: 0 2px 8px var(--color-shadow, rgba(60, 50, 30, 0.12)), 0 0 0 3px rgba(120, 100, 70, 0.08);
+}
+
+.bp-search-home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bp-search-bird-logo {
+  width: 54px;
+  height: auto;
+  display: block;
+  filter: invert(12%) sepia(20%) saturate(800%) hue-rotate(10deg) brightness(95%);
+}
+
+.bp-search-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  border: none;
+  font: inherit;
+  font-size: 20px;
+  background: transparent;
+  color: #2c2418;
+  outline: none;
 }
 
 .bp-search-input::placeholder {
-  color: #a09888;
+  color: var(--color-ink-faded, #7a6f5f);
+}
+
+.bp-search-icon {
+  color: var(--color-ink-faded, #7a6f5f);
+  flex-shrink: 0;
 }
 
 /* ── Dropdown ──────────────────────────────────────────────────────────── */
@@ -104,18 +134,29 @@
 
 @media (prefers-color-scheme: dark) {
   .bp-search-input {
-    background: rgba(30, 27, 22, 0.95);
-    border-color: rgba(200, 180, 140, 0.2);
     color: #f0ebe0;
   }
 
-  .bp-search-input:focus {
-    border-color: #c4a67a;
-    box-shadow: 0 0 0 2px rgba(196, 166, 122, 0.2);
+  .bp-search-input-wrap {
+    background: #252118;
+    border-color: #3a3528;
+  }
+
+  .bp-search-input-wrap:focus-within {
+    border-color: #4a4538;
+    box-shadow: 0 0 0 3px rgba(200, 180, 140, 0.1);
   }
 
   .bp-search-input::placeholder {
-    color: #7a6f5f;
+    color: #a09888;
+  }
+
+  .bp-search-icon {
+    color: #a09888;
+  }
+
+  .bp-search-bird-logo {
+    filter: invert(90%) sepia(10%) saturate(300%) hue-rotate(10deg) brightness(110%);
   }
 
   .bp-search-dropdown {
