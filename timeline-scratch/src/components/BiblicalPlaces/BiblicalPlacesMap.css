@@ -76,6 +76,7 @@
   font-family: 'Outfit', 'Century Gothic', sans-serif;
   font-size: 18px;
   font-weight: 800;
+  text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-ink, #2c2418);
   line-height: 1;
