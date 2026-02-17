@@ -2,10 +2,45 @@
 -- event_type must be one of: event, miracle, battle, covenant, prophecy, judgment
 -- sort_within_age orders events chronologically within each age.
 -- Existing events' sort values are preserved; new events fill gaps or extend.
+--
+-- NOTE: Original seed events are re-inserted here (ON CONFLICT DO NOTHING) to
+-- ensure they exist even if the dedup_events migration removed them when merging
+-- with Codex-generated duplicates that had different event_ids.
 
 begin;
 
 insert into public."BP_Events" (event_id, name, narrative_age_id, place_id, description, event_type, scripture_ref, sort_within_age) values
+
+  -- ── Re-insert original seed events (safe: ON CONFLICT DO NOTHING) ───────
+  ('tower-of-babel',       'Tower of Babel',                     'age-creation',         'babylon',      'Humanity builds a tower; God confuses their languages and scatters them.',                      'judgment',  'Genesis 11:1-9',        3),
+  ('call-of-abraham',      'Call of Abraham',                    'age-patriarchs',       'haran',        'God calls Abram to leave his homeland and go to a land He will show him.',                      'covenant',  'Genesis 12:1-9',        1),
+  ('abraham-at-shechem',   'Abraham at Shechem',                 'age-patriarchs',       'shechem',      'God appears to Abraham and promises to give the land to his offspring. Abraham builds an altar.', 'covenant', 'Genesis 12:6-7',        2),
+  ('binding-of-isaac',     'Binding of Isaac',                   'age-patriarchs',       'mt-moriah',    'God tests Abraham by asking him to sacrifice Isaac, then provides a ram.',                      'covenant',  'Genesis 22:1-19',       3),
+  ('jacobs-ladder',        'Jacob''s Ladder',                    'age-patriarchs',       'bethel',       'Jacob dreams of a stairway to heaven with angels ascending and descending.',                    'miracle',   'Genesis 28:10-22',      4),
+  ('joseph-in-egypt',      'Joseph Rises in Egypt',              'age-patriarchs',       'egypt-goshen', 'Joseph, sold into slavery, interprets Pharaoh''s dreams and becomes vizier.',                   'event',     'Genesis 39-41',         5),
+  ('exodus',               'The Exodus',                         'age-exodus',           'egypt-goshen', 'God delivers Israel from slavery in Egypt through Moses.',                                      'miracle',   'Exodus 12-15',          1),
+  ('giving-of-law',        'Giving of the Law',                  'age-exodus',           'sinai',        'God gives the Ten Commandments and the Torah to Moses on Mount Sinai.',                         'covenant',  'Exodus 19-24',          2),
+  ('crossing-jordan',      'Crossing the Jordan',                'age-conquest',         'jordan-river', 'Israel crosses the Jordan on dry ground into the promised land.',                               'miracle',   'Joshua 3-4',            1),
+  ('fall-of-jericho',      'Fall of Jericho',                    'age-conquest',         'jericho',      'Israel marches around Jericho for seven days and the walls collapse.',                          'battle',    'Joshua 6',              2),
+  ('tabernacle-at-shiloh', 'Tabernacle at Shiloh',               'age-conquest',         'shiloh',       'The Tabernacle is set up at Shiloh, becoming Israel''s central worship site for centuries.',    'event',     'Joshua 18:1',           3),
+  ('deborahs-victory',     'Deborah''s Victory',                 'age-conquest',         'mt-carmel',    'Deborah and Barak defeat the Canaanite army of Sisera.',                                       'battle',    'Judges 4-5',            4),
+  ('david-anointed-hebron', 'David Anointed King at Hebron',     'age-united-monarchy',  'hebron',       'David is anointed king over Judah, then over all Israel, at Hebron.',                           'event',     '2 Samuel 2:1-4, 5:1-5', 1),
+  ('david-takes-jerusalem', 'David Captures Jerusalem',          'age-united-monarchy',  'jerusalem',    'David conquers the Jebusite city and makes it his capital — the City of David.',                'battle',    '2 Samuel 5:6-10',       2),
+  ('solomons-temple',      'Solomon''s Temple Built',            'age-united-monarchy',  'jerusalem',    'Solomon builds the first Temple in Jerusalem. The glory of the Lord fills the house.',           'event',     '1 Kings 5-8',           3),
+  ('kingdom-divides',      'The Kingdom Divides',                'age-divided-monarchy', 'shechem',      'After Solomon''s death, the northern tribes reject Rehoboam. Jeroboam becomes king of Israel at Shechem.', 'event', '1 Kings 12',    1),
+  ('elijah-on-carmel',     'Elijah on Mount Carmel',             'age-divided-monarchy', 'mt-carmel',    'Elijah challenges 450 prophets of Baal. Fire falls from heaven. The people cry: "The Lord, He is God!"', 'miracle', '1 Kings 18:20-40', 2),
+  ('fall-of-samaria',      'Fall of Samaria',                    'age-divided-monarchy', 'samaria',      'Assyria conquers Samaria and deports the northern tribes. The kingdom of Israel ends.',         'judgment',  '2 Kings 17',            3),
+  ('fall-of-jerusalem',    'Fall of Jerusalem',                  'age-judah-exile',      'jerusalem',    'Nebuchadnezzar destroys Jerusalem and the Temple. The people are taken into exile in Babylon.',  'judgment',  '2 Kings 25',            1),
+  ('daniel-in-babylon',    'Daniel in Babylon',                  'age-judah-exile',      'babylon',      'Daniel serves in the Babylonian and Persian courts, interprets dreams, and receives visions.',   'event',     'Daniel 1-12',           2),
+  ('jonah-at-nineveh',     'Jonah at Nineveh',                   'age-judah-exile',      'nineveh',      'The prophet Jonah reluctantly preaches to Nineveh, and the city repents.',                      'prophecy',  'Jonah',                 3),
+  ('temple-rebuilt',       'Temple Rebuilt',                     'age-return',           'jerusalem',    'The returned exiles under Zerubbabel rebuild the Temple, completed in 516 BC.',                 'event',     'Ezra 3-6',              1),
+  ('nehemiah-walls',       'Nehemiah Rebuilds the Walls',        'age-return',           'jerusalem',    'Nehemiah leads the rebuilding of Jerusalem''s walls in 52 days.',                               'event',     'Nehemiah 1-6',          2),
+  ('annunciation',         'The Annunciation',                   'age-gospels',          'nazareth',     'The angel Gabriel appears to Mary and announces she will bear the Messiah.',                    'miracle',   'Luke 1:26-38',          1),
+  ('birth-of-jesus',       'Birth of Jesus',                     'age-gospels',          'bethlehem',    'Jesus is born in Bethlehem and laid in a manger.',                                              'event',     'Luke 2:1-20',           2),
+  ('baptism-of-jesus',     'Baptism of Jesus',                   'age-gospels',          'jordan-river', 'Jesus is baptized by John in the Jordan. The Spirit descends and the Father speaks.',            'event',     'Matthew 3:13-17',       3),
+  ('sermon-on-mount',      'Sermon on the Mount',                'age-gospels',          'capernaum',    'Jesus delivers the Sermon on the Mount near Capernaum — the Beatitudes and the heart of his teaching.', 'event', 'Matthew 5-7',    4),
+  ('crucifixion',          'Crucifixion',                        'age-gospels',          'jerusalem',    'Jesus is crucified outside Jerusalem at Golgotha.',                                             'event',     'Matthew 27, Mark 15, Luke 23, John 19', 5),
+  ('resurrection',         'Resurrection',                       'age-gospels',          'jerusalem',    'Jesus rises from the dead on the third day. The empty tomb is discovered.',                     'miracle',   'Matthew 28, Mark 16, Luke 24, John 20', 6),
 
   -- ── Creation & Primeval History ─────────────────────────────────────────
   ('creation',              'Creation',                           'age-creation', 'garden-of-eden', 'God creates the heavens, the earth, and all living things in six days.',                            'event',     'Genesis 1:1-2:3',       1),
