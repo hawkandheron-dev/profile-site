@@ -206,7 +206,7 @@ function BiblicalPlacesApp() {
             onFilter={handleAgeFilter}
             showReset={showReset}
             onReset={handleReset}
-            siteTitle="Bible Atlas: Who's Where, When?"
+            siteTitle="Bible Atlas: who's where when?"
           />
 
           {/* Date range + year slider for active narrative age */}

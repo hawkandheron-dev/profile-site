@@ -77,15 +77,14 @@
   font-size: 18px;
   font-weight: 800;
   letter-spacing: 0.05em;
-  text-transform: uppercase;
   color: var(--color-ink, #2c2418);
   line-height: 1;
 }
 
 .bp-age-filter-site-title {
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 500;
   color: var(--color-ink-faded, #7a6f5f);
 }
 
