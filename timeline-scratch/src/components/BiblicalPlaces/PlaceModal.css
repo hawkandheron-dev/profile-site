@@ -423,6 +423,41 @@
   font-style: italic;
 }
 
+.bp-verse-cite {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  font-style: normal;
+  color: #8b7355;
+}
+
+.bp-verse-loading {
+  min-height: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bp-verse-shimmer {
+  display: block;
+  height: 12px;
+  width: 70%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(196,166,122,0.08) 25%, rgba(196,166,122,0.18) 50%, rgba(196,166,122,0.08) 75%);
+  background-size: 200% 100%;
+  animation: bp-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes bp-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.bp-verse-ref-only {
+  font-style: normal;
+  color: #8b7355;
+  font-size: 12px;
+}
+
 /* ── Section variants: during (focus) vs before/after (context) ────────── */
 
 .bp-section-during .bp-section-title {
@@ -614,5 +649,19 @@
     border-left-color: #8b7355;
     background: rgba(139, 115, 85, 0.08);
     color: #d8d0c4;
+  }
+
+  .bp-verse-cite {
+    color: #a69478;
+  }
+
+  .bp-verse-shimmer {
+    background: linear-gradient(90deg, rgba(139,115,85,0.08) 25%, rgba(139,115,85,0.2) 50%, rgba(139,115,85,0.08) 75%);
+    background-size: 200% 100%;
+    animation: bp-shimmer 1.5s ease-in-out infinite;
+  }
+
+  .bp-verse-ref-only {
+    color: #a69478;
   }
 }

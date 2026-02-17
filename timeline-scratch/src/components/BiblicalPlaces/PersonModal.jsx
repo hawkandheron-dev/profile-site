@@ -1,4 +1,5 @@
 import './PlaceModal.css';
+import { ScriptureVerse } from './ScriptureVerse';
 
 /**
  * Side panel content showing a biblical person with their places, events, and narrative ages.
@@ -63,11 +64,7 @@ export function PersonModal({
                   <span className="bp-pill-context"> &mdash; {p.context}</span>
                 )}
               </button>
-              {p.scripture_verse && (
-                <blockquote className="bp-verse">
-                  {p.scripture_verse}
-                </blockquote>
-              )}
+              <ScriptureVerse scriptureVerse={p.scripture_verse} />
             </div>
           ))}
         </div>

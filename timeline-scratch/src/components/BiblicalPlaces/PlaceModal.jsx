@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import './PlaceModal.css';
+import { ScriptureVerse } from './ScriptureVerse';
 
 function formatYear(year) {
   if (year == null) return '';
@@ -167,11 +168,7 @@ export function PlaceModal({
             ))}
           </div>
         )}
-        {p.scripture_verse && (
-          <blockquote className="bp-verse">
-            {p.scripture_verse}
-          </blockquote>
-        )}
+        <ScriptureVerse scriptureVerse={p.scripture_verse} />
       </div>
     );
   }
