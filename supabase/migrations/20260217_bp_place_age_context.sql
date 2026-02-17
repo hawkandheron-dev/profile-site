@@ -71,7 +71,8 @@ insert into public."BP_PlacePeriodNames" (place_id, age_id, name) values
   -- Shechem doesn't change but Samaria does
   ('samaria',   'age-conquest',         'Hill Country of Ephraim'),
   ('samaria',   'age-divided-monarchy', 'Samaria'),
-  ('samaria',   'age-gospels',          'Samaria / Sebaste');
+  ('samaria',   'age-gospels',          'Samaria / Sebaste')
+on conflict (place_id, age_id) do nothing;
 
 -- ── Seed: Age Summaries ───────────────────────────────────────────────────────
 -- Contextual descriptions of what a place meant during specific narrative ages.
@@ -122,6 +123,7 @@ insert into public."BP_PlaceAgeSummaries" (place_id, age_id, summary) values
   ('nazareth', 'age-gospels',            'The hometown of Jesus, where he grew up and lived until the start of his public ministry. The angel Gabriel appeared to Mary here. When Jesus taught in the local synagogue, his neighbors rejected him.'),
 
   -- Capernaum
-  ('capernaum', 'age-gospels',           'Jesus'' base of operations during his Galilean ministry. Home of Peter and Andrew. Here Jesus called his first disciples, healed Peter''s mother-in-law, and taught with authority in the synagogue.');
+  ('capernaum', 'age-gospels',           'Jesus'' base of operations during his Galilean ministry. Home of Peter and Andrew. Here Jesus called his first disciples, healed Peter''s mother-in-law, and taught with authority in the synagogue.')
+on conflict (place_id, age_id) do nothing;
 
 commit;
