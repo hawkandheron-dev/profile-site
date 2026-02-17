@@ -118,11 +118,13 @@ function BiblicalPlacesApp() {
     const newFilter = activeAgeFilter === ageId ? null : ageId;
     setActiveAgeFilter(newFilter);
 
-    // Set map year to midpoint of the age's date range
+    // Set map year to midpoint of the age's date range and apply immediately
     if (newFilter && data) {
       const age = data.ageMap.get(newFilter);
       if (age?.approx_start_year != null && age?.approx_end_year != null) {
-        setMapYear(Math.round((age.approx_start_year + age.approx_end_year) / 2));
+        const midpoint = Math.round((age.approx_start_year + age.approx_end_year) / 2);
+        setMapYear(midpoint);
+        mapRef.current?.setYear?.(midpoint);
       } else {
         setMapYear(null);
       }

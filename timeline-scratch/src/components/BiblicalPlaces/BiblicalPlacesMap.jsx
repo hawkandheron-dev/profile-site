@@ -30,7 +30,7 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
   const mapRef = useRef(null);
   const popupRef = useRef(null);
 
-  // Expose flyTo and reset to parent
+  // Expose flyTo, fitBounds, reset, and setYear to parent
   useImperativeHandle(ref, () => ({
     flyTo(lng, lat) {
       if (mapRef.current) {
@@ -41,6 +41,13 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       if (mapRef.current) {
         mapRef.current.fitBounds(bounds, { padding: 50, duration: 1200, ...options });
       }
+    },
+    setYear(year) {
+      const map = mapRef.current;
+      if (!map) return;
+      try {
+        filterByDate(map, formatYearForOHM(year));
+      } catch { /* ignore */ }
     },
     reset() {
       if (mapRef.current) {
