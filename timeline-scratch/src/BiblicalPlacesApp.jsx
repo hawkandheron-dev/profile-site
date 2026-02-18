@@ -15,10 +15,17 @@ function formatYear(year) {
   return `${year} AD`;
 }
 
-/** Compute 3 tick values evenly spaced between start and end, snapped to nice round numbers. */
+/**
+ * Compute evenly spaced tick values between start and end, snapped to nice
+ * round numbers.  Drops any that would overlap the start/end labels or each
+ * other (using a minimum-distance threshold expressed as a percentage of the
+ * total span).
+ */
 function computeTicks(start, end) {
   const span = end - start;
-  // Pick a nice step: find the order of magnitude of span/4, round to a "nice" value
+  if (span <= 0) return [];
+
+  // Pick a nice step
   const rawStep = span / 4;
   const magnitude = Math.pow(10, Math.floor(Math.log10(Math.abs(rawStep))));
   const niceMultiples = [1, 2, 5, 10];
@@ -26,19 +33,31 @@ function computeTicks(start, end) {
   for (const m of niceMultiples) {
     if (magnitude * m >= rawStep) { step = magnitude * m; break; }
   }
-  // Generate ticks starting from the first nice number after start
+
+  // Generate ticks
   const firstTick = Math.ceil(start / step) * step;
-  const ticks = [];
+  let ticks = [];
   for (let t = firstTick; t <= end; t += step) {
     if (t > start && t < end) ticks.push(t);
   }
-  // If we got too many, thin to ~3
+
+  // Thin to at most 3
   while (ticks.length > 3) {
-    const filtered = ticks.filter((_, i) => i % 2 === 0);
-    ticks.length = 0;
-    ticks.push(...filtered);
+    ticks = ticks.filter((_, i) => i % 2 === 0);
   }
-  return ticks;
+
+  // Drop ticks that are too close to start, end, or each other.
+  // "Too close" = within 18% of the span (roughly the width of a label).
+  const minGap = span * 0.18;
+  const result = [];
+  for (const t of ticks) {
+    if (t - start < minGap) continue;          // too close to start label
+    if (end - t < minGap) continue;            // too close to end label
+    const prev = result[result.length - 1];
+    if (prev != null && t - prev < minGap) continue; // too close to previous tick
+    result.push(t);
+  }
+  return result;
 }
 
 function BiblicalPlacesApp() {
@@ -138,10 +157,12 @@ function BiblicalPlacesApp() {
         const b = age.map_bounds;
         mapRef.current?.fitBounds?.([[b[0], b[1]], [b[2], b[3]]]);
       } else {
-        // Fall back: fit to all visible places for this age
+        // Fall back: fit to all visible places for this age (events + person-place links)
         const visiblePlaces = data.places.filter(p => {
           const events = data.placeEventsMap.get(p.place_id) || [];
-          return events.some(e => e.narrative_age_id === newFilter);
+          const people = data.placePeopleMap.get(p.place_id) || [];
+          return events.some(e => e.narrative_age_id === newFilter)
+              || people.some(pp => pp.age?.age_id === newFilter);
         });
         if (visiblePlaces.length > 1) {
           const lngs = visiblePlaces.map(p => p.lng);
@@ -214,6 +235,7 @@ function BiblicalPlacesApp() {
             ref={mapRef}
             places={data.places}
             placeEventsMap={data.placeEventsMap}
+            placePeopleMap={data.placePeopleMap}
             ageMap={data.ageMap}
             activeAgeFilter={activeAgeFilter}
             mapYear={mapYear}
