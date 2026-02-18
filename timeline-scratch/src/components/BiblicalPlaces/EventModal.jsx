@@ -1,4 +1,5 @@
 import './PlaceModal.css';
+import { ScriptureVerse } from './ScriptureVerse';
 
 /**
  * Side panel content showing a biblical event with its place, people, and narrative context.
@@ -45,6 +46,8 @@ export function EventModal({
       {event.scripture_ref && (
         <p className="bp-scripture-ref bp-modal-subtitle">{event.scripture_ref}</p>
       )}
+
+      <ScriptureVerse scriptureRef={event.scripture_ref} placeName={place?.name} />
 
       {event.description && (
         <p className="bp-modal-description">{event.description}</p>

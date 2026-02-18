@@ -23,7 +23,7 @@ function formatYearForOHM(year) {
  * Uses GeoJSON source with clustering for performance.
  */
 export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
-  { places, placeEventsMap, ageMap, activeAgeFilter, mapYear, onSelectPlace },
+  { places, placeEventsMap, placePeopleMap, ageMap, activeAgeFilter, mapYear, onSelectPlace },
   ref
 ) {
   const mapContainerRef = useRef(null);
@@ -59,23 +59,45 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
     }
   }), []);
 
+  // Collect all age IDs connected to a place (via events and person-place links)
+  const getPlaceAgeIds = useCallback((placeId) => {
+    const ids = new Set();
+    const events = placeEventsMap.get(placeId) || [];
+    events.forEach(e => { if (e.narrative_age_id) ids.add(e.narrative_age_id); });
+    const people = placePeopleMap.get(placeId) || [];
+    people.forEach(p => { if (p.age?.age_id) ids.add(p.age.age_id); });
+    return ids;
+  }, [placeEventsMap, placePeopleMap]);
+
   // Build GeoJSON from places
   const buildGeoJSON = useCallback(() => {
     const features = places
       .filter(place => {
         if (!activeAgeFilter) return true;
-        // Only show places that have events in the active age
-        const events = placeEventsMap.get(place.place_id) || [];
-        return events.some(e => e.narrative_age_id === activeAgeFilter);
+        // Show places connected to the active age via events OR person-place links
+        return getPlaceAgeIds(place.place_id).has(activeAgeFilter);
       })
       .map(place => {
-        // Determine pin color from the earliest event's narrative age
-        const events = placeEventsMap.get(place.place_id) || [];
         let color = '#8b7355'; // default neutral
-        if (events.length > 0) {
-          const firstAge = ageMap.get(events[0].narrative_age_id);
-          if (firstAge?.color) color = firstAge.color;
+
+        if (activeAgeFilter) {
+          // When an age is selected, all visible dots use that age's color
+          const selectedAge = ageMap.get(activeAgeFilter);
+          if (selectedAge?.color) color = selectedAge.color;
+        } else {
+          // No filter: use the earliest connected age's color
+          const ageIds = getPlaceAgeIds(place.place_id);
+          let earliest = null;
+          for (const id of ageIds) {
+            const age = ageMap.get(id);
+            if (age && (earliest === null || age.sort_order < earliest.sort_order)) {
+              earliest = age;
+            }
+          }
+          if (earliest?.color) color = earliest.color;
         }
+
+        const events = placeEventsMap.get(place.place_id) || [];
         return {
           type: 'Feature',
           geometry: {
@@ -93,7 +115,12 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       });
 
     return { type: 'FeatureCollection', features };
-  }, [places, placeEventsMap, ageMap, activeAgeFilter]);
+  }, [places, placeEventsMap, placePeopleMap, ageMap, activeAgeFilter, getPlaceAgeIds]);
+
+  // Store latest buildGeoJSON in a ref so the mount-time load handler always
+  // has access to the most recent version (avoids stale closure)
+  const buildGeoJSONRef = useRef(buildGeoJSON);
+  buildGeoJSONRef.current = buildGeoJSON;
 
   // Initialize map
   useEffect(() => {
@@ -113,7 +140,7 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
     map.on('load', () => {
-      const geojson = buildGeoJSON();
+      const geojson = buildGeoJSONRef.current();
 
       // Add GeoJSON source with clustering
       map.addSource('places', {
@@ -288,11 +315,22 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
   // Update GeoJSON when filter changes
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+    if (!map) return;
 
-    const source = map.getSource('places');
-    if (source) {
-      source.setData(buildGeoJSON());
+    const update = () => {
+      const source = map.getSource('places');
+      if (source) {
+        source.setData(buildGeoJSON());
+        return true;
+      }
+      return false;
+    };
+
+    // Try immediately; if the source isn't ready yet, wait for load
+    if (!update()) {
+      const onLoad = () => update();
+      map.once('load', onLoad);
+      return () => map.off('load', onLoad);
     }
   }, [activeAgeFilter, buildGeoJSON]);
 
