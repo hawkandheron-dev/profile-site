@@ -117,6 +117,11 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
     return { type: 'FeatureCollection', features };
   }, [places, placeEventsMap, placePeopleMap, ageMap, activeAgeFilter, getPlaceAgeIds]);
 
+  // Store latest buildGeoJSON in a ref so the mount-time load handler always
+  // has access to the most recent version (avoids stale closure)
+  const buildGeoJSONRef = useRef(buildGeoJSON);
+  buildGeoJSONRef.current = buildGeoJSON;
+
   // Initialize map
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -135,7 +140,7 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
     map.on('load', () => {
-      const geojson = buildGeoJSON();
+      const geojson = buildGeoJSONRef.current();
 
       // Add GeoJSON source with clustering
       map.addSource('places', {
@@ -310,11 +315,22 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
   // Update GeoJSON when filter changes
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+    if (!map) return;
 
-    const source = map.getSource('places');
-    if (source) {
-      source.setData(buildGeoJSON());
+    const update = () => {
+      const source = map.getSource('places');
+      if (source) {
+        source.setData(buildGeoJSON());
+        return true;
+      }
+      return false;
+    };
+
+    // Try immediately; if the source isn't ready yet, wait for load
+    if (!update()) {
+      const onLoad = () => update();
+      map.once('load', onLoad);
+      return () => map.off('load', onLoad);
     }
   }, [activeAgeFilter, buildGeoJSON]);
 
