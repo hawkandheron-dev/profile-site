@@ -20,7 +20,7 @@ const cache = new Map();
  * Fetch the verse text for a given scripture reference.
  *
  * @param {string} reference - e.g. "Genesis 12:1-3", "John 3:16"
- * @returns {Promise<{ text: string, reference: string } | null>}
+ * @returns {Promise<{ verses: Array<{text, bookname, chapter, verse}>, reference: string } | null>}
  */
 export async function fetchVerseText(reference) {
   if (!reference) return null;
@@ -81,6 +81,36 @@ export function extractReference(scriptureVerse) {
   if (looksLikeReference(s)) return s;
 
   return null;
+}
+
+/**
+ * Build a BibleHub interlinear URL for a scripture reference.
+ * Falls back to BibleGateway if the reference can't be parsed.
+ *
+ *   "Genesis 12:1-3"  → https://biblehub.com/interlinear/genesis/12.htm
+ *   "1 Samuel 17"     → https://biblehub.com/interlinear/1_samuel/17.htm
+ *   "Matthew 3:13-17" → https://biblehub.com/interlinear/matthew/3.htm
+ */
+export function buildBibleUrl(reference) {
+  if (!reference) return null;
+
+  // Take only the first passage for multi-ref strings
+  const clean = reference.split(';')[0].split(',')[0].trim();
+  if (!clean) return null;
+
+  // Parse: optional number prefix + book name + chapter (+ optional :verse)
+  // e.g. "1 Samuel 17", "Genesis 12:1-3", "Judges 4-5", "Exodus 5-12"
+  const m = clean.match(/^(\d\s+)?([A-Za-z]+(?:\s+of\s+[A-Za-z]+)?)\s+(\d+)/);
+  if (m) {
+    const numPrefix = m[1] ? m[1].trim() : '';
+    const bookWord = m[2].toLowerCase();
+    const chapter = m[3];
+    const slug = numPrefix ? `${numPrefix}_${bookWord}` : bookWord;
+    return `https://biblehub.com/interlinear/${slug}/${chapter}.htm`;
+  }
+
+  // Fallback to BibleGateway
+  return `https://www.biblegateway.com/passage/?search=${encodeURIComponent(clean)}&version=NET`;
 }
 
 // ── Internal helpers ────────────────────────────────────────────────────────
@@ -173,19 +203,25 @@ function _fetchJsonp(encodedPassage, originalRef) {
  *
  * Response is an array of verse objects:
  *   [{ bookname: "Genesis", chapter: "12", verse: "1", text: "..." }, ...]
+ *
+ * Returns individual verses so the UI can truncate long passages.
  */
 function _parseResponse(data, originalRef) {
   if (!Array.isArray(data) || data.length === 0) return null;
 
-  const combinedText = data
-    .map(v => (v.text || '').trim())
-    .filter(Boolean)
-    .join(' ');
+  const verses = data
+    .map(v => ({
+      text: (v.text || '').trim(),
+      bookname: v.bookname || '',
+      chapter: v.chapter || '',
+      verse: v.verse || '',
+    }))
+    .filter(v => v.text);
 
-  if (!combinedText) return null;
+  if (verses.length === 0) return null;
 
   return {
-    text: combinedText,
+    verses,
     reference: originalRef,
   };
 }

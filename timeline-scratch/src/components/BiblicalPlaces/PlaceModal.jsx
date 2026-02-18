@@ -168,7 +168,7 @@ export function PlaceModal({
             ))}
           </div>
         )}
-        <ScriptureVerse scriptureVerse={p.scripture_verse} />
+        <ScriptureVerse scriptureVerse={p.scripture_verse} placeName={place.name} />
       </div>
     );
   }

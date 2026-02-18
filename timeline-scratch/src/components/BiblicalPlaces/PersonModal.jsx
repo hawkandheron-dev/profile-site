@@ -2,10 +2,10 @@ import './PlaceModal.css';
 import { ScriptureVerse } from './ScriptureVerse';
 
 /**
- * Side panel content showing a biblical person with their places, events, and narrative ages.
+ * Side panel content showing a biblical person with their places and narrative ages.
  */
 export function PersonModal({
-  person, ages, places, events, ageMap, placeMap, sourceMap,
+  person, ages, places, sourceMap,
   onSelectEntity, onClose, canGoBack, onBack,
 }) {
   if (!person) return null;
@@ -64,49 +64,9 @@ export function PersonModal({
                   <span className="bp-pill-context"> &mdash; {p.context}</span>
                 )}
               </button>
-              <ScriptureVerse scriptureVerse={p.scripture_verse} />
+              <ScriptureVerse scriptureVerse={p.scripture_verse} placeName={p.name} />
             </div>
           ))}
-        </div>
-      )}
-
-      {/* Events */}
-      {events.length > 0 && (
-        <div className="bp-section">
-          <h3 className="bp-section-title">Events</h3>
-          {events.map(ev => {
-            const age = ageMap.get(ev.narrative_age_id);
-            const place = ev.place_id ? placeMap.get(ev.place_id) : null;
-            return (
-              <div key={ev.event_id} className="bp-event-card">
-                <button
-                  className="bp-event-name"
-                  onClick={() => onSelectEntity('event', ev.event_id)}
-                >
-                  {ev.name}
-                </button>
-                {age && (
-                  <span
-                    className="bp-age-badge bp-age-badge-sm"
-                    style={{ backgroundColor: age.color || '#8b7355' }}
-                  >
-                    {age.name}
-                  </span>
-                )}
-                {place && (
-                  <button
-                    className="bp-pill bp-pill-sm"
-                    onClick={() => onSelectEntity('place', place.place_id)}
-                  >
-                    {place.name}
-                  </button>
-                )}
-                {ev.scripture_ref && (
-                  <span className="bp-scripture-ref">{ev.scripture_ref}</span>
-                )}
-              </div>
-            );
-          })}
         </div>
       )}
 

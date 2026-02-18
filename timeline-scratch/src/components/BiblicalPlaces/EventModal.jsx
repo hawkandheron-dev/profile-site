@@ -47,7 +47,7 @@ export function EventModal({
         <p className="bp-scripture-ref bp-modal-subtitle">{event.scripture_ref}</p>
       )}
 
-      <ScriptureVerse scriptureRef={event.scripture_ref} />
+      <ScriptureVerse scriptureRef={event.scripture_ref} placeName={place?.name} />
 
       {event.description && (
         <p className="bp-modal-description">{event.description}</p>
