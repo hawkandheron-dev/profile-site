@@ -118,21 +118,24 @@ function VerseText({ text, placeName }) {
     }
   }
 
-  // Build a single regex matching any variant (case-insensitive, word-boundary)
-  const escaped = Array.from(names).map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-  const pattern = new RegExp(`\\b(${escaped.join('|')})\\b`, 'gi');
+  // Escape for regex, then make spaces/hyphens interchangeable so
+  // "Ramoth Gilead" matches "Ramoth-gilead" in the text and vice-versa
+  const escaped = Array.from(names).map(n =>
+    n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/[\s-]+/g, '[\\s\\-]+')
+  );
+
+  // Capturing group so split() keeps the matched text in the array
+  const pattern = new RegExp(`(${escaped.join('|')})`, 'i');
 
   const parts = text.split(pattern);
   if (parts.length === 1) return text;
 
-  return parts.map((part, i) => {
-    if (pattern.test(part)) {
-      // Reset lastIndex since we're using 'g' flag
-      pattern.lastIndex = 0;
-      return <strong key={i} className="bp-verse-place">{part}</strong>;
-    }
-    return part;
-  });
+  // split() with a capturing group puts matches at odd indices (1, 3, 5…)
+  return parts.map((part, i) =>
+    i % 2 === 1
+      ? <strong key={i} className="bp-verse-place">{part}</strong>
+      : part
+  );
 }
 
 function LinkOutIcon() {
