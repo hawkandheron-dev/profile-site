@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { fetchBiblicalPlacesData } from './data/biblicalPlacesSupabaseAdapter.js';
 import { BiblicalPlacesMap } from './components/BiblicalPlaces/BiblicalPlacesMap.jsx';
 import { NarrativeAgeFilter } from './components/BiblicalPlaces/NarrativeAgeFilter.jsx';
@@ -67,6 +67,9 @@ function BiblicalPlacesApp() {
   const [modalStack, setModalStack] = useState([]); // [{ type, id }]
   const [activeAgeFilter, setActiveAgeFilter] = useState(null);
   const [mapYear, setMapYear] = useState(null);
+  const [activeTheme, setActiveTheme] = useState(null);   // theme_id | '__women__' | null
+  const [activeJourney, setActiveJourney] = useState(null); // journey_id | null
+  const [filterTab, setFilterTab] = useState('periods');
   const mapRef = useRef(null);
 
   useEffect(() => {
@@ -124,7 +127,10 @@ function BiblicalPlacesApp() {
 
   const handleReset = useCallback(() => {
     setActiveAgeFilter(null);
+    setActiveTheme(null);
+    setActiveJourney(null);
     setMapYear(null);
+    setFilterTab('periods');
     closeAllModals();
     mapRef.current?.reset?.();
   }, [closeAllModals]);
@@ -134,6 +140,9 @@ function BiblicalPlacesApp() {
   const handleAgeFilter = useCallback((ageId) => {
     const newFilter = activeAgeFilter === ageId ? null : ageId;
     setActiveAgeFilter(newFilter);
+    // Clear other filters for mutual exclusivity
+    setActiveTheme(null);
+    setActiveJourney(null);
 
     // Set map year to midpoint of the age's date range and apply immediately
     if (newFilter && data) {
@@ -199,13 +208,111 @@ function BiblicalPlacesApp() {
     }
   }, [data]);
 
+  // ── Theme filter ────────────────────────────────────────────────────────
+
+  const handleThemeSelect = useCallback((themeId) => {
+    const newTheme = activeTheme === themeId ? null : themeId;
+    setActiveTheme(newTheme);
+    // Clear other filters for mutual exclusivity
+    setActiveAgeFilter(null);
+    setActiveJourney(null);
+    setMapYear(null);
+
+    if (newTheme && data) {
+      if (newTheme === '__women__') {
+        // Fit to all women-linked places
+        const wPlaces = data.places.filter(p => data.womenPlaceIds.has(p.place_id));
+        if (wPlaces.length > 1) {
+          const lngs = wPlaces.map(p => p.lng);
+          const lats = wPlaces.map(p => p.lat);
+          mapRef.current?.fitBounds?.([
+            [Math.min(...lngs), Math.min(...lats)],
+            [Math.max(...lngs), Math.max(...lats)],
+          ]);
+        }
+      } else {
+        // Fit to theme stop places
+        const stops = data.themeStopsMap.get(newTheme) || [];
+        const stopPlaces = stops.map(s => s.place).filter(Boolean);
+        if (stopPlaces.length > 1) {
+          const lngs = stopPlaces.map(p => p.lng);
+          const lats = stopPlaces.map(p => p.lat);
+          mapRef.current?.fitBounds?.([
+            [Math.min(...lngs), Math.min(...lats)],
+            [Math.max(...lngs), Math.max(...lats)],
+          ]);
+        } else if (stopPlaces.length === 1) {
+          mapRef.current?.flyTo?.(stopPlaces[0].lng, stopPlaces[0].lat);
+        }
+      }
+    } else if (!newTheme) {
+      mapRef.current?.reset?.();
+    }
+  }, [activeTheme, data]);
+
+  // ── Journey filter ─────────────────────────────────────────────────────
+
+  const handleJourneySelect = useCallback((journeyId) => {
+    const newJourney = activeJourney === journeyId ? null : journeyId;
+    setActiveJourney(newJourney);
+    // Clear other filters for mutual exclusivity
+    setActiveAgeFilter(null);
+    setActiveTheme(null);
+    setMapYear(null);
+
+    if (newJourney && data) {
+      const stops = data.journeyStopsMap.get(newJourney) || [];
+      const stopPlaces = stops.map(s => s.place).filter(Boolean);
+      if (stopPlaces.length > 1) {
+        const lngs = stopPlaces.map(p => p.lng);
+        const lats = stopPlaces.map(p => p.lat);
+        mapRef.current?.fitBounds?.([
+          [Math.min(...lngs), Math.min(...lats)],
+          [Math.max(...lngs), Math.max(...lats)],
+        ]);
+      } else if (stopPlaces.length === 1) {
+        mapRef.current?.flyTo?.(stopPlaces[0].lng, stopPlaces[0].lat);
+      }
+    } else if (!newJourney) {
+      mapRef.current?.reset?.();
+    }
+  }, [activeJourney, data]);
+
+  // ── Derived data for active theme/journey ──────────────────────────────
+
+  const themeStopPlaceIds = useMemo(() => {
+    if (!activeTheme || activeTheme === '__women__' || !data) return null;
+    const stops = data.themeStopsMap.get(activeTheme) || [];
+    return new Set(stops.map(s => s.place_id).filter(Boolean));
+  }, [activeTheme, data]);
+
+  const currentThemeStops = useMemo(() => {
+    if (!activeTheme || activeTheme === '__women__' || !data) return [];
+    return data.themeStopsMap.get(activeTheme) || [];
+  }, [activeTheme, data]);
+
+  const activeThemeObj = useMemo(() => {
+    if (!activeTheme || activeTheme === '__women__' || !data) return null;
+    return data.themeMap.get(activeTheme) || null;
+  }, [activeTheme, data]);
+
+  const currentJourneyStops = useMemo(() => {
+    if (!activeJourney || !data) return [];
+    return data.journeyStopsMap.get(activeJourney) || [];
+  }, [activeJourney, data]);
+
+  const activeJourneyObj = useMemo(() => {
+    if (!activeJourney || !data) return null;
+    return data.journeyMap.get(activeJourney) || null;
+  }, [activeJourney, data]);
+
   // ── Search → fly to place ──────────────────────────────────────────────
 
   const handleSearchSelect = useCallback((type, id) => {
     handleSelectEntity(type, id);
   }, [handleSelectEntity]);
 
-  const showReset = !!(activeAgeFilter || modalStack.length > 0);
+  const showReset = !!(activeAgeFilter || activeTheme || activeJourney || modalStack.length > 0);
 
   return (
     <div className="bp-app">
@@ -240,11 +347,26 @@ function BiblicalPlacesApp() {
             activeAgeFilter={activeAgeFilter}
             mapYear={mapYear}
             onSelectPlace={(placeId) => handleSelectEntity('place', placeId)}
+            activeJourney={activeJourney}
+            journeyStops={currentJourneyStops}
+            journeyColor={activeJourneyObj?.color}
+            activeTheme={activeTheme}
+            themeStopPlaceIds={themeStopPlaceIds}
+            themeColor={activeThemeObj?.color}
+            womenPlaceIds={data.womenPlaceIds}
           />
           <NarrativeAgeFilter
             ages={data.ages}
             activeAgeFilter={activeAgeFilter}
             onFilter={handleAgeFilter}
+            themes={data.themes}
+            activeTheme={activeTheme}
+            onThemeSelect={handleThemeSelect}
+            journeys={data.journeys}
+            activeJourney={activeJourney}
+            onJourneySelect={handleJourneySelect}
+            activeTab={filterTab}
+            onTabChange={setFilterTab}
             showReset={showReset}
             onReset={handleReset}
             siteTitle="Bible Atlas: who's where when?"
@@ -290,6 +412,88 @@ function BiblicalPlacesApp() {
               </div>
             );
           })()}
+
+          {/* Journey info panel */}
+          {activeJourney && activeJourneyObj && (
+            <div className="bp-info-panel">
+              <div className="bp-info-panel-header">
+                <span
+                  className="bp-info-panel-dot"
+                  style={{ background: activeJourneyObj.color || '#8b7355' }}
+                />
+                <h3 className="bp-info-panel-title">{activeJourneyObj.name}</h3>
+              </div>
+              {activeJourneyObj.person && (
+                <button
+                  className="bp-info-panel-person"
+                  onClick={() => handleSelectEntity('person', activeJourneyObj.person_id)}
+                >
+                  {activeJourneyObj.person.name}
+                </button>
+              )}
+              {activeJourneyObj.description && (
+                <p className="bp-info-panel-desc">{activeJourneyObj.description}</p>
+              )}
+              <ol className="bp-info-panel-stops">
+                {currentJourneyStops.map((stop, i) => (
+                  <li key={stop.id || i}>
+                    <button
+                      className="bp-info-panel-stop-btn"
+                      onClick={() => {
+                        if (stop.place) {
+                          mapRef.current?.flyTo?.(stop.place.lng, stop.place.lat);
+                        }
+                      }}
+                    >
+                      {stop.label || stop.place?.name || `Stop ${i + 1}`}
+                    </button>
+                    {stop.scripture_ref && (
+                      <span className="bp-info-panel-ref">{stop.scripture_ref}</span>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          {/* Theme info panel */}
+          {activeTheme && activeTheme !== '__women__' && activeThemeObj && (
+            <div className="bp-info-panel">
+              <div className="bp-info-panel-header">
+                <span
+                  className="bp-info-panel-dot"
+                  style={{ background: activeThemeObj.color || '#8b7355' }}
+                />
+                <h3 className="bp-info-panel-title">{activeThemeObj.name}</h3>
+              </div>
+              {activeThemeObj.description && (
+                <p className="bp-info-panel-desc">{activeThemeObj.description}</p>
+              )}
+              <ol className="bp-info-panel-stops">
+                {currentThemeStops.map((stop, i) => (
+                  <li key={stop.id || i}>
+                    <button
+                      className="bp-info-panel-stop-btn"
+                      onClick={() => {
+                        if (stop.place) {
+                          mapRef.current?.flyTo?.(stop.place.lng, stop.place.lat);
+                          handleSelectEntity('place', stop.place_id);
+                        }
+                      }}
+                    >
+                      {stop.title || stop.place?.name || `Stop ${i + 1}`}
+                    </button>
+                    {stop.scripture_ref && (
+                      <span className="bp-info-panel-ref">{stop.scripture_ref}</span>
+                    )}
+                    {stop.description && (
+                      <span className="bp-info-panel-stop-desc">{stop.description}</span>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
         </>
       )}
 

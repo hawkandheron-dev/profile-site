@@ -89,6 +89,46 @@
   color: var(--color-ink-faded, #7a6f5f);
 }
 
+/* ── Tab row ──────────────────────────────────────────────────────────── */
+
+.bp-filter-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 16px;
+  border-bottom: 1px solid rgba(139, 115, 85, 0.12);
+}
+
+.bp-filter-tab {
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #7a6f5f;
+  padding: 6px 12px;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bp-filter-tab:hover {
+  color: #4a3f2f;
+  background: rgba(139, 115, 85, 0.06);
+}
+
+.bp-filter-tab-active {
+  color: #2c2418;
+  border-bottom: 2px solid #8b7355;
+  margin-bottom: -1px;
+}
+
+.bp-reset-btn-tabs {
+  margin-left: auto;
+}
+
 .bp-age-filter-pills {
   display: flex;
   flex-wrap: wrap;
@@ -171,6 +211,24 @@
 
   .bp-age-filter-site-title {
     color: #a09888;
+  }
+
+  .bp-filter-tabs {
+    border-bottom-color: rgba(200, 180, 140, 0.12);
+  }
+
+  .bp-filter-tab {
+    color: #a09888;
+  }
+
+  .bp-filter-tab:hover {
+    color: #d8d0c4;
+    background: rgba(200, 180, 140, 0.06);
+  }
+
+  .bp-filter-tab-active {
+    color: #f0ebe0;
+    border-bottom-color: #b8a07a;
   }
 
   .bp-age-pill {
