@@ -43,18 +43,18 @@ drop policy if exists "Admins can read all issues" on public."App_Issues";
 create policy "Admins can read all issues" on public."App_Issues"
   for select using (
     exists (
-      select 1 from public.admin_users
+      select 1 from public.users
       where clerk_user_id = current_setting('request.jwt.claims', true)::json->>'sub'
         and role = 'admin'
     )
   );
 
--- Contributors (anyone in admin_users with contributor role) can insert own issues
+-- Contributors (anyone in users with contributor or admin role) can insert own issues
 drop policy if exists "Contributors can insert issues" on public."App_Issues";
 create policy "Contributors can insert issues" on public."App_Issues"
   for insert with check (
     exists (
-      select 1 from public.admin_users
+      select 1 from public.users
       where clerk_user_id = current_setting('request.jwt.claims', true)::json->>'sub'
         and role in ('contributor', 'admin')
     )
@@ -66,7 +66,7 @@ drop policy if exists "Admins can update issues" on public."App_Issues";
 create policy "Admins can update issues" on public."App_Issues"
   for update using (
     exists (
-      select 1 from public.admin_users
+      select 1 from public.users
       where clerk_user_id = current_setting('request.jwt.claims', true)::json->>'sub'
         and role = 'admin'
     )
