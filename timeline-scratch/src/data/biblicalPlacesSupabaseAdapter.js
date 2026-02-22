@@ -69,6 +69,7 @@ export async function fetchBiblicalPlacesData() {
     { data: themeStops, error: tsErr },
     { data: journeys, error: jErr },
     { data: journeyStops, error: jsErr },
+    { data: journeyWaypoints, error: jwErr },
   ] = await Promise.all([
     supabase.from('BP_NarrativeAges').select('*').order('sort_order'),
     supabase.from('BP_Places').select('*'),
@@ -87,9 +88,10 @@ export async function fetchBiblicalPlacesData() {
     supabase.from('BP_ThemeStops').select('*').order('stop_order'),
     supabase.from('BP_Journeys').select('*').order('sort_order'),
     supabase.from('BP_JourneyStops').select('*').order('stop_order'),
+    supabase.from('BP_JourneyWaypoints').select('*').order('after_stop').order('waypoint_order'),
   ]);
 
-  const errors = [agesErr, placesErr, peopleErr, paErr, eventsErr, ppErr, epErr, srcErr, sfErr, resErr, rlErr, ppnErr, pasErr, thErr, tsErr, jErr, jsErr].filter(Boolean);
+  const errors = [agesErr, placesErr, peopleErr, paErr, eventsErr, ppErr, epErr, srcErr, sfErr, resErr, rlErr, ppnErr, pasErr, thErr, tsErr, jErr, jsErr, jwErr].filter(Boolean);
   if (errors.length) {
     throw new Error(`Supabase fetch errors: ${errors.map(e => e.message).join('; ')}`);
   }
@@ -112,6 +114,7 @@ export async function fetchBiblicalPlacesData() {
     journeys || [],
     themeStops || [],
     journeyStops || [],
+    journeyWaypoints || [],
   );
 }
 
@@ -121,7 +124,7 @@ function transformToBiblicalPlacesFormat(
   dbAges, dbPlaces, dbPeople, dbPersonAges, dbEvents,
   dbPersonPlaces, dbEventPeople, dbSources, dbSourceFigures,
   dbResources, dbResourceLinks, dbPlacePeriodNames, dbPlaceAgeSummaries,
-  dbThemes, dbJourneys, dbThemeStops, dbJourneyStops
+  dbThemes, dbJourneys, dbThemeStops, dbJourneyStops, dbJourneyWaypoints
 ) {
   // ── Lookup maps ─────────────────────────────────────────────────────────
 
@@ -345,6 +348,16 @@ function transformToBiblicalPlacesFormat(
     });
   });
 
+  // ── Journey waypoints: journey_id -> Map<after_stop, [[lng, lat], ...]> ──
+
+  const journeyWaypointsMap = new Map(); // journey_id -> Map<after_stop, [[lng,lat],...]>
+  (dbJourneyWaypoints || []).forEach(jw => {
+    if (!journeyWaypointsMap.has(jw.journey_id)) journeyWaypointsMap.set(jw.journey_id, new Map());
+    const segmentMap = journeyWaypointsMap.get(jw.journey_id);
+    if (!segmentMap.has(jw.after_stop)) segmentMap.set(jw.after_stop, []);
+    segmentMap.get(jw.after_stop).push([jw.lng, jw.lat]);
+  });
+
   // ── Women: collect place_ids connected to women ───────────────────
 
   const womenPlaceIds = new Set();
@@ -376,6 +389,7 @@ function transformToBiblicalPlacesFormat(
     personAgesMap,
     themeStopsMap,
     journeyStopsMap,
+    journeyWaypointsMap,
     sourceMap,
     resourceMap,
     placeNamesMap,

@@ -1,4 +1,13 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useAuth,
+  useUser,
+} from '@clerk/clerk-react';
 import { fetchBiblicalPlacesData } from './data/biblicalPlacesSupabaseAdapter.js';
 import { BiblicalPlacesMap } from './components/BiblicalPlaces/BiblicalPlacesMap.jsx';
 import { NarrativeAgeFilter } from './components/BiblicalPlaces/NarrativeAgeFilter.jsx';
@@ -6,6 +15,8 @@ import { BiblicalPlacesSearch } from './components/BiblicalPlaces/BiblicalPlaces
 import { PlaceModal } from './components/BiblicalPlaces/PlaceModal.jsx';
 import { PersonModal } from './components/BiblicalPlaces/PersonModal.jsx';
 import { EventModal } from './components/BiblicalPlaces/EventModal.jsx';
+import { checkUserRole, ensureUserExists } from './services/adminService.js';
+import { IssueCreatorButton } from './components/IssueCreator/IssueCreatorButton.jsx';
 import './BiblicalPlacesApp.css';
 
 function formatYear(year) {
@@ -60,6 +71,8 @@ function computeTicks(start, end) {
   return result;
 }
 
+const hasClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
 function BiblicalPlacesApp() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -70,7 +83,36 @@ function BiblicalPlacesApp() {
   const [activeTheme, setActiveTheme] = useState(null);   // theme_id | '__women__' | null
   const [activeJourney, setActiveJourney] = useState(null); // journey_id | null
   const [filterTab, setFilterTab] = useState('periods');
+  const [isContributor, setIsContributor] = useState(false);
   const mapRef = useRef(null);
+
+  // Auth state (only used when Clerk is configured)
+  const auth = hasClerk ? useAuth() : {};  // eslint-disable-line react-hooks/rules-of-hooks
+  const userHook = hasClerk ? useUser() : {};  // eslint-disable-line react-hooks/rules-of-hooks
+  const { getToken, isSignedIn, userId } = auth;
+  const clerkUser = userHook.user;
+  const clerkUserLoaded = clerkUser && clerkUser.id;
+
+  // Auto-register user on sign-in, then check their role
+  useEffect(() => {
+    if (!hasClerk || !isSignedIn || !userId || !clerkUserLoaded) {
+      if (!isSignedIn) setIsContributor(false);
+      return;
+    }
+
+    let cancelled = false;
+    const getTokenForSupabase = () => getToken({ template: 'supabase' });
+    const email = clerkUser?.primaryEmailAddress?.emailAddress;
+    const displayName = clerkUser?.fullName || clerkUser?.firstName || null;
+
+    ensureUserExists(getTokenForSupabase, userId, email, displayName)
+      .then(() => checkUserRole(getTokenForSupabase, userId))
+      .then(result => {
+        if (!cancelled) setIsContributor(result.isContributor);
+      });
+
+    return () => { cancelled = true; };
+  }, [isSignedIn, userId, getToken, clerkUserLoaded]);
 
   useEffect(() => {
     let cancelled = false;
@@ -314,6 +356,30 @@ function BiblicalPlacesApp() {
 
   const showReset = !!(activeAgeFilter || activeTheme || activeJourney || modalStack.length > 0);
 
+  // Waypoints for the active journey (Map<segmentIndex, [[lng,lat],...]>)
+  const currentJourneyWaypoints = useMemo(() => {
+    if (!activeJourney || !data?.journeyWaypointsMap) return null;
+    return data.journeyWaypointsMap.get(activeJourney) || null;
+  }, [activeJourney, data]);
+
+  // Rich context capture for the issue creator
+  const getPageContext = useCallback(() => {
+    const ctx = {
+      app: 'bible-atlas',
+      url: window.location.pathname,
+      activeFilters: {
+        ageFilter: activeAgeFilter,
+        journey: activeJourney,
+        theme: activeTheme,
+      },
+      selectedEntity: currentModal
+        ? { type: currentModal.type, id: currentModal.id }
+        : null,
+      modalStack: modalStack.length > 0 ? modalStack : null,
+    };
+    return ctx;
+  }, [activeAgeFilter, activeJourney, activeTheme, currentModal, modalStack]);
+
   return (
     <div className="bp-app">
       {/* Header overlay */}
@@ -325,6 +391,28 @@ function BiblicalPlacesApp() {
               onSelect={handleSearchSelect}
               homeHref="../../index.html"
             />
+          </div>
+        )}
+        {hasClerk && (
+          <div className="bp-header-auth">
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="bp-auth-btn" title="Sign in to report issues">Sign In</button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="bp-auth-btn" title="Create an account">Sign Up</button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <IssueCreatorButton
+                isContributor={isContributor}
+                getToken={() => getToken({ template: 'supabase' })}
+                clerkUserId={userId}
+                appId="bible-atlas"
+                getPageContext={getPageContext}
+              />
+              <UserButton />
+            </SignedIn>
           </div>
         )}
       </header>
@@ -350,6 +438,7 @@ function BiblicalPlacesApp() {
             activeJourney={activeJourney}
             journeyStops={currentJourneyStops}
             journeyColor={activeJourneyObj?.color}
+            journeyWaypoints={currentJourneyWaypoints}
             activeTheme={activeTheme}
             themeStopPlaceIds={themeStopPlaceIds}
             themeColor={activeThemeObj?.color}

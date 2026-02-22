@@ -26,6 +26,36 @@
   width: 100%;
 }
 
+/* ── Auth buttons in header ────────────────────────────────────────────── */
+
+.bp-header-auth {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  pointer-events: auto;
+}
+
+.bp-auth-btn {
+  border: 1px solid rgba(120, 100, 70, 0.3);
+  background: rgba(250, 246, 235, 0.85);
+  backdrop-filter: blur(6px);
+  color: #4a3f2f;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.bp-auth-btn:hover {
+  background: #e8dfc8;
+  border-color: rgba(120, 100, 70, 0.5);
+}
+
 /* ── Reset button ──────────────────────────────────────────────────────── */
 
 .bp-reset-btn {
@@ -435,5 +465,16 @@
 
   .bp-info-panel-stop-desc {
     color: #8a8070;
+  }
+
+  .bp-auth-btn {
+    background: rgba(30, 27, 22, 0.85);
+    border-color: rgba(200, 180, 140, 0.2);
+    color: #d8d0c4;
+  }
+
+  .bp-auth-btn:hover {
+    background: #3a3528;
+    border-color: rgba(200, 180, 140, 0.4);
   }
 }

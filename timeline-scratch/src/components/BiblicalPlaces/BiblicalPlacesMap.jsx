@@ -3,6 +3,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates';
 import MaplibreLanguage from '@openhistoricalmap/maplibre-gl-language';
+import { smoothRoute } from '../../utils/smoothRoute.js';
 import './BiblicalPlacesMap.css';
 
 const OHM_STYLE_URL = 'https://www.openhistoricalmap.org/map-styles/main/main.json';
@@ -25,7 +26,7 @@ function formatYearForOHM(year) {
  */
 export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
   { places, placeEventsMap, placePeopleMap, ageMap, activeAgeFilter, mapYear, onSelectPlace,
-    activeJourney, journeyStops, journeyColor,
+    activeJourney, journeyStops, journeyColor, journeyWaypoints,
     activeTheme, themeStopPlaceIds, themeColor,
     womenPlaceIds },
   ref
@@ -484,10 +485,20 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
 
       const color = journeyColor || '#8b7355';
 
-      // Build line coordinates from stops
-      const coords = journeyStops
+      // Build line coordinates from stops, then smooth with Catmull-Rom splines
+      const rawCoords = journeyStops
         .filter(s => s.place)
         .map(s => [s.place.lng, s.place.lat]);
+
+      // Build a waypoints map (segment index → [[lng,lat],...]) if available
+      let waypointsMap = null;
+      if (journeyWaypoints && journeyWaypoints.size > 0) {
+        waypointsMap = journeyWaypoints;
+      }
+
+      const coords = rawCoords.length >= 2
+        ? smoothRoute(rawCoords, { tension: 0.5, pointsPerSegment: 12 }, waypointsMap)
+        : rawCoords;
 
       const routeFeatures = coords.length >= 2 ? [{
         type: 'Feature',
@@ -520,7 +531,7 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       map.once('load', onLoad);
       return () => map.off('load', onLoad);
     }
-  }, [activeJourney, journeyStops, journeyColor]);
+  }, [activeJourney, journeyStops, journeyColor, journeyWaypoints]);
 
   // Update OHM date filter when mapYear changes
   useEffect(() => {
