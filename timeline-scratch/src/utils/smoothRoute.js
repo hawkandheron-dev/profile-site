@@ -5,25 +5,25 @@
  */
 
 /**
- * Interpolate a single Catmull-Rom point between p1 and p2 using control
- * points p0 and p3.
- * @param {number} t  – parameter 0..1
- * @param {number} p0 – control point before segment start
- * @param {number} p1 – segment start
- * @param {number} p2 – segment end
- * @param {number} p3 – control point after segment end
- * @param {number} tension – 0 = uniform, 0.5 = centripetal (default)
+ * Standard Catmull-Rom interpolation between p1 and p2.
+ *
+ * Uses the matrix form with parameter tau (tangent magnitude):
+ *   q(t) = p1
+ *        + (-tau*p0 + tau*p2) * t
+ *        + (2*tau*p0 + (tau-3)*p1 + (3-2*tau)*p2 - tau*p3) * t²
+ *        + (-tau*p0 + (2-tau)*p1 + (tau-2)*p2 + tau*p3) * t³
+ *
+ * Guarantees q(0)=p1 and q(1)=p2.  tau=0.5 gives the standard
+ * Catmull-Rom spline; lower values produce tighter curves.
  */
-function catmullRom(t, p0, p1, p2, p3, tension = 0.5) {
+function catmullRom(t, p0, p1, p2, p3, tau = 0.5) {
   const t2 = t * t;
   const t3 = t2 * t;
-  const s = (1 - tension) / 2;
-
   return (
-    (2 * p1) +
-    (-p0 + p2) * s * t +
-    (2 * p0 - 5 * p1 + 4 * p2 - p3) * s * t2 +
-    (-p0 + 3 * p1 - 3 * p2 + p3) * s * t3
+    p1 +
+    (-tau * p0 + tau * p2) * t +
+    (2 * tau * p0 + (tau - 3) * p1 + (3 - 2 * tau) * p2 - tau * p3) * t2 +
+    (-tau * p0 + (2 - tau) * p1 + (tau - 2) * p2 + tau * p3) * t3
   );
 }
 
@@ -32,7 +32,7 @@ function catmullRom(t, p0, p1, p2, p3, tension = 0.5) {
  *
  * @param {Array<[number, number]>} coords – raw route coordinates [lng, lat]
  * @param {Object} [opts]
- * @param {number} [opts.tension=0.5]
+ * @param {number} [opts.tension=0.5] – tau parameter (0.5 = standard, lower = tighter)
  * @param {number} [opts.pointsPerSegment=10]
  * @param {Map<number, Array<[number, number]>>} [waypointsMap]
  *   Optional map of segment index → extra waypoints to insert between
