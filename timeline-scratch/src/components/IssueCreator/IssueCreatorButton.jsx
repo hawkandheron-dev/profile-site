@@ -15,9 +15,9 @@ export function IssueCreatorButton({ isContributor, isAdmin, getToken, clerkUser
         type="button"
         className="btn btn-issue-report"
         onClick={() => setOpen(true)}
-        title="Report an issue or suggest a correction"
+        title="Submit feedback, report an issue, or suggest a correction"
       >
-        Report Issue
+        Submit Feedback
       </button>
       {open && (
         <IssueCreatorModal
