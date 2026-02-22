@@ -1,13 +1,13 @@
 /**
- * Header button for the issue creator — visible only to contributors.
+ * Header button for the issue creator — visible to contributors and admins.
  */
 import { useState } from 'react';
 import { IssueCreatorModal } from './IssueCreatorModal.jsx';
 
-export function IssueCreatorButton({ isContributor, getToken, clerkUserId, appId, getPageContext }) {
+export function IssueCreatorButton({ isContributor, isAdmin, getToken, clerkUserId, appId, getPageContext }) {
   const [open, setOpen] = useState(false);
 
-  if (!isContributor) return null;
+  if (!isContributor && !isAdmin) return null;
 
   return (
     <>

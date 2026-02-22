@@ -78,6 +78,7 @@ function ClerkAuthHeader({ onAddNote, onViewNotes, isAdmin, isContributor, onRev
           )}
           <IssueCreatorButton
             isContributor={isContributor}
+            isAdmin={isAdmin}
             getToken={getToken}
             clerkUserId={clerkUserId}
             appId="ch-timeline"

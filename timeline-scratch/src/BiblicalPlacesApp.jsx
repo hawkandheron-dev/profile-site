@@ -83,6 +83,7 @@ function BiblicalPlacesApp() {
   const [activeTheme, setActiveTheme] = useState(null);   // theme_id | '__women__' | null
   const [activeJourney, setActiveJourney] = useState(null); // journey_id | null
   const [filterTab, setFilterTab] = useState('periods');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isContributor, setIsContributor] = useState(false);
   const mapRef = useRef(null);
 
@@ -96,7 +97,7 @@ function BiblicalPlacesApp() {
   // Auto-register user on sign-in, then check their role
   useEffect(() => {
     if (!hasClerk || !isSignedIn || !userId || !clerkUserLoaded) {
-      if (!isSignedIn) setIsContributor(false);
+      if (!isSignedIn) { setIsAdmin(false); setIsContributor(false); }
       return;
     }
 
@@ -108,7 +109,7 @@ function BiblicalPlacesApp() {
     ensureUserExists(getTokenForSupabase, userId, email, displayName)
       .then(() => checkUserRole(getTokenForSupabase, userId))
       .then(result => {
-        if (!cancelled) setIsContributor(result.isContributor);
+        if (!cancelled) { setIsAdmin(result.isAdmin); setIsContributor(result.isContributor); }
       });
 
     return () => { cancelled = true; };
@@ -406,6 +407,7 @@ function BiblicalPlacesApp() {
             <SignedIn>
               <IssueCreatorButton
                 isContributor={isContributor}
+                isAdmin={isAdmin}
                 getToken={() => getToken({ template: 'supabase' })}
                 clerkUserId={userId}
                 appId="bible-atlas"
