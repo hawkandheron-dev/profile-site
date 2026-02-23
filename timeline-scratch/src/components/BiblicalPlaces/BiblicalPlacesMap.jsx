@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates';
 import MaplibreLanguage from '@openhistoricalmap/maplibre-gl-language';
 import { smoothRoute } from '../../utils/smoothRoute.js';
+import { useJourneyRouteEditor } from './useJourneyRouteEditor.js';
 import './BiblicalPlacesMap.css';
 
 const OHM_STYLE_URL = 'https://www.openhistoricalmap.org/map-styles/main/main.json';
@@ -27,6 +28,7 @@ function formatYearForOHM(year) {
 export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
   { places, placeEventsMap, placePeopleMap, ageMap, activeAgeFilter, mapYear, onSelectPlace,
     activeJourney, journeyStops, journeyColor, journeyWaypoints,
+    isEditingRoute, adminGetToken, onWaypointsChanged,
     activeTheme, themeStopPlaceIds, themeColor,
     womenPlaceIds },
   ref
@@ -467,8 +469,10 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
     }
   }, [activeAgeFilter, activeTheme, buildGeoJSON]);
 
-  // Update journey route overlay
+  // Update journey route overlay (skip when edit mode — the editor hook owns the route)
   useEffect(() => {
+    if (isEditingRoute) return;
+
     const map = mapRef.current;
     if (!map) return;
 
@@ -531,7 +535,17 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       map.once('load', onLoad);
       return () => map.off('load', onLoad);
     }
-  }, [activeJourney, journeyStops, journeyColor, journeyWaypoints]);
+  }, [activeJourney, journeyStops, journeyColor, journeyWaypoints, isEditingRoute]);
+
+  // Journey route editor (admin drag-to-edit waypoints)
+  useJourneyRouteEditor(mapRef, {
+    isEditing: isEditingRoute,
+    activeJourney,
+    journeyStops,
+    journeyColor,
+    getToken: adminGetToken,
+    onWaypointsChanged,
+  });
 
   // Update OHM date filter when mapYear changes
   useEffect(() => {

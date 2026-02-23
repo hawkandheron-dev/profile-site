@@ -85,6 +85,7 @@ function BiblicalPlacesApp() {
   const [filterTab, setFilterTab] = useState('periods');
   const [isAdmin, setIsAdmin] = useState(false);
   const [isContributor, setIsContributor] = useState(false);
+  const [isEditingRoute, setIsEditingRoute] = useState(false);
   const mapRef = useRef(null);
 
   // Auth state (only used when Clerk is configured)
@@ -363,6 +364,17 @@ function BiblicalPlacesApp() {
     return data.journeyWaypointsMap.get(activeJourney) || null;
   }, [activeJourney, data]);
 
+  // Callback when admin edits journey waypoints — reload data
+  const handleWaypointsChanged = useCallback(() => {
+    // Refetch all data so the adapter rebuilds the journeyWaypointsMap
+    fetchBiblicalPlacesData().then(result => setData(result)).catch(() => {});
+  }, []);
+
+  // Toggle edit mode off when journey changes
+  useEffect(() => {
+    setIsEditingRoute(false);
+  }, [activeJourney]);
+
   // Rich context capture for the issue creator
   const getPageContext = useCallback(() => {
     const ctx = {
@@ -441,6 +453,9 @@ function BiblicalPlacesApp() {
             journeyStops={currentJourneyStops}
             journeyColor={activeJourneyObj?.color}
             journeyWaypoints={currentJourneyWaypoints}
+            isEditingRoute={isEditingRoute}
+            adminGetToken={isAdmin && hasClerk ? () => getToken({ template: 'supabase' }) : null}
+            onWaypointsChanged={handleWaypointsChanged}
             activeTheme={activeTheme}
             themeStopPlaceIds={themeStopPlaceIds}
             themeColor={activeThemeObj?.color}
@@ -513,6 +528,15 @@ function BiblicalPlacesApp() {
                   style={{ background: activeJourneyObj.color || '#8b7355' }}
                 />
                 <h3 className="bp-info-panel-title">{activeJourneyObj.name}</h3>
+                {isAdmin && (
+                  <button
+                    className={`bp-edit-route-toggle${isEditingRoute ? ' bp-edit-route-toggle-active' : ''}`}
+                    onClick={() => setIsEditingRoute(prev => !prev)}
+                    title={isEditingRoute ? 'Done editing route' : 'Edit route waypoints'}
+                  >
+                    {isEditingRoute ? 'Done' : 'Edit Route'}
+                  </button>
+                )}
               </div>
               {activeJourneyObj.person && (
                 <button

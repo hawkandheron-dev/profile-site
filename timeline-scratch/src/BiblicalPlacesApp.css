@@ -324,6 +324,38 @@
   margin-top: 1px;
 }
 
+/* ── Edit route toggle button ─────────────────────────────────────────── */
+
+.bp-edit-route-toggle {
+  margin-left: auto;
+  border: 1px solid rgba(120, 100, 70, 0.3);
+  background: rgba(250, 246, 235, 0.85);
+  color: #4a3f2f;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.bp-edit-route-toggle:hover {
+  background: #e8dfc8;
+  border-color: rgba(120, 100, 70, 0.5);
+}
+
+.bp-edit-route-toggle-active {
+  background: #4a8c3f;
+  color: #fff;
+  border-color: #3a6e32;
+}
+
+.bp-edit-route-toggle-active:hover {
+  background: #3a6e32;
+}
+
 /* ── Mobile responsive ─────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
@@ -476,5 +508,26 @@
   .bp-auth-btn:hover {
     background: #3a3528;
     border-color: rgba(200, 180, 140, 0.4);
+  }
+
+  .bp-edit-route-toggle {
+    background: rgba(30, 27, 22, 0.85);
+    border-color: rgba(200, 180, 140, 0.2);
+    color: #d8d0c4;
+  }
+
+  .bp-edit-route-toggle:hover {
+    background: #3a3528;
+    border-color: rgba(200, 180, 140, 0.4);
+  }
+
+  .bp-edit-route-toggle-active {
+    background: #4a8c3f;
+    color: #fff;
+    border-color: #3a6e32;
+  }
+
+  .bp-edit-route-toggle-active:hover {
+    background: #3a6e32;
   }
 }
