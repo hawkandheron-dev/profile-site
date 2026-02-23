@@ -318,10 +318,15 @@ function BiblicalPlacesApp() {
       } else if (stopPlaces.length === 1) {
         mapRef.current?.flyTo?.(stopPlaces[0].lng, stopPlaces[0].lat);
       }
+      // Open the first stop's detail panel
+      const firstStop = stops[0];
+      if (firstStop?.place_id) {
+        handleSelectEntity('place', firstStop.place_id);
+      }
     } else if (!newJourney) {
       mapRef.current?.reset?.();
     }
-  }, [activeJourney, data]);
+  }, [activeJourney, data, handleSelectEntity]);
 
   // ── Derived data for active theme/journey ──────────────────────────────
 
