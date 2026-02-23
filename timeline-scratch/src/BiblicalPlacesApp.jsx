@@ -366,8 +366,9 @@ function BiblicalPlacesApp() {
     const stop = currentJourneyStops[index];
     if (stop?.place) {
       mapRef.current?.flyTo?.(stop.place.lng, stop.place.lat);
+      handleSelectEntity('place', stop.place_id);
     }
-  }, [currentJourneyStops]);
+  }, [currentJourneyStops, handleSelectEntity]);
 
   // Rich context capture for the issue creator
   const getPageContext = useCallback(() => {
