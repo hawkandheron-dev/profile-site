@@ -85,7 +85,7 @@ function BiblicalPlacesApp() {
   const [filterTab, setFilterTab] = useState('periods');
   const [isAdmin, setIsAdmin] = useState(false);
   const [isContributor, setIsContributor] = useState(false);
-  const [isEditingRoute, setIsEditingRoute] = useState(false);
+  const [selectedStopIndex, setSelectedStopIndex] = useState(0);
   const mapRef = useRef(null);
 
   // Auth state (only used when Clerk is configured)
@@ -299,6 +299,7 @@ function BiblicalPlacesApp() {
   const handleJourneySelect = useCallback((journeyId) => {
     const newJourney = activeJourney === journeyId ? null : journeyId;
     setActiveJourney(newJourney);
+    setSelectedStopIndex(0);
     // Clear other filters for mutual exclusivity
     setActiveAgeFilter(null);
     setActiveTheme(null);
@@ -358,29 +359,15 @@ function BiblicalPlacesApp() {
 
   const showReset = !!(activeAgeFilter || activeTheme || activeJourney || modalStack.length > 0);
 
-  // Waypoints for the active journey (Map<segmentIndex, [[lng,lat],...]>)
-  const currentJourneyWaypoints = useMemo(() => {
-    if (!activeJourney || !data?.journeyWaypointsMap) return null;
-    return data.journeyWaypointsMap.get(activeJourney) || null;
-  }, [activeJourney, data]);
-
-  // Stable reference for the admin token provider — avoids recreating
-  // the function every render, which would churn the editor hook's useEffect.
-  const adminGetToken = useCallback(() => {
-    if (!getToken) return Promise.resolve(null);
-    return getToken({ template: 'supabase' });
-  }, [getToken]);
-
-  // Callback when admin edits journey waypoints — reload data
-  const handleWaypointsChanged = useCallback(() => {
-    // Refetch all data so the adapter rebuilds the journeyWaypointsMap
-    fetchBiblicalPlacesData().then(result => setData(result)).catch(() => {});
-  }, []);
-
-  // Toggle edit mode off when journey changes
-  useEffect(() => {
-    setIsEditingRoute(false);
-  }, [activeJourney]);
+  // Helper: select a journey stop by index and fly the map to it
+  const handleSelectStop = useCallback((index) => {
+    if (!currentJourneyStops || index < 0 || index >= currentJourneyStops.length) return;
+    setSelectedStopIndex(index);
+    const stop = currentJourneyStops[index];
+    if (stop?.place) {
+      mapRef.current?.flyTo?.(stop.place.lng, stop.place.lat);
+    }
+  }, [currentJourneyStops]);
 
   // Rich context capture for the issue creator
   const getPageContext = useCallback(() => {
@@ -459,10 +446,7 @@ function BiblicalPlacesApp() {
             activeJourney={activeJourney}
             journeyStops={currentJourneyStops}
             journeyColor={activeJourneyObj?.color}
-            journeyWaypoints={currentJourneyWaypoints}
-            isEditingRoute={isEditingRoute}
-            adminGetToken={isAdmin && hasClerk ? adminGetToken : null}
-            onWaypointsChanged={handleWaypointsChanged}
+            selectedStopIndex={selectedStopIndex}
             activeTheme={activeTheme}
             themeStopPlaceIds={themeStopPlaceIds}
             themeColor={activeThemeObj?.color}
@@ -528,22 +512,13 @@ function BiblicalPlacesApp() {
 
           {/* Journey info panel */}
           {activeJourney && activeJourneyObj && (
-            <div className="bp-info-panel">
+            <div className="bp-info-panel bp-info-panel--journey">
               <div className="bp-info-panel-header">
                 <span
                   className="bp-info-panel-dot"
                   style={{ background: activeJourneyObj.color || '#8b7355' }}
                 />
                 <h3 className="bp-info-panel-title">{activeJourneyObj.name}</h3>
-                {isAdmin && (
-                  <button
-                    className={`bp-edit-route-toggle${isEditingRoute ? ' bp-edit-route-toggle-active' : ''}`}
-                    onClick={() => setIsEditingRoute(prev => !prev)}
-                    title={isEditingRoute ? 'Done editing route' : 'Edit route waypoints'}
-                  >
-                    {isEditingRoute ? 'Done' : 'Edit Route'}
-                  </button>
-                )}
               </div>
               {activeJourneyObj.person && (
                 <button
@@ -556,25 +531,61 @@ function BiblicalPlacesApp() {
               {activeJourneyObj.description && (
                 <p className="bp-info-panel-desc">{activeJourneyObj.description}</p>
               )}
-              <ol className="bp-info-panel-stops">
-                {currentJourneyStops.map((stop, i) => (
-                  <li key={stop.id || i}>
+              <div className="bp-journey-stops-list">
+                {currentJourneyStops.map((stop, i) => {
+                  const isSelected = i === selectedStopIndex;
+                  return (
                     <button
-                      className="bp-info-panel-stop-btn"
-                      onClick={() => {
-                        if (stop.place) {
-                          mapRef.current?.flyTo?.(stop.place.lng, stop.place.lat);
-                        }
-                      }}
+                      key={stop.id || i}
+                      className={`bp-journey-stop-item${isSelected ? ' bp-journey-stop-item--selected' : ''}`}
+                      style={isSelected ? { '--journey-color': activeJourneyObj.color || '#8b7355' } : undefined}
+                      onClick={() => handleSelectStop(i)}
                     >
-                      {stop.label || stop.place?.name || `Stop ${i + 1}`}
+                      <span
+                        className="bp-journey-stop-num"
+                        style={isSelected
+                          ? { background: activeJourneyObj.color || '#8b7355', color: '#faf6eb' }
+                          : { borderColor: activeJourneyObj.color || '#8b7355', color: activeJourneyObj.color || '#8b7355' }
+                        }
+                      >
+                        {i + 1}
+                      </span>
+                      <span className="bp-journey-stop-text">
+                        <span className="bp-journey-stop-label">
+                          {stop.label || stop.place?.name || `Stop ${i + 1}`}
+                        </span>
+                        {stop.scripture_ref && (
+                          <span className="bp-journey-stop-ref">{stop.scripture_ref}</span>
+                        )}
+                      </span>
                     </button>
-                    {stop.scripture_ref && (
-                      <span className="bp-info-panel-ref">{stop.scripture_ref}</span>
-                    )}
-                  </li>
-                ))}
-              </ol>
+                  );
+                })}
+              </div>
+              {/* Forward / backward navigation */}
+              {currentJourneyStops.length > 1 && (
+                <div className="bp-journey-nav">
+                  <button
+                    className="bp-journey-nav-btn"
+                    disabled={selectedStopIndex <= 0}
+                    onClick={() => handleSelectStop(selectedStopIndex - 1)}
+                    title="Previous stop"
+                  >
+                    ‹ Prev
+                  </button>
+                  <span className="bp-journey-nav-pos">
+                    {selectedStopIndex + 1} / {currentJourneyStops.length}
+                  </span>
+                  <button
+                    className="bp-journey-nav-btn"
+                    disabled={selectedStopIndex >= currentJourneyStops.length - 1}
+                    onClick={() => handleSelectStop(selectedStopIndex + 1)}
+                    title="Next stop"
+                  >
+                    Next ›
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

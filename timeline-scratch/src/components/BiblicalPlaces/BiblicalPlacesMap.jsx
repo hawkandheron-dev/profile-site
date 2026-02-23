@@ -3,8 +3,6 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates';
 import MaplibreLanguage from '@openhistoricalmap/maplibre-gl-language';
-import { smoothRoute } from '../../utils/smoothRoute.js';
-import { useJourneyRouteEditor } from './useJourneyRouteEditor.js';
 import './BiblicalPlacesMap.css';
 
 const OHM_STYLE_URL = 'https://www.openhistoricalmap.org/map-styles/main/main.json';
@@ -27,8 +25,8 @@ function formatYearForOHM(year) {
  */
 export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
   { places, placeEventsMap, placePeopleMap, ageMap, activeAgeFilter, mapYear, onSelectPlace,
-    activeJourney, journeyStops, journeyColor, journeyWaypoints,
-    isEditingRoute, adminGetToken, onWaypointsChanged,
+    activeJourney, journeyStops, journeyColor,
+    selectedStopIndex,
     activeTheme, themeStopPlaceIds, themeColor,
     womenPlaceIds },
   ref
@@ -171,44 +169,36 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
         clusterRadius: 50,
       });
 
-      // Journey route source (initially empty)
-      map.addSource('journey-route', {
-        type: 'geojson',
-        data: { type: 'FeatureCollection', features: [] },
-      });
-
-      // Journey route line layer
-      map.addLayer({
-        id: 'journey-route-line',
-        type: 'line',
-        source: 'journey-route',
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round',
-        },
-        paint: {
-          'line-color': ['get', 'color'],
-          'line-width': 3,
-          'line-opacity': 0.8,
-          'line-dasharray': [2, 3],
-        },
-      });
-
       // Journey stop markers source
       map.addSource('journey-stops', {
         type: 'geojson',
         data: { type: 'FeatureCollection', features: [] },
       });
 
-      // Journey stop number circles
+      // Journey stop selection ring (rendered behind the circles)
+      map.addLayer({
+        id: 'journey-stop-selection-ring',
+        type: 'circle',
+        source: 'journey-stops',
+        filter: ['==', ['get', 'selected'], true],
+        paint: {
+          'circle-color': 'transparent',
+          'circle-radius': 20,
+          'circle-stroke-width': 3,
+          'circle-stroke-color': ['get', 'color'],
+          'circle-stroke-opacity': 0.5,
+        },
+      });
+
+      // Journey stop number circles (selected stops get larger)
       map.addLayer({
         id: 'journey-stop-circles',
         type: 'circle',
         source: 'journey-stops',
         paint: {
           'circle-color': ['get', 'color'],
-          'circle-radius': 12,
-          'circle-stroke-width': 2,
+          'circle-radius': ['case', ['get', 'selected'], 15, 12],
+          'circle-stroke-width': ['case', ['get', 'selected'], 3, 2],
           'circle-stroke-color': '#faf6eb',
         },
       });
@@ -221,7 +211,7 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
         layout: {
           'text-field': ['get', 'stopNum'],
           'text-font': ['Open Sans Bold'],
-          'text-size': 11,
+          'text-size': ['case', ['get', 'selected'], 13, 11],
           'text-allow-overlap': true,
         },
         paint: {
@@ -237,7 +227,7 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
         layout: {
           'text-field': ['get', 'label'],
           'text-font': ['Open Sans Semibold'],
-          'text-size': 11,
+          'text-size': ['case', ['get', 'selected'], 12, 11],
           'text-offset': [0, 2],
           'text-anchor': 'top',
           'text-optional': true,
@@ -469,59 +459,23 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
     }
   }, [activeAgeFilter, activeTheme, buildGeoJSON]);
 
-  // Update journey route overlay (skip when edit mode — the editor hook owns the route)
+  // Update journey stop markers
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    // In edit mode, clear the GeoJSON layers so they don't overlap the editor's DOM markers
-    if (isEditingRoute) {
-      const clearSources = () => {
-        const rs = map.getSource('journey-route');
-        const ss = map.getSource('journey-stops');
-        if (rs) rs.setData({ type: 'FeatureCollection', features: [] });
-        if (ss) ss.setData({ type: 'FeatureCollection', features: [] });
-      };
-      if (map.isStyleLoaded()) clearSources();
-      else map.once('load', clearSources);
-      return;
-    }
-
     const update = () => {
-      const routeSource = map.getSource('journey-route');
       const stopsSource = map.getSource('journey-stops');
-      if (!routeSource || !stopsSource) return false;
+      if (!stopsSource) return false;
 
       if (!activeJourney || !journeyStops || journeyStops.length === 0) {
-        routeSource.setData({ type: 'FeatureCollection', features: [] });
         stopsSource.setData({ type: 'FeatureCollection', features: [] });
         return true;
       }
 
       const color = journeyColor || '#8b7355';
 
-      // Build line coordinates from stops, then smooth with Catmull-Rom splines
-      const rawCoords = journeyStops
-        .filter(s => s.place)
-        .map(s => [s.place.lng, s.place.lat]);
-
-      // Build a waypoints map (segment index → [[lng,lat],...]) if available
-      let waypointsMap = null;
-      if (journeyWaypoints && journeyWaypoints.size > 0) {
-        waypointsMap = journeyWaypoints;
-      }
-
-      const coords = rawCoords.length >= 2
-        ? smoothRoute(rawCoords, { tension: 0.5, pointsPerSegment: 12 }, waypointsMap)
-        : rawCoords;
-
-      const routeFeatures = coords.length >= 2 ? [{
-        type: 'Feature',
-        geometry: { type: 'LineString', coordinates: coords },
-        properties: { color },
-      }] : [];
-
-      // Build stop point features
+      // Build stop point features with selected flag
       const stopFeatures = journeyStops
         .filter(s => s.place)
         .map((s, i) => ({
@@ -533,10 +487,10 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
             description: s.description || '',
             stopNum: String(i + 1),
             color,
+            selected: i === selectedStopIndex,
           },
         }));
 
-      routeSource.setData({ type: 'FeatureCollection', features: routeFeatures });
       stopsSource.setData({ type: 'FeatureCollection', features: stopFeatures });
       return true;
     };
@@ -546,17 +500,7 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       map.once('load', onLoad);
       return () => map.off('load', onLoad);
     }
-  }, [activeJourney, journeyStops, journeyColor, journeyWaypoints, isEditingRoute]);
-
-  // Journey route editor (admin drag-to-edit waypoints)
-  useJourneyRouteEditor(mapRef, {
-    isEditing: isEditingRoute,
-    activeJourney,
-    journeyStops,
-    journeyColor,
-    getToken: adminGetToken,
-    onWaypointsChanged,
-  });
+  }, [activeJourney, journeyStops, journeyColor, selectedStopIndex]);
 
   // Update OHM date filter when mapYear changes
   useEffect(() => {
