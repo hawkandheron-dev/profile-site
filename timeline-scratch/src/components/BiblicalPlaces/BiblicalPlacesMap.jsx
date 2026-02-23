@@ -28,7 +28,8 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
     activeJourney, journeyStops, journeyColor,
     selectedStopIndex,
     activeTheme, themeStops, themeStopPlaceIds, themeColor,
-    womenPlaceIds },
+    womenPlaceIds,
+    territories, territoryLabels },
   ref
 ) {
   const mapContainerRef = useRef(null);
@@ -159,6 +160,68 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
 
     map.on('load', () => {
       const geojson = buildGeoJSONRef.current();
+
+      // Territory polygon overlays (rendered below all other custom layers)
+      map.addSource('territories', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      });
+
+      map.addSource('territory-labels', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      });
+
+      // Territory fill (semi-transparent polygons)
+      map.addLayer({
+        id: 'territory-fill',
+        type: 'fill',
+        source: 'territories',
+        paint: {
+          'fill-color': ['get', 'color'],
+          'fill-opacity': ['get', 'opacity'],
+        },
+      });
+
+      // Territory border lines (dashed)
+      map.addLayer({
+        id: 'territory-borders',
+        type: 'line',
+        source: 'territories',
+        paint: {
+          'line-color': ['get', 'color'],
+          'line-width': 2,
+          'line-opacity': 0.6,
+          'line-dasharray': [4, 3],
+        },
+      });
+
+      // Territory name labels (positioned at label points)
+      map.addLayer({
+        id: 'territory-labels',
+        type: 'symbol',
+        source: 'territory-labels',
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-font': ['Open Sans Bold'],
+          'text-size': ['match', ['get', 'type'],
+            'empire', 14,
+            'kingdom', 13,
+            'province', 12,
+            11,
+          ],
+          'text-allow-overlap': false,
+          'text-ignore-placement': false,
+          'text-transform': 'uppercase',
+          'text-letter-spacing': 0.1,
+        },
+        paint: {
+          'text-color': ['get', 'color'],
+          'text-opacity': 0.75,
+          'text-halo-color': '#faf6eb',
+          'text-halo-width': 1.5,
+        },
+      });
 
       // Add GeoJSON source with clustering
       map.addSource('places', {
@@ -458,6 +521,29 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       return () => map.off('load', onLoad);
     }
   }, [activeAgeFilter, activeTheme, buildGeoJSON]);
+
+  // Update territory overlays when territories prop changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const emptyFC = { type: 'FeatureCollection', features: [] };
+
+    const update = () => {
+      const terrSource = map.getSource('territories');
+      const labelSource = map.getSource('territory-labels');
+      if (!terrSource || !labelSource) return false;
+      terrSource.setData(territories || emptyFC);
+      labelSource.setData(territoryLabels || emptyFC);
+      return true;
+    };
+
+    if (!update()) {
+      const onLoad = () => update();
+      map.once('load', onLoad);
+      return () => map.off('load', onLoad);
+    }
+  }, [territories, territoryLabels]);
 
   // Update numbered stop markers (shared layer for journeys and themes)
   useEffect(() => {

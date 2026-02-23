@@ -9,6 +9,7 @@ import {
   useUser,
 } from '@clerk/clerk-react';
 import { fetchBiblicalPlacesData } from './data/biblicalPlacesSupabaseAdapter.js';
+import { getTerritoriesForAge, getTerritoryLabelsForAge } from './data/biblicalTerritories.js';
 import { BiblicalPlacesMap } from './components/BiblicalPlaces/BiblicalPlacesMap.jsx';
 import { NarrativeAgeFilter } from './components/BiblicalPlaces/NarrativeAgeFilter.jsx';
 import { BiblicalPlacesSearch } from './components/BiblicalPlaces/BiblicalPlacesSearch.jsx';
@@ -362,6 +363,18 @@ function BiblicalPlacesApp() {
     return data.journeyMap.get(activeJourney) || null;
   }, [activeJourney, data]);
 
+  // ── Territory overlays for active narrative age ────────────────────────
+
+  const territories = useMemo(() => {
+    if (!activeAgeFilter) return null;
+    return getTerritoriesForAge(activeAgeFilter);
+  }, [activeAgeFilter]);
+
+  const territoryLabels = useMemo(() => {
+    if (!activeAgeFilter) return null;
+    return getTerritoryLabelsForAge(activeAgeFilter);
+  }, [activeAgeFilter]);
+
   // ── Search → fly to place ──────────────────────────────────────────────
 
   const handleSearchSelect = useCallback((type, id) => {
@@ -473,6 +486,8 @@ function BiblicalPlacesApp() {
             themeStopPlaceIds={themeStopPlaceIds}
             themeColor={activeThemeObj?.color}
             womenPlaceIds={data.womenPlaceIds}
+            territories={territories}
+            territoryLabels={territoryLabels}
           />
           <NarrativeAgeFilter
             ages={data.ages}
