@@ -1,0 +1,393 @@
+/* ── Issue Creator Modal ──────────────────────────────────────────────── */
+
+.issue-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.issue-modal {
+  position: relative;
+  background: #faf6eb;
+  border-radius: 14px;
+  max-width: 560px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 28px 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.issue-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #7a6f5f;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.issue-modal-close:hover {
+  color: #2c2418;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+
+.issue-modal-title {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #2c2418;
+}
+
+.issue-modal-desc {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #7a6f5f;
+  line-height: 1.4;
+}
+
+/* ── Issue type pills ───────────────────────────────────────────────── */
+
+.issue-type-pills {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.issue-type-pill {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(120, 100, 70, 0.25);
+  background: white;
+  color: #5a4f3f;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.issue-type-pill:hover {
+  border-color: #8b7355;
+}
+
+.issue-type-pill.active {
+  background: #8b7355;
+  border-color: #8b7355;
+  color: #faf6eb;
+}
+
+/* ── Form fields ────────────────────────────────────────────────────── */
+
+.issue-field-label {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a3f2f;
+}
+
+.issue-field-input,
+.issue-field-textarea {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 14px;
+  border: 1.5px solid rgba(120, 100, 70, 0.25);
+  border-radius: 8px;
+  background: white;
+  color: #2c2418;
+  outline: none;
+  transition: border-color 160ms ease;
+  box-sizing: border-box;
+}
+
+.issue-field-input:focus,
+.issue-field-textarea:focus {
+  border-color: #8b7355;
+}
+
+.issue-field-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ── Page context ───────────────────────────────────────────────────── */
+
+.issue-context-section {
+  margin-bottom: 14px;
+}
+
+.issue-context-toggle {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8b7355;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 160ms ease;
+}
+
+.issue-context-toggle:hover {
+  text-decoration-color: #8b7355;
+}
+
+.issue-context-preview {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  background: rgba(44, 36, 24, 0.05);
+  border-radius: 8px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #5a4f3f;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ── Screenshot placeholder ─────────────────────────────────────────── */
+
+.issue-screenshot-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border: 1.5px dashed rgba(120, 100, 70, 0.2);
+  border-radius: 8px;
+  background: rgba(120, 100, 70, 0.03);
+}
+
+.issue-screenshot-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #7a6f5f;
+}
+
+.issue-screenshot-coming-soon {
+  font-size: 11px;
+  color: #a09888;
+  font-style: italic;
+}
+
+/* ── Error / Success ────────────────────────────────────────────────── */
+
+.issue-modal-error {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #fce4ec;
+  color: #c62828;
+  font-size: 13px;
+}
+
+.issue-modal-success {
+  text-align: center;
+  padding: 24px 0;
+}
+
+.issue-modal-success h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  color: #2e7d32;
+}
+
+.issue-modal-success p {
+  margin: 0;
+  font-size: 14px;
+  color: #5a4f3f;
+}
+
+/* ── Actions ────────────────────────────────────────────────────────── */
+
+.issue-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.issue-btn-cancel {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(120, 100, 70, 0.25);
+  background: white;
+  color: #5a4f3f;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.issue-btn-cancel:hover {
+  background: #f0ebe0;
+}
+
+.issue-btn-submit {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #8b7355;
+  color: #faf6eb;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.issue-btn-submit:hover {
+  background: #7a6347;
+}
+
+.issue-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Report Issue button in header ──────────────────────────────────── */
+
+.btn-issue-report {
+  font-size: 12px !important;
+  padding: 4px 10px !important;
+  white-space: nowrap;
+}
+
+/* ── Dark mode ──────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  .issue-modal {
+    background: #1e1b16;
+  }
+
+  .issue-modal-close {
+    color: #a09888;
+  }
+
+  .issue-modal-close:hover {
+    color: #f0ebe0;
+  }
+
+  .issue-modal-title {
+    color: #f0ebe0;
+  }
+
+  .issue-modal-desc {
+    color: #a09888;
+  }
+
+  .issue-type-pill {
+    border-color: #3a3528;
+    background: #252118;
+    color: #c8b48c;
+  }
+
+  .issue-type-pill:hover {
+    border-color: #8b7355;
+  }
+
+  .issue-type-pill.active {
+    background: #8b7355;
+    color: #faf6eb;
+  }
+
+  .issue-field-label {
+    color: #c8b48c;
+  }
+
+  .issue-field-input,
+  .issue-field-textarea {
+    background: #252118;
+    border-color: #3a3528;
+    color: #f0ebe0;
+  }
+
+  .issue-field-input:focus,
+  .issue-field-textarea:focus {
+    border-color: #8b7355;
+  }
+
+  .issue-context-toggle {
+    color: #b8a07a;
+  }
+
+  .issue-context-preview {
+    background: rgba(240, 235, 224, 0.05);
+    color: #a09888;
+  }
+
+  .issue-screenshot-placeholder {
+    border-color: rgba(200, 180, 140, 0.15);
+    background: rgba(200, 180, 140, 0.03);
+  }
+
+  .issue-screenshot-label {
+    color: #a09888;
+  }
+
+  .issue-screenshot-coming-soon {
+    color: #7a6f5f;
+  }
+
+  .issue-modal-error {
+    background: #3a1c1c;
+    color: #ef9a9a;
+  }
+
+  .issue-modal-success h2 {
+    color: #81c784;
+  }
+
+  .issue-modal-success p {
+    color: #a09888;
+  }
+
+  .issue-btn-cancel {
+    border-color: #3a3528;
+    background: #252118;
+    color: #c8b48c;
+  }
+
+  .issue-btn-cancel:hover {
+    background: #3a3528;
+  }
+
+  .issue-btn-submit {
+    background: #8b7355;
+  }
+
+  .issue-btn-submit:hover {
+    background: #a08565;
+  }
+}
+
+/* ── Mobile ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .issue-modal {
+    padding: 20px 16px;
+    max-height: 90vh;
+  }
+
+  .issue-type-pills {
+    gap: 6px;
+  }
+}

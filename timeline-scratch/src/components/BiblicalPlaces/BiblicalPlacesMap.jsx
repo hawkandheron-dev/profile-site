@@ -26,7 +26,8 @@ function formatYearForOHM(year) {
 export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
   { places, placeEventsMap, placePeopleMap, ageMap, activeAgeFilter, mapYear, onSelectPlace,
     activeJourney, journeyStops, journeyColor,
-    activeTheme, themeStopPlaceIds, themeColor,
+    selectedStopIndex,
+    activeTheme, themeStops, themeStopPlaceIds, themeColor,
     womenPlaceIds },
   ref
 ) {
@@ -168,44 +169,36 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
         clusterRadius: 50,
       });
 
-      // Journey route source (initially empty)
-      map.addSource('journey-route', {
-        type: 'geojson',
-        data: { type: 'FeatureCollection', features: [] },
-      });
-
-      // Journey route line layer
-      map.addLayer({
-        id: 'journey-route-line',
-        type: 'line',
-        source: 'journey-route',
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round',
-        },
-        paint: {
-          'line-color': ['get', 'color'],
-          'line-width': 3,
-          'line-opacity': 0.8,
-          'line-dasharray': [2, 3],
-        },
-      });
-
       // Journey stop markers source
       map.addSource('journey-stops', {
         type: 'geojson',
         data: { type: 'FeatureCollection', features: [] },
       });
 
-      // Journey stop number circles
+      // Journey stop selection ring (rendered behind the circles)
+      map.addLayer({
+        id: 'journey-stop-selection-ring',
+        type: 'circle',
+        source: 'journey-stops',
+        filter: ['==', ['get', 'selected'], true],
+        paint: {
+          'circle-color': 'transparent',
+          'circle-radius': 20,
+          'circle-stroke-width': 3,
+          'circle-stroke-color': ['get', 'color'],
+          'circle-stroke-opacity': 0.5,
+        },
+      });
+
+      // Journey stop number circles (selected stops get larger)
       map.addLayer({
         id: 'journey-stop-circles',
         type: 'circle',
         source: 'journey-stops',
         paint: {
           'circle-color': ['get', 'color'],
-          'circle-radius': 12,
-          'circle-stroke-width': 2,
+          'circle-radius': ['case', ['get', 'selected'], 15, 12],
+          'circle-stroke-width': ['case', ['get', 'selected'], 3, 2],
           'circle-stroke-color': '#faf6eb',
         },
       });
@@ -218,7 +211,7 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
         layout: {
           'text-field': ['get', 'stopNum'],
           'text-font': ['Open Sans Bold'],
-          'text-size': 11,
+          'text-size': ['case', ['get', 'selected'], 13, 11],
           'text-allow-overlap': true,
         },
         paint: {
@@ -234,7 +227,7 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
         layout: {
           'text-field': ['get', 'label'],
           'text-font': ['Open Sans Semibold'],
-          'text-size': 11,
+          'text-size': ['case', ['get', 'selected'], 12, 11],
           'text-offset': [0, 2],
           'text-anchor': 'top',
           'text-optional': true,
@@ -466,51 +459,43 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
     }
   }, [activeAgeFilter, activeTheme, buildGeoJSON]);
 
-  // Update journey route overlay
+  // Update numbered stop markers (shared layer for journeys and themes)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    const update = () => {
-      const routeSource = map.getSource('journey-route');
-      const stopsSource = map.getSource('journey-stops');
-      if (!routeSource || !stopsSource) return false;
+    // Resolve which overlay is active (mutually exclusive)
+    const stops = activeJourney ? journeyStops
+      : (activeTheme && activeTheme !== '__women__' && themeStops?.length) ? themeStops
+      : null;
+    const color = activeJourney ? (journeyColor || '#8b7355')
+      : (themeColor || '#8b7355');
 
-      if (!activeJourney || !journeyStops || journeyStops.length === 0) {
-        routeSource.setData({ type: 'FeatureCollection', features: [] });
+    const update = () => {
+      const stopsSource = map.getSource('journey-stops');
+      if (!stopsSource) return false;
+
+      if (!stops || stops.length === 0) {
         stopsSource.setData({ type: 'FeatureCollection', features: [] });
         return true;
       }
 
-      const color = journeyColor || '#8b7355';
-
-      // Build line coordinates from stops
-      const coords = journeyStops
-        .filter(s => s.place)
-        .map(s => [s.place.lng, s.place.lat]);
-
-      const routeFeatures = coords.length >= 2 ? [{
-        type: 'Feature',
-        geometry: { type: 'LineString', coordinates: coords },
-        properties: { color },
-      }] : [];
-
-      // Build stop point features
-      const stopFeatures = journeyStops
+      // Build stop point features with selected flag
+      const stopFeatures = stops
         .filter(s => s.place)
         .map((s, i) => ({
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [s.place.lng, s.place.lat] },
           properties: {
             place_id: s.place_id,
-            label: s.label || s.place.name,
+            label: s.label || s.title || s.place.name,
             description: s.description || '',
             stopNum: String(i + 1),
             color,
+            selected: i === selectedStopIndex,
           },
         }));
 
-      routeSource.setData({ type: 'FeatureCollection', features: routeFeatures });
       stopsSource.setData({ type: 'FeatureCollection', features: stopFeatures });
       return true;
     };
@@ -520,7 +505,7 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       map.once('load', onLoad);
       return () => map.off('load', onLoad);
     }
-  }, [activeJourney, journeyStops, journeyColor]);
+  }, [activeJourney, journeyStops, journeyColor, activeTheme, themeStops, themeColor, selectedStopIndex]);
 
   // Update OHM date filter when mapYear changes
   useEffect(() => {

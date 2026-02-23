@@ -1,4 +1,13 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useAuth,
+  useUser,
+} from '@clerk/clerk-react';
 import { fetchBiblicalPlacesData } from './data/biblicalPlacesSupabaseAdapter.js';
 import { BiblicalPlacesMap } from './components/BiblicalPlaces/BiblicalPlacesMap.jsx';
 import { NarrativeAgeFilter } from './components/BiblicalPlaces/NarrativeAgeFilter.jsx';
@@ -6,6 +15,8 @@ import { BiblicalPlacesSearch } from './components/BiblicalPlaces/BiblicalPlaces
 import { PlaceModal } from './components/BiblicalPlaces/PlaceModal.jsx';
 import { PersonModal } from './components/BiblicalPlaces/PersonModal.jsx';
 import { EventModal } from './components/BiblicalPlaces/EventModal.jsx';
+import { checkUserRole, ensureUserExists } from './services/adminService.js';
+import { IssueCreatorButton } from './components/IssueCreator/IssueCreatorButton.jsx';
 import './BiblicalPlacesApp.css';
 
 function formatYear(year) {
@@ -60,6 +71,8 @@ function computeTicks(start, end) {
   return result;
 }
 
+const hasClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
 function BiblicalPlacesApp() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -70,7 +83,38 @@ function BiblicalPlacesApp() {
   const [activeTheme, setActiveTheme] = useState(null);   // theme_id | '__women__' | null
   const [activeJourney, setActiveJourney] = useState(null); // journey_id | null
   const [filterTab, setFilterTab] = useState('periods');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isContributor, setIsContributor] = useState(false);
+  const [selectedStopIndex, setSelectedStopIndex] = useState(0);
   const mapRef = useRef(null);
+
+  // Auth state (only used when Clerk is configured)
+  const auth = hasClerk ? useAuth() : {};  // eslint-disable-line react-hooks/rules-of-hooks
+  const userHook = hasClerk ? useUser() : {};  // eslint-disable-line react-hooks/rules-of-hooks
+  const { getToken, isSignedIn, userId } = auth;
+  const clerkUser = userHook.user;
+  const clerkUserLoaded = clerkUser && clerkUser.id;
+
+  // Auto-register user on sign-in, then check their role
+  useEffect(() => {
+    if (!hasClerk || !isSignedIn || !userId || !clerkUserLoaded) {
+      if (!isSignedIn) { setIsAdmin(false); setIsContributor(false); }
+      return;
+    }
+
+    let cancelled = false;
+    const getTokenForSupabase = () => getToken({ template: 'supabase' });
+    const email = clerkUser?.primaryEmailAddress?.emailAddress;
+    const displayName = clerkUser?.fullName || clerkUser?.firstName || null;
+
+    ensureUserExists(getTokenForSupabase, userId, email, displayName)
+      .then(() => checkUserRole(getTokenForSupabase, userId))
+      .then(result => {
+        if (!cancelled) { setIsAdmin(result.isAdmin); setIsContributor(result.isContributor); }
+      });
+
+    return () => { cancelled = true; };
+  }, [isSignedIn, userId, getToken, clerkUserLoaded]);
 
   useEffect(() => {
     let cancelled = false;
@@ -213,6 +257,7 @@ function BiblicalPlacesApp() {
   const handleThemeSelect = useCallback((themeId) => {
     const newTheme = activeTheme === themeId ? null : themeId;
     setActiveTheme(newTheme);
+    setSelectedStopIndex(0);
     // Clear other filters for mutual exclusivity
     setActiveAgeFilter(null);
     setActiveJourney(null);
@@ -244,17 +289,23 @@ function BiblicalPlacesApp() {
         } else if (stopPlaces.length === 1) {
           mapRef.current?.flyTo?.(stopPlaces[0].lng, stopPlaces[0].lat);
         }
+        // Open the first stop's detail panel
+        const firstStop = stops[0];
+        if (firstStop?.place_id) {
+          handleSelectEntity('place', firstStop.place_id);
+        }
       }
     } else if (!newTheme) {
       mapRef.current?.reset?.();
     }
-  }, [activeTheme, data]);
+  }, [activeTheme, data, handleSelectEntity]);
 
   // ── Journey filter ─────────────────────────────────────────────────────
 
   const handleJourneySelect = useCallback((journeyId) => {
     const newJourney = activeJourney === journeyId ? null : journeyId;
     setActiveJourney(newJourney);
+    setSelectedStopIndex(0);
     // Clear other filters for mutual exclusivity
     setActiveAgeFilter(null);
     setActiveTheme(null);
@@ -273,10 +324,15 @@ function BiblicalPlacesApp() {
       } else if (stopPlaces.length === 1) {
         mapRef.current?.flyTo?.(stopPlaces[0].lng, stopPlaces[0].lat);
       }
+      // Open the first stop's detail panel
+      const firstStop = stops[0];
+      if (firstStop?.place_id) {
+        handleSelectEntity('place', firstStop.place_id);
+      }
     } else if (!newJourney) {
       mapRef.current?.reset?.();
     }
-  }, [activeJourney, data]);
+  }, [activeJourney, data, handleSelectEntity]);
 
   // ── Derived data for active theme/journey ──────────────────────────────
 
@@ -314,6 +370,44 @@ function BiblicalPlacesApp() {
 
   const showReset = !!(activeAgeFilter || activeTheme || activeJourney || modalStack.length > 0);
 
+  // Unified overlay stops: whichever of theme/journey is active
+  const activeOverlayStops = activeJourney
+    ? currentJourneyStops
+    : (activeTheme && activeTheme !== '__women__') ? currentThemeStops : null;
+
+  const activeOverlayColor = activeJourney
+    ? (activeJourneyObj?.color || '#8b7355')
+    : (activeThemeObj?.color || '#8b7355');
+
+  // Helper: select a stop by index and fly the map to it (works for both themes and journeys)
+  const handleSelectStop = useCallback((index) => {
+    if (!activeOverlayStops || index < 0 || index >= activeOverlayStops.length) return;
+    setSelectedStopIndex(index);
+    const stop = activeOverlayStops[index];
+    if (stop?.place) {
+      mapRef.current?.flyTo?.(stop.place.lng, stop.place.lat);
+      handleSelectEntity('place', stop.place_id);
+    }
+  }, [activeOverlayStops, handleSelectEntity]);
+
+  // Rich context capture for the issue creator
+  const getPageContext = useCallback(() => {
+    const ctx = {
+      app: 'bible-atlas',
+      url: window.location.pathname,
+      activeFilters: {
+        ageFilter: activeAgeFilter,
+        journey: activeJourney,
+        theme: activeTheme,
+      },
+      selectedEntity: currentModal
+        ? { type: currentModal.type, id: currentModal.id }
+        : null,
+      modalStack: modalStack.length > 0 ? modalStack : null,
+    };
+    return ctx;
+  }, [activeAgeFilter, activeJourney, activeTheme, currentModal, modalStack]);
+
   return (
     <div className="bp-app">
       {/* Header overlay */}
@@ -325,6 +419,29 @@ function BiblicalPlacesApp() {
               onSelect={handleSearchSelect}
               homeHref="../../index.html"
             />
+          </div>
+        )}
+        {hasClerk && (
+          <div className="bp-header-auth">
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="bp-auth-btn" title="Sign in to report issues">Sign In</button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="bp-auth-btn" title="Create an account">Sign Up</button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <IssueCreatorButton
+                isContributor={isContributor}
+                isAdmin={isAdmin}
+                getToken={() => getToken({ template: 'supabase' })}
+                clerkUserId={userId}
+                appId="bible-atlas"
+                getPageContext={getPageContext}
+              />
+              <UserButton />
+            </SignedIn>
           </div>
         )}
       </header>
@@ -350,7 +467,9 @@ function BiblicalPlacesApp() {
             activeJourney={activeJourney}
             journeyStops={currentJourneyStops}
             journeyColor={activeJourneyObj?.color}
+            selectedStopIndex={selectedStopIndex}
             activeTheme={activeTheme}
+            themeStops={currentThemeStops}
             themeStopPlaceIds={themeStopPlaceIds}
             themeColor={activeThemeObj?.color}
             womenPlaceIds={data.womenPlaceIds}
@@ -415,7 +534,7 @@ function BiblicalPlacesApp() {
 
           {/* Journey info panel */}
           {activeJourney && activeJourneyObj && (
-            <div className="bp-info-panel">
+            <div className="bp-info-panel bp-info-panel--journey">
               <div className="bp-info-panel-header">
                 <span
                   className="bp-info-panel-dot"
@@ -434,31 +553,67 @@ function BiblicalPlacesApp() {
               {activeJourneyObj.description && (
                 <p className="bp-info-panel-desc">{activeJourneyObj.description}</p>
               )}
-              <ol className="bp-info-panel-stops">
-                {currentJourneyStops.map((stop, i) => (
-                  <li key={stop.id || i}>
+              <div className="bp-journey-stops-list">
+                {currentJourneyStops.map((stop, i) => {
+                  const isSelected = i === selectedStopIndex;
+                  return (
                     <button
-                      className="bp-info-panel-stop-btn"
-                      onClick={() => {
-                        if (stop.place) {
-                          mapRef.current?.flyTo?.(stop.place.lng, stop.place.lat);
-                        }
-                      }}
+                      key={stop.id || i}
+                      className={`bp-journey-stop-item${isSelected ? ' bp-journey-stop-item--selected' : ''}`}
+                      style={isSelected ? { '--journey-color': activeJourneyObj.color || '#8b7355' } : undefined}
+                      onClick={() => handleSelectStop(i)}
                     >
-                      {stop.label || stop.place?.name || `Stop ${i + 1}`}
+                      <span
+                        className="bp-journey-stop-num"
+                        style={isSelected
+                          ? { background: activeJourneyObj.color || '#8b7355', color: '#faf6eb' }
+                          : { borderColor: activeJourneyObj.color || '#8b7355', color: activeJourneyObj.color || '#8b7355' }
+                        }
+                      >
+                        {i + 1}
+                      </span>
+                      <span className="bp-journey-stop-text">
+                        <span className="bp-journey-stop-label">
+                          {stop.label || stop.place?.name || `Stop ${i + 1}`}
+                        </span>
+                        {stop.scripture_ref && (
+                          <span className="bp-journey-stop-ref">{stop.scripture_ref}</span>
+                        )}
+                      </span>
                     </button>
-                    {stop.scripture_ref && (
-                      <span className="bp-info-panel-ref">{stop.scripture_ref}</span>
-                    )}
-                  </li>
-                ))}
-              </ol>
+                  );
+                })}
+              </div>
+              {/* Forward / backward navigation */}
+              {currentJourneyStops.length > 1 && (
+                <div className="bp-journey-nav">
+                  <button
+                    className="bp-journey-nav-btn"
+                    disabled={selectedStopIndex <= 0}
+                    onClick={() => handleSelectStop(selectedStopIndex - 1)}
+                    title="Previous stop"
+                  >
+                    ‹ Prev
+                  </button>
+                  <span className="bp-journey-nav-pos">
+                    {selectedStopIndex + 1} / {currentJourneyStops.length}
+                  </span>
+                  <button
+                    className="bp-journey-nav-btn"
+                    disabled={selectedStopIndex >= currentJourneyStops.length - 1}
+                    onClick={() => handleSelectStop(selectedStopIndex + 1)}
+                    title="Next stop"
+                  >
+                    Next ›
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
           {/* Theme info panel */}
           {activeTheme && activeTheme !== '__women__' && activeThemeObj && (
-            <div className="bp-info-panel">
+            <div className="bp-info-panel bp-info-panel--journey">
               <div className="bp-info-panel-header">
                 <span
                   className="bp-info-panel-dot"
@@ -469,29 +624,61 @@ function BiblicalPlacesApp() {
               {activeThemeObj.description && (
                 <p className="bp-info-panel-desc">{activeThemeObj.description}</p>
               )}
-              <ol className="bp-info-panel-stops">
-                {currentThemeStops.map((stop, i) => (
-                  <li key={stop.id || i}>
+              <div className="bp-journey-stops-list">
+                {currentThemeStops.map((stop, i) => {
+                  const isSelected = i === selectedStopIndex;
+                  return (
                     <button
-                      className="bp-info-panel-stop-btn"
-                      onClick={() => {
-                        if (stop.place) {
-                          mapRef.current?.flyTo?.(stop.place.lng, stop.place.lat);
-                          handleSelectEntity('place', stop.place_id);
-                        }
-                      }}
+                      key={stop.id || i}
+                      className={`bp-journey-stop-item${isSelected ? ' bp-journey-stop-item--selected' : ''}`}
+                      style={isSelected ? { '--journey-color': activeThemeObj.color || '#8b7355' } : undefined}
+                      onClick={() => handleSelectStop(i)}
                     >
-                      {stop.title || stop.place?.name || `Stop ${i + 1}`}
+                      <span
+                        className="bp-journey-stop-num"
+                        style={isSelected
+                          ? { background: activeThemeObj.color || '#8b7355', color: '#faf6eb' }
+                          : { borderColor: activeThemeObj.color || '#8b7355', color: activeThemeObj.color || '#8b7355' }
+                        }
+                      >
+                        {i + 1}
+                      </span>
+                      <span className="bp-journey-stop-text">
+                        <span className="bp-journey-stop-label">
+                          {stop.title || stop.place?.name || `Stop ${i + 1}`}
+                        </span>
+                        {stop.scripture_ref && (
+                          <span className="bp-journey-stop-ref">{stop.scripture_ref}</span>
+                        )}
+                      </span>
                     </button>
-                    {stop.scripture_ref && (
-                      <span className="bp-info-panel-ref">{stop.scripture_ref}</span>
-                    )}
-                    {stop.description && (
-                      <span className="bp-info-panel-stop-desc">{stop.description}</span>
-                    )}
-                  </li>
-                ))}
-              </ol>
+                  );
+                })}
+              </div>
+              {/* Forward / backward navigation */}
+              {currentThemeStops.length > 1 && (
+                <div className="bp-journey-nav">
+                  <button
+                    className="bp-journey-nav-btn"
+                    disabled={selectedStopIndex <= 0}
+                    onClick={() => handleSelectStop(selectedStopIndex - 1)}
+                    title="Previous stop"
+                  >
+                    ‹ Prev
+                  </button>
+                  <span className="bp-journey-nav-pos">
+                    {selectedStopIndex + 1} / {currentThemeStops.length}
+                  </span>
+                  <button
+                    className="bp-journey-nav-btn"
+                    disabled={selectedStopIndex >= currentThemeStops.length - 1}
+                    onClick={() => handleSelectStop(selectedStopIndex + 1)}
+                    title="Next stop"
+                  >
+                    Next ›
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </>

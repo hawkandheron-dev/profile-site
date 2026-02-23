@@ -1,255 +1,211 @@
-# Biblical Places Map - Implementation Plan
+# Implementation Plan: Bible Atlas Enhancements
 
-An interactive map where you click on a place and see all Bible events and people associated with that location, navigating backwards and forwards through "narrative time" at one spot. Scope: Old Testament through the Gospels (Paul's journeys and Patmos are a separate project).
+## Feature 1: Organic Journey Routes + Red Sea Fix
 
----
+### 1A. Catmull-Rom Spline Smoothing
 
-## Core Concept: Narrative Ages (Not Dates)
+**New file:** `timeline-scratch/src/utils/smoothRoute.js`
+- Pure math utility (~40 lines), no dependencies
+- `smoothRoute(coords, { tension, pointsPerSegment })` takes `[[lng, lat], ...]` and returns a denser array with Catmull-Rom interpolated points between each pair
+- Default: tension 0.5, 10 points per segment
+- Accepts optional `waypoints` map keyed by segment index (for Phase B)
 
-OT characters have no reliable historical dates. Instead of a timeline axis, the organizing principle is **narrative ages** -- sequential periods from the biblical text. Each event and person-place association is tagged with a narrative age, and a `sort_order` on the age plus a `sort_within_age` on the event provides deterministic ordering without claiming historical dates.
+**Modify:** `timeline-scratch/src/components/BiblicalPlaces/BiblicalPlacesMap.jsx`
+- Import `smoothRoute`
+- At line ~488 where `coords` is built from journey stops, pass through `smoothRoute()` before creating the `LineString` feature
+- The smoothed coords replace the raw coords; everything else (stop markers, labels) stays the same
 
-Each narrative age also stores optional `approx_start_year` / `approx_end_year` so we can pass a year to Open Historical Map's `filterByDate()` to show a roughly appropriate historical landscape when a user selects that age.
+### 1B. DB Waypoints Table (for manual overrides)
 
-| age_id | Name | sort_order | Approx. Years | Scripture Range |
-|--------|------|------------|---------------|-----------------|
-| age-creation | Creation & Primeval History | 1 | -4000 to -2100 | Genesis 1-11 |
-| age-patriarchs | Patriarchs | 2 | -2100 to -1700 | Genesis 12-50 |
-| age-exodus | Exodus & Wilderness | 3 | -1450 to -1400 | Exodus-Deuteronomy |
-| age-conquest | Conquest & Judges | 4 | -1400 to -1050 | Joshua-Ruth |
-| age-united-monarchy | United Monarchy | 5 | -1050 to -930 | 1 Sam - 1 Kings 11 |
-| age-divided-monarchy | Divided Monarchy | 6 | -930 to -722 | 1 Kings 12 - 2 Kings 17 |
-| age-judah-exile | Judah Alone & Exile | 7 | -722 to -539 | 2 Kings 18-25, Jer, Ezek |
-| age-return | Return & Restoration | 8 | -539 to -167 | Ezra, Nehemiah, post-exilic prophets |
-| age-second-temple | Second Temple / Intertestamental | 9 | -167 to -4 | |
-| age-gospels | Gospels | 10 | -4 to 33 | Matthew-John |
+**New migration:** `supabase/migrations/20260221_bp_journey_waypoints.sql`
 
-People can belong to **multiple** narrative ages (many-to-many) since figures like Gabriel, the Angel of the Lord, and others span the full narrative.
+```sql
+create table if not exists public."BP_JourneyWaypoints" (
+  id              bigint generated always as identity primary key,
+  journey_id      text not null,
+  after_stop      integer not null,      -- insert between stop N and N+1
+  waypoint_order  integer not null,      -- ordering within this segment
+  lat             float8 not null,
+  lng             float8 not null,
+  constraint "BP_JourneyWaypoints_journey_fkey"
+    foreign key (journey_id) references public."BP_Journeys"(journey_id) on delete cascade,
+  constraint "BP_JourneyWaypoints_unique" unique (journey_id, after_stop, waypoint_order)
+);
 
----
-
-## Supabase Schema (BP_ prefix)
-
-Following the exact conventions from `CH_` tables: quoted identifiers, text PKs, `created_at` defaults, foreign keys, indexes, RLS with public read.
-
-### Tables
-
-**BP_NarrativeAges** - The 10 narrative periods above
-- `age_id` (text PK), `name`, `sort_order`, `color`, `approx_start_year`, `approx_end_year`, `description`, `scripture_range`
-
-**BP_Places** - Map locations
-- `place_id` (text PK), `name`, `lat` (double), `lng` (double), `region`, `description`, `reference_url`
-
-**BP_People** - Biblical figures
-- `person_id` (text PK), `name`, `description`, `reference_url`, `scripture_refs`
-- No single `narrative_age_id` FK -- ages are via the join table below
-
-**BP_PersonAges** (many-to-many) - Which ages a person appears in
-- `person_id` FK, `age_id` FK, `is_primary` (boolean) -- `is_primary` marks the person's "home" age for display color
-
-**BP_Events** - Things that happened at places
-- `event_id` (text PK), `name`, `narrative_age_id` FK, `place_id` FK, `description`, `event_type` (event/miracle/battle/covenant/prophecy), `scripture_ref`, `sort_within_age` (int), `reference_url`
-
-**BP_PersonPlaces** (many-to-many with context) - Who was where and when
-- `person_id` FK, `place_id` FK, `narrative_age_id` FK, `context` ("born here", "died here", "passed through", "ruled here"), `notes`
-
-**BP_EventPeople** (many-to-many) - Who participated in which events
-- `event_id` FK, `person_id` FK
-
-**BP_Sources** and **BP_SourceFigures** - Reference materials, same pattern as CH_
-
-### Migrations (3 files)
-1. `supabase/migrations/YYYYMMDD_init_bp_tables.sql` -- Schema creation
-2. `supabase/migrations/YYYYMMDD_bp_read_policies.sql` -- Public read RLS policies
-3. `supabase/migrations/YYYYMMDD_seed_bp_data.sql` -- Minimal seed: the 10 narrative ages + ~15 key places with coordinates + a handful of representative people/events to prove out the UI
-
-Seed data is intentionally minimal. Bulk data population will happen via a separate research-assisted step (Supabase dashboard, script, or future admin UI).
-
----
-
-## Vite Entry Point
-
-Following the multi-page pattern exactly:
-
-| File | Purpose |
-|------|---------|
-| `timeline-scratch/biblical-places.html` | HTML entry point (`<div id="root">`, module script) |
-| `timeline-scratch/src/main-biblical-places.jsx` | React entry with Clerk conditional wrapping |
-| `timeline-scratch/vite.config.js` | Add `'biblical-places'` to rollupOptions.input |
-
----
-
-## Data Adapter
-
-**`timeline-scratch/src/data/biblicalPlacesSupabaseAdapter.js`**
-
-Follows `churchHistorySupabaseAdapter.js` exactly:
-- Same `getSupabase()` init (Cloudflare Pages Function fallback to local config)
-- `fetchBiblicalPlacesData()` fetches all 8 BP_ tables in parallel via `Promise.all`
-- `transformToBiblicalPlacesFormat()` builds:
-  - `ages` -- sorted array of narrative ages
-  - `places` -- array with lat/lng
-  - `people` -- array with their ages resolved
-  - `events` -- array with age and place resolved
-  - Pre-built relationship maps for O(1) lookup:
-    - `placeEventsMap`: place_id -> events sorted by age sort_order
-    - `placePeopleMap`: place_id -> [{ person, context, age }]
-    - `eventPeopleMap`: event_id -> people array
-    - `personEventsMap`: person_id -> events array
-    - `personPlacesMap`: person_id -> [{ place, context, age }]
-    - `personAgesMap`: person_id -> [ages] with primary marked
-  - `entityIndex`: Map<id, { item, type }> for cross-referencing and search
-
----
-
-## App Component
-
-**`timeline-scratch/src/BiblicalPlacesApp.jsx`**
-
-Structure follows `ChurchHistorySupabaseApp.jsx`:
-
-```
-BiblicalPlacesApp
-  state: { data, loading, error, modalStack }
-  useEffect -> fetchBiblicalPlacesData()
-  Clerk conditional wrapping (same hasClerk pattern)
-
-  <header> -- floating over map
-    <BiblicalPlacesSearch>
-    <AuthActions> (Clerk sign in/out)
-    <NavDropdown> (links to Home, Church History, etc.)
-  </header>
-
-  <BiblicalPlacesMap> -- full viewport
-    pins for all places
-    NarrativeAgeFilter bar at bottom
-
-  <PlaceModal>  -- when place selected
-  <PersonModal> -- when person selected
-  <EventModal>  -- when event selected
+-- RLS: public read
+alter table public."BP_JourneyWaypoints" enable row level security;
+create policy "BP_JourneyWaypoints are viewable by everyone"
+  on public."BP_JourneyWaypoints" for select using (true);
 ```
 
-**No `<Timeline>` component.** The map IS the primary interface.
+- Seed a handful of waypoints for the Exodus route (guide it around the Sinai coast rather than cutting across the peninsula)
+- Fetch waypoints in `biblicalPlacesSupabaseAdapter.js`, group by journey_id + after_stop
+- Pass waypoints into `smoothRoute()` as additional control points for those segments
 
-**Modal stack navigation:** A simple array tracks the open modal history. Clicking a person pill in PlaceModal pushes `{ type: 'person', id }` onto the stack. A back button pops the stack. This enables deep cross-referencing (Place -> Person -> another Place -> Event) with back-navigation, all without a router.
+### 1C. Red Sea Location Fix
 
----
-
-## Map Component
-
-**`timeline-scratch/src/components/BiblicalPlaces/BiblicalPlacesMap.jsx`**
-
-Full-viewport MapLibre GL map using OHM tiles. Builds on patterns from `YearDetailMap.jsx` but uses GeoJSON source layers with clustering instead of DOM markers (better performance at 20+ places, built-in hit detection):
-
-- **GeoJSON source** with `cluster: true` for automatic clustering when zoomed out
-- **Circle layers** for clusters and individual pins
-- **Pin colors** from the earliest narrative age associated with each place
-- **Click handler** on the unclustered-point layer opens PlaceModal
-- **Popup on hover** shows place name
-- **`flyTo()`** when selecting a place from search
-- **OHM date filtering**: when a narrative age is selected in the filter, calls `filterByDate(map, formatYearForOHM(age.approx_start_year))` to show the historical landscape for that period
-
-### NarrativeAgeFilter
-
-Horizontal bar of colored pill buttons at the bottom of the map (one per narrative age). Clicking a pill:
-1. Filters pins to show only places with events/people in that age (others dimmed/hidden)
-2. Applies OHM date filter for the age's approximate year range
-3. Clicking the active pill again clears the filter (shows all, resets OHM to default)
-
----
-
-## Modal Components
-
-Three focused modals, adapting patterns from `TimelineModal.jsx`:
-
-### PlaceModal (the key modal)
-The core feature -- shows everything that happened at one location across narrative time:
-- Place name, region, description
-- Small embedded `<HistoricalMap>` (reusing existing component)
-- **"Narrative Timeline" section**: events grouped under narrative age headers, ordered by sort_order. Each event is expandable, showing description, scripture_ref, and clickable people pills
-- **"People Associated" section**: grouped by narrative age, each person as a clickable pill with context text ("born here", "traveled through")
-- Sources, reference URL
-
-### PersonModal
-- Person name, narrative age badge(s), scripture_refs
-- Description
-- **Places section**: clickable place pills with context
-- **Events section**: clickable event entries
-- Connected people (via shared events)
-- Sources
-
-### EventModal
-- Event name, narrative age badge, event_type badge
-- Scripture reference, description
-- Place link (clickable pill)
-- Small `<HistoricalMap>` at the event location
-- People involved (clickable pills)
-- Sources
-
-### Shared modal patterns
-- `.modal-backdrop` / `.modal-content` from `TimelineModal.css`
-- `.modal-pill` clickable entity chips
-- `.narrative-age-badge` colored inline badge
-- `.scripture-ref` styled text
-- Back button for modal stack navigation
-- `linkifyDescription()` for auto-linking entity names in text
-
----
-
-## Search
-
-**`timeline-scratch/src/components/BiblicalPlaces/BiblicalPlacesSearch.jsx`**
-
-Following `TimelineSearch.jsx` pattern:
-- Builds flat searchable index from `entityIndex`
-- Substring match on name, grouped results dropdown (Places / People / Events)
-- Selecting a place: `map.flyTo()` + open PlaceModal
-- Selecting a person/event: open respective modal
-
----
-
-## New File Manifest
-
-```
-timeline-scratch/
-  biblical-places.html
-  src/
-    main-biblical-places.jsx
-    BiblicalPlacesApp.jsx
-    BiblicalPlacesApp.css
-    data/
-      biblicalPlacesSupabaseAdapter.js
-    components/
-      BiblicalPlaces/
-        BiblicalPlacesMap.jsx
-        BiblicalPlacesMap.css
-        NarrativeAgeFilter.jsx
-        PlaceModal.jsx
-        PersonModal.jsx
-        EventModal.jsx
-        PlaceModal.css
-        BiblicalPlacesSearch.jsx
-        BiblicalPlacesSearch.css
-
-supabase/migrations/
-  YYYYMMDD_init_bp_tables.sql
-  YYYYMMDD_bp_read_policies.sql
-  YYYYMMDD_seed_bp_data.sql
+In the same migration:
+```sql
+update public."BP_Places"
+  set lat = 30.40, lng = 32.40
+  where place_id = 'red-sea';
 ```
 
-**Modified files:** `timeline-scratch/vite.config.js`, `index.html`
+Moves from mid-Gulf of Suez to the Bitter Lakes area, matching the Exodus route from Raamses through the isthmus.
 
 ---
 
-## Implementation Sequence
+## Feature 2: Sign In / Sign Up on Bible Atlas
 
-1. **Supabase migrations** -- schema, policies, seed data
-2. **Vite entry point** -- HTML, main JSX, vite.config.js
-3. **Data adapter** -- fetch + transform, console.log to verify
-4. **BiblicalPlacesApp skeleton** -- loads data, shows loading state
-5. **BiblicalPlacesMap** -- full-screen map with place pins
-6. **PlaceModal** -- narrative timeline grouping (the core feature)
-7. **PersonModal + EventModal** -- simpler modals
-8. **Modal stack navigation** -- cross-linking between all three modals
-9. **BiblicalPlacesSearch** -- search bar
-10. **NarrativeAgeFilter** -- age filter pills with OHM date filtering
-11. **Nav integration** -- landing page link, NavDropdown in app
+### Current state
+- `main-biblical-places.jsx` already wraps app in `ClerkProvider`
+- `BiblicalPlacesApp.jsx` has zero auth UI
+- CH Timeline has a working pattern we replicate exactly
+
+### Modify: `timeline-scratch/src/BiblicalPlacesApp.jsx`
+
+1. Import Clerk hooks: `useAuth`, `useUser` from `@clerk/clerk-react`
+2. Import Clerk components: `SignInButton`, `SignUpButton`, `UserButton`
+3. Import `ensureUserExists`, `checkUserRole` from `services/adminService.js`
+4. Add state: `userRole` (null initially), `authLoading`
+5. Add `useEffect` that on sign-in calls `ensureUserExists()` then `checkUserRole()` (same pattern as CH Timeline)
+6. Add auth buttons to `<header className="bp-header">`:
+   - Signed out: "Sign In" / "Sign Up" buttons (Clerk modal mode)
+   - Signed in: `<UserButton />` with optional role badge
+7. Pass `getToken`, `clerkUserId`, `userRole` down to components that need it (issue creator)
+
+### Modify: `timeline-scratch/src/BiblicalPlacesApp.css`
+- Add styles for auth buttons in the header (minimal, matching existing parchment theme)
+
+No new files needed — reuses existing `adminService.js` and `lib/supabase.ts`.
+
+---
+
+## Feature 3: Cross-App Issue Creator
+
+### 3A. Database
+
+**New migration:** `supabase/migrations/20260221_app_issues.sql`
+
+```sql
+create table public."App_Issues" (
+  issue_id        bigint generated always as identity primary key,
+  app_id          text not null,                    -- 'bible-atlas', 'ch-timeline'
+  submitted_by    text not null,                    -- clerk_user_id
+  title           text not null,
+  description     text not null,                    -- free-form, primary input
+  issue_type      text not null default 'general',  -- general / data_correction / feature_request / bug
+  page_context    jsonb,                            -- auto-captured app state
+  screenshot_urls text[],                           -- reserved for future Supabase Storage URLs
+  status          text not null default 'open',     -- open / in_progress / resolved / closed
+  resolver_notes  text,
+  resolved_by     text,
+  created_at      timestamptz not null default now(),
+  resolved_at     timestamptz
+);
+
+-- RLS: contributors can insert own rows, admins can read/update all
+```
+
+The `screenshot_urls` column is included in the schema now (empty array default) so it's ready when we add upload support later.
+
+### 3B. Service Layer
+
+**New file:** `timeline-scratch/src/services/issueService.js`
+
+Following the exact pattern of `suggestionService.js`:
+- `submitIssue({ app_id, title, description, issue_type, page_context }, clerkUserId, getToken)` — inserts into App_Issues
+- `fetchMyIssues(appId, getToken)` — fetch issues submitted by current user
+- `fetchAllIssues(appId, getToken, statusFilter)` — admin: fetch all issues
+- `resolveIssue(issueId, resolverUserId, resolverNotes, getToken)` — admin: mark resolved
+- Stub `uploadScreenshot(file, getToken)` — returns null for now, ready for Supabase Storage later
+
+### 3C. Shared UI Components
+
+**New files:**
+```
+timeline-scratch/src/components/IssueCreator/
+  IssueCreatorButton.jsx    -- FAB/header button, visible for contributors only
+  IssueCreatorModal.jsx     -- The modal form
+  IssueCreatorModal.css     -- Styles
+```
+
+**IssueCreatorButton:**
+- Accepts `userRole`, `getToken`, `clerkUserId`, `appId`, `getPageContext`
+- Renders a small button (e.g., flag icon + "Report Issue")
+- Returns `null` if user is not a contributor
+- Only visible when `userRole.isContributor` (admin role alone does not grant access; admins who are also contributors will see it through their contributor flag)
+- Opens `IssueCreatorModal` on click
+
+**IssueCreatorModal:**
+- **Title** — short text input
+- **Description** — textarea (primary input, natural language)
+- **Type** — pill selector: General | Data Correction | Feature Request | Bug
+- **Page Context** — auto-captured via `getPageContext()`, displayed as a collapsible JSON preview ("Context captured — click to review"). User can see what's being sent but doesn't need to fill anything in.
+- **Screenshot placeholder** — disabled drop zone with "Coming soon" label (wired up structurally so adding real uploads later is just implementing `uploadScreenshot`)
+- Submit calls `issueService.submitIssue()`
+
+### 3D. Context Capture
+
+Each app provides a `getPageContext()` callback:
+
+**Bible Atlas** returns:
+```json
+{
+  "app": "bible-atlas",
+  "url": "/biblical-places",
+  "activeFilters": { "ageFilter": "age-exodus", "journey": "journey-exodus", "theme": null },
+  "selectedEntity": { "type": "place", "id": "red-sea" },
+  "modalStack": [{ "type": "place", "id": "red-sea" }],
+  "visibleDataTables": ["BP_Places", "BP_Events", "BP_JourneyStops"],
+  "mapState": { "center": [35.23, 31.77], "zoom": 6 }
+}
+```
+
+**CH Timeline** returns:
+```json
+{
+  "app": "ch-timeline",
+  "url": "/church-history",
+  "activeFilters": { "era": "era-reformation", "search": "Luther" },
+  "selectedEntity": { "type": "person", "id": "martin-luther" },
+  "visibleDataTables": ["CH_People", "CH_Events", "CH_Eras"]
+}
+```
+
+### 3E. Integration
+
+**Modify `BiblicalPlacesApp.jsx`:**
+- Import `IssueCreatorButton`
+- Add it in the header, passing `userRole`, `getToken`, `clerkUserId`, `appId='bible-atlas'`, and a `getPageContext` function that reads current state
+
+**Modify `ChurchHistorySupabaseApp.jsx`:**
+- Same pattern — add `IssueCreatorButton` to the header with CH Timeline's `getPageContext`
+
+---
+
+## Implementation Order
+
+1. Journey route smoothing (smoothRoute.js + BiblicalPlacesMap.jsx changes)
+2. Red Sea + waypoints migration (DB changes, data adapter update)
+3. Sign in / sign up on Bible Atlas (BiblicalPlacesApp.jsx auth additions)
+4. Issue creator DB + service + shared components
+5. Issue creator integration into Bible Atlas
+6. Issue creator integration into CH Timeline
+
+## Files Summary
+
+| Action | File |
+|--------|------|
+| New | `timeline-scratch/src/utils/smoothRoute.js` |
+| Modify | `timeline-scratch/src/components/BiblicalPlaces/BiblicalPlacesMap.jsx` |
+| New | `supabase/migrations/20260221_bp_journey_waypoints_and_red_sea.sql` |
+| Modify | `timeline-scratch/src/data/biblicalPlacesSupabaseAdapter.js` |
+| Modify | `timeline-scratch/src/BiblicalPlacesApp.jsx` |
+| Modify | `timeline-scratch/src/BiblicalPlacesApp.css` |
+| New | `supabase/migrations/20260221_app_issues.sql` |
+| New | `timeline-scratch/src/services/issueService.js` |
+| New | `timeline-scratch/src/components/IssueCreator/IssueCreatorButton.jsx` |
+| New | `timeline-scratch/src/components/IssueCreator/IssueCreatorModal.jsx` |
+| New | `timeline-scratch/src/components/IssueCreator/IssueCreatorModal.css` |
+| Modify | `timeline-scratch/src/ChurchHistorySupabaseApp.jsx` |
