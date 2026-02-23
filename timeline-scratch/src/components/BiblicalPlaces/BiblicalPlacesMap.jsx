@@ -471,10 +471,21 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
 
   // Update journey route overlay (skip when edit mode — the editor hook owns the route)
   useEffect(() => {
-    if (isEditingRoute) return;
-
     const map = mapRef.current;
     if (!map) return;
+
+    // In edit mode, clear the GeoJSON layers so they don't overlap the editor's DOM markers
+    if (isEditingRoute) {
+      const clearSources = () => {
+        const rs = map.getSource('journey-route');
+        const ss = map.getSource('journey-stops');
+        if (rs) rs.setData({ type: 'FeatureCollection', features: [] });
+        if (ss) ss.setData({ type: 'FeatureCollection', features: [] });
+      };
+      if (map.isStyleLoaded()) clearSources();
+      else map.once('load', clearSources);
+      return;
+    }
 
     const update = () => {
       const routeSource = map.getSource('journey-route');

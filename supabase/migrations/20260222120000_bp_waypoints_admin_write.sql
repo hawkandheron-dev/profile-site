@@ -1,6 +1,8 @@
 -- Allow admins to manage journey waypoints (insert, update, delete)
+-- Idempotent: safe to re-run if policies already exist.
 begin;
 
+drop policy if exists "Admins can insert waypoints" on public."BP_JourneyWaypoints";
 create policy "Admins can insert waypoints"
   on public."BP_JourneyWaypoints"
   for insert with check (
@@ -11,6 +13,7 @@ create policy "Admins can insert waypoints"
     )
   );
 
+drop policy if exists "Admins can update waypoints" on public."BP_JourneyWaypoints";
 create policy "Admins can update waypoints"
   on public."BP_JourneyWaypoints"
   for update using (
@@ -21,6 +24,7 @@ create policy "Admins can update waypoints"
     )
   );
 
+drop policy if exists "Admins can delete waypoints" on public."BP_JourneyWaypoints";
 create policy "Admins can delete waypoints"
   on public."BP_JourneyWaypoints"
   for delete using (

@@ -364,6 +364,13 @@ function BiblicalPlacesApp() {
     return data.journeyWaypointsMap.get(activeJourney) || null;
   }, [activeJourney, data]);
 
+  // Stable reference for the admin token provider — avoids recreating
+  // the function every render, which would churn the editor hook's useEffect.
+  const adminGetToken = useCallback(() => {
+    if (!getToken) return Promise.resolve(null);
+    return getToken({ template: 'supabase' });
+  }, [getToken]);
+
   // Callback when admin edits journey waypoints — reload data
   const handleWaypointsChanged = useCallback(() => {
     // Refetch all data so the adapter rebuilds the journeyWaypointsMap
@@ -454,7 +461,7 @@ function BiblicalPlacesApp() {
             journeyColor={activeJourneyObj?.color}
             journeyWaypoints={currentJourneyWaypoints}
             isEditingRoute={isEditingRoute}
-            adminGetToken={isAdmin && hasClerk ? () => getToken({ template: 'supabase' }) : null}
+            adminGetToken={isAdmin && hasClerk ? adminGetToken : null}
             onWaypointsChanged={handleWaypointsChanged}
             activeTheme={activeTheme}
             themeStopPlaceIds={themeStopPlaceIds}
