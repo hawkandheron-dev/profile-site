@@ -257,6 +257,7 @@ function BiblicalPlacesApp() {
   const handleThemeSelect = useCallback((themeId) => {
     const newTheme = activeTheme === themeId ? null : themeId;
     setActiveTheme(newTheme);
+    setSelectedStopIndex(0);
     // Clear other filters for mutual exclusivity
     setActiveAgeFilter(null);
     setActiveJourney(null);
@@ -288,11 +289,16 @@ function BiblicalPlacesApp() {
         } else if (stopPlaces.length === 1) {
           mapRef.current?.flyTo?.(stopPlaces[0].lng, stopPlaces[0].lat);
         }
+        // Open the first stop's detail panel
+        const firstStop = stops[0];
+        if (firstStop?.place_id) {
+          handleSelectEntity('place', firstStop.place_id);
+        }
       }
     } else if (!newTheme) {
       mapRef.current?.reset?.();
     }
-  }, [activeTheme, data]);
+  }, [activeTheme, data, handleSelectEntity]);
 
   // ── Journey filter ─────────────────────────────────────────────────────
 
@@ -364,16 +370,25 @@ function BiblicalPlacesApp() {
 
   const showReset = !!(activeAgeFilter || activeTheme || activeJourney || modalStack.length > 0);
 
-  // Helper: select a journey stop by index and fly the map to it
+  // Unified overlay stops: whichever of theme/journey is active
+  const activeOverlayStops = activeJourney
+    ? currentJourneyStops
+    : (activeTheme && activeTheme !== '__women__') ? currentThemeStops : null;
+
+  const activeOverlayColor = activeJourney
+    ? (activeJourneyObj?.color || '#8b7355')
+    : (activeThemeObj?.color || '#8b7355');
+
+  // Helper: select a stop by index and fly the map to it (works for both themes and journeys)
   const handleSelectStop = useCallback((index) => {
-    if (!currentJourneyStops || index < 0 || index >= currentJourneyStops.length) return;
+    if (!activeOverlayStops || index < 0 || index >= activeOverlayStops.length) return;
     setSelectedStopIndex(index);
-    const stop = currentJourneyStops[index];
+    const stop = activeOverlayStops[index];
     if (stop?.place) {
       mapRef.current?.flyTo?.(stop.place.lng, stop.place.lat);
       handleSelectEntity('place', stop.place_id);
     }
-  }, [currentJourneyStops, handleSelectEntity]);
+  }, [activeOverlayStops, handleSelectEntity]);
 
   // Rich context capture for the issue creator
   const getPageContext = useCallback(() => {
@@ -454,6 +469,7 @@ function BiblicalPlacesApp() {
             journeyColor={activeJourneyObj?.color}
             selectedStopIndex={selectedStopIndex}
             activeTheme={activeTheme}
+            themeStops={currentThemeStops}
             themeStopPlaceIds={themeStopPlaceIds}
             themeColor={activeThemeObj?.color}
             womenPlaceIds={data.womenPlaceIds}
@@ -597,7 +613,7 @@ function BiblicalPlacesApp() {
 
           {/* Theme info panel */}
           {activeTheme && activeTheme !== '__women__' && activeThemeObj && (
-            <div className="bp-info-panel">
+            <div className="bp-info-panel bp-info-panel--journey">
               <div className="bp-info-panel-header">
                 <span
                   className="bp-info-panel-dot"
@@ -608,29 +624,61 @@ function BiblicalPlacesApp() {
               {activeThemeObj.description && (
                 <p className="bp-info-panel-desc">{activeThemeObj.description}</p>
               )}
-              <ol className="bp-info-panel-stops">
-                {currentThemeStops.map((stop, i) => (
-                  <li key={stop.id || i}>
+              <div className="bp-journey-stops-list">
+                {currentThemeStops.map((stop, i) => {
+                  const isSelected = i === selectedStopIndex;
+                  return (
                     <button
-                      className="bp-info-panel-stop-btn"
-                      onClick={() => {
-                        if (stop.place) {
-                          mapRef.current?.flyTo?.(stop.place.lng, stop.place.lat);
-                          handleSelectEntity('place', stop.place_id);
-                        }
-                      }}
+                      key={stop.id || i}
+                      className={`bp-journey-stop-item${isSelected ? ' bp-journey-stop-item--selected' : ''}`}
+                      style={isSelected ? { '--journey-color': activeThemeObj.color || '#8b7355' } : undefined}
+                      onClick={() => handleSelectStop(i)}
                     >
-                      {stop.title || stop.place?.name || `Stop ${i + 1}`}
+                      <span
+                        className="bp-journey-stop-num"
+                        style={isSelected
+                          ? { background: activeThemeObj.color || '#8b7355', color: '#faf6eb' }
+                          : { borderColor: activeThemeObj.color || '#8b7355', color: activeThemeObj.color || '#8b7355' }
+                        }
+                      >
+                        {i + 1}
+                      </span>
+                      <span className="bp-journey-stop-text">
+                        <span className="bp-journey-stop-label">
+                          {stop.title || stop.place?.name || `Stop ${i + 1}`}
+                        </span>
+                        {stop.scripture_ref && (
+                          <span className="bp-journey-stop-ref">{stop.scripture_ref}</span>
+                        )}
+                      </span>
                     </button>
-                    {stop.scripture_ref && (
-                      <span className="bp-info-panel-ref">{stop.scripture_ref}</span>
-                    )}
-                    {stop.description && (
-                      <span className="bp-info-panel-stop-desc">{stop.description}</span>
-                    )}
-                  </li>
-                ))}
-              </ol>
+                  );
+                })}
+              </div>
+              {/* Forward / backward navigation */}
+              {currentThemeStops.length > 1 && (
+                <div className="bp-journey-nav">
+                  <button
+                    className="bp-journey-nav-btn"
+                    disabled={selectedStopIndex <= 0}
+                    onClick={() => handleSelectStop(selectedStopIndex - 1)}
+                    title="Previous stop"
+                  >
+                    ‹ Prev
+                  </button>
+                  <span className="bp-journey-nav-pos">
+                    {selectedStopIndex + 1} / {currentThemeStops.length}
+                  </span>
+                  <button
+                    className="bp-journey-nav-btn"
+                    disabled={selectedStopIndex >= currentThemeStops.length - 1}
+                    onClick={() => handleSelectStop(selectedStopIndex + 1)}
+                    title="Next stop"
+                  >
+                    Next ›
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </>

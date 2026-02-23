@@ -27,7 +27,7 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
   { places, placeEventsMap, placePeopleMap, ageMap, activeAgeFilter, mapYear, onSelectPlace,
     activeJourney, journeyStops, journeyColor,
     selectedStopIndex,
-    activeTheme, themeStopPlaceIds, themeColor,
+    activeTheme, themeStops, themeStopPlaceIds, themeColor,
     womenPlaceIds },
   ref
 ) {
@@ -459,31 +459,36 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
     }
   }, [activeAgeFilter, activeTheme, buildGeoJSON]);
 
-  // Update journey stop markers
+  // Update numbered stop markers (shared layer for journeys and themes)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
+
+    // Resolve which overlay is active (mutually exclusive)
+    const stops = activeJourney ? journeyStops
+      : (activeTheme && activeTheme !== '__women__' && themeStops?.length) ? themeStops
+      : null;
+    const color = activeJourney ? (journeyColor || '#8b7355')
+      : (themeColor || '#8b7355');
 
     const update = () => {
       const stopsSource = map.getSource('journey-stops');
       if (!stopsSource) return false;
 
-      if (!activeJourney || !journeyStops || journeyStops.length === 0) {
+      if (!stops || stops.length === 0) {
         stopsSource.setData({ type: 'FeatureCollection', features: [] });
         return true;
       }
 
-      const color = journeyColor || '#8b7355';
-
       // Build stop point features with selected flag
-      const stopFeatures = journeyStops
+      const stopFeatures = stops
         .filter(s => s.place)
         .map((s, i) => ({
           type: 'Feature',
           geometry: { type: 'Point', coordinates: [s.place.lng, s.place.lat] },
           properties: {
             place_id: s.place_id,
-            label: s.label || s.place.name,
+            label: s.label || s.title || s.place.name,
             description: s.description || '',
             stopNum: String(i + 1),
             color,
@@ -500,7 +505,7 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       map.once('load', onLoad);
       return () => map.off('load', onLoad);
     }
-  }, [activeJourney, journeyStops, journeyColor, selectedStopIndex]);
+  }, [activeJourney, journeyStops, journeyColor, activeTheme, themeStops, themeColor, selectedStopIndex]);
 
   // Update OHM date filter when mapYear changes
   useEffect(() => {
