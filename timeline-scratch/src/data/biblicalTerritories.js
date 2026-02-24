@@ -97,6 +97,32 @@ const GAD_MANASSEH_E_BORDER = [
   [36.20, 32.45], [35.95, 32.48], [35.75, 32.42], [35.63, 32.48], [35.55, 32.48],
 ];
 
+// ── Polygon smoothing ────────────────────────────────────────────────────
+
+/**
+ * Chaikin corner-cutting algorithm for smoothing a closed polygon ring.
+ * Each iteration doubles point count and rounds corners into smooth curves.
+ * @param {number[][]} ring - GeoJSON coordinate ring (first pt === last pt)
+ * @param {number} iterations - smoothing passes (3 ≈ 8x points)
+ */
+function smoothRing(ring, iterations = 3) {
+  let pts = ring.slice(0, -1); // remove closing duplicate
+  for (let i = 0; i < iterations; i++) {
+    const next = [];
+    for (let j = 0; j < pts.length; j++) {
+      const a = pts[j];
+      const b = pts[(j + 1) % pts.length];
+      next.push(
+        [0.75 * a[0] + 0.25 * b[0], 0.75 * a[1] + 0.25 * b[1]],
+        [0.25 * a[0] + 0.75 * b[0], 0.25 * a[1] + 0.75 * b[1]]
+      );
+    }
+    pts = next;
+  }
+  pts.push(pts[0]); // re-close the ring
+  return pts;
+}
+
 // ── Territory definitions ──────────────────────────────────────────────────
 
 const TERRITORIES = [
@@ -605,9 +631,9 @@ const TERRITORIES = [
         [35.52, 31.87],   // Jordan
         // Benjamin north border (= Israel/Judah divide)
         ...rev(BENJAMIN_NORTH),
-        [34.85, 31.78],
-        [34.72, 31.70],   // Dan tribal coast
-        [34.62, 32.02],   // back via coast — but we need direct line
+        // Trace west through Dan area back to coast
+        [34.75, 31.82],
+        [34.65, 31.87],
         [34.55, 31.95],   // Close
       ]],
     },
@@ -628,8 +654,7 @@ const TERRITORIES = [
         [34.38, 31.15],   // Gerar road
         [34.55, 31.10],   // Gerar
         [34.55, 31.75],   // Coast
-        [34.60, 31.68],   // Dan tribal S
-        [34.72, 31.70],   // Dan approach
+        [34.65, 31.78],   // Dan area NE approach
         // Benjamin north border (= Israel/Judah divide)
         ...BENJAMIN_NORTH,
         // East to Transjordan
@@ -916,6 +941,19 @@ const TERRITORIES = [
     },
   },
 ];
+
+// ── Apply Chaikin smoothing to tribal territory polygons ─────────────────
+// Produces ~8x more points per polygon for smooth, natural-looking curves.
+TERRITORIES.forEach(t => {
+  if (t.type !== 'tribe') return;
+  if (t.geometry.type === 'Polygon') {
+    t.geometry.coordinates[0] = smoothRing(t.geometry.coordinates[0]);
+  } else if (t.geometry.type === 'MultiPolygon') {
+    t.geometry.coordinates = t.geometry.coordinates.map(poly =>
+      [smoothRing(poly[0])]
+    );
+  }
+});
 
 // ── Narrative Age → Territory Mapping ─────────────────────────────────────
 
