@@ -4,6 +4,99 @@
  * Coordinates are [lng, lat] pairs (GeoJSON convention).
  */
 
+// ── Shared boundary segments ─────────────────────────────────────────────
+// Each segment is an array of [lng, lat] points defining one edge between
+// two territories.  Tribes sharing this edge use the SAME array (reversed
+// where needed) so there are ZERO gaps.
+//
+// Geographic feature reference coordinates:
+// Mediterranean coast runs ~34.55 (south) to 34.85-34.9 (Carmel)
+// Jordan River: ~35.55-35.60 lng corridor
+// Dead Sea: west shore ~35.47-35.50, east shore ~35.55-35.60
+// Sea of Galilee: west ~35.50-35.53, east ~35.63-35.65, N ~32.87, S ~32.72
+// Wadi el-Arish (Brook of Egypt): ~34.06, 30.87
+// Mount Carmel ridge: ~34.85, 32.55 to ~35.05, 32.55
+// Jezreel Valley floor: ~32.58-32.65 lat band
+
+/** Reverse a shared segment for the adjacent tribe. */
+const rev = (seg) => [...seg].reverse();
+
+// ── Coastline segments ───────────────────────────────────────────────────
+const COAST_DAN = [[34.55, 31.75], [34.55, 31.88], [34.55, 31.95], [34.62, 32.02]];
+const COAST_EPHRAIM = [[34.62, 32.02], [34.68, 32.08], [34.72, 32.15]];
+const COAST_MANASSEH_W = [[34.72, 32.15], [34.75, 32.28], [34.78, 32.40], [34.82, 32.50], [34.85, 32.55]];
+const COAST_ASHER = [
+  [34.85, 32.55], [34.86, 32.65], [34.87, 32.75], [34.88, 32.85],
+  [34.90, 32.95], [34.90, 33.05], [34.92, 33.15], [34.95, 33.25],
+  [34.98, 33.35], [35.02, 33.45], [35.08, 33.52],
+];
+
+// ── Jordan River corridor ────────────────────────────────────────────────
+const JORDAN_REUBEN_GAD = [[35.55, 31.77], [35.57, 31.90]];
+const JORDAN_GAD = [[35.57, 31.90], [35.56, 32.00], [35.55, 32.15], [35.55, 32.30], [35.55, 32.48]];
+const JORDAN_MANASSEH_E_S = [[35.55, 32.48], [35.55, 32.60], [35.52, 32.72]];
+
+// ── Key inter-tribal boundaries ──────────────────────────────────────────
+
+// Judah northern border (shared with Benjamin/Dan)
+const JUDAH_NORTH = [
+  [34.55, 31.75], [34.60, 31.68], [34.65, 31.68], [34.72, 31.70],
+  [34.85, 31.78], [34.95, 31.82], [35.05, 31.80], [35.15, 31.78],
+  [35.22, 31.72], [35.35, 31.60], [35.42, 31.50], [35.47, 31.48],
+];
+
+// Benjamin southern edge — reuses part of JUDAH_NORTH from Beth-shemesh eastward
+const BENJAMIN_SOUTH = JUDAH_NORTH.slice(4); // starts at [34.85, 31.78]
+
+// Benjamin northern border (shared with Ephraim)
+const BENJAMIN_NORTH = [
+  [34.85, 31.78], [34.90, 31.88], [35.00, 31.92], [35.10, 31.95],
+  [35.22, 31.96], [35.35, 31.95], [35.45, 31.92], [35.52, 31.87],
+];
+
+// Ephraim–Manasseh boundary
+const EPHRAIM_MANASSEH_BORDER = [
+  [34.72, 32.15], [34.82, 32.20], [34.95, 32.25], [35.10, 32.28],
+  [35.22, 32.30], [35.35, 32.30], [35.47, 32.25], [35.52, 32.20],
+];
+
+// Manasseh(W)–Issachar/Zebulun border (Jezreel Valley line)
+const JEZREEL_BOUNDARY = [
+  [34.85, 32.55], [34.95, 32.58], [35.05, 32.60], [35.15, 32.62],
+  [35.25, 32.60], [35.35, 32.58], [35.45, 32.55], [35.52, 32.55],
+];
+
+// Issachar–Zebulun border
+const ISSACHAR_ZEBULUN_BORDER = [
+  [35.15, 32.62], [35.18, 32.70], [35.22, 32.75], [35.30, 32.80],
+];
+
+// Zebulun–Naphtali border
+const ZEBULUN_NAPHTALI_BORDER = [
+  [35.30, 32.80], [35.28, 32.88], [35.25, 32.95],
+];
+
+// Zebulun–Asher western edge
+const ZEBULUN_ASHER_BORDER = [
+  [34.95, 32.58], [34.92, 32.65], [34.90, 32.72], [34.92, 32.80],
+  [34.95, 32.88], [35.00, 32.95],
+];
+
+// Naphtali–Asher border
+const NAPHTALI_ASHER_BORDER = [
+  [35.12, 33.00], [35.18, 33.10], [35.20, 33.20], [35.15, 33.30], [35.10, 33.40],
+];
+
+// Gad–Reuben shared border (east side)
+const GAD_REUBEN_EAST = [
+  [35.57, 31.90], [35.75, 31.85], [35.95, 31.90], [36.10, 32.00],
+];
+
+// Gad–Manasseh-E shared border
+const GAD_MANASSEH_E_BORDER = [
+  [36.20, 32.45], [35.95, 32.48], [35.75, 32.42], [35.63, 32.48], [35.55, 32.48],
+];
+
 // ── Territory definitions ──────────────────────────────────────────────────
 
 const TERRITORIES = [
@@ -55,72 +148,76 @@ const TERRITORIES = [
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [29.5, 31.5],   // Alexandria area
-        [30.0, 31.8],   // Nile Delta north
-        [31.5, 31.8],   // Delta east
-        [32.3, 31.3],   // Near Pelusium
-        [33.5, 31.0],   // Sinai north coast
-        [34.5, 29.5],   // Negev / border
-        [34.0, 28.5],   // Sinai south
-        [33.0, 28.0],   // Sinai mid
-        [32.5, 28.5],   // Gulf of Suez approach
-        [32.0, 29.5],   // Suez area
-        [31.0, 30.0],   // Cairo / Memphis
-        [30.5, 30.5],   // Lower Nile
-        [29.5, 31.5],   // Close polygon
+        [29.5, 31.5],
+        [30.0, 31.8],
+        [31.5, 31.8],
+        [32.3, 31.3],
+        [33.5, 31.0],
+        [34.5, 29.5],
+        [34.0, 28.5],
+        [33.0, 28.0],
+        [32.5, 28.5],
+        [32.0, 29.5],
+        [31.0, 30.0],
+        [30.5, 30.5],
+        [29.5, 31.5],
       ]],
     },
   },
 
   // ── Twelve Tribes of Israel ─────────────────────────────────────────────
 
-  // Judah — southern highlands
+  // Judah — southern highlands west of Dead Sea
   {
     id: 'tribe-judah',
     name: 'Judah',
     type: 'tribe',
     color: '#8B4513',
-    opacity: 0.18,
-    labelPosition: [35.0, 31.4],
+    opacity: 0.20,
+    labelPosition: [34.95, 31.45],
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.25, 31.2],  // Gaza coast
-        [34.45, 31.55], // Philistine border
-        [34.65, 31.68], // Shephelah
-        [34.85, 31.78], // Beth-shemesh area
-        [35.15, 31.78], // Jerusalem south
-        [35.22, 31.72], // Bethlehem
-        [35.4, 31.55],  // Wilderness of Judah
-        [35.5, 31.3],   // En-Gedi
-        [35.5, 30.9],   // Dead Sea south
-        [35.35, 30.4],  // Arad
-        [34.85, 30.5],  // Beersheba
-        [34.5, 30.8],   // Gerar area
-        [34.25, 31.2],  // Close
+        [34.27, 31.22],   // Near Gaza coast
+        [34.38, 31.15],   // SW approach
+        [34.55, 31.10],   // Gerar area
+        [34.79, 31.05],   // Beersheba
+        [34.95, 31.00],   // Beersheba east
+        [35.22, 30.95],   // Arad
+        [35.47, 31.05],   // Dead Sea south approach
+        [35.48, 31.30],   // Dead Sea west shore mid
+        [35.47, 31.48],   // En-Gedi (Dead Sea shore)
+        ...rev(JUDAH_NORTH),
+        [34.27, 31.22],   // Close
       ]],
     },
   },
 
-  // Simeon — within Judah's southern portion (Negev)
+  // Simeon — within Judah's southern portion (Negev, Joshua 19:1)
   {
     id: 'tribe-simeon',
     name: 'Simeon',
     type: 'tribe',
-    color: '#CD853F',
-    opacity: 0.18,
-    labelPosition: [34.7, 30.8],
+    color: '#C4956A',
+    opacity: 0.20,
+    labelPosition: [34.75, 30.75],
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.25, 31.2],  // SW corner
-        [34.5, 30.8],   // Gerar
-        [34.85, 30.5],  // Beersheba
-        [35.35, 30.4],  // Arad area
-        [35.4, 29.8],   // Southern Negev
-        [34.5, 29.5],   // Kadesh-Barnea approach
-        [34.0, 30.0],   // Brook of Egypt
-        [34.25, 31.2],  // Close
+        [34.38, 31.15],   // Western edge (Gerar road)
+        [34.55, 31.10],   // Gerar
+        [34.79, 31.05],   // Beersheba west
+        [34.95, 31.00],   // Beersheba east
+        [35.22, 30.95],   // Arad approach
+        [35.30, 30.80],   // South of Arad
+        [35.20, 30.55],   // Southern Negev
+        [35.00, 30.40],   // Zin wilderness
+        [34.75, 30.35],   // Kadesh-Barnea approach
+        [34.50, 30.45],   // Western Negev
+        [34.30, 30.60],   // SW Negev
+        [34.20, 30.80],   // Brook of Egypt approach
+        [34.25, 31.00],   // Coast approach
+        [34.38, 31.15],   // Close
       ]],
     },
   },
@@ -130,46 +227,62 @@ const TERRITORIES = [
     id: 'tribe-benjamin',
     name: 'Benjamin',
     type: 'tribe',
-    color: '#B8860B',
-    opacity: 0.18,
-    labelPosition: [35.22, 31.85],
+    color: '#D4A017',
+    opacity: 0.20,
+    labelPosition: [35.15, 31.88],
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.85, 31.78], // Western edge
-        [35.0, 31.92],  // Upper Beth-horon
-        [35.1, 31.95],  // Gibeon
-        [35.25, 31.95], // Ramah
-        [35.4, 31.92],  // East of Jericho approach
-        [35.5, 31.85],  // Jordan near Jericho
-        [35.4, 31.55],  // Wilderness edge
-        [35.22, 31.72], // Bethlehem border
-        [35.15, 31.78], // Jerusalem south
-        [34.85, 31.78], // Close
+        // South edge (shared with Judah)
+        ...BENJAMIN_SOUTH,
+        // East edge (Jordan / Dead Sea NE)
+        [35.47, 31.48], [35.50, 31.65], [35.52, 31.80], [35.52, 31.87],
+        // North edge reversed (shared with Ephraim)
+        ...rev(BENJAMIN_NORTH),
+        // Close (first point of BENJAMIN_SOUTH)
       ]],
     },
   },
 
-  // Dan (original territory) — coastal area west of Benjamin
+  // Dan — original coastal territory + northern enclave at Laish (Judges 18)
   {
     id: 'tribe-dan',
     name: 'Dan',
     type: 'tribe',
     color: '#2E8B57',
-    opacity: 0.18,
-    labelPosition: [34.75, 31.92],
+    opacity: 0.20,
+    labelPosition: [34.70, 31.88],
     geometry: {
-      type: 'Polygon',
-      coordinates: [[
-        [34.55, 31.75], // Coast south
-        [34.65, 31.68], // Shephelah
-        [34.85, 31.78], // Beth-shemesh
-        [35.0, 31.92],  // Upper Beth-horon
-        [34.95, 32.0],  // Ephraim border
-        [34.75, 32.05], // Joppa area
-        [34.55, 31.95], // Coast
-        [34.55, 31.75], // Close
-      ]],
+      type: 'MultiPolygon',
+      coordinates: [
+        // Polygon 1: Original coastal territory
+        [[
+          [34.55, 31.75],   // Coast south
+          [34.55, 31.88],   // Coast mid
+          [34.55, 31.95],   // Coast north
+          [34.62, 32.02],   // Joppa area
+          [34.72, 32.06],   // Northern coast edge
+          [34.85, 31.98],   // Ephraim border
+          [35.00, 31.92],   // Upper Beth-horon
+          [34.90, 31.88],   // Benjamin NW
+          [34.85, 31.78],   // Beth-shemesh (shared Judah corner)
+          [34.72, 31.70],   // Azekah
+          [34.65, 31.68],   // Shephelah
+          [34.60, 31.68],   // W approach
+          [34.55, 31.75],   // Close
+        ]],
+        // Polygon 2: Northern Dan at Laish (Judges 18 migration)
+        [[
+          [35.58, 33.18],   // South approach
+          [35.62, 33.22],   // East
+          [35.65, 33.28],   // Dan/Laish
+          [35.63, 33.33],   // North
+          [35.58, 33.32],   // NW
+          [35.55, 33.28],   // West
+          [35.55, 33.22],   // SW
+          [35.58, 33.18],   // Close
+        ]],
+      ],
     },
   },
 
@@ -178,51 +291,48 @@ const TERRITORIES = [
     id: 'tribe-ephraim',
     name: 'Ephraim',
     type: 'tribe',
-    color: '#228B22',
-    opacity: 0.18,
-    labelPosition: [35.15, 32.1],
+    color: '#3A7D44',
+    opacity: 0.20,
+    labelPosition: [35.12, 32.10],
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.75, 32.05], // Coast
-        [34.95, 32.0],  // Dan border
-        [35.1, 31.95],  // Gibeon area
-        [35.25, 31.95], // Benjamin border
-        [35.4, 31.92],  // Jordan approach
-        [35.5, 32.0],   // Jordan
-        [35.5, 32.2],   // Jordan mid
-        [35.35, 32.3],  // Shechem east approach
-        [35.2, 32.3],   // Shechem
-        [34.95, 32.25], // Western hills
-        [34.75, 32.15], // Coast
-        [34.75, 32.05], // Close
+        // West coast
+        ...COAST_EPHRAIM,
+        // North (shared with Manasseh-W)
+        ...EPHRAIM_MANASSEH_BORDER,
+        // East (Jordan corridor)
+        [35.52, 31.87],
+        // South (shared with Benjamin, reversed)
+        ...rev(BENJAMIN_NORTH),
+        // Dan border segment back to coast
+        [34.85, 31.78], [34.85, 31.98],
+        [34.72, 32.06],
+        [34.62, 32.02],   // Close via coast start
       ]],
     },
   },
 
-  // Manasseh (West) — central highlands north of Ephraim
+  // Manasseh (West) — central highlands north of Ephraim through Jezreel
   {
     id: 'tribe-manasseh-west',
     name: 'Manasseh (W)',
     type: 'tribe',
-    color: '#6B8E23',
-    opacity: 0.18,
-    labelPosition: [35.1, 32.5],
+    color: '#7B8F3A',
+    opacity: 0.20,
+    labelPosition: [35.10, 32.42],
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.75, 32.15], // Coast
-        [34.95, 32.25], // Western hills
-        [35.2, 32.3],   // Shechem
-        [35.35, 32.3],  // East Shechem
-        [35.5, 32.2],   // Jordan
-        [35.5, 32.55],  // Beth-shan
-        [35.35, 32.6],  // Jezreel east
-        [35.15, 32.65], // Jezreel valley
-        [34.95, 32.65], // Megiddo
-        [34.85, 32.55], // Carmel south
-        [34.75, 32.4],  // Coast
-        [34.75, 32.15], // Close
+        // South (shared with Ephraim)
+        ...EPHRAIM_MANASSEH_BORDER,
+        // East (Jordan)
+        [35.52, 32.35], [35.52, 32.48], [35.52, 32.55],
+        // North — Jezreel boundary reversed
+        ...rev(JEZREEL_BOUNDARY),
+        // West coast reversed
+        ...rev(COAST_MANASSEH_W),
+        // Close (first point of EPHRAIM_MANASSEH_BORDER)
       ]],
     },
   },
@@ -232,21 +342,28 @@ const TERRITORIES = [
     id: 'tribe-manasseh-east',
     name: 'Manasseh (E)',
     type: 'tribe',
-    color: '#556B2F',
-    opacity: 0.18,
-    labelPosition: [36.0, 32.8],
+    color: '#5B7744',
+    opacity: 0.20,
+    labelPosition: [36.00, 32.85],
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [35.6, 32.5],   // Jordan east
-        [35.8, 32.4],   // Gilead west
-        [36.1, 32.5],   // Gilead east
-        [36.4, 32.8],   // Bashan east
-        [36.5, 33.2],   // Northern Bashan
-        [36.1, 33.3],   // Golan
-        [35.7, 33.1],   // Sea of Galilee NE
-        [35.65, 32.7],  // Sea of Galilee S to Jordan
-        [35.6, 32.5],   // Close
+        [35.55, 32.48],   // Jordan east bank south (shared with Gad)
+        [35.63, 32.48],   // East of Jordan
+        [35.75, 32.42],   // Gilead west
+        [35.95, 32.48],   // Gilead mid
+        [36.20, 32.55],   // Gilead east
+        [36.40, 32.70],   // Bashan approach
+        [36.50, 32.90],   // Bashan east
+        [36.45, 33.10],   // Bashan NE
+        [36.30, 33.25],   // Northern Bashan
+        [36.10, 33.30],   // Golan approach
+        [35.80, 33.15],   // Golan heights
+        [35.65, 33.05],   // Sea of Galilee NE shore
+        [35.63, 32.88],   // Sea of Galilee E shore
+        [35.65, 32.72],   // Sea of Galilee SE
+        [35.55, 32.60],   // Jordan south of lake
+        [35.55, 32.48],   // Close
       ]],
     },
   },
@@ -257,43 +374,48 @@ const TERRITORIES = [
     name: 'Issachar',
     type: 'tribe',
     color: '#4682B4',
-    opacity: 0.18,
-    labelPosition: [35.35, 32.65],
+    opacity: 0.20,
+    labelPosition: [35.38, 32.68],
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [35.15, 32.65], // Jezreel valley west
-        [35.35, 32.6],  // Jezreel east
-        [35.5, 32.55],  // Beth-shan
-        [35.6, 32.5],   // Jordan
-        [35.65, 32.7],  // Jordan north
-        [35.5, 32.75],  // South of Galilee
-        [35.3, 32.8],   // Tabor area
-        [35.15, 32.75], // Nazareth area
-        [35.15, 32.65], // Close
+        // SW — Jezreel boundary from midpoint east
+        ...JEZREEL_BOUNDARY.slice(3), // starts at [35.15, 32.62]
+        // East (Jordan / Beth-shan)
+        [35.55, 32.60], [35.55, 32.72],
+        // North (Sea of Galilee approach)
+        [35.50, 32.78], [35.42, 32.82],
+        // NW (shared with Zebulun, reversed)
+        ...rev(ISSACHAR_ZEBULUN_BORDER),
+        // Close (back to [35.15, 32.62])
       ]],
     },
   },
 
-  // Zebulun — lower Galilee
+  // Zebulun — lower Galilee with sea access corridor (Genesis 49:13)
   {
     id: 'tribe-zebulun',
     name: 'Zebulun',
     type: 'tribe',
-    color: '#5F9EA0',
-    opacity: 0.18,
-    labelPosition: [35.2, 32.82],
+    color: '#5AA0B5',
+    opacity: 0.20,
+    labelPosition: [35.10, 32.82],
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.95, 32.65], // Megiddo
-        [35.15, 32.65], // Jezreel W
-        [35.15, 32.75], // Nazareth area
-        [35.3, 32.8],   // Tabor
-        [35.25, 32.95], // Upper Galilee border
-        [35.05, 32.95], // West
-        [34.95, 32.85], // Acco approach
-        [34.95, 32.65], // Close
+        // South: Jezreel line segment
+        ...ZEBULUN_ASHER_BORDER.slice(0, 1), // [34.95, 32.58]
+        [35.05, 32.60], [35.15, 32.62],
+        // SE (shared with Issachar)
+        ...ISSACHAR_ZEBULUN_BORDER,
+        // NE (shared with Naphtali)
+        ...ZEBULUN_NAPHTALI_BORDER,
+        // North
+        [35.12, 33.00],
+        [35.00, 32.95],
+        // West / Coast approach (sea access corridor — Genesis 49:13)
+        ...rev(ZEBULUN_ASHER_BORDER),
+        // Close
       ]],
     },
   },
@@ -303,47 +425,57 @@ const TERRITORIES = [
     id: 'tribe-naphtali',
     name: 'Naphtali',
     type: 'tribe',
-    color: '#6495ED',
-    opacity: 0.18,
-    labelPosition: [35.45, 33.0],
+    color: '#5C7FBF',
+    opacity: 0.20,
+    labelPosition: [35.40, 33.10],
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [35.25, 32.95],  // Zebulun border
-        [35.3, 32.8],    // Tabor
-        [35.5, 32.75],   // SW Galilee
-        [35.55, 32.85],  // Sea of Galilee W
-        [35.55, 33.1],   // Sea of Galilee N
-        [35.6, 33.3],    // Hazor area
-        [35.6, 33.45],   // Dan / Laish
-        [35.45, 33.4],   // Upper Galilee N
-        [35.2, 33.2],    // Upper Galilee W
-        [35.25, 32.95],  // Close
+        // SW (shared with Zebulun, reversed)
+        [35.25, 32.95],
+        [35.28, 32.88], [35.30, 32.80],
+        // South (shared with Issachar)
+        [35.42, 32.82], [35.50, 32.78], [35.55, 32.72],
+        // East (Sea of Galilee + upper Jordan)
+        [35.53, 32.78], [35.52, 32.85],
+        [35.53, 32.90], [35.55, 32.95], [35.57, 33.02],
+        [35.60, 33.12], [35.62, 33.22], [35.65, 33.30],
+        [35.62, 33.40], [35.55, 33.45],
+        // NW (shared with Asher, reversed)
+        [35.45, 33.42], [35.30, 33.35],
+        ...rev(NAPHTALI_ASHER_BORDER),
+        // West (shared with Zebulun)
+        [35.12, 33.00], [35.25, 32.95],
+        // Close
       ]],
     },
   },
 
-  // Asher — coastal strip from Carmel north
+  // Asher — coastal strip from Carmel north to Sidon
   {
     id: 'tribe-asher',
     name: 'Asher',
     type: 'tribe',
-    color: '#7B68EE',
-    opacity: 0.18,
-    labelPosition: [35.0, 33.1],
+    color: '#7B68AE',
+    opacity: 0.20,
+    labelPosition: [34.95, 33.10],
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.85, 32.55], // Carmel area
-        [34.95, 32.65], // Megiddo W
-        [34.95, 32.85], // Acco area
-        [35.05, 32.95], // Zebulun border
-        [35.2, 33.2],   // Upper Galilee W
-        [35.1, 33.4],   // Northern extent
-        [34.9, 33.3],   // Tyre / Sidon approach
-        [34.85, 33.0],  // Coast north
-        [34.85, 32.7],  // Coast mid
-        [34.85, 32.55], // Close
+        // South (Mount Carmel, shared with Manasseh-W coast end)
+        [34.85, 32.55],
+        // Inland border (shared with Zebulun)
+        ...ZEBULUN_ASHER_BORDER,
+        [35.00, 32.95],
+        // Zebulun–Naphtali junction
+        [35.12, 33.00],
+        // Naphtali border
+        ...NAPHTALI_ASHER_BORDER,
+        // Northern extension (toward Sidon)
+        [35.10, 33.40], [35.12, 33.48], [35.18, 33.55],
+        // Coast south (Mediterranean shoreline)
+        ...rev(COAST_ASHER),
+        // Close
       ]],
     },
   },
@@ -353,21 +485,21 @@ const TERRITORIES = [
     id: 'tribe-gad',
     name: 'Gad',
     type: 'tribe',
-    color: '#D2691E',
-    opacity: 0.18,
-    labelPosition: [35.9, 32.1],
+    color: '#C46A3A',
+    opacity: 0.20,
+    labelPosition: [35.85, 32.15],
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [35.6, 31.9],   // North of Dead Sea, east bank
-        [35.8, 31.8],   // East
-        [36.1, 31.9],   // Eastern hills
-        [36.1, 32.5],   // Gilead east
-        [35.8, 32.4],   // Gilead west
-        [35.6, 32.5],   // Jordan east bank
-        [35.55, 32.3],  // Succoth area
-        [35.55, 32.0],  // Jordan valley east
-        [35.6, 31.9],   // Close
+        // South (shared with Reuben)
+        ...GAD_REUBEN_EAST,
+        // Eastern hills
+        [36.15, 32.15], [36.20, 32.30], [36.20, 32.45],
+        // North (shared with Manasseh-E, reversed)
+        ...rev(GAD_MANASSEH_E_BORDER),
+        // Jordan corridor south
+        ...rev(JORDAN_GAD),
+        // Close (first point of GAD_REUBEN_EAST)
       ]],
     },
   },
@@ -377,20 +509,22 @@ const TERRITORIES = [
     id: 'tribe-reuben',
     name: 'Reuben',
     type: 'tribe',
-    color: '#A0522D',
-    opacity: 0.18,
-    labelPosition: [35.8, 31.55],
+    color: '#A05040',
+    opacity: 0.20,
+    labelPosition: [35.82, 31.60],
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [35.55, 31.75], // Dead Sea NE
-        [35.6, 31.9],   // Gad border
-        [35.8, 31.8],   // East
-        [36.1, 31.9],   // Eastern hills
-        [36.0, 31.4],   // Arnon river east
-        [35.75, 31.2],  // Arnon mid
-        [35.55, 31.3],  // Dead Sea mid-east
-        [35.55, 31.75], // Close
+        [35.55, 31.47],   // Arnon River mouth (Dead Sea east shore)
+        // North (shared with Gad)
+        ...JORDAN_REUBEN_GAD,
+        ...GAD_REUBEN_EAST,
+        // Eastern hills
+        [36.15, 31.85], [36.15, 31.70],
+        // Arnon River course
+        [36.10, 31.55], [36.00, 31.45], [35.85, 31.40],
+        [35.72, 31.35], [35.60, 31.40],
+        [35.55, 31.47],   // Close
       ]],
     },
   },
@@ -408,24 +542,34 @@ const TERRITORIES = [
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.25, 31.2],  // Gaza
-        [34.55, 31.55], // Philistine coast
-        [34.55, 31.95], // Joppa
-        [34.75, 32.15], // Coast N
-        [34.85, 32.55], // Carmel
-        [34.85, 32.7],  // Acco
-        [34.9, 33.1],   // Tyre approach
-        [35.1, 33.4],   // Northern extent
-        [35.6, 33.45],  // Dan
-        [36.1, 33.3],   // Bashan N
-        [36.5, 33.0],   // Bashan E
-        [36.4, 32.5],   // Gilead E
-        [36.1, 31.9],   // Gad E
-        [36.0, 31.4],   // Arnon E
-        [35.55, 31.0],  // Dead Sea S
-        [35.35, 30.4],  // Arad
-        [34.85, 30.5],  // Beersheba
-        [34.25, 31.2],  // Close
+        [34.27, 31.22],   // Gaza
+        [34.38, 31.15],   // Gerar road
+        [34.55, 31.10],   // Gerar
+        [34.55, 31.75],   // Coast south
+        [34.55, 31.95],   // Joppa
+        [34.62, 32.02],   // Coast N
+        [34.72, 32.15],   // Ephraim coast
+        [34.85, 32.55],   // Carmel
+        [34.86, 32.65],   // Acco approach
+        [34.90, 33.05],   // Coast N
+        [35.08, 33.52],   // Tyre approach
+        [35.18, 33.55],   // Northern extent (Sidon)
+        [35.55, 33.45],   // Upper Galilee N
+        [35.65, 33.30],   // Dan
+        [36.10, 33.30],   // Bashan N
+        [36.50, 32.90],   // Bashan E
+        [36.40, 32.70],   // Gilead E
+        [36.20, 32.45],   // Gilead mid
+        [36.10, 32.00],   // Gad E
+        [35.95, 31.90],   // Reuben NE
+        [36.15, 31.70],   // Reuben E
+        [36.10, 31.55],   // Arnon E
+        [35.55, 31.47],   // Dead Sea E
+        [35.47, 31.05],   // Dead Sea S
+        [35.22, 30.95],   // Arad
+        [34.95, 31.00],   // Beersheba E
+        [34.79, 31.05],   // Beersheba
+        [34.27, 31.22],   // Close
       ]],
     },
   },
@@ -441,24 +585,30 @@ const TERRITORIES = [
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.55, 31.95], // Coast (Dan tribal area)
-        [34.75, 32.05], // Joppa
-        [34.75, 32.15], // Coast N
-        [34.85, 32.55], // Carmel
-        [34.85, 32.7],  // Acco
-        [34.9, 33.1],   // Tyre approach
-        [35.1, 33.4],   // Northern extent
-        [35.6, 33.45],  // Dan
-        [36.1, 33.3],   // Bashan N
-        [36.5, 33.0],   // Bashan E
-        [36.4, 32.5],   // Gilead E
-        [36.1, 31.9],   // Gad E
-        [35.6, 31.9],   // Jordan east of Dead Sea N
-        [35.5, 32.0],   // Jordan
-        [35.4, 31.92],  // Benjamin border (excluded)
-        [35.25, 31.95], // Bethel area (border)
-        [35.0, 31.92],  // NW Benjamin
-        [34.55, 31.95], // Close
+        // Southern boundary follows Benjamin north / Dan tribal line
+        [34.55, 31.95],   // Coast (Dan tribal area)
+        [34.62, 32.02],   // Joppa
+        [34.72, 32.15],   // Ephraim coast
+        [34.85, 32.55],   // Carmel
+        [34.86, 32.65],   // Acco
+        [34.90, 33.05],   // Coast N
+        [35.08, 33.52],   // Tyre approach
+        [35.18, 33.55],   // Northern extent
+        [35.55, 33.45],   // Dan
+        [36.10, 33.30],   // Bashan N
+        [36.50, 32.90],   // Bashan E
+        [36.40, 32.70],   // Gilead E
+        [36.20, 32.45],   // Gilead mid
+        [36.10, 32.00],   // Gad E
+        [35.95, 31.90],   // Transjordan
+        [35.57, 31.90],   // Jordan east of Dead Sea N
+        [35.52, 31.87],   // Jordan
+        // Benjamin north border (= Israel/Judah divide)
+        ...rev(BENJAMIN_NORTH),
+        [34.85, 31.78],
+        [34.72, 31.70],   // Dan tribal coast
+        [34.62, 32.02],   // back via coast — but we need direct line
+        [34.55, 31.95],   // Close
       ]],
     },
   },
@@ -474,19 +624,23 @@ const TERRITORIES = [
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.25, 31.2],  // Gaza
-        [34.45, 31.55], // Philistine border
-        [34.55, 31.75], // Coast
-        [34.55, 31.95], // Joppa
-        [35.0, 31.92],  // NW Benjamin
-        [35.25, 31.95], // Bethel border
-        [35.4, 31.92],  // East Benjamin
-        [35.5, 31.85],  // Jordan / Jericho
-        [35.55, 31.3],  // Dead Sea east shore mid
-        [35.5, 30.9],   // Dead Sea S
-        [35.35, 30.4],  // Arad
-        [34.85, 30.5],  // Beersheba
-        [34.25, 31.2],  // Close
+        [34.27, 31.22],   // Gaza
+        [34.38, 31.15],   // Gerar road
+        [34.55, 31.10],   // Gerar
+        [34.55, 31.75],   // Coast
+        [34.60, 31.68],   // Dan tribal S
+        [34.72, 31.70],   // Dan approach
+        // Benjamin north border (= Israel/Judah divide)
+        ...BENJAMIN_NORTH,
+        // East to Transjordan
+        [35.57, 31.90],
+        [35.55, 31.77],   // Dead Sea NE
+        [35.55, 31.30],   // Dead Sea mid east
+        [35.47, 31.05],   // Dead Sea S
+        [35.22, 30.95],   // Arad
+        [34.95, 31.00],   // Beersheba E
+        [34.79, 31.05],   // Beersheba
+        [34.27, 31.22],   // Close
       ]],
     },
   },
@@ -504,22 +658,22 @@ const TERRITORIES = [
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.85, 32.7],  // Acco coast
-        [34.9, 33.5],   // Sidon
-        [35.5, 34.5],   // Northern Syria coast
-        [36.5, 36.0],   // Antioch region
-        [38.0, 37.0],   // Upper Mesopotamia
-        [42.0, 37.0],   // Nineveh region
-        [44.5, 35.0],   // Assur / Tigris
-        [45.0, 33.5],   // Babylon area
-        [44.0, 32.0],   // Southern Mesopotamia
-        [42.0, 31.0],   // Persian Gulf approach
-        [39.0, 30.0],   // Arabian desert edge
-        [36.0, 30.0],   // Transjordan south
-        [35.5, 30.5],   // Dead Sea area
-        [35.5, 31.5],   // Jordan valley
-        [35.5, 32.5],   // Galilee
-        [34.85, 32.7],  // Close
+        [34.85, 32.7],
+        [34.9, 33.5],
+        [35.5, 34.5],
+        [36.5, 36.0],
+        [38.0, 37.0],
+        [42.0, 37.0],
+        [44.5, 35.0],
+        [45.0, 33.5],
+        [44.0, 32.0],
+        [42.0, 31.0],
+        [39.0, 30.0],
+        [36.0, 30.0],
+        [35.5, 30.5],
+        [35.5, 31.5],
+        [35.5, 32.5],
+        [34.85, 32.7],
       ]],
     },
   },
@@ -535,22 +689,22 @@ const TERRITORIES = [
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [33.5, 31.5],   // Egyptian border / Sinai
-        [34.5, 31.5],   // Philistine coast
-        [34.85, 32.7],  // Acco
-        [34.9, 33.5],   // Sidon
-        [35.5, 34.5],   // Syria coast
-        [36.5, 36.0],   // Antioch
-        [38.0, 37.0],   // Upper Mesopotamia
-        [42.0, 37.0],   // Nineveh (conquered)
-        [44.5, 35.0],   // Tigris
-        [45.0, 33.0],   // Babylon
-        [44.5, 31.0],   // Southern Mesopotamia
-        [42.0, 30.0],   // Persian Gulf approach
-        [39.0, 29.0],   // Arabian desert
-        [36.0, 29.5],   // Edom area
-        [35.0, 30.0],   // Negev
-        [33.5, 31.5],   // Close
+        [33.5, 31.5],
+        [34.5, 31.5],
+        [34.85, 32.7],
+        [34.9, 33.5],
+        [35.5, 34.5],
+        [36.5, 36.0],
+        [38.0, 37.0],
+        [42.0, 37.0],
+        [44.5, 35.0],
+        [45.0, 33.0],
+        [44.5, 31.0],
+        [42.0, 30.0],
+        [39.0, 29.0],
+        [36.0, 29.5],
+        [35.0, 30.0],
+        [33.5, 31.5],
       ]],
     },
   },
@@ -566,32 +720,32 @@ const TERRITORIES = [
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [29.5, 31.5],   // Egypt / Alexandria
-        [31.5, 31.8],   // Nile Delta
-        [33.5, 31.5],   // Sinai
-        [34.5, 31.5],   // Philistine coast
-        [34.9, 33.5],   // Sidon
-        [35.5, 34.5],   // Syria coast
-        [36.5, 36.0],   // Antioch
-        [38.0, 37.5],   // Upper Mesopotamia
-        [42.0, 37.5],   // Nineveh
-        [45.0, 36.0],   // Arbela
-        [48.0, 34.0],   // Susa approach
-        [50.0, 32.0],   // Persia proper
-        [50.0, 28.0],   // Persian Gulf east
-        [48.0, 29.0],   // Gulf
-        [44.5, 30.0],   // Gulf west
-        [40.0, 29.0],   // Arabian desert
-        [36.0, 28.0],   // Red Sea approach
-        [34.0, 28.0],   // Sinai south
-        [32.5, 29.5],   // Suez
-        [30.5, 30.5],   // Memphis
-        [29.5, 31.5],   // Close
+        [29.5, 31.5],
+        [31.5, 31.8],
+        [33.5, 31.5],
+        [34.5, 31.5],
+        [34.9, 33.5],
+        [35.5, 34.5],
+        [36.5, 36.0],
+        [38.0, 37.5],
+        [42.0, 37.5],
+        [45.0, 36.0],
+        [48.0, 34.0],
+        [50.0, 32.0],
+        [50.0, 28.0],
+        [48.0, 29.0],
+        [44.5, 30.0],
+        [40.0, 29.0],
+        [36.0, 28.0],
+        [34.0, 28.0],
+        [32.5, 29.5],
+        [30.5, 30.5],
+        [29.5, 31.5],
       ]],
     },
   },
 
-  // Roman provinces (Gospel era — Judea, Galilee, Samaria, etc.)
+  // Roman provinces (Gospel era)
   {
     id: 'province-judea',
     name: 'Judea',
@@ -602,17 +756,17 @@ const TERRITORIES = [
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.25, 31.2],  // Gaza
-        [34.55, 31.55], // Coast
-        [34.65, 31.75], // Joppa S
-        [34.8, 31.9],   // Lydda / Lod
-        [35.05, 31.95], // Bethel
-        [35.4, 31.92],  // E border
-        [35.5, 31.85],  // Jericho / Jordan
-        [35.5, 31.0],   // Dead Sea S
-        [35.35, 30.4],  // Arad / Negev
-        [34.85, 30.5],  // Beersheba
-        [34.25, 31.2],  // Close
+        [34.25, 31.2],
+        [34.55, 31.55],
+        [34.65, 31.75],
+        [34.8, 31.9],
+        [35.05, 31.95],
+        [35.4, 31.92],
+        [35.5, 31.85],
+        [35.5, 31.0],
+        [35.35, 30.4],
+        [34.85, 30.5],
+        [34.25, 31.2],
       ]],
     },
   },
@@ -627,18 +781,18 @@ const TERRITORIES = [
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.65, 31.75], // Joppa S
-        [34.8, 31.9],   // Lydda
-        [34.75, 32.15], // Coast N
-        [34.85, 32.55], // Carmel
-        [35.15, 32.55], // Jezreel S border
-        [35.35, 32.45], // Scythopolis approach
-        [35.5, 32.3],   // Jordan valley
-        [35.5, 32.0],   // Jordan
-        [35.4, 31.92],  // Benjamin NE
-        [35.05, 31.95], // Bethel
-        [34.8, 31.9],   // Lydda
-        [34.65, 31.75], // Close
+        [34.65, 31.75],
+        [34.8, 31.9],
+        [34.75, 32.15],
+        [34.85, 32.55],
+        [35.15, 32.55],
+        [35.35, 32.45],
+        [35.5, 32.3],
+        [35.5, 32.0],
+        [35.4, 31.92],
+        [35.05, 31.95],
+        [34.8, 31.9],
+        [34.65, 31.75],
       ]],
     },
   },
@@ -653,17 +807,17 @@ const TERRITORIES = [
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [34.85, 32.55], // Carmel
-        [34.85, 32.7],  // Acco
-        [34.9, 33.1],   // Coast N
-        [35.1, 33.4],   // Upper Galilee N
-        [35.55, 33.4],  // Caesarea Philippi area
-        [35.7, 33.1],   // Sea of Galilee NE
-        [35.65, 32.7],  // Sea of Galilee S
-        [35.5, 32.55],  // Beth-shan
-        [35.35, 32.45], // Scythopolis
-        [35.15, 32.55], // Jezreel
-        [34.85, 32.55], // Close
+        [34.85, 32.55],
+        [34.85, 32.7],
+        [34.9, 33.1],
+        [35.1, 33.4],
+        [35.55, 33.4],
+        [35.7, 33.1],
+        [35.65, 32.7],
+        [35.5, 32.55],
+        [35.35, 32.45],
+        [35.15, 32.55],
+        [34.85, 32.55],
       ]],
     },
   },
@@ -678,15 +832,15 @@ const TERRITORIES = [
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [35.55, 31.6],  // Dead Sea NE
-        [35.7, 31.5],   // East bank
-        [36.0, 31.8],   // Eastern hills
-        [36.1, 32.3],   // Gilead
-        [35.8, 32.4],   // W Gilead
-        [35.6, 32.5],   // Jordan
-        [35.5, 32.3],   // Jordan valley
-        [35.5, 32.0],   // Jordan mid
-        [35.55, 31.6],  // Close
+        [35.55, 31.6],
+        [35.7, 31.5],
+        [36.0, 31.8],
+        [36.1, 32.3],
+        [35.8, 32.4],
+        [35.6, 32.5],
+        [35.5, 32.3],
+        [35.5, 32.0],
+        [35.55, 31.6],
       ]],
     },
   },
@@ -701,15 +855,15 @@ const TERRITORIES = [
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [35.65, 32.7],  // Sea of Galilee S
-        [35.7, 33.1],   // Sea of Galilee NE
-        [36.1, 33.3],   // Golan / Bashan
-        [36.5, 33.0],   // NE extent
-        [36.5, 32.5],   // Eastern hills
-        [36.1, 32.3],   // Gilead E
-        [35.8, 32.4],   // Gilead W
-        [35.6, 32.5],   // Jordan
-        [35.65, 32.7],  // Close
+        [35.65, 32.7],
+        [35.7, 33.1],
+        [36.1, 33.3],
+        [36.5, 33.0],
+        [36.5, 32.5],
+        [36.1, 32.3],
+        [35.8, 32.4],
+        [35.6, 32.5],
+        [35.65, 32.7],
       ]],
     },
   },
@@ -725,39 +879,39 @@ const TERRITORIES = [
     geometry: {
       type: 'Polygon',
       coordinates: [[
-        [29.0, 31.5],   // Egypt
-        [30.0, 31.8],   // Delta
-        [31.5, 31.8],   // Delta E
-        [33.5, 31.5],   // Sinai N
-        [34.5, 31.5],   // Coast
-        [34.9, 33.5],   // Sidon
-        [35.5, 34.5],   // Syria coast
-        [36.0, 35.5],   // Antioch
-        [36.5, 36.5],   // Cilicia
-        [35.0, 37.0],   // Tarsus area
-        [33.0, 37.0],   // Cappadocia S
-        [30.0, 37.5],   // Central Anatolia
-        [27.5, 38.5],   // Ephesus
-        [26.0, 39.0],   // Pergamum
-        [29.0, 41.0],   // Constantinople
-        [23.5, 38.0],   // Athens
-        [20.0, 39.0],   // Western Greece
-        [18.5, 40.5],   // Adriatic
-        [15.0, 41.0],   // Rome approach
-        [12.5, 42.0],   // Rome
-        [10.0, 44.0],   // Northern Italy
-        [5.0, 43.5],    // Southern France
-        [3.0, 42.0],    // Spain NE
-        [-1.0, 38.0],   // Spain E coast
-        [-6.0, 37.0],   // Spain S
-        [-6.0, 35.0],   // Gibraltar
-        [0.0, 36.0],    // Algeria coast
-        [5.0, 37.0],    // Tunisia
-        [10.0, 35.0],   // Carthage
-        [15.0, 33.0],   // Libya coast
-        [20.0, 32.0],   // Cyrenaica
-        [25.0, 31.5],   // Egypt W
-        [29.0, 31.5],   // Close
+        [29.0, 31.5],
+        [30.0, 31.8],
+        [31.5, 31.8],
+        [33.5, 31.5],
+        [34.5, 31.5],
+        [34.9, 33.5],
+        [35.5, 34.5],
+        [36.0, 35.5],
+        [36.5, 36.5],
+        [35.0, 37.0],
+        [33.0, 37.0],
+        [30.0, 37.5],
+        [27.5, 38.5],
+        [26.0, 39.0],
+        [29.0, 41.0],
+        [23.5, 38.0],
+        [20.0, 39.0],
+        [18.5, 40.5],
+        [15.0, 41.0],
+        [12.5, 42.0],
+        [10.0, 44.0],
+        [5.0, 43.5],
+        [3.0, 42.0],
+        [-1.0, 38.0],
+        [-6.0, 37.0],
+        [-6.0, 35.0],
+        [0.0, 36.0],
+        [5.0, 37.0],
+        [10.0, 35.0],
+        [15.0, 33.0],
+        [20.0, 32.0],
+        [25.0, 31.5],
+        [29.0, 31.5],
       ]],
     },
   },
