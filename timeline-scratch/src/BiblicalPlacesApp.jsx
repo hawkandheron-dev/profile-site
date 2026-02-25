@@ -10,6 +10,7 @@ import {
 } from '@clerk/clerk-react';
 import { fetchBiblicalPlacesData } from './data/biblicalPlacesSupabaseAdapter.js';
 import { getTerritoriesForAge, getTerritoryLabelsForAge } from './data/biblicalTerritories.js';
+import { SHOW_TERRITORIES } from './featureFlags.js';
 import { BiblicalPlacesMap } from './components/BiblicalPlaces/BiblicalPlacesMap.jsx';
 import { NarrativeAgeFilter } from './components/BiblicalPlaces/NarrativeAgeFilter.jsx';
 import { BiblicalPlacesSearch } from './components/BiblicalPlaces/BiblicalPlacesSearch.jsx';
@@ -366,12 +367,12 @@ function BiblicalPlacesApp() {
   // ── Territory overlays for active narrative age ────────────────────────
 
   const territories = useMemo(() => {
-    if (!activeAgeFilter) return null;
+    if (!SHOW_TERRITORIES || !activeAgeFilter) return null;
     return getTerritoriesForAge(activeAgeFilter);
   }, [activeAgeFilter]);
 
   const territoryLabels = useMemo(() => {
-    if (!activeAgeFilter) return null;
+    if (!SHOW_TERRITORIES || !activeAgeFilter) return null;
     return getTerritoryLabelsForAge(activeAgeFilter);
   }, [activeAgeFilter]);
 
