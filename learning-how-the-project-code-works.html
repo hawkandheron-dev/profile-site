@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en" data-page="learning-curriculum">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Learning how the project code works</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="editable-content.css" />
+  </head>
+  <body>
+    <nav class="top-nav" aria-label="Primary"></nav>
+
+    <header class="hero">
+      <div class="hero-brand">
+        <img class="hero-logo" src="resources/logos/Windhover_BLK.png" alt="Windhover bird logo" />
+        <div class="hero-text">
+          <h1 class="hero-title">Learning Lab</h1>
+          <p class="hero-tagline">Learning how the project code works</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="learning-page" aria-label="Learning curriculum workspace">
+      <section class="card learning-intro">
+        <h2>What this page is for</h2>
+        <p>
+          This page is your practical notebook. Every exercise in
+          <code>docs/learning-curriculum.md</code> should add visible elements here so your progress is stored in code.
+        </p>
+        <p><strong>Current milestone:</strong> Module 0 setup completed.</p>
+      </section>
+
+      <section class="card learning-module" id="module-1-html">
+        <h2>Module 1 workspace: HTML concepts</h2>
+        <p>Exercise goal: add semantic sections, concept cards, and before/after notes.</p>
+        <ul>
+          <li>Planned element: <code>&lt;article&gt;</code> for each concept</li>
+          <li>Planned element: <code>&lt;ul&gt;</code> summary of what changed</li>
+          <li>Planned element: short “What I learned” text per concept</li>
+        </ul>
+      </section>
+
+      <section class="card learning-module" id="module-2-css">
+        <h2>Module 2 workspace: CSS concepts</h2>
+        <p>Exercise goal: style concept cards and annotate which classes control each visual result.</p>
+      </section>
+
+      <section class="card learning-module" id="module-3-js">
+        <h2>Module 3 workspace: JavaScript concepts</h2>
+        <p>Exercise goal: add a small interactive panel that updates this page when clicked.</p>
+      </section>
+
+      <section class="card learning-module" id="module-4-architecture">
+        <h2>Module 4 workspace: architecture map</h2>
+        <p>Exercise goal: map how files connect (HTML/CSS/JS, React entry points, and services).</p>
+      </section>
+
+      <section class="card learning-module" id="module-5-react">
+        <h2>Module 5 workspace: React concepts</h2>
+        <p>Exercise goal: add beginner notes for components, props, and state.</p>
+      </section>
+
+      <section class="card learning-module" id="module-6-typescript">
+        <h2>Module 6 workspace: TypeScript + services</h2>
+        <p>Exercise goal: add short typed examples and service input/output notes.</p>
+      </section>
+
+      <section class="card learning-module" id="module-7-data">
+        <h2>Module 7 workspace: data flow + SQL</h2>
+        <p>Exercise goal: add a simple UI → service → database path and SQL translation notes.</p>
+      </section>
+
+      <section class="main-actions learning-actions" aria-label="Learning actions">
+        <a class="button" href="docs/learning-curriculum.md">Open curriculum document</a>
+        <a class="button" href="index.html">Back to home</a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; Windhover History</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/api/supabase-config"></script>
+    <script src="site.js"></script>
+    <script src="editable-content.js"></script>
+  </body>
+</html>
