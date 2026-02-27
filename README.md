@@ -1,4 +1,4 @@
-# profile-site
+# windhover-site
 
 A multi-part project that combines a personal profile site, interactive history products, and supporting data infrastructure.
 
