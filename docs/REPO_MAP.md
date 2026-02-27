@@ -1,6 +1,6 @@
 # Repo Map — profile-site
 
-Personal profile/portfolio site with several sub-projects: a static HTML landing page, an interactive church-history timeline (React + Vite + Supabase), and a pantheon database app (Next.js + Prisma/SQLite). Hosted on Cloudflare Pages; auth via Clerk; data via Supabase (remote) and SQLite (local, pantheon-db).
+Personal profile/portfolio site with several sub-projects: a static HTML landing page, an interactive church-history timeline (React + Vite + Supabase), and a pantheon database app (Next.js + Prisma) that can use Supabase in the broader platform and SQLite for local workflows. Hosted on Cloudflare Pages; auth via Clerk; primary shared data via Supabase with optional local SQLite in `pantheon-db`.
 
 ## Zones
 
@@ -15,7 +15,7 @@ Personal profile/portfolio site with several sub-projects: a static HTML landing
   - Multiple entry points: `main.jsx`, `main-church-history.jsx`, `main-church-history-supabase.jsx`, `main-historical-eras.jsx`.
   - **Typically changes**: components, services, data files.
   - **Careful with**: entry points, Supabase client config.
-- **`pantheon-db/`** — Next.js 16 app with Prisma + SQLite.
+- **`pantheon-db/`** — Next.js 16 app with Prisma, supporting both Supabase-aligned data workflows and local SQLite development.
   - `prisma/schema.prisma` — DB schema. `prisma/seed.ts` — seed script.
   - `src/app/` — Next.js App Router pages and API routes (`api/`, `pantheons/`).
   - `src/lib/prisma.ts` — Prisma client singleton.
@@ -56,7 +56,11 @@ Deploy: Cloudflare Pages (static root + `functions/`). The `timeline-scratch/dis
 - `VITE_ENABLE_DEBUG` (optional, shows debug panel)
 
 ### `pantheon-db/.env`
-- `DATABASE_URL` (SQLite path, e.g., `file:./dev.db`)
+- `DATABASE_URL` (local SQLite path, e.g., `file:./dev.db`, when using local mode)
+
+### Supabase-backed pantheon flows
+- Supabase schema and data live in `supabase/migrations/` and are used by the broader pantheon/church-history experiences
+- Root pages (`pantheons-supabase.html`, `supabase-app.js`) and timeline apps consume Supabase directly
 
 ### Cloudflare Pages (runtime)
 - `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `CLERK_PUBLISHABLE_KEY` — served via `functions/api/supabase-config.js`
@@ -68,7 +72,7 @@ Deploy: Cloudflare Pages (static root + `functions/`). The `timeline-scratch/dis
 
 - **Auth**: Clerk (JWT-based). Used in `timeline-scratch` and root static pages.
 - **Database (remote)**: Supabase (PostgreSQL). Tables include: pantheon entities, church-history events/people/periods, notes, suggestions, era_favorites, site_content, users. RLS enforced via `clerk_user_id = auth.jwt() ->> 'sub'`.
-- **Database (local)**: Prisma + SQLite in `pantheon-db/`.
+- **Database (local option)**: Prisma + SQLite in `pantheon-db/` for local/standalone development.
 - **Maps**: MapLibre GL + OpenHistoricalMap in `timeline-scratch`.
 - **CI**: GitHub Actions runs Supabase migrations (`supabase-migrations.yml`).
 
