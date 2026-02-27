@@ -65,6 +65,11 @@ export async function fetchBiblicalPlacesData() {
     { data: resourceLinks, error: rlErr },
     { data: placePeriodNames, error: ppnErr },
     { data: placeAgeSummaries, error: pasErr },
+    { data: themes, error: thErr },
+    { data: themeStops, error: tsErr },
+    { data: journeys, error: jErr },
+    { data: journeyStops, error: jsErr },
+    { data: journeyWaypoints, error: jwErr },
   ] = await Promise.all([
     supabase.from('BP_NarrativeAges').select('*').order('sort_order'),
     supabase.from('BP_Places').select('*'),
@@ -79,9 +84,14 @@ export async function fetchBiblicalPlacesData() {
     supabase.from('BP_ResourceLinks').select('*'),
     supabase.from('BP_PlacePeriodNames').select('*'),
     supabase.from('BP_PlaceAgeSummaries').select('*'),
+    supabase.from('BP_Themes').select('*').order('sort_order'),
+    supabase.from('BP_ThemeStops').select('*').order('stop_order'),
+    supabase.from('BP_Journeys').select('*').order('sort_order'),
+    supabase.from('BP_JourneyStops').select('*').order('stop_order'),
+    supabase.from('BP_JourneyWaypoints').select('*').order('after_stop').order('waypoint_order'),
   ]);
 
-  const errors = [agesErr, placesErr, peopleErr, paErr, eventsErr, ppErr, epErr, srcErr, sfErr, resErr, rlErr, ppnErr, pasErr].filter(Boolean);
+  const errors = [agesErr, placesErr, peopleErr, paErr, eventsErr, ppErr, epErr, srcErr, sfErr, resErr, rlErr, ppnErr, pasErr, thErr, tsErr, jErr, jsErr, jwErr].filter(Boolean);
   if (errors.length) {
     throw new Error(`Supabase fetch errors: ${errors.map(e => e.message).join('; ')}`);
   }
@@ -100,6 +110,11 @@ export async function fetchBiblicalPlacesData() {
     resourceLinks || [],
     placePeriodNames || [],
     placeAgeSummaries || [],
+    themes || [],
+    journeys || [],
+    themeStops || [],
+    journeyStops || [],
+    journeyWaypoints || [],
   );
 }
 
@@ -108,7 +123,8 @@ export async function fetchBiblicalPlacesData() {
 function transformToBiblicalPlacesFormat(
   dbAges, dbPlaces, dbPeople, dbPersonAges, dbEvents,
   dbPersonPlaces, dbEventPeople, dbSources, dbSourceFigures,
-  dbResources, dbResourceLinks, dbPlacePeriodNames, dbPlaceAgeSummaries
+  dbResources, dbResourceLinks, dbPlacePeriodNames, dbPlaceAgeSummaries,
+  dbThemes, dbJourneys, dbThemeStops, dbJourneyStops, dbJourneyWaypoints
 ) {
   // ── Lookup maps ─────────────────────────────────────────────────────────
 
@@ -297,25 +313,88 @@ function transformToBiblicalPlacesFormat(
   dbPeople.forEach(p => entityIndex.set(p.person_id, { item: p, type: 'person' }));
   dbEvents.forEach(e => entityIndex.set(e.event_id, { item: e, type: 'event' }));
 
+  // ── Themes and theme stops ────────────────────────────────────────
+
+  const themeMap = new Map();
+  dbThemes.forEach(t => themeMap.set(t.theme_id, t));
+
+  const themeStopsMap = new Map(); // theme_id -> stops[] (sorted by stop_order)
+  dbThemeStops.forEach(ts => {
+    if (!themeStopsMap.has(ts.theme_id)) themeStopsMap.set(ts.theme_id, []);
+    themeStopsMap.get(ts.theme_id).push({
+      ...ts,
+      place: ts.place_id ? placeMap.get(ts.place_id) : null,
+      person: ts.person_id ? personMap.get(ts.person_id) : null,
+      event: ts.event_id ? eventMap.get(ts.event_id) : null,
+      age: ts.narrative_age_id ? ageMap.get(ts.narrative_age_id) : null,
+    });
+  });
+
+  // ── Journeys and journey stops ────────────────────────────────────
+
+  const journeyMap = new Map();
+  dbJourneys.forEach(j => journeyMap.set(j.journey_id, {
+    ...j,
+    person: j.person_id ? personMap.get(j.person_id) : null,
+    age: j.narrative_age_id ? ageMap.get(j.narrative_age_id) : null,
+  }));
+
+  const journeyStopsMap = new Map(); // journey_id -> stops[] (sorted by stop_order)
+  dbJourneyStops.forEach(js => {
+    if (!journeyStopsMap.has(js.journey_id)) journeyStopsMap.set(js.journey_id, []);
+    journeyStopsMap.get(js.journey_id).push({
+      ...js,
+      place: js.place_id ? placeMap.get(js.place_id) : null,
+    });
+  });
+
+  // ── Journey waypoints: journey_id -> Map<after_stop, [[lng, lat], ...]> ──
+
+  const journeyWaypointsMap = new Map(); // journey_id -> Map<after_stop, [[lng,lat],...]>
+  (dbJourneyWaypoints || []).forEach(jw => {
+    if (!journeyWaypointsMap.has(jw.journey_id)) journeyWaypointsMap.set(jw.journey_id, new Map());
+    const segmentMap = journeyWaypointsMap.get(jw.journey_id);
+    if (!segmentMap.has(jw.after_stop)) segmentMap.set(jw.after_stop, []);
+    segmentMap.get(jw.after_stop).push([jw.lng, jw.lat]);
+  });
+
+  // ── Women: collect place_ids connected to women ───────────────────
+
+  const womenPlaceIds = new Set();
+  dbPersonPlaces.forEach(pp => {
+    const person = personMap.get(pp.person_id);
+    if (person?.gender === 'F') {
+      womenPlaceIds.add(pp.place_id);
+    }
+  });
+
   return {
     ages: dbAges,
     places: dbPlaces,
     people: dbPeople,
     events: dbEvents,
+    themes: dbThemes,
+    journeys: dbJourneys,
     ageMap,
     placeMap,
     personMap,
     eventMap,
+    themeMap,
+    journeyMap,
     placeEventsMap,
     placePeopleMap,
     eventPeopleMap,
     personEventsMap,
     personPlacesMap,
     personAgesMap,
+    themeStopsMap,
+    journeyStopsMap,
+    journeyWaypointsMap,
     sourceMap,
     resourceMap,
     placeNamesMap,
     placeAgeSummariesMap,
     entityIndex,
+    womenPlaceIds,
   };
 }

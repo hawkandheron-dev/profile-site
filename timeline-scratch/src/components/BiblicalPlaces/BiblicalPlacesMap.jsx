@@ -21,9 +21,15 @@ function formatYearForOHM(year) {
 /**
  * Full-screen MapLibre map with place pins.
  * Uses GeoJSON source with clustering for performance.
+ * Supports journey polyline overlays and theme/women filtering.
  */
 export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
-  { places, placeEventsMap, placePeopleMap, ageMap, activeAgeFilter, mapYear, onSelectPlace },
+  { places, placeEventsMap, placePeopleMap, ageMap, activeAgeFilter, mapYear, onSelectPlace,
+    activeJourney, journeyStops, journeyColor,
+    selectedStopIndex,
+    activeTheme, themeStops, themeStopPlaceIds, themeColor,
+    womenPlaceIds,
+    territories, territoryLabels },
   ref
 ) {
   const mapContainerRef = useRef(null);
@@ -73,19 +79,31 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
   const buildGeoJSON = useCallback(() => {
     const features = places
       .filter(place => {
-        if (!activeAgeFilter) return true;
-        // Show places connected to the active age via events OR person-place links
-        return getPlaceAgeIds(place.place_id).has(activeAgeFilter);
+        // Theme filter: only show places in the theme stops
+        if (activeTheme && activeTheme !== '__women__' && themeStopPlaceIds) {
+          return themeStopPlaceIds.has(place.place_id);
+        }
+        // Women filter: only show places connected to women
+        if (activeTheme === '__women__' && womenPlaceIds) {
+          return womenPlaceIds.has(place.place_id);
+        }
+        // Journey filter: show all places but journey stops get highlighted below
+        if (activeAgeFilter) {
+          return getPlaceAgeIds(place.place_id).has(activeAgeFilter);
+        }
+        return true;
       })
       .map(place => {
         let color = '#8b7355'; // default neutral
 
-        if (activeAgeFilter) {
-          // When an age is selected, all visible dots use that age's color
+        if (activeTheme && activeTheme !== '__women__' && themeColor) {
+          color = themeColor;
+        } else if (activeTheme === '__women__') {
+          color = '#C47AC0';
+        } else if (activeAgeFilter) {
           const selectedAge = ageMap.get(activeAgeFilter);
           if (selectedAge?.color) color = selectedAge.color;
         } else {
-          // No filter: use the earliest connected age's color
           const ageIds = getPlaceAgeIds(place.place_id);
           let earliest = null;
           for (const id of ageIds) {
@@ -115,7 +133,8 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       });
 
     return { type: 'FeatureCollection', features };
-  }, [places, placeEventsMap, placePeopleMap, ageMap, activeAgeFilter, getPlaceAgeIds]);
+  }, [places, placeEventsMap, placePeopleMap, ageMap, activeAgeFilter, getPlaceAgeIds,
+      activeTheme, themeStopPlaceIds, themeColor, womenPlaceIds]);
 
   // Store latest buildGeoJSON in a ref so the mount-time load handler always
   // has access to the most recent version (avoids stale closure)
@@ -142,6 +161,75 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
     map.on('load', () => {
       const geojson = buildGeoJSONRef.current();
 
+      // Territory polygon overlays (rendered below all other custom layers)
+      map.addSource('territories', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      });
+
+      map.addSource('territory-labels', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      });
+
+      // Territory fill (semi-transparent polygons)
+      map.addLayer({
+        id: 'territory-fill',
+        type: 'fill',
+        source: 'territories',
+        paint: {
+          'fill-color': ['get', 'color'],
+          'fill-opacity': ['get', 'opacity'],
+        },
+      });
+
+      // Territory border lines (dashed)
+      map.addLayer({
+        id: 'territory-borders',
+        type: 'line',
+        source: 'territories',
+        paint: {
+          'line-color': ['get', 'color'],
+          'line-width': 2,
+          'line-opacity': 0.6,
+          'line-dasharray': [4, 3],
+        },
+      });
+
+      // Territory name labels (positioned at label points)
+      map.addLayer({
+        id: 'territory-labels',
+        type: 'symbol',
+        source: 'territory-labels',
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-font': ['Open Sans Bold'],
+          'text-size': ['match', ['get', 'type'],
+            'empire', 14,
+            'kingdom', 13,
+            'province', 12,
+            11,
+          ],
+          'text-allow-overlap': true,
+          'text-ignore-placement': false,
+          'text-transform': 'uppercase',
+          'text-letter-spacing': 0.15,
+          'text-variable-anchor': ['center', 'top', 'bottom', 'left', 'right'],
+          'text-radial-offset': 0.5,
+          'text-max-width': ['match', ['get', 'type'],
+            'empire', 12,
+            'kingdom', 10,
+            8,
+          ],
+        },
+        paint: {
+          'text-color': ['get', 'color'],
+          'text-opacity': 0.75,
+          'text-halo-color': '#faf6eb',
+          'text-halo-width': 1.5,
+        },
+      });
+
       // Add GeoJSON source with clustering
       map.addSource('places', {
         type: 'geojson',
@@ -149,6 +237,76 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
         cluster: true,
         clusterMaxZoom: 10,
         clusterRadius: 50,
+      });
+
+      // Journey stop markers source
+      map.addSource('journey-stops', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      });
+
+      // Journey stop selection ring (rendered behind the circles)
+      map.addLayer({
+        id: 'journey-stop-selection-ring',
+        type: 'circle',
+        source: 'journey-stops',
+        filter: ['==', ['get', 'selected'], true],
+        paint: {
+          'circle-color': 'transparent',
+          'circle-radius': 20,
+          'circle-stroke-width': 3,
+          'circle-stroke-color': ['get', 'color'],
+          'circle-stroke-opacity': 0.5,
+        },
+      });
+
+      // Journey stop number circles (selected stops get larger)
+      map.addLayer({
+        id: 'journey-stop-circles',
+        type: 'circle',
+        source: 'journey-stops',
+        paint: {
+          'circle-color': ['get', 'color'],
+          'circle-radius': ['case', ['get', 'selected'], 15, 12],
+          'circle-stroke-width': ['case', ['get', 'selected'], 3, 2],
+          'circle-stroke-color': '#faf6eb',
+        },
+      });
+
+      // Journey stop number labels
+      map.addLayer({
+        id: 'journey-stop-labels',
+        type: 'symbol',
+        source: 'journey-stops',
+        layout: {
+          'text-field': ['get', 'stopNum'],
+          'text-font': ['Open Sans Bold'],
+          'text-size': ['case', ['get', 'selected'], 13, 11],
+          'text-allow-overlap': true,
+        },
+        paint: {
+          'text-color': '#faf6eb',
+        },
+      });
+
+      // Journey stop name labels (below the numbered circle)
+      map.addLayer({
+        id: 'journey-stop-name-labels',
+        type: 'symbol',
+        source: 'journey-stops',
+        layout: {
+          'text-field': ['get', 'label'],
+          'text-font': ['Open Sans Semibold'],
+          'text-size': ['case', ['get', 'selected'], 12, 11],
+          'text-offset': [0, 2],
+          'text-anchor': 'top',
+          'text-optional': true,
+        },
+        paint: {
+          'text-color': '#2c2418',
+          'text-halo-color': '#faf6eb',
+          'text-halo-width': 1.5,
+        },
       });
 
       // Cluster circles
@@ -225,6 +383,14 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
         }
       });
 
+      // Click on journey stop → open as place
+      map.on('click', 'journey-stop-circles', (e) => {
+        const feature = e.features[0];
+        if (feature?.properties?.place_id) {
+          onSelectPlace(feature.properties.place_id);
+        }
+      });
+
       // Click on cluster -> zoom to show all individual places
       map.on('click', 'clusters', async (e) => {
         const features = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
@@ -287,6 +453,35 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
         }
       });
 
+      // Hover on journey stops
+      map.on('mouseenter', 'journey-stop-circles', (e) => {
+        map.getCanvas().style.cursor = 'pointer';
+        const feature = e.features[0];
+        if (feature) {
+          const coords = feature.geometry.coordinates.slice();
+          const label = feature.properties.label;
+          const desc = feature.properties.description;
+          const html = `<strong>${label}</strong>${desc ? `<br><span class="bp-popup-count">${desc}</span>` : ''}`;
+          popupRef.current = new maplibregl.Popup({
+            offset: 16,
+            closeButton: false,
+            closeOnClick: false,
+            className: 'bp-map-tooltip',
+          })
+            .setLngLat(coords)
+            .setHTML(html)
+            .addTo(map);
+        }
+      });
+
+      map.on('mouseleave', 'journey-stop-circles', () => {
+        map.getCanvas().style.cursor = '';
+        if (popupRef.current) {
+          popupRef.current.remove();
+          popupRef.current = null;
+        }
+      });
+
       map.on('mouseenter', 'clusters', () => {
         map.getCanvas().style.cursor = 'pointer';
       });
@@ -332,7 +527,78 @@ export const BiblicalPlacesMap = forwardRef(function BiblicalPlacesMap(
       map.once('load', onLoad);
       return () => map.off('load', onLoad);
     }
-  }, [activeAgeFilter, buildGeoJSON]);
+  }, [activeAgeFilter, activeTheme, buildGeoJSON]);
+
+  // Update territory overlays when territories prop changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const emptyFC = { type: 'FeatureCollection', features: [] };
+
+    const update = () => {
+      const terrSource = map.getSource('territories');
+      const labelSource = map.getSource('territory-labels');
+      if (!terrSource || !labelSource) return false;
+      terrSource.setData(territories || emptyFC);
+      labelSource.setData(territoryLabels || emptyFC);
+      return true;
+    };
+
+    if (!update()) {
+      const onLoad = () => update();
+      map.once('load', onLoad);
+      return () => map.off('load', onLoad);
+    }
+  }, [territories, territoryLabels]);
+
+  // Update numbered stop markers (shared layer for journeys and themes)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Resolve which overlay is active (mutually exclusive)
+    const stops = activeJourney ? journeyStops
+      : (activeTheme && activeTheme !== '__women__' && themeStops?.length) ? themeStops
+      : null;
+    const color = activeJourney ? (journeyColor || '#8b7355')
+      : (themeColor || '#8b7355');
+
+    const update = () => {
+      const stopsSource = map.getSource('journey-stops');
+      if (!stopsSource) return false;
+
+      if (!stops || stops.length === 0) {
+        stopsSource.setData({ type: 'FeatureCollection', features: [] });
+        return true;
+      }
+
+      // Build stop point features with selected flag
+      const stopFeatures = stops
+        .filter(s => s.place)
+        .map((s, i) => ({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [s.place.lng, s.place.lat] },
+          properties: {
+            place_id: s.place_id,
+            label: s.label || s.title || s.place.name,
+            description: s.description || '',
+            stopNum: String(i + 1),
+            color,
+            selected: i === selectedStopIndex,
+          },
+        }));
+
+      stopsSource.setData({ type: 'FeatureCollection', features: stopFeatures });
+      return true;
+    };
+
+    if (!update()) {
+      const onLoad = () => update();
+      map.once('load', onLoad);
+      return () => map.off('load', onLoad);
+    }
+  }, [activeJourney, journeyStops, journeyColor, activeTheme, themeStops, themeColor, selectedStopIndex]);
 
   // Update OHM date filter when mapYear changes
   useEffect(() => {

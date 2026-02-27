@@ -17,6 +17,7 @@ import { ViewMyNotesModal } from './components/Notes/ViewMyNotesModal.jsx';
 import { checkUserRole, ensureUserExists } from './services/adminService.js';
 import { AdminSuggestionsPage } from './components/Suggestions/AdminSuggestionsPage.jsx';
 import { SuggestNewModal } from './components/Suggestions/SuggestNewModal.jsx';
+import { IssueCreatorButton } from './components/IssueCreator/IssueCreatorButton.jsx';
 import { Icon } from './components/Timeline/components/Icon.jsx';
 import './App.css';
 
@@ -57,7 +58,7 @@ function NavDropdown() {
  * Auth header rendered only when Clerk is configured.
  * Isolated so the useAuth hook is always called inside ClerkProvider.
  */
-function ClerkAuthHeader({ onAddNote, onViewNotes, isAdmin, isContributor, onReviewSuggestions, onSuggestNew }) {
+function ClerkAuthHeader({ onAddNote, onViewNotes, isAdmin, isContributor, onReviewSuggestions, onSuggestNew, getToken, clerkUserId, getPageContext }) {
   const { isSignedIn } = useAuth();
 
   return (
@@ -75,6 +76,14 @@ function ClerkAuthHeader({ onAddNote, onViewNotes, isAdmin, isContributor, onRev
               + Suggest New Entry
             </button>
           )}
+          <IssueCreatorButton
+            isContributor={isContributor}
+            isAdmin={isAdmin}
+            getToken={getToken}
+            clerkUserId={clerkUserId}
+            appId="ch-timeline"
+            getPageContext={getPageContext}
+          />
           {isAdmin && (
             <button type="button" className="btn btn-warning" onClick={onReviewSuggestions}>
               Review Suggestions
@@ -159,6 +168,15 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
     ? { isContributor: true, getToken: () => getToken({ template: 'supabase' }), clerkUserId: userId }
     : null;
 
+  // Rich context capture for the issue creator
+  const getPageContext = useCallback(() => ({
+    app: 'ch-timeline',
+    url: window.location.pathname,
+    view,
+  }), [view]);
+
+  const getTokenForSupabase = useCallback(() => getToken({ template: 'supabase' }), [getToken]);
+
   const handleEntityUpdated = useCallback(() => {
     onReloadData?.();
   }, [onReloadData]);
@@ -192,6 +210,9 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
                 isContributor={isContributor}
                 onReviewSuggestions={() => setView('suggestions')}
                 onSuggestNew={() => setSuggestNewOpen(true)}
+                getToken={getTokenForSupabase}
+                clerkUserId={userId}
+                getPageContext={getPageContext}
               />
             </div>
           </div>
@@ -234,6 +255,9 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
               isContributor={isContributor}
               onReviewSuggestions={() => setView('suggestions')}
               onSuggestNew={() => setSuggestNewOpen(true)}
+              getToken={getTokenForSupabase}
+              clerkUserId={userId}
+              getPageContext={getPageContext}
             />
             <NavDropdown />
           </div>
