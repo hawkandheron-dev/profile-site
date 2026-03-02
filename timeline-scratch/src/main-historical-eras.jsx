@@ -4,7 +4,7 @@ import { ClerkProvider } from '@clerk/clerk-react'
 import './index.css'
 import HistoricalErasApp from './HistoricalErasApp.jsx'
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || window.CLERK_PUBLISHABLE_KEY
+const PUBLISHABLE_KEY = window.CLERK_PUBLISHABLE_KEY || import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 const root = document.getElementById('root')
 
 if (!PUBLISHABLE_KEY) {
