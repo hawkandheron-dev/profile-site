@@ -23,7 +23,7 @@ import './App.css';
 
 const BIRD_LOGO = new URL('../../../resources/logos/Windhover_BLK.png', import.meta.url).href;
 
-const hasClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const hasClerk = !!(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || window.CLERK_PUBLISHABLE_KEY);
 
 function NavDropdown() {
   const [open, setOpen] = useState(false);
