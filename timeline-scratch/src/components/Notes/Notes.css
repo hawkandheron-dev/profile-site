@@ -87,54 +87,9 @@
   margin-top: 4px;
 }
 
-.note-btn {
-  padding: 8px 18px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.15s, opacity 0.15s;
-}
-
-.note-btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.note-btn-primary {
-  background: #2c2418;
-  color: #faf6eb;
-  border-color: #2c2418;
-}
-
-.note-btn-primary:hover:not(:disabled) {
-  background: #4a3f2f;
-}
-
-.note-btn-secondary {
-  background: #f5f0e1;
-  color: #4a3f2f;
-  border-color: rgba(120, 100, 70, 0.3);
-}
-
-.note-btn-secondary:hover:not(:disabled) {
-  background: #e8dfc8;
-}
-
-.note-btn-small {
-  padding: 5px 12px;
-  font-size: 13px;
-  border-radius: 6px;
-  border: 1px solid rgba(120, 100, 70, 0.3);
-  background: #faf6eb;
-  color: #4a3f2f;
-}
-
-.note-btn-small:hover:not(:disabled) {
-  background: #ede5d3;
-}
+/* note-btn-primary, note-btn-secondary, note-btn-small replaced by
+   .btn .btn-rect .btn-accent / .btn .btn-rect / .btn .btn-sm
+   from the design system (index.css) */
 
 /* ── Error text ──────────────────────────────────────────────── */
 .note-error {
@@ -384,22 +339,7 @@
   border-radius: 0 0 16px 16px;
 }
 
-/* ── Header Add Note button ──────────────────────────────────── */
-.header-add-note {
-  padding: 7px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(120, 100, 70, 0.25);
-  background: #faf6eb;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background-color 0.15s;
-}
-
-.header-add-note:hover {
-  background: #ede5d3;
-}
+/* header-add-note replaced by .btn from design system */
 
 /* ================================================================
    Dark mode
@@ -426,36 +366,6 @@
 
   .note-textarea:focus {
     outline-color: #c4a67a;
-  }
-
-  .note-btn-primary {
-    background: #f0ebe0;
-    color: #2c2418;
-    border-color: #f0ebe0;
-  }
-
-  .note-btn-primary:hover:not(:disabled) {
-    background: #d8d0c4;
-  }
-
-  .note-btn-secondary {
-    background: #2a2518;
-    color: #f0ebe0;
-    border-color: #3a3528;
-  }
-
-  .note-btn-secondary:hover:not(:disabled) {
-    background: #3a3528;
-  }
-
-  .note-btn-small {
-    background: #2a2518;
-    border-color: #3a3528;
-    color: #f0ebe0;
-  }
-
-  .note-btn-small:hover:not(:disabled) {
-    background: #3a3528;
   }
 
   /* People Selector dark */
@@ -551,16 +461,6 @@
   .notes-action-bar {
     background: rgba(30, 27, 22, 0.95);
     border-top-color: #3a3528;
-  }
-
-  .header-add-note {
-    background: #1e1b16;
-    border-color: #3a3528;
-    color: #f0ebe0;
-  }
-
-  .header-add-note:hover {
-    background: #2a2518;
   }
 
   .note-error {

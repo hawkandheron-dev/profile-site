@@ -13,7 +13,7 @@ export function IssueCreatorButton({ isContributor, isAdmin, getToken, clerkUser
     <>
       <button
         type="button"
-        className="btn btn-issue-report"
+        className="btn"
         onClick={() => setOpen(true)}
         title="Submit feedback, report an issue, or suggest a correction"
       >

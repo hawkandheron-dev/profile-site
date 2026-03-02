@@ -208,7 +208,7 @@ export function ViewMyNotesModal({ isOpen, onClose, people, getToken, clerkUserI
         {hasMore && !hasPendingChanges && (
           <button
             type="button"
-            className="note-btn note-btn-small note-load-more"
+            className="btn btn-sm note-load-more"
             onClick={() => loadNotes(false)}
             disabled={loading}
           >
@@ -221,14 +221,14 @@ export function ViewMyNotesModal({ isOpen, onClose, people, getToken, clerkUserI
         {hasPendingChanges && (
           <div className="notes-action-bar">
             <button
-              className="note-btn note-btn-primary"
+              className="btn btn-rect btn-accent"
               onClick={handleSave}
               disabled={saving || (editingId && !editBody.trim())}
             >
               {saving ? 'Saving...' : markedForDelete ? 'Confirm Delete' : 'Save'}
             </button>
             <button
-              className="note-btn note-btn-secondary"
+              className="btn btn-rect"
               onClick={cancelPending}
               disabled={saving}
             >

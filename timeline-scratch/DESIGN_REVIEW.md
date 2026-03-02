@@ -336,3 +336,174 @@ canvas doesn't need to redraw on mouse movement.
 | **Low** | Duplicated app components (8d) | Code maintenance |
 | **Low** | Loading/error states (8b, 8c) | Polish |
 | **Low** | Point callout overlap (7c) | Edge case visual issue |
+
+---
+
+## 9. Contribution Flows: Architecture Review
+
+The app currently has **two parallel contribution paths** with different UX models, data
+structures, and admin surfaces. This section reviews both flows and proposes a consolidation
+strategy.
+
+### 9a. Issue Creator Flow (simpler, cross-app)
+
+**Files:**
+- `IssueCreatorButton.jsx` / `IssueCreatorModal.jsx` — UI
+- `issueService.js` — Supabase client calls
+- `App_Issues` table — storage (migration: `20260222110000_app_issues.sql`)
+
+**UX:** Title + free-text description + issue type pill selector (General / Data Correction /
+Feature Request / Bug). Page context (app, URL, current view) is auto-captured as JSON. Available
+to both contributors and admins. Cross-app via `app_id` column ('ch-timeline', 'bible-atlas').
+
+**Admin side:** Resolve/close. No structured review or apply step.
+
+**Strengths:**
+- Low friction — contributors describe issues in their own words
+- Works across all apps with no entity-specific knowledge
+- Auto-captured context gives admins enough info to investigate
+
+**Weaknesses:**
+- No structured data output — admin must manually interpret and apply corrections
+- No diff view or approval-applies-changes workflow
+- No screenshot support yet (placeholder exists)
+
+### 9b. Data Suggestion Flow (complex, CH-only)
+
+**Files:**
+- `SuggestNewModal.jsx` — entity type picker → `EditEntityForm.jsx`
+- `EditEntityForm.jsx` — structured form (8–16 fields per entity type)
+- `suggestionService.js` — Supabase client calls
+- `AdminSuggestionsPage.jsx` / `AdminSuggestionsPage.css` — admin review with diff table
+- `CH_Suggestions` table — storage (migration: `20260208180000_contributor_suggestions.sql`)
+
+**UX:** Pick entity type (Person/Event/Era) → fill out every structured field (name, dates,
+location, role_type, era_id, monarch fields, reference_url, description, notes). Two modes:
+suggest new entity, or edit existing. Contributors must know the exact data format.
+
+**Admin side:** Diff table showing current vs. suggested values. Approve auto-applies changes
+to the real CH_People/CH_Events/CH_Eras tables. Reject with optional notes.
+
+**Strengths:**
+- Structured data goes directly into Supabase — approval is one click
+- Diff view gives admins clear change visibility
+- Covers both new entries and edits to existing records
+
+**Weaknesses:**
+- **Very high friction** — contributors must fill 8–16 fields, know date formats, understand
+  entity types, know what era_id values exist, etc.
+- CH-only — no equivalent exists for Bible Atlas (BP_Places, BP_People, etc.)
+- The form is essentially an admin data-entry tool exposed to contributors
+- For "I think Athanasius's death date is wrong" — the contributor must load the full form,
+  find the right field, and change it, rather than just saying so
+
+### 9c. Consolidation Strategy — HIGH
+
+**Goal:** Merge both flows into a single, low-friction contribution path that produces
+structured data.
+
+**Proposed approach: Unstructured text + LLM parsing**
+
+1. **Single contributor modal** — replaces both `IssueCreatorModal` and `SuggestNewModal`.
+   Contributors write free-text descriptions ("I'd like to add Irenaeus of Lyon, he was a
+   bishop who lived ~130–202 AD" or "The Council of Chalcedon date should be 451, not 450").
+
+2. **LLM parsing step** — a Supabase Edge Function receives the free-text submission and
+   calls a public LLM API (e.g., Claude or OpenAI) with the database schema as context.
+   The LLM returns structured JSON matching the target table schema (CH_People, CH_Events,
+   BP_Places, etc.), along with a confidence score and any ambiguities it identified.
+
+3. **Admin review with AI-structured data** — the admin sees the original free text alongside
+   the LLM-parsed structured fields in the existing diff table format. The admin can edit
+   any field before approving. This preserves the approve-applies-changes workflow.
+
+4. **Unified table** — a single `App_Contributions` table (or renamed `App_Issues` with
+   additional columns) stores both simple feedback and data contributions. Columns:
+   - `app_id` — which app
+   - `contribution_type` — 'feedback' | 'data_suggestion' | 'correction'
+   - `raw_text` — the contributor's free-text input
+   - `parsed_data` — JSONB, LLM-structured output (null for plain feedback)
+   - `target_table` — e.g. 'CH_People', 'BP_Places' (null for feedback)
+   - `target_entity_id` — for corrections to existing records
+   - `status`, `submitted_by`, `reviewed_by`, etc.
+
+**Architecture for the Edge Function:**
+
+```
+Contributor writes free text
+        │
+        ▼
+┌─────────────────────┐
+│  Supabase Edge Fn   │  ← receives { raw_text, app_id, context }
+│  (Deno + LLM API)   │  ← calls Claude/OpenAI with schema + text
+│                     │  ← returns { parsed_data, target_table, confidence }
+└─────────────────────┘
+        │
+        ▼
+App_Contributions row created with raw_text + parsed_data
+        │
+        ▼
+Admin reviews: sees raw text + structured fields side by side
+Admin can edit fields → Approve applies to real table
+```
+
+**Benefits:**
+- Contributor friction drops from ~16 fields to a single text box
+- Works for all apps (CH Timeline, Bible Atlas) without app-specific forms
+- Admin still gets structured data and the approve-applies workflow
+- The LLM handles date parsing, entity type detection, field mapping
+- Easy to extend to new data types without building new forms
+
+**Migration path:**
+1. Keep the existing issue flow working as-is during development
+2. Build the Edge Function + new modal in parallel
+3. Once the LLM flow is validated, deprecate both old flows
+4. The `EditEntityForm` remains useful for admin direct editing (non-contributor path)
+
+---
+
+## 10. Button & Visual Consistency Audit
+
+### 10a. Multiple competing button systems — HIGH
+
+The codebase has **five independent button styling systems** that use different padding, radius,
+font-size, and color approaches:
+
+| System | Padding | Radius | Font | Used In |
+|--------|---------|--------|------|---------|
+| `.btn` (design system) | 6px 14px | 999px (pill) | 13px/600 | Header, filters |
+| `.issue-btn-*` | 8px 16–20px | 8px | 13px/600 | Issue modal |
+| `.edit-form-btn` | 6px 18px | 999px | 13px/500 | Edit form |
+| `.note-btn` | 8px 18px | 8px | 14px/600 | Notes modals |
+| `.suggestion-btn` | 7px 20px | 999px | 13px/600 | Suggestions page |
+
+**Recommendation (implemented in this pass):** Consolidate all buttons onto the `.btn` base
+class system in `index.css`. Add `.btn-rect` for modal contexts (rounded-rect instead of pill),
+`.btn-accent` for the brown primary action, `.btn-danger` for destructive actions, and
+`.btn-success` for approval actions.
+
+### 10b. `.btn-issue-report` uses `!important` overrides
+
+`IssueCreatorModal.css:268-272` overrides the base `.btn` with `!important` to shrink the
+header "Submit Feedback" button to `4px 10px` / `12px` font — making it noticeably smaller than
+adjacent header buttons.
+
+**Recommendation:** Remove the `!important` overrides. The button should use the standard `.btn`
+sizing to match its neighbors.
+
+### 10c. Hardcoded colors instead of CSS custom properties
+
+Most component CSS files use hardcoded hex values (`#2c2418`, `#faf6eb`, `#7a6f5f`, `#8b7355`)
+instead of the CSS custom properties defined in `index.css` (e.g., `var(--color-ink)`,
+`var(--color-parchment-light)`, `var(--color-ink-faded)`, `var(--color-accent)`). This makes
+theme changes require touching every file.
+
+**Recommendation:** Migrate component CSS to use the existing custom properties where exact
+matches exist. For colors that don't have a token yet, add new tokens to the design system.
+
+### 10d. Issue type pills use unique border-radius
+
+`.issue-type-pill` uses `border-radius: 16px` — neither the pill (999px) nor the rounded-rect
+(8px) from the design system. These are toggle pills similar to filter buttons elsewhere.
+
+**Recommendation:** Use `var(--radius-pill)` for consistency with filter-style toggles.

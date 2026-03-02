@@ -149,7 +149,7 @@ function SuggestionCard({ suggestion, getToken, clerkUserId, onActionComplete })
             <div className="suggestion-actions">
               <button
                 type="button"
-                className="suggestion-btn suggestion-btn-approve"
+                className="btn btn-success"
                 onClick={handleApprove}
                 disabled={acting}
               >
@@ -159,7 +159,7 @@ function SuggestionCard({ suggestion, getToken, clerkUserId, onActionComplete })
               {!showRejectForm ? (
                 <button
                   type="button"
-                  className="suggestion-btn suggestion-btn-reject"
+                  className="btn btn-danger"
                   onClick={() => setShowRejectForm(true)}
                   disabled={acting}
                 >
@@ -176,7 +176,7 @@ function SuggestionCard({ suggestion, getToken, clerkUserId, onActionComplete })
                   />
                   <button
                     type="button"
-                    className="suggestion-btn suggestion-btn-reject"
+                    className="btn btn-danger"
                     onClick={handleReject}
                     disabled={acting}
                   >
@@ -184,7 +184,7 @@ function SuggestionCard({ suggestion, getToken, clerkUserId, onActionComplete })
                   </button>
                   <button
                     type="button"
-                    className="suggestion-btn suggestion-btn-cancel"
+                    className="btn"
                     onClick={() => setShowRejectForm(false)}
                     disabled={acting}
                   >
@@ -232,7 +232,7 @@ export function AdminSuggestionsPage({ getToken, clerkUserId, onBack }) {
   return (
     <div className="suggestions-page">
       <div className="suggestions-page-header">
-        <button type="button" className="suggestions-back-btn" onClick={onBack}>
+        <button type="button" className="btn" onClick={onBack}>
           &larr; Back to Timeline
         </button>
         <h2>Suggested Changes</h2>

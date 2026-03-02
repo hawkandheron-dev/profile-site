@@ -21,6 +21,10 @@
   --color-action-hover:    #4a6bd4;
   --color-warning:         #c78a1e;
   --color-warning-hover:   #b07916;
+  --color-success:         #4caf50;
+  --color-success-hover:   #43a047;
+  --color-danger:          #9e3a2a;
+  --color-danger-hover:    #87301f;
 
   /* Radii */
   --radius-sm:   6px;
@@ -137,6 +141,53 @@ button {
   border-color: var(--color-warning-hover);
 }
 
+/* Rounded-rect for modal/form contexts */
+.btn-rect {
+  border-radius: var(--radius-md);
+}
+
+/* Brown accent (primary action in parchment theme) */
+.btn-accent {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+
+.btn-accent:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+
+/* Success (approve) */
+.btn-success {
+  background: var(--color-success);
+  color: #fff;
+  border-color: var(--color-success);
+}
+
+.btn-success:hover {
+  background: var(--color-success-hover);
+  border-color: var(--color-success-hover);
+}
+
+/* Danger (reject / delete) */
+.btn-danger {
+  background: var(--color-danger);
+  color: #fff;
+  border-color: var(--color-danger);
+}
+
+.btn-danger:hover {
+  background: var(--color-danger-hover);
+  border-color: var(--color-danger-hover);
+}
+
+/* Disabled state for all .btn variants */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Dark mode overrides for .btn */
 @media (prefers-color-scheme: dark) {
   .btn {
@@ -152,5 +203,16 @@ button {
 
   .btn:active {
     background: rgba(70, 64, 50, 0.95);
+  }
+
+  .btn-accent {
+    background: #c4a67a;
+    color: #1e1b16;
+    border-color: #c4a67a;
+  }
+
+  .btn-accent:hover {
+    background: #d4bc9a;
+    border-color: #d4bc9a;
   }
 }

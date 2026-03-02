@@ -81,14 +81,14 @@ export function AddNoteModal({ isOpen, onClose, people, getToken, clerkUserId })
 
         <div className="note-actions">
           <button
-            className="note-btn note-btn-primary"
+            className="btn btn-rect btn-accent"
             onClick={handleSave}
             disabled={saving || !body.trim()}
           >
             {saving ? 'Saving...' : 'Save'}
           </button>
           <button
-            className="note-btn note-btn-secondary"
+            className="btn btn-rect"
             onClick={() => onClose(false)}
             disabled={saving}
           >
