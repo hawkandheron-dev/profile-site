@@ -21,8 +21,9 @@ const getEnv = (): EnvSource => {
 
 const getSupabaseConfig = () => {
   const env = getEnv();
-  const url = env.VITE_SUPABASE_URL || env.REACT_APP_SUPABASE_URL;
-  const anonKey = env.VITE_SUPABASE_ANON_KEY || env.REACT_APP_SUPABASE_ANON_KEY;
+  const win = typeof window !== 'undefined' ? window as Record<string, unknown> : {};
+  const url = env.VITE_SUPABASE_URL || env.REACT_APP_SUPABASE_URL || (win.SUPABASE_URL as string);
+  const anonKey = env.VITE_SUPABASE_ANON_KEY || env.REACT_APP_SUPABASE_ANON_KEY || (win.SUPABASE_ANON_KEY as string);
 
   if (!url || !anonKey) {
     throw new Error(
