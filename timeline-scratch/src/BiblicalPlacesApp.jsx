@@ -72,7 +72,7 @@ function computeTicks(start, end) {
   return result;
 }
 
-const hasClerk = !!(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || window.CLERK_PUBLISHABLE_KEY);
+const hasClerk = !!(window.CLERK_PUBLISHABLE_KEY || import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 
 function BiblicalPlacesApp() {
   const [data, setData] = useState(null);
