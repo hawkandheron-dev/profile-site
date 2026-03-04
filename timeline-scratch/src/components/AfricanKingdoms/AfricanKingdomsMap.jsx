@@ -16,7 +16,7 @@ function formatYearForOHM(year) {
 }
 
 export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
-  { places, kingdoms, tradeRoutes, activeEraFilter, mapYear, onSelectPlace, onSelectKingdom, eraMap },
+  { places, kingdoms, tradeRoutes, activeEraFilter, mapYear, onSelectPlace, onSelectKingdom, eraMap, selectedItem },
   ref
 ) {
   const mapContainerRef = useRef(null);
@@ -151,6 +151,12 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
   const buildRoutesRef = useRef(buildTradeRoutesGeoJSON);
   buildRoutesRef.current = buildTradeRoutesGeoJSON;
 
+  // Refs for callbacks to avoid stale closures in map events
+  const onSelectPlaceRef = useRef(onSelectPlace);
+  onSelectPlaceRef.current = onSelectPlace;
+  const onSelectKingdomRef = useRef(onSelectKingdom);
+  onSelectKingdomRef.current = onSelectKingdom;
+
   // Initialize map
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -197,6 +203,30 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
           'line-width': 2,
           'line-opacity': 0.5,
           'line-dasharray': [4, 3],
+        },
+      });
+
+      // Selected territory highlight layer (rendered on top of normal territories)
+      map.addLayer({
+        id: 'territory-highlight',
+        type: 'line',
+        source: 'territories',
+        filter: ['==', 'kingdom_id', ''],
+        paint: {
+          'line-color': ['get', 'color'],
+          'line-width': 4,
+          'line-opacity': 0.9,
+        },
+      });
+
+      map.addLayer({
+        id: 'territory-highlight-fill',
+        type: 'fill',
+        source: 'territories',
+        filter: ['==', 'kingdom_id', ''],
+        paint: {
+          'fill-color': ['get', 'color'],
+          'fill-opacity': 0.3,
         },
       });
 
@@ -290,6 +320,21 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
         },
       });
 
+      // Selected place highlight — larger ring behind the pin
+      map.addLayer({
+        id: 'place-highlight',
+        type: 'circle',
+        source: 'places',
+        filter: ['all', ['!', ['has', 'point_count']], ['==', 'place_id', '']],
+        paint: {
+          'circle-color': 'transparent',
+          'circle-radius': 14,
+          'circle-stroke-width': 3,
+          'circle-stroke-color': '#d4a017',
+          'circle-opacity': 1,
+        },
+      });
+
       map.addLayer({
         id: 'place-labels',
         type: 'symbol',
@@ -310,27 +355,34 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
         },
       });
 
-      // Click handlers
-      map.on('click', 'place-pins', (e) => {
-        const feature = e.features[0];
-        if (feature) onSelectPlace?.(feature.properties.place_id);
+      // Click handler — use single click handler and check place pins FIRST
+      map.on('click', (e) => {
+        // Check place pins first (highest priority)
+        const placeFeatures = map.queryRenderedFeatures(e.point, { layers: ['place-pins'] });
+        if (placeFeatures.length > 0) {
+          onSelectPlaceRef.current?.(placeFeatures[0].properties.place_id);
+          return;
+        }
+
+        // Then check clusters
+        const clusterFeatures = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
+        if (clusterFeatures.length > 0) {
+          const clusterId = clusterFeatures[0].properties.cluster_id;
+          map.getSource('places').getClusterExpansionZoom(clusterId).then(zoom => {
+            map.easeTo({ center: clusterFeatures[0].geometry.coordinates, zoom });
+          }).catch(() => {});
+          return;
+        }
+
+        // Then check territories (lowest priority)
+        const territoryFeatures = map.queryRenderedFeatures(e.point, { layers: ['territory-fill'] });
+        if (territoryFeatures.length > 0) {
+          onSelectKingdomRef.current?.(territoryFeatures[0].properties.kingdom_id);
+          return;
+        }
       });
 
-      map.on('click', 'territory-fill', (e) => {
-        const feature = e.features[0];
-        if (feature) onSelectKingdom?.(feature.properties.kingdom_id);
-      });
-
-      map.on('click', 'clusters', async (e) => {
-        const features = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
-        const clusterId = features[0].properties.cluster_id;
-        try {
-          const zoom = await map.getSource('places').getClusterExpansionZoom(clusterId);
-          map.easeTo({ center: features[0].geometry.coordinates, zoom });
-        } catch { /* ignore */ }
-      });
-
-      // Hover
+      // Hover cursors
       map.on('mouseenter', 'place-pins', (e) => {
         map.getCanvas().style.cursor = 'pointer';
         const f = e.features[0];
@@ -404,6 +456,30 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
       return () => map.off('styledata', apply);
     }
   }, [mapYear]);
+
+  // Highlight selected item on the map
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+
+    try {
+      // Update territory highlight filter
+      if (selectedItem?.type === 'kingdom' && selectedItem.item?.kingdom_id) {
+        map.setFilter('territory-highlight', ['==', 'kingdom_id', selectedItem.item.kingdom_id]);
+        map.setFilter('territory-highlight-fill', ['==', 'kingdom_id', selectedItem.item.kingdom_id]);
+      } else {
+        map.setFilter('territory-highlight', ['==', 'kingdom_id', '']);
+        map.setFilter('territory-highlight-fill', ['==', 'kingdom_id', '']);
+      }
+
+      // Update place highlight filter
+      if (selectedItem?.type === 'place' && selectedItem.item?.place_id) {
+        map.setFilter('place-highlight', ['all', ['!', ['has', 'point_count']], ['==', 'place_id', selectedItem.item.place_id]]);
+      } else {
+        map.setFilter('place-highlight', ['all', ['!', ['has', 'point_count']], ['==', 'place_id', '']]);
+      }
+    } catch { /* layers may not exist yet */ }
+  }, [selectedItem]);
 
   return <div className="ak-map-container" ref={mapContainerRef} />;
 });

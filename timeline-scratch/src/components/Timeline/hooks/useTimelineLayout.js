@@ -26,7 +26,8 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
     periodRowHeight = 40,
     periodBracketHeight = 10,
     lanePadding = 8,
-    axisHeight = 30
+    axisHeight = 30,
+    peopleInsidePeriods = false,
   } = sizes;
 
   // Stack all items with above/below separation
@@ -54,17 +55,22 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
     const abovePointsAreaHeight = abovePointRows * pointRowHeight;
     const belowPointsAreaHeight = belowPointRows * pointRowHeight;
 
-    // Total period area height (bracket + points inside)
-    const abovePeriodTotalHeight = abovePeriodRows * periodBracketHeight + abovePointsAreaHeight + (abovePeriodRows > 0 ? lanePadding : 0);
-    const belowPeriodTotalHeight = belowPeriodRows * periodBracketHeight + belowPointsAreaHeight + (belowPeriodRows > 0 ? lanePadding : 0);
-
     // People area height
     const abovePeopleHeight = abovePeopleRows * personRowHeight + (abovePeopleRows > 0 ? lanePadding : 0);
     const belowPeopleHeight = belowPeopleRows * personRowHeight + (belowPeopleRows > 0 ? lanePadding : 0);
 
+    // Total period area height depends on whether people sit inside the period area
+    // Default (peopleInsidePeriods=false): bracket + points
+    // With peopleInsidePeriods: bracket + people + points
+    const aboveInnerHeight = abovePointsAreaHeight + (peopleInsidePeriods ? abovePeopleHeight : 0);
+    const belowInnerHeight = belowPointsAreaHeight + (peopleInsidePeriods ? belowPeopleHeight : 0);
+
+    const abovePeriodTotalHeight = abovePeriodRows * periodBracketHeight + aboveInnerHeight + (abovePeriodRows > 0 ? lanePadding : 0);
+    const belowPeriodTotalHeight = belowPeriodRows * periodBracketHeight + belowInnerHeight + (belowPeriodRows > 0 ? lanePadding : 0);
+
     // Total heights
-    const aboveHeight = abovePeriodTotalHeight + abovePeopleHeight;
-    const belowHeight = belowPeriodTotalHeight + belowPeopleHeight;
+    const aboveHeight = abovePeriodTotalHeight + (peopleInsidePeriods ? 0 : abovePeopleHeight);
+    const belowHeight = belowPeriodTotalHeight + (peopleInsidePeriods ? 0 : belowPeopleHeight);
 
     // Virtual padding above and below all entries for comfortable panning
     const worldPadding = 600;
@@ -74,15 +80,30 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
     const totalHeight = worldPadding + aboveHeight + axisHeight + belowHeight + lanePadding * 2 + worldPadding;
 
     // Calculate Y positions for each section
-    // Above timeline (from axis going up): points → period brackets → people
-    const abovePointsY = axisY - abovePointsAreaHeight; // Points closest to axis
-    const abovePeriodY = axisY - abovePointsAreaHeight - (abovePeriodRows * periodBracketHeight); // Brackets above points
-    const abovePeopleY = abovePeriodY - abovePeopleHeight; // People above brackets
+    let abovePointsY, abovePeriodY, abovePeopleY;
+    let belowPointsY, belowPeriodY, belowPeopleY;
 
-    // Below timeline (from axis going down): points → period brackets → people
-    const belowPointsY = axisY + axisHeight; // Points closest to axis
-    const belowPeriodY = belowPointsY + belowPointsAreaHeight; // Brackets below points
-    const belowPeopleY = belowPeriodY + (belowPeriodRows * periodBracketHeight) + lanePadding; // People below brackets
+    if (peopleInsidePeriods) {
+      // Above timeline (from axis going up): points → people → period brackets
+      abovePointsY = axisY - abovePointsAreaHeight;
+      abovePeopleY = abovePointsY - abovePeopleHeight;
+      abovePeriodY = abovePeopleY - (abovePeriodRows * periodBracketHeight);
+
+      // Below timeline (from axis going down): points → people → period brackets
+      belowPointsY = axisY + axisHeight;
+      belowPeopleY = belowPointsY + belowPointsAreaHeight;
+      belowPeriodY = belowPeopleY + abovePeopleHeight;
+    } else {
+      // Default: Above timeline (from axis going up): points → period brackets → people
+      abovePointsY = axisY - abovePointsAreaHeight;
+      abovePeriodY = axisY - abovePointsAreaHeight - (abovePeriodRows * periodBracketHeight);
+      abovePeopleY = abovePeriodY - abovePeopleHeight;
+
+      // Below timeline (from axis going down): points → period brackets → people
+      belowPointsY = axisY + axisHeight;
+      belowPeriodY = belowPointsY + belowPointsAreaHeight;
+      belowPeopleY = belowPeriodY + (belowPeriodRows * periodBracketHeight) + lanePadding;
+    }
 
     // Calculate max rows for reversing above-timeline items
     const maxAbovePeopleRow = above.people.length > 0 ? Math.max(...above.people.map(p => p.row)) : 0;
@@ -129,14 +150,14 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
       ...above.periods.map(p => ({
         ...p,
         y: abovePeriodY + (maxAbovePeriodsRow - p.row) * periodBracketHeight,
-        height: periodBracketHeight + abovePointsAreaHeight, // Extended to include points area
+        height: periodBracketHeight + aboveInnerHeight, // Extended to include points (and optionally people)
         bracketHeight: periodBracketHeight, // Original bracket height for drawing
         aboveTimeline: true
       })),
       ...below.periods.map(p => ({
         ...p,
         y: belowPeriodY + p.row * periodBracketHeight,
-        height: periodBracketHeight + belowPointsAreaHeight, // Extended to include points area
+        height: periodBracketHeight + belowInnerHeight, // Extended to include points (and optionally people)
         bracketHeight: periodBracketHeight, // Original bracket height for drawing
         aboveTimeline: false
       }))
@@ -157,7 +178,7 @@ export function useTimelineLayout(data, laneOrder, yearsPerPixel, sizes = {}) {
         axisHeight
       }
     };
-  }, [stacked, personRowHeight, pointRowHeight, periodRowHeight, periodBracketHeight, lanePadding, axisHeight]);
+  }, [stacked, personRowHeight, pointRowHeight, periodRowHeight, periodBracketHeight, lanePadding, axisHeight, peopleInsidePeriods]);
 
   return layout;
 }

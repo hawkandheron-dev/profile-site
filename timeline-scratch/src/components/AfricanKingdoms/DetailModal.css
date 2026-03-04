@@ -1,21 +1,17 @@
-.ak-modal-overlay {
+/* Side panel — no overlay dim, map stays fully visible */
+.ak-modal-panel {
   position: fixed;
-  inset: 0;
-  background: rgba(44, 36, 24, 0.4);
-  z-index: 1000;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.ak-modal {
-  width: 420px;
+  top: 0;
+  right: 0;
+  width: 380px;
   max-width: 90vw;
   height: 100%;
   background: #faf6eb;
   overflow-y: auto;
   padding: 24px;
-  box-shadow: -4px 0 24px rgba(60, 50, 30, 0.2);
+  box-shadow: -4px 0 24px rgba(60, 50, 30, 0.25);
   animation: ak-slide-in 200ms ease-out;
+  z-index: 1000;
 }
 
 @keyframes ak-slide-in {
@@ -44,7 +40,7 @@
 .ak-modal-header {
   border-left: 4px solid #8b7355;
   padding-left: 14px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .ak-modal-type-badge {
@@ -75,6 +71,9 @@
   font-size: 0.95rem;
   color: #4a3f2f;
   margin: 2px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .ak-modal-era {
@@ -101,6 +100,55 @@
   flex-shrink: 0;
 }
 
+/* ── "Set map to this year" button ───────────────────────────────────── */
+
+.ak-set-year-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(120, 100, 70, 0.25);
+  border-radius: 50%;
+  background: transparent;
+  color: #8b7355;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.ak-set-year-btn:hover {
+  background: rgba(120, 100, 70, 0.15);
+  color: #6d5a42;
+}
+
+/* ── Reference link (prominent, right below header) ─────────────────── */
+
+.ak-reference-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Alegreya Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #8b7355;
+  text-decoration: none;
+  padding: 6px 12px;
+  border: 1px solid rgba(120, 100, 70, 0.2);
+  border-radius: 8px;
+  margin-bottom: 14px;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.ak-reference-link:hover {
+  background: rgba(120, 100, 70, 0.08);
+  border-color: rgba(120, 100, 70, 0.35);
+  color: #6d5a42;
+}
+
+/* ── Description ────────────────────────────────────────────────────── */
+
 .ak-modal-description {
   font-family: 'Alegreya Sans', sans-serif;
   font-size: 0.95rem;
@@ -108,6 +156,8 @@
   color: #4a3f2f;
   margin: 0 0 16px;
 }
+
+/* ── Sections ───────────────────────────────────────────────────────── */
 
 .ak-modal-section {
   margin: 16px 0;
@@ -162,19 +212,12 @@
   color: #7a6f5f;
 }
 
+/* ── Sources section ────────────────────────────────────────────────── */
+
 .ak-sources-section {
   margin-top: 20px;
   padding-top: 12px;
   border-top: 1px solid rgba(120, 100, 70, 0.2);
-}
-
-.ak-reference-link {
-  display: inline-block;
-  font-family: 'Alegreya Sans', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #8b7355;
-  margin-bottom: 12px;
 }
 
 .ak-source-list {

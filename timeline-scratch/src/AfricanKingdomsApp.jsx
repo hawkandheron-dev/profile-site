@@ -13,6 +13,14 @@ function formatYear(year) {
   return `${year} AD`;
 }
 
+// Year step sizes for navigation — picks the nearest round number
+function getYearStep(currentYear) {
+  const abs = Math.abs(currentYear);
+  if (abs >= 1000) return 100;
+  if (abs >= 500) return 50;
+  return 25;
+}
+
 function AfricanKingdomsApp() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,6 +49,26 @@ function AfricanKingdomsApp() {
   const handleViewportChange = useCallback((viewport) => {
     const midYear = Math.round((viewport.startYear + viewport.endYear) / 2);
     setMapYear(midYear);
+  }, []);
+
+  // Year navigation
+  const handleYearBack = useCallback(() => {
+    setMapYear(y => {
+      const step = getYearStep(y);
+      return y - step;
+    });
+  }, []);
+
+  const handleYearForward = useCallback(() => {
+    setMapYear(y => {
+      const step = getYearStep(y);
+      return y + step;
+    });
+  }, []);
+
+  const handleSetMapYear = useCallback((year) => {
+    setMapYear(year);
+    mapRef.current?.setYear(year);
   }, []);
 
   // Timeline config
@@ -160,7 +188,31 @@ function AfricanKingdomsApp() {
         </a>
         <h1 className="ak-title">African Kingdoms</h1>
         <span className="ak-subtitle">Timeline &amp; Atlas</span>
-        <span className="ak-year-display">{formatYear(mapYear)}</span>
+
+        {/* Year navigation controls */}
+        <div className="ak-year-nav">
+          <button
+            className="ak-year-nav-btn"
+            onClick={handleYearBack}
+            title="Go back in time"
+            aria-label="Go back in time"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <span className="ak-year-display">{formatYear(mapYear)}</span>
+          <button
+            className="ak-year-nav-btn"
+            onClick={handleYearForward}
+            title="Go forward in time"
+            aria-label="Go forward in time"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </button>
+        </div>
       </header>
 
       {/* Map area */}
@@ -175,6 +227,7 @@ function AfricanKingdomsApp() {
           eraMap={data.eraMap}
           onSelectPlace={handleSelectPlace}
           onSelectKingdom={handleSelectKingdom}
+          selectedItem={selectedItem}
         />
       </div>
 
@@ -194,10 +247,11 @@ function AfricanKingdomsApp() {
           onViewportChange={handleViewportChange}
           onItemClick={handleTimelineItemClick}
           suppressModal={true}
+          layoutSizes={{ peopleInsidePeriods: true }}
         />
       </div>
 
-      {/* Detail modal */}
+      {/* Detail modal — no overlay dim, slides in from the side */}
       {selectedItem && (
         <DetailModal
           item={selectedItem.item}
@@ -205,6 +259,7 @@ function AfricanKingdomsApp() {
           onClose={handleCloseModal}
           onSelectEntity={handleSelectEntity}
           data={data}
+          onSetMapYear={handleSetMapYear}
         />
       )}
     </div>

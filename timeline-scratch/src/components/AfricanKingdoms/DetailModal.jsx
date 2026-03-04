@@ -12,7 +12,18 @@ function formatYearRange(start, end) {
   return `${formatYear(start)} – ${formatYear(end)}`;
 }
 
-export function DetailModal({ item, type, onClose, onSelectEntity, data }) {
+/** Extract a human-readable domain from a URL */
+function getRefDomain(url) {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, '');
+    if (host.includes('wikipedia')) return 'Wikipedia';
+    if (host.includes('britannica')) return 'Britannica';
+    if (host.includes('worldhistory')) return 'World History Encyclopedia';
+    return host;
+  } catch { return 'Reference'; }
+}
+
+export function DetailModal({ item, type, onClose, onSelectEntity, data, onSetMapYear }) {
   if (!item) return null;
 
   const { kingdomMap, placeMap, eraMap, personMap,
@@ -23,28 +34,26 @@ export function DetailModal({ item, type, onClose, onSelectEntity, data }) {
   const sources = sourceMap?.get(item[type + '_id'] || item.kingdom_id || item.place_id || item.person_id || item.event_id) || [];
 
   return (
-    <div className="ak-modal-overlay" onClick={onClose}>
-      <div className="ak-modal" onClick={e => e.stopPropagation()}>
-        <button className="ak-modal-close" onClick={onClose} aria-label="Close">&times;</button>
+    <div className="ak-modal-panel" onClick={e => e.stopPropagation()}>
+      <button className="ak-modal-close" onClick={onClose} aria-label="Close">&times;</button>
 
-        {type === 'kingdom' && <KingdomDetail item={item} eraMap={eraMap} placeMap={placeMap}
-          kingdomPeopleMap={kingdomPeopleMap} kingdomEventsMap={kingdomEventsMap} kingdomPlacesMap={kingdomPlacesMap}
-          onSelect={onSelectEntity} sources={sources} />}
+      {type === 'kingdom' && <KingdomDetail item={item} eraMap={eraMap} placeMap={placeMap}
+        kingdomPeopleMap={kingdomPeopleMap} kingdomEventsMap={kingdomEventsMap} kingdomPlacesMap={kingdomPlacesMap}
+        onSelect={onSelectEntity} sources={sources} onSetMapYear={onSetMapYear} />}
 
-        {type === 'place' && <PlaceDetail item={item} placeEventsMap={placeEventsMap}
-          placeKingdomsMap={placeKingdomsMap} onSelect={onSelectEntity} sources={sources} />}
+      {type === 'place' && <PlaceDetail item={item} placeEventsMap={placeEventsMap}
+        placeKingdomsMap={placeKingdomsMap} onSelect={onSelectEntity} sources={sources} />}
 
-        {type === 'person' && <PersonDetail item={item} kingdomMap={kingdomMap}
-          personEventsMap={personEventsMap} onSelect={onSelectEntity} sources={sources} />}
+      {type === 'person' && <PersonDetail item={item} kingdomMap={kingdomMap}
+        personEventsMap={personEventsMap} onSelect={onSelectEntity} sources={sources} />}
 
-        {type === 'event' && <EventDetail item={item} kingdomMap={kingdomMap} placeMap={placeMap}
-          eventPeopleMap={eventPeopleMap} onSelect={onSelectEntity} sources={sources} />}
-      </div>
+      {type === 'event' && <EventDetail item={item} kingdomMap={kingdomMap} placeMap={placeMap}
+        eventPeopleMap={eventPeopleMap} onSelect={onSelectEntity} sources={sources} onSetMapYear={onSetMapYear} />}
     </div>
   );
 }
 
-function KingdomDetail({ item, eraMap, placeMap, kingdomPeopleMap, kingdomEventsMap, kingdomPlacesMap, onSelect, sources }) {
+function KingdomDetail({ item, eraMap, placeMap, kingdomPeopleMap, kingdomEventsMap, kingdomPlacesMap, onSelect, sources, onSetMapYear }) {
   const era = eraMap?.get(item.era_id);
   const capital = placeMap?.get(item.capital_place_id);
   const people = kingdomPeopleMap?.get(item.kingdom_id) || [];
@@ -56,10 +65,18 @@ function KingdomDetail({ item, eraMap, placeMap, kingdomPeopleMap, kingdomEvents
       <div className="ak-modal-header" style={{ borderLeftColor: item.color || '#8b7355' }}>
         <span className="ak-modal-type-badge">Kingdom</span>
         <h2>{item.name}</h2>
-        <p className="ak-modal-dates">{formatYearRange(item.start_year, item.end_year)}</p>
+        <p className="ak-modal-dates">
+          {formatYearRange(item.start_year, item.end_year)}
+          {item.start_year != null && onSetMapYear && (
+            <button className="ak-set-year-btn" onClick={() => onSetMapYear(item.start_year)} title="Set map to founding year">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </button>
+          )}
+        </p>
         {era && <p className="ak-modal-era"><span className="ak-era-dot" style={{ backgroundColor: era.color }} />{era.name}</p>}
         {item.region && <p className="ak-modal-region">{item.region}</p>}
       </div>
+      <ReferenceLink url={item.reference_url} />
       {item.description && <p className="ak-modal-description">{item.description}</p>}
       {capital && (
         <div className="ak-modal-section">
@@ -106,7 +123,7 @@ function KingdomDetail({ item, eraMap, placeMap, kingdomPeopleMap, kingdomEvents
           </ul>
         </div>
       )}
-      <SourcesAndLinks sources={sources} referenceUrl={item.reference_url} />
+      <SourcesList sources={sources} />
     </>
   );
 }
@@ -122,6 +139,7 @@ function PlaceDetail({ item, placeEventsMap, placeKingdomsMap, onSelect, sources
         <h2>{item.name}</h2>
         {item.region && <p className="ak-modal-region">{item.region}</p>}
       </div>
+      <ReferenceLink url={item.reference_url} />
       {item.description && <p className="ak-modal-description">{item.description}</p>}
       {kingdoms.length > 0 && (
         <div className="ak-modal-section">
@@ -149,7 +167,7 @@ function PlaceDetail({ item, placeEventsMap, placeKingdomsMap, onSelect, sources
           </ul>
         </div>
       )}
-      <SourcesAndLinks sources={sources} referenceUrl={item.reference_url} />
+      <SourcesList sources={sources} />
     </>
   );
 }
@@ -170,6 +188,7 @@ function PersonDetail({ item, kingdomMap, personEventsMap, onSelect, sources }) 
           <p className="ak-modal-era">Reigned: {formatYearRange(item.reign_start_year, item.reign_end_year)}</p>
         )}
       </div>
+      <ReferenceLink url={item.reference_url} />
       {item.description && <p className="ak-modal-description">{item.description}</p>}
       {kingdom && (
         <div className="ak-modal-section">
@@ -192,12 +211,12 @@ function PersonDetail({ item, kingdomMap, personEventsMap, onSelect, sources }) 
           </ul>
         </div>
       )}
-      <SourcesAndLinks sources={sources} referenceUrl={item.reference_url} />
+      <SourcesList sources={sources} />
     </>
   );
 }
 
-function EventDetail({ item, kingdomMap, placeMap, eventPeopleMap, onSelect, sources }) {
+function EventDetail({ item, kingdomMap, placeMap, eventPeopleMap, onSelect, sources, onSetMapYear }) {
   const kingdom = item.kingdom_id ? kingdomMap?.get(item.kingdom_id) : null;
   const place = item.place_id ? placeMap?.get(item.place_id) : null;
   const people = eventPeopleMap?.get(item.event_id) || [];
@@ -207,8 +226,16 @@ function EventDetail({ item, kingdomMap, placeMap, eventPeopleMap, onSelect, sou
       <div className="ak-modal-header" style={{ borderLeftColor: kingdom?.color || '#8b7355' }}>
         <span className="ak-modal-type-badge">{item.event_type || 'Event'}</span>
         <h2>{item.name}</h2>
-        <p className="ak-modal-dates">{formatYear(item.event_year)}</p>
+        <p className="ak-modal-dates">
+          {formatYear(item.event_year)}
+          {item.event_year != null && onSetMapYear && (
+            <button className="ak-set-year-btn" onClick={() => onSetMapYear(item.event_year)} title="Set map to this year">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </button>
+          )}
+        </p>
       </div>
+      <ReferenceLink url={item.reference_url} />
       {item.description && <p className="ak-modal-description">{item.description}</p>}
       {kingdom && (
         <div className="ak-modal-section">
@@ -236,33 +263,41 @@ function EventDetail({ item, kingdomMap, placeMap, eventPeopleMap, onSelect, sou
           </ul>
         </div>
       )}
-      <SourcesAndLinks sources={sources} referenceUrl={item.reference_url} />
+      <SourcesList sources={sources} />
     </>
   );
 }
 
-function SourcesAndLinks({ sources, referenceUrl }) {
-  if (!referenceUrl && (!sources || sources.length === 0)) return null;
+/** Prominent reference link shown right below the header */
+function ReferenceLink({ url }) {
+  if (!url) return null;
+  const domain = getRefDomain(url);
+  return (
+    <a className="ak-reference-link" href={url} target="_blank" rel="noopener noreferrer">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+        <polyline points="15 3 21 3 21 9" />
+        <line x1="10" y1="14" x2="21" y2="3" />
+      </svg>
+      Read more on {domain}
+    </a>
+  );
+}
+
+/** Academic sources list (separate from the main reference link) */
+function SourcesList({ sources }) {
+  if (!sources || sources.length === 0) return null;
   return (
     <div className="ak-modal-section ak-sources-section">
-      {referenceUrl && (
-        <a className="ak-reference-link" href={referenceUrl} target="_blank" rel="noopener noreferrer">
-          Learn more &rarr;
-        </a>
-      )}
-      {sources.length > 0 && (
-        <>
-          <h3>Sources</h3>
-          <ul className="ak-source-list">
-            {sources.map(s => (
-              <li key={s.source_id}>
-                {s.url ? <a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a> : s.title}
-                {s.author && <span className="ak-meta"> — {s.author}</span>}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+      <h3>Sources</h3>
+      <ul className="ak-source-list">
+        {sources.map(s => (
+          <li key={s.source_id}>
+            {s.url ? <a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a> : s.title}
+            {s.author && <span className="ak-meta"> — {s.author}</span>}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

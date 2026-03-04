@@ -54,8 +54,40 @@
   font-style: italic;
 }
 
-.ak-year-display {
+/* ── Year navigation ──────────────────────────────────────────────── */
+
+.ak-year-nav {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ak-year-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #7a6f5f;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+  padding: 0;
+}
+
+.ak-year-nav-btn:hover {
+  background: rgba(120, 100, 70, 0.15);
+  color: #2c2418;
+}
+
+.ak-year-nav-btn:active {
+  transform: scale(0.92);
+}
+
+.ak-year-display {
   font-family: 'Alegreya Sans', sans-serif;
   font-size: 0.95rem;
   font-weight: 600;
@@ -63,6 +95,8 @@
   background: rgba(120, 100, 70, 0.1);
   padding: 4px 12px;
   border-radius: 999px;
+  min-width: 80px;
+  text-align: center;
 }
 
 /* ── Map area ───────────────────────────────────────────────────────── */
