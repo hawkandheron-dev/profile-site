@@ -137,43 +137,6 @@
   justify-content: flex-end;
 }
 
-.edit-form-btn {
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 6px 18px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease, opacity 160ms ease;
-}
-
-.edit-form-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.edit-form-btn-primary {
-  background: #8b7355;
-  color: #faf6eb;
-  border: 1px solid #8b7355;
-}
-
-.edit-form-btn-primary:hover:not(:disabled) {
-  background: #6d5a42;
-  border-color: #6d5a42;
-}
-
-.edit-form-btn-secondary {
-  background: transparent;
-  color: #4a3f2f;
-  border: 1px solid rgba(120, 100, 70, 0.25);
-}
-
-.edit-form-btn-secondary:hover:not(:disabled) {
-  background: rgba(120, 100, 70, 0.08);
-  border-color: rgba(120, 100, 70, 0.4);
-}
-
 /* ── Result messages ─────────────────────────────────────────────────── */
 
 .edit-form-result {
@@ -271,17 +234,6 @@
   line-height: 1.4;
 }
 
-.edit-form-btn-suggest {
-  background: #5b7ee8;
-  color: #fff;
-  border: 1px solid #5b7ee8;
-}
-
-.edit-form-btn-suggest:hover:not(:disabled) {
-  background: #4a6bd4;
-  border-color: #4a6bd4;
-}
-
 .modal-suggest-toggle {
   color: #5b7ee8;
   border-color: rgba(91, 126, 232, 0.4);
@@ -333,26 +285,6 @@
   .edit-field textarea[readonly] {
     background: #1e1b16;
     color: #7a6f5f;
-  }
-
-  .edit-form-btn-primary {
-    background: #c4a67a;
-    color: #1e1b16;
-    border-color: #c4a67a;
-  }
-
-  .edit-form-btn-primary:hover:not(:disabled) {
-    background: #d4bc9a;
-    border-color: #d4bc9a;
-  }
-
-  .edit-form-btn-secondary {
-    color: #f0ebe0;
-    border-color: #3a3528;
-  }
-
-  .edit-form-btn-secondary:hover:not(:disabled) {
-    background: rgba(200, 180, 140, 0.1);
   }
 
   .edit-form-result-success {
@@ -408,17 +340,6 @@
   .edit-form-suggest-note {
     background: #1e2a40;
     color: #8eaef0;
-  }
-
-  .edit-form-btn-suggest {
-    background: #5b7ee8;
-    color: #fff;
-    border-color: #5b7ee8;
-  }
-
-  .edit-form-btn-suggest:hover:not(:disabled) {
-    background: #7a9af0;
-    border-color: #7a9af0;
   }
 
   .modal-suggest-toggle {

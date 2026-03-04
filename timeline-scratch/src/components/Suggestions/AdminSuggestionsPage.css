@@ -22,22 +22,7 @@
   color: #2c2418;
 }
 
-.suggestions-back-btn {
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(120, 100, 70, 0.25);
-  background: transparent;
-  color: #4a3f2f;
-  cursor: pointer;
-  transition: background 160ms ease;
-}
-
-.suggestions-back-btn:hover {
-  background: rgba(120, 100, 70, 0.08);
-}
+/* .suggestions-back-btn uses .btn from design system */
 
 /* ── Filters ─────────────────────────────────────────────────────────── */
 
@@ -271,51 +256,6 @@
   flex-wrap: wrap;
 }
 
-.suggestion-btn {
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 20px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease;
-}
-
-.suggestion-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.suggestion-btn-approve {
-  background: #4caf50;
-  color: white;
-  border: 1px solid #4caf50;
-}
-
-.suggestion-btn-approve:hover:not(:disabled) {
-  background: #43a047;
-}
-
-.suggestion-btn-reject {
-  background: #d32f2f;
-  color: white;
-  border: 1px solid #d32f2f;
-}
-
-.suggestion-btn-reject:hover:not(:disabled) {
-  background: #c62828;
-}
-
-.suggestion-btn-cancel {
-  background: transparent;
-  color: #7a6f5f;
-  border: 1px solid rgba(120, 100, 70, 0.25);
-}
-
-.suggestion-btn-cancel:hover:not(:disabled) {
-  background: rgba(120, 100, 70, 0.08);
-}
-
 .suggestion-reject-form {
   display: flex;
   align-items: center;
@@ -349,15 +289,6 @@
 
   .suggestions-page-header h2 {
     color: #f0ebe0;
-  }
-
-  .suggestions-back-btn {
-    color: #d8d0c4;
-    border-color: #3a3528;
-  }
-
-  .suggestions-back-btn:hover {
-    background: rgba(200, 180, 140, 0.1);
   }
 
   .suggestions-filter-btn {

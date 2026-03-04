@@ -173,12 +173,12 @@ export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appI
             {error && <div className="issue-modal-error">{error}</div>}
 
             <div className="issue-modal-actions">
-              <button type="button" className="issue-btn-cancel" onClick={onClose}>
+              <button type="button" className="btn btn-rect" onClick={onClose}>
                 Cancel
               </button>
               <button
                 type="button"
-                className="issue-btn-submit"
+                className="btn btn-rect btn-accent"
                 onClick={handleSubmit}
                 disabled={saving}
               >
