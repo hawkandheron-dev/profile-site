@@ -637,7 +637,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
                 <button type="button" className="modal-edit-remove" onClick={() => removeWork(idx)}>&times;</button>
               </div>
             ))}
-            <button type="button" className="note-btn note-btn-small" onClick={addWork}>+ Add work</button>
+            <button type="button" className="btn btn-sm" onClick={addWork}>+ Add work</button>
             {renderEditActions()}
           </div>
         )}
@@ -791,7 +791,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
         {/* Show "Add related people" button for points that have none */}
         {itemType === 'point' && pointConnections.length === 0 && editSection !== 'pointConnections' && canEdit && (
           <div className="modal-links">
-            <button type="button" className="note-btn note-btn-small" onClick={startEditPointPeople}>
+            <button type="button" className="btn btn-sm" onClick={startEditPointPeople}>
               + Add related people
             </button>
           </div>
@@ -931,7 +931,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
                 <button type="button" className="modal-edit-remove-card" onClick={() => removeSource(idx)}>Remove</button>
               </div>
             ))}
-            <button type="button" className="note-btn note-btn-small" onClick={addSource}>+ Add source</button>
+            <button type="button" className="btn btn-sm" onClick={addSource}>+ Add source</button>
             {renderEditActions()}
           </div>
         )}
@@ -991,7 +991,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
                 <div className="modal-delete-confirm-actions">
                   <button
                     type="button"
-                    className="note-btn note-btn-primary modal-delete-confirm-btn"
+                    className="btn btn-rect btn-accent modal-delete-confirm-btn"
                     onClick={handleDelete}
                     disabled={deleting}
                   >
@@ -999,7 +999,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
                   </button>
                   <button
                     type="button"
-                    className="note-btn note-btn-secondary"
+                    className="btn btn-rect"
                     onClick={() => { setDeleteConfirm(false); setDeleteError(null); }}
                     disabled={deleting}
                   >
@@ -1021,7 +1021,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
         {saveError && <p className="note-error">{saveError}</p>}
         <button
           type="button"
-          className="note-btn note-btn-primary"
+          className="btn btn-rect btn-accent"
           onClick={handleSaveEdit}
           disabled={saving}
         >
@@ -1029,7 +1029,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
         </button>
         <button
           type="button"
-          className="note-btn note-btn-secondary"
+          className="btn btn-rect"
           onClick={cancelEdit}
           disabled={saving}
         >

@@ -147,7 +147,7 @@ export function NotesSection({ personId, personName, people, getToken, clerkUser
         <h3 className="notes-section-title">My Notes on {personName}</h3>
         <button
           type="button"
-          className="note-btn note-btn-small"
+          className="btn btn-sm"
           onClick={startCreate}
           disabled={hasPendingChanges}
         >
@@ -266,7 +266,7 @@ export function NotesSection({ personId, personName, people, getToken, clerkUser
       {hasMore && !hasPendingChanges && (
         <button
           type="button"
-          className="note-btn note-btn-small note-load-more"
+          className="btn btn-sm note-load-more"
           onClick={() => loadNotes(false)}
           disabled={loading}
         >
@@ -281,14 +281,14 @@ export function NotesSection({ personId, personName, people, getToken, clerkUser
       {hasPendingChanges && (
         <div className="notes-action-bar">
           <button
-            className="note-btn note-btn-primary"
+            className="btn btn-rect btn-accent"
             onClick={handleSave}
             disabled={saving || (editingId && editingId !== 'new' && !editBody.trim()) || (editingId === 'new' && !editBody.trim())}
           >
             {saving ? 'Saving...' : markedForDelete ? 'Confirm Delete' : 'Save'}
           </button>
           <button
-            className="note-btn note-btn-secondary"
+            className="btn btn-rect"
             onClick={cancelPending}
             disabled={saving}
           >

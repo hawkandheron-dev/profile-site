@@ -274,7 +274,7 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel, mo
     return (
       <div className="edit-form-error">
         <p>{error}</p>
-        <button type="button" className="edit-form-btn edit-form-btn-secondary" onClick={onCancel}>
+        <button type="button" className="btn btn-rect" onClick={onCancel}>
           Close
         </button>
       </div>
@@ -320,7 +320,7 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel, mo
       <div className="edit-form-actions">
         <button
           type="button"
-          className={`edit-form-btn ${isSuggest ? 'edit-form-btn-suggest' : 'edit-form-btn-primary'}`}
+          className={`btn btn-rect ${isSuggest ? 'btn-action' : 'btn-accent'}`}
           onClick={handleSave}
           disabled={saving}
         >
@@ -330,7 +330,7 @@ export function EditEntityForm({ item, itemType, getToken, onSaved, onCancel, mo
         </button>
         <button
           type="button"
-          className="edit-form-btn edit-form-btn-secondary"
+          className="btn btn-rect"
           onClick={onCancel}
           disabled={saving}
         >
