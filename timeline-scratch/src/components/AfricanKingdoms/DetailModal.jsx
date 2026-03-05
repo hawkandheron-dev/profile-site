@@ -1,3 +1,4 @@
+import { AKImageGallery } from './AKImageGallery.jsx';
 import './DetailModal.css';
 
 function formatYear(year) {
@@ -26,8 +27,9 @@ function getRefDomain(url) {
 export function DetailModal({ item, type, onClose, onSelectEntity, data, onSetMapYear }) {
   if (!item) return null;
 
-  const { kingdomMap, placeMap, eraMap, personMap,
+  const { kingdomMap, placeMap, eraMap, personMap, landmarkMap,
           kingdomPeopleMap, kingdomEventsMap, kingdomPlacesMap,
+          placeLandmarksMap, kingdomLandmarksMap,
           placeEventsMap, placeKingdomsMap, eventPeopleMap,
           personEventsMap, sourceMap } = data || {};
 
@@ -49,6 +51,9 @@ export function DetailModal({ item, type, onClose, onSelectEntity, data, onSetMa
 
       {type === 'event' && <EventDetail item={item} kingdomMap={kingdomMap} placeMap={placeMap}
         eventPeopleMap={eventPeopleMap} onSelect={onSelectEntity} sources={sources} onSetMapYear={onSetMapYear} />}
+
+      {type === 'landmark' && <LandmarkDetail item={item} kingdomMap={kingdomMap} placeMap={placeMap}
+        onSelect={onSelectEntity} sources={sources} onSetMapYear={onSetMapYear} />}
     </div>
   );
 }
@@ -78,6 +83,7 @@ function KingdomDetail({ item, eraMap, placeMap, kingdomPeopleMap, kingdomEvents
       </div>
       <ReferenceLink url={item.reference_url} />
       {item.description && <p className="ak-modal-description">{item.description}</p>}
+      <AKImageGallery name={item.name} entityType="kingdom" />
       {capital && (
         <div className="ak-modal-section">
           <h3>Capital</h3>
@@ -141,6 +147,7 @@ function PlaceDetail({ item, placeEventsMap, placeKingdomsMap, onSelect, sources
       </div>
       <ReferenceLink url={item.reference_url} />
       {item.description && <p className="ak-modal-description">{item.description}</p>}
+      <AKImageGallery name={item.name} lat={item.lat} lng={item.lng} entityType="place" />
       {kingdoms.length > 0 && (
         <div className="ak-modal-section">
           <h3>Connected Kingdoms</h3>
@@ -190,6 +197,7 @@ function PersonDetail({ item, kingdomMap, personEventsMap, onSelect, sources }) 
       </div>
       <ReferenceLink url={item.reference_url} />
       {item.description && <p className="ak-modal-description">{item.description}</p>}
+      <AKImageGallery name={item.name} entityType="person" />
       {kingdom && (
         <div className="ak-modal-section">
           <h3>Kingdom</h3>
@@ -237,6 +245,7 @@ function EventDetail({ item, kingdomMap, placeMap, eventPeopleMap, onSelect, sou
       </div>
       <ReferenceLink url={item.reference_url} />
       {item.description && <p className="ak-modal-description">{item.description}</p>}
+      <AKImageGallery name={item.name} lat={place?.lat} lng={place?.lng} entityType="event" />
       {kingdom && (
         <div className="ak-modal-section">
           <h3>Kingdom</h3>
@@ -261,6 +270,49 @@ function EventDetail({ item, kingdomMap, placeMap, eventPeopleMap, onSelect, sou
               </li>
             ))}
           </ul>
+        </div>
+      )}
+      <SourcesList sources={sources} />
+    </>
+  );
+}
+
+function LandmarkDetail({ item, kingdomMap, placeMap, onSelect, sources, onSetMapYear }) {
+  const kingdom = item.kingdom_id ? kingdomMap?.get(item.kingdom_id) : null;
+  const place = item.place_id ? placeMap?.get(item.place_id) : null;
+
+  return (
+    <>
+      <div className="ak-modal-header" style={{ borderLeftColor: '#d4a017' }}>
+        <span className="ak-modal-type-badge">{item.landmark_type || 'Landmark'}</span>
+        <h2>{item.name}</h2>
+        {item.built_year != null && (
+          <p className="ak-modal-dates">
+            Built {formatYear(item.built_year)}
+            {item.end_year != null && ` \u2013 ${formatYear(item.end_year)}`}
+            {onSetMapYear && (
+              <button className="ak-set-year-btn" onClick={() => onSetMapYear(item.built_year)} title="Set map to this year">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </button>
+            )}
+          </p>
+        )}
+      </div>
+      <ReferenceLink url={item.reference_url} />
+      {item.description && <p className="ak-modal-description">{item.description}</p>}
+      <AKImageGallery name={item.name} lat={item.lat} lng={item.lng} searchTerms={item.search_terms} entityType="landmark" />
+      {kingdom && (
+        <div className="ak-modal-section">
+          <h3>Kingdom</h3>
+          <button className="ak-entity-link" onClick={() => onSelect?.('kingdom', kingdom)}>
+            <span className="ak-era-dot" style={{ backgroundColor: kingdom.color }} />{kingdom.name}
+          </button>
+        </div>
+      )}
+      {place && (
+        <div className="ak-modal-section">
+          <h3>Location</h3>
+          <button className="ak-entity-link" onClick={() => onSelect?.('place', place)}>{place.name}</button>
         </div>
       )}
       <SourcesList sources={sources} />

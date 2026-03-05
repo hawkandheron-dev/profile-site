@@ -16,7 +16,7 @@ function formatYearForOHM(year) {
 }
 
 export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
-  { places, kingdoms, tradeRoutes, activeEraFilter, mapYear, onSelectPlace, onSelectKingdom, eraMap, selectedItem },
+  { places, kingdoms, landmarks, tradeRoutes, activeEraFilter, mapYear, onSelectPlace, onSelectKingdom, onSelectLandmark, eraMap, selectedItem },
   ref
 ) {
   const mapContainerRef = useRef(null);
@@ -141,6 +141,27 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
     return { type: 'FeatureCollection', features };
   }, [tradeRoutes, mapYear]);
 
+  // Build landmark pins GeoJSON
+  const buildLandmarksGeoJSON = useCallback(() => {
+    const features = (landmarks || [])
+      .filter(l => {
+        if (mapYear == null) return true;
+        if (l.built_year != null && l.built_year > mapYear) return false;
+        if (l.end_year != null && l.end_year < mapYear) return false;
+        return true;
+      })
+      .map(l => ({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [l.lng, l.lat] },
+        properties: {
+          landmark_id: l.landmark_id,
+          name: l.name,
+          landmark_type: l.landmark_type || 'monument',
+        },
+      }));
+    return { type: 'FeatureCollection', features };
+  }, [landmarks, mapYear]);
+
   // Refs for latest builders
   const buildPlacesRef = useRef(buildPlacesGeoJSON);
   buildPlacesRef.current = buildPlacesGeoJSON;
@@ -150,12 +171,16 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
   buildLabelsRef.current = buildTerritoryLabels;
   const buildRoutesRef = useRef(buildTradeRoutesGeoJSON);
   buildRoutesRef.current = buildTradeRoutesGeoJSON;
+  const buildLandmarksRef = useRef(buildLandmarksGeoJSON);
+  buildLandmarksRef.current = buildLandmarksGeoJSON;
 
   // Refs for callbacks to avoid stale closures in map events
   const onSelectPlaceRef = useRef(onSelectPlace);
   onSelectPlaceRef.current = onSelectPlace;
   const onSelectKingdomRef = useRef(onSelectKingdom);
   onSelectKingdomRef.current = onSelectKingdom;
+  const onSelectLandmarkRef = useRef(onSelectLandmark);
+  onSelectLandmarkRef.current = onSelectLandmark;
 
   // Initialize map
   useEffect(() => {
@@ -355,16 +380,79 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
         },
       });
 
-      // Click handler — use single click handler and check place pins FIRST
+      // Landmark pins (gold star symbols)
+      map.addSource('landmarks', {
+        type: 'geojson',
+        data: buildLandmarksRef.current(),
+      });
+
+      map.addLayer({
+        id: 'landmark-pins',
+        type: 'symbol',
+        source: 'landmarks',
+        layout: {
+          'text-field': '\u2605',
+          'text-font': ['Open Sans Bold'],
+          'text-size': 18,
+          'text-allow-overlap': true,
+        },
+        paint: {
+          'text-color': '#d4a017',
+          'text-halo-color': '#2c2418',
+          'text-halo-width': 1.5,
+        },
+      });
+
+      map.addLayer({
+        id: 'landmark-labels',
+        type: 'symbol',
+        source: 'landmarks',
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-font': ['Open Sans Semibold'],
+          'text-size': 10,
+          'text-offset': [0, 1.5],
+          'text-anchor': 'top',
+          'text-optional': true,
+        },
+        paint: {
+          'text-color': '#8b6914',
+          'text-halo-color': '#faf6eb',
+          'text-halo-width': 1.5,
+        },
+      });
+
+      // Landmark highlight ring
+      map.addLayer({
+        id: 'landmark-highlight',
+        type: 'circle',
+        source: 'landmarks',
+        filter: ['==', 'landmark_id', ''],
+        paint: {
+          'circle-color': 'transparent',
+          'circle-radius': 16,
+          'circle-stroke-width': 3,
+          'circle-stroke-color': '#d4a017',
+        },
+      });
+
+      // Click handler — priority: landmark-pins → place-pins → clusters → territory-fill
       map.on('click', (e) => {
-        // Check place pins first (highest priority)
+        // Check landmark pins first (highest priority — small targets)
+        const landmarkFeatures = map.queryRenderedFeatures(e.point, { layers: ['landmark-pins'] });
+        if (landmarkFeatures.length > 0) {
+          onSelectLandmarkRef.current?.(landmarkFeatures[0].properties.landmark_id);
+          return;
+        }
+
+        // Then place pins
         const placeFeatures = map.queryRenderedFeatures(e.point, { layers: ['place-pins'] });
         if (placeFeatures.length > 0) {
           onSelectPlaceRef.current?.(placeFeatures[0].properties.place_id);
           return;
         }
 
-        // Then check clusters
+        // Then clusters
         const clusterFeatures = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
         if (clusterFeatures.length > 0) {
           const clusterId = clusterFeatures[0].properties.cluster_id;
@@ -374,7 +462,7 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
           return;
         }
 
-        // Then check territories (lowest priority)
+        // Then territories (lowest priority)
         const territoryFeatures = map.queryRenderedFeatures(e.point, { layers: ['territory-fill'] });
         if (territoryFeatures.length > 0) {
           onSelectKingdomRef.current?.(territoryFeatures[0].properties.kingdom_id);
@@ -383,6 +471,24 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
       });
 
       // Hover cursors
+      map.on('mouseenter', 'landmark-pins', (e) => {
+        map.getCanvas().style.cursor = 'pointer';
+        const f = e.features[0];
+        if (f) {
+          popupRef.current = new maplibregl.Popup({
+            offset: 12, closeButton: false, closeOnClick: false, className: 'ak-map-tooltip',
+          })
+            .setLngLat(f.geometry.coordinates.slice())
+            .setHTML(`<strong>\u2605 ${f.properties.name}</strong><em>${f.properties.landmark_type || ''}</em>`)
+            .addTo(map);
+        }
+      });
+
+      map.on('mouseleave', 'landmark-pins', () => {
+        map.getCanvas().style.cursor = '';
+        if (popupRef.current) { popupRef.current.remove(); popupRef.current = null; }
+      });
+
       map.on('mouseenter', 'place-pins', (e) => {
         map.getCanvas().style.cursor = 'pointer';
         const f = e.features[0];
@@ -429,10 +535,12 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
       const ts = map.getSource('territories');
       const tl = map.getSource('territory-labels');
       const tr = map.getSource('trade-routes');
+      const lm = map.getSource('landmarks');
       if (ps) ps.setData(buildPlacesGeoJSON());
       if (ts) ts.setData(buildTerritoryGeoJSON());
       if (tl) tl.setData(buildTerritoryLabels());
       if (tr) tr.setData(buildTradeRoutesGeoJSON());
+      if (lm) lm.setData(buildLandmarksGeoJSON());
       return !!ps;
     };
     if (!update()) {
@@ -440,7 +548,7 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
       map.once('load', onLoad);
       return () => map.off('load', onLoad);
     }
-  }, [activeEraFilter, mapYear, buildPlacesGeoJSON, buildTerritoryGeoJSON, buildTerritoryLabels, buildTradeRoutesGeoJSON]);
+  }, [activeEraFilter, mapYear, buildPlacesGeoJSON, buildTerritoryGeoJSON, buildTerritoryLabels, buildTradeRoutesGeoJSON, buildLandmarksGeoJSON]);
 
   // Update OHM date filter
   useEffect(() => {
@@ -477,6 +585,13 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
         map.setFilter('place-highlight', ['all', ['!', ['has', 'point_count']], ['==', 'place_id', selectedItem.item.place_id]]);
       } else {
         map.setFilter('place-highlight', ['all', ['!', ['has', 'point_count']], ['==', 'place_id', '']]);
+      }
+
+      // Update landmark highlight filter
+      if (selectedItem?.type === 'landmark' && selectedItem.item?.landmark_id) {
+        map.setFilter('landmark-highlight', ['==', 'landmark_id', selectedItem.item.landmark_id]);
+      } else {
+        map.setFilter('landmark-highlight', ['==', 'landmark_id', '']);
       }
     } catch { /* layers may not exist yet */ }
   }, [selectedItem]);

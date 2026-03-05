@@ -71,6 +71,7 @@ export async function fetchAfricanKingdomsData() {
     { data: tradeRoutes, error: trErr },
     { data: sources, error: srcErr },
     { data: sourceLinks, error: slErr },
+    { data: landmarks, error: lmErr },
   ] = await Promise.all([
     supabase.from('AK_Eras').select('*').order('sort_order'),
     supabase.from('AK_Kingdoms').select('*').order('start_year'),
@@ -83,9 +84,10 @@ export async function fetchAfricanKingdomsData() {
     supabase.from('AK_TradeRoutes').select('*'),
     supabase.from('AK_Sources').select('*'),
     supabase.from('AK_SourceLinks').select('*'),
+    supabase.from('AK_Landmarks').select('*'),
   ]);
 
-  const errors = [erasErr, kingdomsErr, placesErr, peopleErr, eventsErr, kpErr, kpplErr, epErr, trErr, srcErr, slErr].filter(Boolean);
+  const errors = [erasErr, kingdomsErr, placesErr, peopleErr, eventsErr, kpErr, kpplErr, epErr, trErr, srcErr, slErr, lmErr].filter(Boolean);
   if (errors.length) {
     throw new Error(`Supabase fetch errors: ${errors.map(e => e.message).join('; ')}`);
   }
@@ -93,7 +95,8 @@ export async function fetchAfricanKingdomsData() {
   return transformData(
     eras || [], kingdoms || [], places || [], people || [],
     events || [], kingdomPlaces || [], kingdomPeople || [],
-    eventPeople || [], tradeRoutes || [], sources || [], sourceLinks || []
+    eventPeople || [], tradeRoutes || [], sources || [], sourceLinks || [],
+    landmarks || []
   );
 }
 
@@ -102,7 +105,7 @@ export async function fetchAfricanKingdomsData() {
 function transformData(
   dbEras, dbKingdoms, dbPlaces, dbPeople, dbEvents,
   dbKingdomPlaces, dbKingdomPeople, dbEventPeople,
-  dbTradeRoutes, dbSources, dbSourceLinks
+  dbTradeRoutes, dbSources, dbSourceLinks, dbLandmarks
 ) {
   // ── Lookup maps ──────────────────────────────────────────────────────
 
@@ -120,6 +123,9 @@ function transformData(
 
   const eventMap = new Map();
   dbEvents.forEach(e => eventMap.set(e.event_id, e));
+
+  const landmarkMap = new Map();
+  dbLandmarks.forEach(l => landmarkMap.set(l.landmark_id, l));
 
   // ── Junction maps ───────────────────────────────────────────────────
 
@@ -186,6 +192,22 @@ function transformData(
     if (!existing.some(x => x.kingdom_id === k.kingdom_id)) {
       existing.push(k);
     }
+  });
+
+  // Place → landmarks
+  const placeLandmarksMap = new Map();
+  dbLandmarks.forEach(l => {
+    if (!l.place_id) return;
+    if (!placeLandmarksMap.has(l.place_id)) placeLandmarksMap.set(l.place_id, []);
+    placeLandmarksMap.get(l.place_id).push(l);
+  });
+
+  // Kingdom → landmarks
+  const kingdomLandmarksMap = new Map();
+  dbLandmarks.forEach(l => {
+    if (!l.kingdom_id) return;
+    if (!kingdomLandmarksMap.has(l.kingdom_id)) kingdomLandmarksMap.set(l.kingdom_id, []);
+    kingdomLandmarksMap.get(l.kingdom_id).push(l);
   });
 
   // Source map
@@ -288,6 +310,7 @@ function transformData(
   dbPlaces.forEach(p => entityIndex.set(p.place_id, { item: p, type: 'place' }));
   dbPeople.forEach(p => entityIndex.set(p.person_id, { item: p, type: 'person' }));
   dbEvents.forEach(e => entityIndex.set(e.event_id, { item: e, type: 'event' }));
+  dbLandmarks.forEach(l => entityIndex.set(l.landmark_id, { item: l, type: 'landmark' }));
 
   return {
     // Timeline component format
@@ -303,12 +326,14 @@ function transformData(
     people: dbPeople,
     events: dbEvents,
     tradeRoutes: dbTradeRoutes || [],
+    landmarks: dbLandmarks || [],
     // Lookup maps
     eraMap,
     kingdomMap,
     placeMap,
     personMap,
     eventMap,
+    landmarkMap,
     // Relationship maps
     kingdomPlacesMap,
     kingdomPeopleMap,
@@ -317,6 +342,8 @@ function transformData(
     personEventsMap,
     placeEventsMap,
     placeKingdomsMap,
+    placeLandmarksMap,
+    kingdomLandmarksMap,
     sourceMap,
     entityIndex,
   };

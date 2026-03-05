@@ -143,6 +143,13 @@ function AfricanKingdomsApp() {
     if (kingdom) setSelectedItem({ type: 'kingdom', item: kingdom });
   }, [data]);
 
+  // Handle landmark click from map
+  const handleSelectLandmark = useCallback((landmarkId) => {
+    if (!data) return;
+    const landmark = data.landmarkMap.get(landmarkId);
+    if (landmark) setSelectedItem({ type: 'landmark', item: landmark });
+  }, [data]);
+
   // Handle entity navigation from detail modal
   const handleSelectEntity = useCallback((type, item) => {
     setSelectedItem({ type, item });
@@ -150,6 +157,8 @@ function AfricanKingdomsApp() {
       mapRef.current?.flyTo(item.lng, item.lat, 7);
     } else if (type === 'kingdom' && item.territory_label_lng) {
       mapRef.current?.flyTo(item.territory_label_lng, item.territory_label_lat, 5);
+    } else if (type === 'landmark' && item.lng && item.lat) {
+      mapRef.current?.flyTo(item.lng, item.lat, 10);
     }
   }, []);
 
@@ -221,12 +230,14 @@ function AfricanKingdomsApp() {
           ref={mapRef}
           places={data.places}
           kingdoms={data.kingdoms}
+          landmarks={data.landmarks}
           tradeRoutes={data.tradeRoutes}
           activeEraFilter={activeEraFilter}
           mapYear={mapYear}
           eraMap={data.eraMap}
           onSelectPlace={handleSelectPlace}
           onSelectKingdom={handleSelectKingdom}
+          onSelectLandmark={handleSelectLandmark}
           selectedItem={selectedItem}
         />
       </div>
