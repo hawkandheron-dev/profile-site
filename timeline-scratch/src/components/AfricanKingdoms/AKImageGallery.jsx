@@ -1,187 +1,76 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import './AKImageGallery.css';
 
-const COMMONS_API = 'https://commons.wikimedia.org/w/api.php';
-const IMAGES_PER_PAGE = 4;
-
 /**
- * Image gallery fetching from Wikimedia Commons.
- * Two-pass: geo-search near coordinates, then keyword fallback.
+ * Hero image fetched from the entity's Wikipedia article lead image.
+ * Uses the Wikipedia REST API page/summary endpoint.
  */
-export function AKImageGallery({ name, lat, lng, searchTerms, entityType }) {
-  const [images, setImages] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
-  const [lightboxIdx, setLightboxIdx] = useState(null);
+export function AKHeroImage({ referenceUrl }) {
+  const [imageData, setImageData] = useState(null);
+  const [showLightbox, setShowLightbox] = useState(false);
 
   useEffect(() => {
+    if (!referenceUrl) return;
     let cancelled = false;
 
-    function buildSearchQuery() {
-      if (searchTerms) return searchTerms;
-      switch (entityType) {
-        case 'landmark': return `"${name}" archaeological OR ruins OR monument OR architecture`;
-        case 'kingdom': return `"${name}" kingdom OR empire Africa historical`;
-        case 'place': return `"${name}" Africa archaeological OR ancient OR city`;
-        case 'person': return `"${name}" Africa ruler OR king OR emperor OR portrait`;
-        case 'event': return `"${name}" Africa historical`;
-        default: return `"${name}" Africa historical`;
-      }
-    }
-
-    async function fetchByGeo() {
-      const params = new URLSearchParams({
-        action: 'query',
-        generator: 'geosearch',
-        ggscoord: `${lat}|${lng}`,
-        ggsradius: '10000',
-        ggslimit: '20',
-        ggsnamespace: '6',
-        prop: 'imageinfo',
-        iiprop: 'url|extmetadata|size|mime',
-        iiurlwidth: '400',
-        format: 'json',
-        origin: '*',
-      });
-      const res = await fetch(`${COMMONS_API}?${params}`);
-      return res.json();
-    }
-
-    async function fetchByKeyword() {
-      const params = new URLSearchParams({
-        action: 'query',
-        generator: 'search',
-        gsrsearch: buildSearchQuery(),
-        gsrnamespace: '6',
-        gsrlimit: '20',
-        prop: 'imageinfo',
-        iiprop: 'url|extmetadata|size|mime',
-        iiurlwidth: '400',
-        format: 'json',
-        origin: '*',
-      });
-      const res = await fetch(`${COMMONS_API}?${params}`);
-      return res.json();
-    }
-
-    function extractImages(data) {
-      if (!data.query?.pages) return [];
-      return Object.values(data.query.pages)
-        .filter(p => p.imageinfo?.[0]?.mime?.startsWith('image/'))
-        .map(p => {
-          const info = p.imageinfo[0];
-          const meta = info.extmetadata || {};
-          return {
-            pageId: p.pageid,
-            title: p.title.replace('File:', '').replace(/\.[^.]+$/, '').replace(/_/g, ' '),
-            thumbUrl: info.thumburl,
-            fullUrl: info.url,
-            descriptionUrl: info.descriptionurl,
-            artist: meta.Artist?.value?.replace(/<[^>]+>/g, '') || 'Unknown',
-            license: meta.LicenseShortName?.value || '',
-          };
-        });
-    }
-
-    async function fetchImages() {
-      setLoading(true);
+    async function fetchImage() {
       try {
-        let results = [];
-        if (lat && lng) {
-          const geoData = await fetchByGeo();
-          if (!cancelled) results = extractImages(geoData);
-        }
+        // Extract article title from Wikipedia URL
+        const match = referenceUrl.match(/wikipedia\.org\/wiki\/([^#?]+)/);
+        if (!match) return;
+        const title = decodeURIComponent(match[1]);
 
-        if (results.length < IMAGES_PER_PAGE && !cancelled) {
-          const kwData = await fetchByKeyword();
-          if (!cancelled) {
-            const kwResults = extractImages(kwData);
-            const seen = new Set(results.map(r => r.pageId));
-            for (const img of kwResults) {
-              if (!seen.has(img.pageId)) {
-                results.push(img);
-                seen.add(img.pageId);
-              }
-            }
-          }
-        }
+        const res = await fetch(
+          `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
+        );
+        if (!res.ok) return;
+        const data = await res.json();
 
-        if (!cancelled) {
-          setImages(results);
-          setPage(0);
-          setLoading(false);
+        if (!cancelled && data.thumbnail?.source) {
+          setImageData({
+            thumbUrl: data.thumbnail.source,
+            fullUrl: data.originalimage?.source || data.thumbnail.source,
+            description: data.description || '',
+            title: data.title || title.replace(/_/g, ' '),
+            wikiUrl: data.content_urls?.desktop?.page || referenceUrl,
+          });
         }
       } catch {
-        if (!cancelled) { setImages([]); setLoading(false); }
+        // Gracefully hide on error
       }
     }
 
-    if (name) fetchImages();
+    fetchImage();
     return () => { cancelled = true; };
-  }, [name, lat, lng, searchTerms, entityType]);
+  }, [referenceUrl]);
 
-  const totalPages = Math.ceil(images.length / IMAGES_PER_PAGE);
-  const visibleImages = images.slice(page * IMAGES_PER_PAGE, (page + 1) * IMAGES_PER_PAGE);
-
-  const goNext = useCallback(() => setPage(p => Math.min(p + 1, totalPages - 1)), [totalPages]);
-  const goPrev = useCallback(() => setPage(p => Math.max(p - 1, 0)), []);
-
-  if (loading) {
-    return (
-      <div className="ak-gallery ak-gallery-loading">
-        <div className="ak-gallery-spinner" />
-        <span>Loading images...</span>
-      </div>
-    );
-  }
-
-  if (images.length === 0) return null;
+  if (!imageData) return null;
 
   return (
-    <div className="ak-gallery">
-      <div className="ak-gallery-grid">
-        {visibleImages.map((img, i) => (
-          <button
-            key={img.pageId}
-            className="ak-gallery-item"
-            onClick={() => setLightboxIdx(page * IMAGES_PER_PAGE + i)}
-            title={img.title}
-          >
-            <img src={img.thumbUrl} alt={img.title} loading="lazy" />
-          </button>
-        ))}
-      </div>
-
-      {totalPages > 1 && (
-        <div className="ak-gallery-pagination">
-          <button className="ak-gallery-page-btn" disabled={page === 0} onClick={goPrev}>&lsaquo;</button>
-          <span className="ak-gallery-page-info">{page + 1} / {totalPages}</span>
-          <button className="ak-gallery-page-btn" disabled={page >= totalPages - 1} onClick={goNext}>&rsaquo;</button>
-        </div>
+    <div className="ak-hero-image">
+      <button className="ak-hero-image-btn" onClick={() => setShowLightbox(true)} title="Click to enlarge">
+        <img src={imageData.thumbUrl} alt={imageData.title} />
+        <span className="ak-hero-enlarge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="15 3 21 3 21 9" /><line x1="14" y1="10" x2="21" y2="3" />
+            <polyline points="9 21 3 21 3 15" /><line x1="10" y1="14" x2="3" y2="21" />
+          </svg>
+        </span>
+      </button>
+      {imageData.description && (
+        <p className="ak-hero-caption">{imageData.description}</p>
       )}
 
-      <p className="ak-gallery-attribution">
-        Images from <a href="https://commons.wikimedia.org" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>
-      </p>
-
-      {lightboxIdx !== null && images[lightboxIdx] && (
-        <div className="ak-lightbox" onClick={() => setLightboxIdx(null)}>
+      {showLightbox && (
+        <div className="ak-lightbox" onClick={() => setShowLightbox(false)}>
           <div className="ak-lightbox-content" onClick={e => e.stopPropagation()}>
-            <button className="ak-lightbox-close" onClick={() => setLightboxIdx(null)}>&times;</button>
-            <img src={images[lightboxIdx].fullUrl} alt={images[lightboxIdx].title} />
+            <button className="ak-lightbox-close" onClick={() => setShowLightbox(false)}>&times;</button>
+            <img src={imageData.fullUrl} alt={imageData.title} />
             <div className="ak-lightbox-caption">
-              <p className="ak-lightbox-title">{images[lightboxIdx].title}</p>
-              <p className="ak-lightbox-meta">
-                {images[lightboxIdx].artist}
-                {images[lightboxIdx].license && ` | ${images[lightboxIdx].license}`}
-              </p>
-              <a href={images[lightboxIdx].descriptionUrl} target="_blank" rel="noopener noreferrer" className="ak-lightbox-link">
-                View on Wikimedia Commons
+              <p className="ak-lightbox-title">{imageData.title}</p>
+              <a href={imageData.wikiUrl} target="_blank" rel="noopener noreferrer" className="ak-lightbox-link">
+                View on Wikipedia
               </a>
-            </div>
-            <div className="ak-lightbox-nav">
-              <button disabled={lightboxIdx === 0} onClick={() => setLightboxIdx(i => i - 1)}>&lsaquo;</button>
-              <button disabled={lightboxIdx >= images.length - 1} onClick={() => setLightboxIdx(i => i + 1)}>&rsaquo;</button>
             </div>
           </div>
         </div>
@@ -189,3 +78,6 @@ export function AKImageGallery({ name, lat, lng, searchTerms, entityType }) {
     </div>
   );
 }
+
+// Keep backward-compatible export name for existing imports
+export { AKHeroImage as AKImageGallery };

@@ -1,4 +1,4 @@
-import { AKImageGallery } from './AKImageGallery.jsx';
+import { AKHeroImage } from './AKImageGallery.jsx';
 import './DetailModal.css';
 
 function formatYear(year) {
@@ -83,7 +83,7 @@ function KingdomDetail({ item, eraMap, placeMap, kingdomPeopleMap, kingdomEvents
       </div>
       <ReferenceLink url={item.reference_url} />
       {item.description && <p className="ak-modal-description">{item.description}</p>}
-      <AKImageGallery name={item.name} entityType="kingdom" />
+      <AKHeroImage referenceUrl={item.reference_url} />
       {capital && (
         <div className="ak-modal-section">
           <h3>Capital</h3>
@@ -147,7 +147,7 @@ function PlaceDetail({ item, placeEventsMap, placeKingdomsMap, onSelect, sources
       </div>
       <ReferenceLink url={item.reference_url} />
       {item.description && <p className="ak-modal-description">{item.description}</p>}
-      <AKImageGallery name={item.name} lat={item.lat} lng={item.lng} entityType="place" />
+      <AKHeroImage referenceUrl={item.reference_url} />
       {kingdoms.length > 0 && (
         <div className="ak-modal-section">
           <h3>Connected Kingdoms</h3>
@@ -197,7 +197,7 @@ function PersonDetail({ item, kingdomMap, personEventsMap, onSelect, sources }) 
       </div>
       <ReferenceLink url={item.reference_url} />
       {item.description && <p className="ak-modal-description">{item.description}</p>}
-      <AKImageGallery name={item.name} entityType="person" />
+      <AKHeroImage referenceUrl={item.reference_url} />
       {kingdom && (
         <div className="ak-modal-section">
           <h3>Kingdom</h3>
@@ -245,7 +245,7 @@ function EventDetail({ item, kingdomMap, placeMap, eventPeopleMap, onSelect, sou
       </div>
       <ReferenceLink url={item.reference_url} />
       {item.description && <p className="ak-modal-description">{item.description}</p>}
-      <AKImageGallery name={item.name} lat={place?.lat} lng={place?.lng} entityType="event" />
+      <AKHeroImage referenceUrl={item.reference_url} />
       {kingdom && (
         <div className="ak-modal-section">
           <h3>Kingdom</h3>
@@ -300,7 +300,7 @@ function LandmarkDetail({ item, kingdomMap, placeMap, onSelect, sources, onSetMa
       </div>
       <ReferenceLink url={item.reference_url} />
       {item.description && <p className="ak-modal-description">{item.description}</p>}
-      <AKImageGallery name={item.name} lat={item.lat} lng={item.lng} searchTerms={item.search_terms} entityType="landmark" />
+      <AKHeroImage referenceUrl={item.reference_url} />
       {kingdom && (
         <div className="ak-modal-section">
           <h3>Kingdom</h3>
