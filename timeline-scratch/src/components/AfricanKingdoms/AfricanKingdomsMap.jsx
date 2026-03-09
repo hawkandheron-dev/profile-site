@@ -240,6 +240,22 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
     map.on('load', () => {
+      // Hide OHM's own boundary/admin layers to avoid conflicts with our overlays.
+      // OHM renders its own territory fills, boundary lines, and admin labels which
+      // visually clash with our interactive colored territory system.
+      const layers = map.getStyle().layers || [];
+      for (const layer of layers) {
+        const id = layer.id.toLowerCase();
+        const sl = (layer['source-layer'] || '').toLowerCase();
+        const isAdminBoundary =
+          id.includes('boundary') || id.includes('admin') ||
+          id.includes('border') || sl.includes('boundary') ||
+          sl.includes('admin');
+        if (isAdminBoundary) {
+          map.setLayoutProperty(layer.id, 'visibility', 'none');
+        }
+      }
+
       // Territory polygons — 3 concentric ring sources for fuzzy borders
       const rings = buildTerritoryRef.current();
 
