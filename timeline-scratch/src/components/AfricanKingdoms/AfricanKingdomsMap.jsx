@@ -4,42 +4,6 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates';
 import './AfricanKingdomsMap.css';
 
-/**
- * Lightweight polygon scale — expand or shrink a polygon ring
- * relative to its centroid by a factor (1.0 = unchanged, 1.1 = 10% bigger).
- * Good enough for fuzzy-border visual effect without heavy JSTS dependency.
- */
-function scalePolygonRing(ring, factor) {
-  // Compute centroid (exclude closing point if ring is closed)
-  const pts = ring[0] === ring[ring.length - 1]
-    ? ring.slice(0, -1)
-    : ring;
-  const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
-  const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
-  return ring.map(([x, y]) => [
-    cx + (x - cx) * factor,
-    cy + (y - cy) * factor,
-  ]);
-}
-
-function scalePolygon(geometry, factor) {
-  if (geometry.type === 'Polygon') {
-    return {
-      type: 'Polygon',
-      coordinates: geometry.coordinates.map(ring => scalePolygonRing(ring, factor)),
-    };
-  }
-  if (geometry.type === 'MultiPolygon') {
-    return {
-      type: 'MultiPolygon',
-      coordinates: geometry.coordinates.map(poly =>
-        poly.map(ring => scalePolygonRing(ring, factor))
-      ),
-    };
-  }
-  return geometry;
-}
-
 const OHM_STYLE_URL = 'https://www.openhistoricalmap.org/map-styles/main/main.json';
 
 // Center on Africa
@@ -82,35 +46,22 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
     }
   }), []);
 
-  // Build territory rings (core/mid/outer) for fuzzy border effect
-  const buildTerritoryRings = useCallback(() => {
-    const filtered = (kingdoms || [])
+  // Build territory GeoJSON — invisible click targets (OHM provides the visual borders)
+  const buildTerritoryGeoJSON = useCallback(() => {
+    const features = (kingdoms || [])
       .filter(k => k.territory_geojson)
       .filter(k => !activeEraFilter || k.era_id === activeEraFilter)
-      .filter(k => mapYear == null || (k.start_year <= mapYear && k.end_year >= mapYear));
-
-    const core = [], mid = [], outer = [];
-    for (const k of filtered) {
-      const props = { kingdom_id: k.kingdom_id, name: k.name, color: k.color || '#8b7355' };
-      const feature = { type: 'Feature', geometry: k.territory_geojson, properties: props };
-
-      // Mid ring = original polygon
-      mid.push({ ...feature, properties: { ...props, opacity: 0.12 } });
-
-      // Core = shrunk inward (denser, more opaque center)
-      const shrunkGeom = scalePolygon(k.territory_geojson, 0.82);
-      core.push({ type: 'Feature', geometry: shrunkGeom, properties: { ...props, opacity: 0.18 } });
-
-      // Outer = expanded outward (fuzzy fringe zone of influence)
-      const expandedGeom = scalePolygon(k.territory_geojson, 1.12);
-      outer.push({ type: 'Feature', geometry: expandedGeom, properties: { ...props, opacity: 0.05 } });
-    }
-
-    return {
-      outer: { type: 'FeatureCollection', features: outer },
-      mid:   { type: 'FeatureCollection', features: mid },
-      core:  { type: 'FeatureCollection', features: core },
-    };
+      .filter(k => mapYear == null || (k.start_year <= mapYear && k.end_year >= mapYear))
+      .map(k => ({
+        type: 'Feature',
+        geometry: k.territory_geojson,
+        properties: {
+          kingdom_id: k.kingdom_id,
+          name: k.name,
+          color: k.color || '#8b7355',
+        },
+      }));
+    return { type: 'FeatureCollection', features };
   }, [kingdoms, activeEraFilter, mapYear]);
 
   // Build territory labels
@@ -207,8 +158,8 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
   // Refs for latest builders
   const buildPlacesRef = useRef(buildPlacesGeoJSON);
   buildPlacesRef.current = buildPlacesGeoJSON;
-  const buildTerritoryRef = useRef(buildTerritoryRings);
-  buildTerritoryRef.current = buildTerritoryRings;
+  const buildTerritoryRef = useRef(buildTerritoryGeoJSON);
+  buildTerritoryRef.current = buildTerritoryGeoJSON;
   const buildLabelsRef = useRef(buildTerritoryLabels);
   buildLabelsRef.current = buildTerritoryLabels;
   const buildRoutesRef = useRef(buildTradeRoutesGeoJSON);
@@ -240,80 +191,41 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
     map.on('load', () => {
-      // Hide OHM's own boundary/admin layers to avoid conflicts with our overlays.
-      // OHM renders its own territory fills, boundary lines, and admin labels which
-      // visually clash with our interactive colored territory system.
-      const layers = map.getStyle().layers || [];
-      for (const layer of layers) {
-        const id = layer.id.toLowerCase();
-        const sl = (layer['source-layer'] || '').toLowerCase();
-        const isAdminBoundary =
-          id.includes('boundary') || id.includes('admin') ||
-          id.includes('border') || sl.includes('boundary') ||
-          sl.includes('admin');
-        if (isAdminBoundary) {
-          map.setLayoutProperty(layer.id, 'visibility', 'none');
-        }
-      }
-
-      // Territory polygons — 3 concentric ring sources for fuzzy borders
-      const rings = buildTerritoryRef.current();
-
-      map.addSource('territory-outer', { type: 'geojson', data: rings.outer });
-      map.addSource('territories',     { type: 'geojson', data: rings.mid });
-      map.addSource('territory-core',  { type: 'geojson', data: rings.core });
+      // Territory polygons — invisible fill used only as click targets.
+      // OHM's own boundary layers provide the accurate visual borders.
+      map.addSource('territories', {
+        type: 'geojson',
+        data: buildTerritoryRef.current(),
+      });
 
       map.addSource('territory-labels', {
         type: 'geojson',
         data: buildLabelsRef.current(),
       });
 
-      // Outer fringe — very faint zone of influence
-      map.addLayer({
-        id: 'territory-outer',
-        type: 'fill',
-        source: 'territory-outer',
-        paint: {
-          'fill-color': ['get', 'color'],
-          'fill-opacity': ['get', 'opacity'],
-        },
-      });
-
-      // Mid ring — original polygon, moderate opacity
+      // Invisible click target layer
       map.addLayer({
         id: 'territory-fill',
         type: 'fill',
         source: 'territories',
         paint: {
           'fill-color': ['get', 'color'],
-          'fill-opacity': ['get', 'opacity'],
+          'fill-opacity': 0,
         },
       });
 
-      // Core — denser, more opaque center
+      // Selected territory highlight — colored fill visible only when selected
       map.addLayer({
-        id: 'territory-core',
+        id: 'territory-highlight-fill',
         type: 'fill',
-        source: 'territory-core',
+        source: 'territories',
+        filter: ['==', 'kingdom_id', ''],
         paint: {
           'fill-color': ['get', 'color'],
-          'fill-opacity': ['get', 'opacity'],
+          'fill-opacity': 0.2,
         },
       });
 
-      // Soft border line (no hard dasharray)
-      map.addLayer({
-        id: 'territory-borders',
-        type: 'line',
-        source: 'territories',
-        paint: {
-          'line-color': ['get', 'color'],
-          'line-width': 1.5,
-          'line-opacity': 0.35,
-        },
-      });
-
-      // Selected territory highlight layer (rendered on top of normal territories)
       map.addLayer({
         id: 'territory-highlight',
         type: 'line',
@@ -326,17 +238,7 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
         },
       });
 
-      map.addLayer({
-        id: 'territory-highlight-fill',
-        type: 'fill',
-        source: 'territories',
-        filter: ['==', 'kingdom_id', ''],
-        paint: {
-          'fill-color': ['get', 'color'],
-          'fill-opacity': 0.25,
-        },
-      });
-
+      // Kingdom name labels (colored, positioned at label coordinates)
       map.addLayer({
         id: 'territory-labels',
         type: 'symbol',
@@ -544,7 +446,7 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
           return;
         }
 
-        // Then territories (lowest priority)
+        // Then territories (lowest priority — invisible fill used as click target)
         const territoryFeatures = map.queryRenderedFeatures(e.point, { layers: ['territory-fill'] });
         if (territoryFeatures.length > 0) {
           onSelectKingdomRef.current?.(territoryFeatures[0].properties.kingdom_id);
@@ -615,18 +517,11 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
     const update = () => {
       const ps = map.getSource('places');
       const ts = map.getSource('territories');
-      const to = map.getSource('territory-outer');
-      const tc = map.getSource('territory-core');
       const tl = map.getSource('territory-labels');
       const tr = map.getSource('trade-routes');
       const lm = map.getSource('landmarks');
       if (ps) ps.setData(buildPlacesGeoJSON());
-      if (ts || to || tc) {
-        const rings = buildTerritoryRings();
-        if (to) to.setData(rings.outer);
-        if (ts) ts.setData(rings.mid);
-        if (tc) tc.setData(rings.core);
-      }
+      if (ts) ts.setData(buildTerritoryGeoJSON());
       if (tl) tl.setData(buildTerritoryLabels());
       if (tr) tr.setData(buildTradeRoutesGeoJSON());
       if (lm) lm.setData(buildLandmarksGeoJSON());
@@ -637,7 +532,7 @@ export const AfricanKingdomsMap = forwardRef(function AfricanKingdomsMap(
       map.once('load', onLoad);
       return () => map.off('load', onLoad);
     }
-  }, [activeEraFilter, mapYear, buildPlacesGeoJSON, buildTerritoryRings, buildTerritoryLabels, buildTradeRoutesGeoJSON, buildLandmarksGeoJSON]);
+  }, [activeEraFilter, mapYear, buildPlacesGeoJSON, buildTerritoryGeoJSON, buildTerritoryLabels, buildTradeRoutesGeoJSON, buildLandmarksGeoJSON]);
 
   // Update OHM date filter
   useEffect(() => {
