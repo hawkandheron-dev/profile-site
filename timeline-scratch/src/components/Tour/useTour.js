@@ -77,13 +77,14 @@ export function useTour({ fullData, timelineRef }) {
   }, [fullData, timelineRef]);
 
   // Compute newly added IDs when scene changes
+  // Scene 0: no animation — people just appear (nothing to "grow from")
   useEffect(() => {
-    if (!tourActive || !currentScene) {
+    if (!tourActive || !currentScene || sceneIndex === 0) {
       setNewlyAddedIds(new Set());
       return;
     }
 
-    const prevScene = sceneIndex > 0 ? TOUR_SCENES[sceneIndex - 1] : null;
+    const prevScene = TOUR_SCENES[sceneIndex - 1];
     const prevIds = new Set(prevScene?.personIds || []);
     const currIds = currentScene.personIds || [];
     const added = new Set(currIds.filter(id => !prevIds.has(id)));
@@ -94,18 +95,6 @@ export function useTour({ fullData, timelineRef }) {
   useEffect(() => {
     if (!tourActive || !currentScene) return;
     if (currentScene.isBuildOut) return;
-
-    // For the intro scene (no people), frame on the first person scene's range
-    if (!currentScene.personIds || currentScene.personIds.length === 0) {
-      const nextSceneWithPeople = TOUR_SCENES.find(s => s.personIds && s.personIds.length > 0);
-      if (nextSceneWithPeople) {
-        const id = requestAnimationFrame(() => {
-          frameVisiblePeople(nextSceneWithPeople.personIds);
-        });
-        return () => cancelAnimationFrame(id);
-      }
-      return;
-    }
 
     // Small delay so Timeline has re-rendered with new data
     const id = requestAnimationFrame(() => {

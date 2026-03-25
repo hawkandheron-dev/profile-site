@@ -7,18 +7,11 @@
 
 export const TOUR_SCENES = [
   {
-    id: 'intro',
-    personIds: [],
-    title: 'Overlapping Lifespans',
-    narrative:
-      'This timeline illustrates how key figures in church history were connected through overlapping lifespans — teacher to student, mentor to disciple — forming an unbroken chain across centuries. Let\u2019s walk through it together.',
-  },
-  {
     id: 'jesus',
     personIds: ['jesus'],
     title: 'Jesus',
     narrative:
-      'We begin with Jesus of Nazareth, whose life and teachings launched a movement that would reshape the world.',
+      'This timeline shows how key figures in church history were connected through overlapping lifespans — teacher to student, mentor to disciple — forming an unbroken chain across centuries. We begin with Jesus of Nazareth, whose life and teachings launched a movement that would reshape the world.',
   },
   {
     id: 'john',
