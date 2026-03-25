@@ -22,6 +22,9 @@ export function useTour({ fullData, timelineRef }) {
   const [sceneIndex, setSceneIndex] = useState(0);
   const [showWelcome, setShowWelcome] = useState(false);
 
+  // Track IDs that are newly added this scene (for grow animation)
+  const [newlyAddedIds, setNewlyAddedIds] = useState(new Set());
+
   // Build-out animation state: list of IDs revealed so far during scene 15
   const [buildOutIds, setBuildOutIds] = useState(null);
   const buildOutTimerRef = useRef(null);
@@ -73,10 +76,36 @@ export function useTour({ fullData, timelineRef }) {
     ref.jumpToYear?.(center);
   }, [fullData, timelineRef]);
 
+  // Compute newly added IDs when scene changes
+  useEffect(() => {
+    if (!tourActive || !currentScene) {
+      setNewlyAddedIds(new Set());
+      return;
+    }
+
+    const prevScene = sceneIndex > 0 ? TOUR_SCENES[sceneIndex - 1] : null;
+    const prevIds = new Set(prevScene?.personIds || []);
+    const currIds = currentScene.personIds || [];
+    const added = new Set(currIds.filter(id => !prevIds.has(id)));
+    setNewlyAddedIds(added);
+  }, [tourActive, sceneIndex, currentScene]);
+
   // Frame viewport whenever scene changes (but not during build-out)
   useEffect(() => {
     if (!tourActive || !currentScene) return;
     if (currentScene.isBuildOut) return;
+
+    // For the intro scene (no people), frame on the first person scene's range
+    if (!currentScene.personIds || currentScene.personIds.length === 0) {
+      const nextSceneWithPeople = TOUR_SCENES.find(s => s.personIds && s.personIds.length > 0);
+      if (nextSceneWithPeople) {
+        const id = requestAnimationFrame(() => {
+          frameVisiblePeople(nextSceneWithPeople.personIds);
+        });
+        return () => cancelAnimationFrame(id);
+      }
+      return;
+    }
 
     // Small delay so Timeline has re-rendered with new data
     const id = requestAnimationFrame(() => {
@@ -84,6 +113,20 @@ export function useTour({ fullData, timelineRef }) {
     });
     return () => cancelAnimationFrame(id);
   }, [tourActive, sceneIndex, currentScene, frameVisiblePeople]);
+
+  // Auto-open modal when scene has openPersonId
+  useEffect(() => {
+    if (!tourActive || !currentScene?.openPersonId || !fullData?.people) return;
+
+    // Delay slightly so the narration panel renders first
+    const timer = setTimeout(() => {
+      const person = fullData.people.find(p => p.id === currentScene.openPersonId);
+      if (person && timelineRef?.current?.selectItem) {
+        timelineRef.current.selectItem('person', person);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [tourActive, sceneIndex, currentScene, fullData, timelineRef]);
 
   // ── Build-out animation (scene 15) ───────────────────────────────────
   useEffect(() => {
@@ -246,6 +289,7 @@ export function useTour({ fullData, timelineRef }) {
     sceneIndex,
     totalScenes: TOUR_SCENES.length,
     tourData,
+    newlyAddedIds,
 
     // Controls
     startTour,

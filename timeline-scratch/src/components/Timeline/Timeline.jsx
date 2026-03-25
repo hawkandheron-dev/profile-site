@@ -19,7 +19,7 @@ import { getYear, getYearRange } from './utils/dateUtils.js';
 import bgManuscript from '../../assets/bg-manuscript.jpg';
 import './Timeline.css';
 
-export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged, showBackgroundImage = false, layoutSizes }, ref) {
+export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged, showBackgroundImage = false, layoutSizes, animatingIds }, ref) {
   const isMobile = useMobileDetect();
 
   // Render mobile timeline on small viewports
@@ -56,11 +56,12 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
       onDataChanged={onDataChanged}
       showBackgroundImage={showBackgroundImage}
       layoutSizes={layoutSizes}
+      animatingIds={animatingIds}
     />
   );
 });
 
-const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged, showBackgroundImage = false, layoutSizes }, ref) {
+const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged, showBackgroundImage = false, layoutSizes, animatingIds }, ref) {
   const containerRef = useRef(null);
   const wasDraggingRef = useRef(false);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
@@ -683,6 +684,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         wasDraggingRef={wasDraggingRef}
         highlightedItemIds={highlightedItemIds}
         currentHighlightId={currentHighlightId}
+        animatingIds={animatingIds}
       />
 
       <TimelineOverlay

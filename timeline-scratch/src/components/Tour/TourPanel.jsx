@@ -49,9 +49,14 @@ export function TourPanel({
         </button>
       </div>
 
-      <div className="tour-panel-body">
+      <div className="tour-panel-body" key={scene.id}>
         <h3 className="tour-scene-title">{scene.title}</h3>
         <p className="tour-scene-narrative">{scene.narrative}</p>
+        {scene.additionalNarrative && (
+          <p className="tour-scene-narrative tour-scene-additional">
+            {scene.additionalNarrative}
+          </p>
+        )}
       </div>
 
       <div className="tour-panel-footer">

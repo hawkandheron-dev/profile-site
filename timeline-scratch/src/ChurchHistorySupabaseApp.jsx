@@ -299,6 +299,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
                 contributorContext={contributorContext}
                 onEntityUpdated={handleEntityUpdated}
                 onDataChanged={handleEntityUpdated}
+                animatingIds={tour.tourActive ? tour.newlyAddedIds : undefined}
               />
             </div>
             {tour.tourActive && (
@@ -427,6 +428,7 @@ function UnauthenticatedApp({ timelineData, loading, error }) {
                 data={tour.tourActive ? tour.tourData : timelineData}
                 config={churchHistoryConfig}
                 showBackgroundImage
+                animatingIds={tour.tourActive ? tour.newlyAddedIds : undefined}
               />
             </div>
             {tour.tourActive && (

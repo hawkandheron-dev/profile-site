@@ -39,7 +39,17 @@ export const TOUR_SCENES = [
     personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus'],
     title: 'Irenaeus of Lyons',
     narrative:
-      'Irenaeus writes of hearing Polycarp preach when he was young. He carried the living memory of the apostolic tradition from Asia Minor to Gaul.',
+      'As a boy growing up in Smyrna, Irenaeus listened to the aged Polycarp preach — and through Polycarp, he heard the living echo of the apostle John himself.',
+  },
+  {
+    id: 'irenaeus-2',
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus'],
+    title: 'Irenaeus of Lyons',
+    narrative:
+      'As a boy growing up in Smyrna, Irenaeus listened to the aged Polycarp preach — and through Polycarp, he heard the living echo of the apostle John himself.',
+    additionalNarrative:
+      'Irenaeus carried that apostolic witness westward, becoming bishop of Lyon in Gaul — bringing the good news of Jesus from the heart of Asia Minor to the frontiers of the Roman world.',
+    openPersonId: 'irenaeus',
   },
   {
     id: 'hippolytus',
