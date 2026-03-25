@@ -19,6 +19,9 @@ import { AdminSuggestionsPage } from './components/Suggestions/AdminSuggestionsP
 import { SuggestNewModal } from './components/Suggestions/SuggestNewModal.jsx';
 import { IssueCreatorButton } from './components/IssueCreator/IssueCreatorButton.jsx';
 import { Icon } from './components/Timeline/components/Icon.jsx';
+import { useTour } from './components/Tour/useTour.js';
+import { WelcomeDialog } from './components/Tour/WelcomeDialog.jsx';
+import { TourPanel } from './components/Tour/TourPanel.jsx';
 import './App.css';
 
 const BIRD_LOGO = new URL('../../../resources/logos/Windhover_BLK.png', import.meta.url).href;
@@ -181,6 +184,9 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
     onReloadData?.();
   }, [onReloadData]);
 
+  // Tour
+  const tour = useTour({ fullData: timelineData, timelineRef });
+
   const handleSearchSelect = useCallback((type, item) => {
     timelineRef.current?.selectItem(type, item);
   }, []);
@@ -248,6 +254,10 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
             )}
           </div>
           <div className="header-right">
+            <button type="button" className="btn" onClick={tour.startTour} title="Take the guided tour">
+              <Icon name="book" size={14} />
+              {' '}Tour
+            </button>
             <ClerkAuthHeader
               onAddNote={() => setAddNoteOpen(true)}
               onViewNotes={() => setViewNotesOpen(true)}
@@ -276,22 +286,42 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
           </div>
         )}
         {!loading && !error && timelineData && (
-          <div className="timeline-wrapper">
-            <Timeline
-              ref={timelineRef}
-              data={timelineData}
-              config={churchHistoryConfig}
-              showBackgroundImage
-              authContext={authContext}
-              allPeople={allPeople}
-              adminContext={adminContext}
-              contributorContext={contributorContext}
-              onEntityUpdated={handleEntityUpdated}
-              onDataChanged={handleEntityUpdated}
-            />
+          <div className="timeline-wrapper" style={{ display: 'flex' }}>
+            <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+              <Timeline
+                ref={timelineRef}
+                data={tour.tourActive ? tour.tourData : timelineData}
+                config={churchHistoryConfig}
+                showBackgroundImage
+                authContext={authContext}
+                allPeople={allPeople}
+                adminContext={adminContext}
+                contributorContext={contributorContext}
+                onEntityUpdated={handleEntityUpdated}
+                onDataChanged={handleEntityUpdated}
+              />
+            </div>
+            {tour.tourActive && (
+              <TourPanel
+                scene={tour.currentScene}
+                sceneIndex={tour.sceneIndex}
+                totalScenes={tour.totalScenes}
+                onNext={tour.nextScene}
+                onPrev={tour.prevScene}
+                onSkip={tour.skipTour}
+                onComplete={tour.completeTour}
+              />
+            )}
           </div>
         )}
       </div>
+
+      {tour.showWelcome && !loading && !error && timelineData && (
+        <WelcomeDialog
+          onStartTour={tour.startTour}
+          onDismiss={tour.dismissWelcome}
+        />
+      )}
 
       {addNoteOpen && (
         <AddNoteModal
@@ -331,6 +361,9 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
 function UnauthenticatedApp({ timelineData, loading, error }) {
   const timelineRef = useRef(null);
 
+  // Tour
+  const tour = useTour({ fullData: timelineData, timelineRef });
+
   const handleSearchSelect = useCallback((type, item) => {
     timelineRef.current?.selectItem(type, item);
   }, []);
@@ -363,6 +396,10 @@ function UnauthenticatedApp({ timelineData, loading, error }) {
             )}
           </div>
           <div className="header-right">
+            <button type="button" className="btn" onClick={tour.startTour} title="Take the guided tour">
+              <Icon name="book" size={14} />
+              {' '}Tour
+            </button>
             <div className="auth-actions">
               <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign In</button>
               <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
@@ -383,16 +420,36 @@ function UnauthenticatedApp({ timelineData, loading, error }) {
           </div>
         )}
         {!loading && !error && timelineData && (
-          <div className="timeline-wrapper">
-            <Timeline
-              ref={timelineRef}
-              data={timelineData}
-              config={churchHistoryConfig}
-              showBackgroundImage
-            />
+          <div className="timeline-wrapper" style={{ display: 'flex' }}>
+            <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+              <Timeline
+                ref={timelineRef}
+                data={tour.tourActive ? tour.tourData : timelineData}
+                config={churchHistoryConfig}
+                showBackgroundImage
+              />
+            </div>
+            {tour.tourActive && (
+              <TourPanel
+                scene={tour.currentScene}
+                sceneIndex={tour.sceneIndex}
+                totalScenes={tour.totalScenes}
+                onNext={tour.nextScene}
+                onPrev={tour.prevScene}
+                onSkip={tour.skipTour}
+                onComplete={tour.completeTour}
+              />
+            )}
           </div>
         )}
       </div>
+
+      {tour.showWelcome && !loading && !error && timelineData && (
+        <WelcomeDialog
+          onStartTour={tour.startTour}
+          onDismiss={tour.dismissWelcome}
+        />
+      )}
     </>
   );
 }

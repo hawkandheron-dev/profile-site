@@ -166,6 +166,7 @@ export function useZoomPan({
     reset,
     jumpToYear,
     setVerticalOffset,
+    setYearsPerPixel,
     isPanning: isPanning.current
   };
 }
