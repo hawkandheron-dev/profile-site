@@ -148,6 +148,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     jumpToYear,
     setVerticalOffset,
     setYearsPerPixel,
+    setViewportStartYear,
     isPanning
   } = useZoomPan({
     initialViewportStartYear: centeredViewportStart,
@@ -461,9 +462,10 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     // Tour support: viewport control
     jumpToYear: (year) => jumpToYear(year, dimensions.width),
     setYearsPerPixel,
+    setViewportStartYear,
     setVerticalOffset,
     getViewportInfo: () => ({ width: dimensions.width, yearsPerPixel, viewportStartYear }),
-  }), [handleSearchSelect, handleSearchHighlight, handleSearchClearHighlight, jumpToYear, dimensions.width, setYearsPerPixel, setVerticalOffset, yearsPerPixel, viewportStartYear]);
+  }), [handleSearchSelect, handleSearchHighlight, handleSearchClearHighlight, jumpToYear, dimensions.width, setYearsPerPixel, setViewportStartYear, setVerticalOffset, yearsPerPixel, viewportStartYear]);
 
   // Compute set of highlighted item IDs for rendering
   const highlightedItemIds = useMemo(() => {

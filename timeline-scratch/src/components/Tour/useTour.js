@@ -70,10 +70,8 @@ export function useTour({ fullData, timelineRef }) {
 
     const newYPP = (framedMax - framedMin) / info.width;
     ref.setYearsPerPixel?.(newYPP);
-
-    // jumpToYear centers on the given year, so compute the center
-    const center = (framedMin + framedMax) / 2;
-    ref.jumpToYear?.(center);
+    // Set viewportStartYear directly — jumpToYear would use stale yearsPerPixel
+    ref.setViewportStartYear?.(framedMin);
   }, [fullData, timelineRef]);
 
   // Compute newly added IDs when scene changes
