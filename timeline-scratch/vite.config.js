@@ -14,6 +14,7 @@ export default defineConfig({
         'church-history-supabase': resolve(__dirname, 'church-history-supabase.html'),
         'historical-eras': resolve(__dirname, 'historical-eras.html'),
         'biblical-places': resolve(__dirname, 'biblical-places.html'),
+        'african-kingdoms': resolve(__dirname, 'african-kingdoms.html'),
       },
     },
   },

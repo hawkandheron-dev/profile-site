@@ -1,0 +1,202 @@
+/* ── African Kingdoms App ─────────────────────────────────────────────── */
+
+.ak-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: #f5f0e1;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+
+.ak-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(245, 240, 225, 0.95);
+  border-bottom: 1px solid rgba(120, 100, 70, 0.2);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.ak-home-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #7a6f5f;
+  text-decoration: none;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.ak-home-link:hover {
+  background: rgba(120, 100, 70, 0.12);
+  color: #2c2418;
+}
+
+.ak-title {
+  font-family: 'Cormorant', Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2c2418;
+  margin: 0;
+  line-height: 1;
+}
+
+.ak-subtitle {
+  font-family: 'Alegreya Sans', sans-serif;
+  font-size: 0.8rem;
+  color: #7a6f5f;
+  font-style: italic;
+}
+
+/* ── Year navigation ──────────────────────────────────────────────── */
+
+.ak-year-nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ak-year-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #7a6f5f;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+  padding: 0;
+}
+
+.ak-year-nav-btn:hover {
+  background: rgba(120, 100, 70, 0.15);
+  color: #2c2418;
+}
+
+.ak-year-nav-btn:active {
+  transform: scale(0.92);
+}
+
+.ak-year-display {
+  font-family: 'Alegreya Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #4a3f2f;
+  background: rgba(120, 100, 70, 0.1);
+  padding: 4px 12px;
+  border-radius: 999px;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* ── Map area ───────────────────────────────────────────────────────── */
+
+.ak-map-area {
+  flex: 6;
+  min-height: 0;
+  position: relative;
+}
+
+/* ── Timeline area ──────────────────────────────────────────────────── */
+
+.ak-timeline-area {
+  flex: 4;
+  min-height: 0;
+  position: relative;
+  border-top: 1px solid rgba(120, 100, 70, 0.2);
+}
+
+.ak-timeline-area .timeline-container {
+  background: #f5f0e1;
+}
+
+/* ── Loading ────────────────────────────────────────────────────────── */
+
+.ak-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #f5f0e1;
+  font-family: 'Alegreya Sans', sans-serif;
+  color: #7a6f5f;
+}
+
+.ak-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(120, 100, 70, 0.2);
+  border-top-color: #8b7355;
+  border-radius: 50%;
+  animation: ak-spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes ak-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Error ──────────────────────────────────────────────────────────── */
+
+.ak-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #f5f0e1;
+  font-family: 'Alegreya Sans', sans-serif;
+  color: #4a3f2f;
+  text-align: center;
+  padding: 20px;
+}
+
+.ak-error h2 {
+  font-family: 'Cormorant', Georgia, serif;
+  margin-bottom: 8px;
+}
+
+.ak-error button {
+  margin-top: 16px;
+  padding: 10px 22px;
+  font-family: 'Alegreya Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 999px;
+  border: 1px solid rgba(120, 100, 70, 0.25);
+  background: transparent;
+  color: #2c2418;
+  cursor: pointer;
+}
+
+.ak-error button:hover {
+  background: rgba(120, 100, 70, 0.12);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .ak-map-area {
+    flex: 5;
+  }
+  .ak-timeline-area {
+    flex: 5;
+  }
+  .ak-title {
+    font-size: 1.1rem;
+  }
+  .ak-subtitle {
+    display: none;
+  }
+}
