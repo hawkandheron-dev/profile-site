@@ -225,12 +225,15 @@ export function useTour({ fullData, timelineRef }) {
   }, []);
 
   const nextScene = useCallback(() => {
+    // Close any open modal (e.g. from openPersonId scenes) before advancing
+    timelineRef?.current?.closeModal?.();
     if (sceneIndex < TOUR_SCENES.length - 1) {
       setSceneIndex(i => i + 1);
     }
-  }, [sceneIndex]);
+  }, [sceneIndex, timelineRef]);
 
   const prevScene = useCallback(() => {
+    timelineRef?.current?.closeModal?.();
     if (sceneIndex > 0) {
       // If going back from build-out, cancel animation
       if (currentScene?.isBuildOut && buildOutTimerRef.current) {
@@ -239,9 +242,10 @@ export function useTour({ fullData, timelineRef }) {
       }
       setSceneIndex(i => i - 1);
     }
-  }, [sceneIndex, currentScene]);
+  }, [sceneIndex, currentScene, timelineRef]);
 
   const completeTour = useCallback(() => {
+    timelineRef?.current?.closeModal?.();
     if (buildOutTimerRef.current) {
       clearInterval(buildOutTimerRef.current);
     }
@@ -252,9 +256,10 @@ export function useTour({ fullData, timelineRef }) {
     } catch {
       // ignore
     }
-  }, []);
+  }, [timelineRef]);
 
   const skipTour = useCallback(() => {
+    timelineRef?.current?.closeModal?.();
     if (buildOutTimerRef.current) {
       clearInterval(buildOutTimerRef.current);
     }
@@ -266,7 +271,7 @@ export function useTour({ fullData, timelineRef }) {
     } catch {
       // ignore
     }
-  }, []);
+  }, [timelineRef]);
 
   const dismissWelcome = useCallback(() => {
     setShowWelcome(false);

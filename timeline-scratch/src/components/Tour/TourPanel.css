@@ -8,7 +8,7 @@
   border-left: 1px solid rgba(120, 100, 70, 0.25);
   box-shadow: -4px 0 20px rgba(60, 50, 30, 0.1);
   animation: tourPanelSlideIn 0.3s ease-out;
-  z-index: 50;
+  z-index: 1100;
   position: relative;
 }
 
