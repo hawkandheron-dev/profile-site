@@ -110,7 +110,7 @@ export function useTour({ fullData, timelineRef }) {
     return () => clearTimeout(timer);
   }, [tourActive, sceneIndex, currentScene, frameVisiblePeople]);
 
-  // Auto-open modal when scene has openPersonId
+  // Auto-open person modal when scene has openPersonId
   useEffect(() => {
     if (!tourActive || !currentScene?.openPersonId || !fullData?.people) return;
 
@@ -123,6 +123,37 @@ export function useTour({ fullData, timelineRef }) {
     }, 600);
     return () => clearTimeout(timer);
   }, [tourActive, sceneIndex, currentScene, fullData, timelineRef]);
+
+  // Highlight a connection pill in the modal when scene has highlightConnectionId
+  useEffect(() => {
+    if (!tourActive || !currentScene?.highlightConnectionId) return;
+
+    const timer = setTimeout(() => {
+      const pill = document.querySelector(
+        `.modal-pill[data-item-id="${currentScene.highlightConnectionId}"]`
+      );
+      if (pill) {
+        pill.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        pill.classList.add('tour-highlight-pill');
+      }
+    }, 800);
+    return () => {
+      clearTimeout(timer);
+      // Clean up highlight when leaving this scene
+      const highlighted = document.querySelector('.tour-highlight-pill');
+      if (highlighted) highlighted.classList.remove('tour-highlight-pill');
+    };
+  }, [tourActive, sceneIndex, currentScene]);
+
+  // Auto-open year summary modal when scene has openYearSummary
+  useEffect(() => {
+    if (!tourActive || !currentScene?.openYearSummary) return;
+
+    const timer = setTimeout(() => {
+      timelineRef?.current?.openYearSummary?.(currentScene.openYearSummary);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [tourActive, sceneIndex, currentScene, timelineRef]);
 
   // ── Build-out animation (scene 15) ───────────────────────────────────
   useEffect(() => {
@@ -225,8 +256,12 @@ export function useTour({ fullData, timelineRef }) {
   }, []);
 
   const nextScene = useCallback(() => {
-    // Close any open modal (e.g. from openPersonId scenes) before advancing
-    timelineRef?.current?.closeModal?.();
+    const nextSceneDef = TOUR_SCENES[sceneIndex + 1];
+    // Keep modal open if the next scene wants it (e.g. irenaeus-2 → irenaeus-3)
+    if (!nextSceneDef?.keepModalOpen) {
+      timelineRef?.current?.closeModal?.();
+    }
+    timelineRef?.current?.closeYearSummary?.();
     if (sceneIndex < TOUR_SCENES.length - 1) {
       setSceneIndex(i => i + 1);
     }
@@ -234,6 +269,7 @@ export function useTour({ fullData, timelineRef }) {
 
   const prevScene = useCallback(() => {
     timelineRef?.current?.closeModal?.();
+    timelineRef?.current?.closeYearSummary?.();
     if (sceneIndex > 0) {
       // If going back from build-out, cancel animation
       if (currentScene?.isBuildOut && buildOutTimerRef.current) {
@@ -246,6 +282,7 @@ export function useTour({ fullData, timelineRef }) {
 
   const completeTour = useCallback(() => {
     timelineRef?.current?.closeModal?.();
+    timelineRef?.current?.closeYearSummary?.();
     if (buildOutTimerRef.current) {
       clearInterval(buildOutTimerRef.current);
     }
@@ -260,6 +297,7 @@ export function useTour({ fullData, timelineRef }) {
 
   const skipTour = useCallback(() => {
     timelineRef?.current?.closeModal?.();
+    timelineRef?.current?.closeYearSummary?.();
     if (buildOutTimerRef.current) {
       clearInterval(buildOutTimerRef.current);
     }

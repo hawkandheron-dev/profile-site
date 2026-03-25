@@ -53,8 +53,18 @@ export function TourPanel({
         <h3 className="tour-scene-title">{scene.title}</h3>
         <p className="tour-scene-narrative">{scene.narrative}</p>
         {scene.additionalNarrative && (
-          <p className="tour-scene-narrative tour-scene-additional">
+          <p
+            className={
+              'tour-scene-narrative tour-scene-additional' +
+              (scene.additionalNarrativeStyle === 'italic' ? ' tour-scene-italic' : '')
+            }
+          >
             {scene.additionalNarrative}
+          </p>
+        )}
+        {scene.thirdNarrative && (
+          <p className="tour-scene-narrative tour-scene-third">
+            {scene.thirdNarrative}
           </p>
         )}
       </div>

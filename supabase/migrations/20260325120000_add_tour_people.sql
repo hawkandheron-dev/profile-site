@@ -7,6 +7,10 @@ ON CONFLICT DO NOTHING;
 
 -- Add connections for the tour chain
 INSERT INTO public."CH_Connections" (person_id_1, person_id_2, relationship_type) VALUES
+  ('jesus', 'john-evangelist', 'known'),
+  ('irenaeus', 'hippolytus', 'known'),
+  ('hippolytus', 'origen', 'known'),
+  ('basil-great', 'ambrose-milan', 'known'),
   ('gregory-thaumaturgus', 'macrina-elder', 'known'),
   ('macrina-elder', 'macrina-younger', 'known'),
   ('macrina-elder', 'basil-great', 'known'),

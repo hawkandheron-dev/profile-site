@@ -45,6 +45,19 @@ export const TOUR_SCENES = [
     openPersonId: 'irenaeus',
   },
   {
+    id: 'irenaeus-3',
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus'],
+    title: 'Irenaeus of Lyons',
+    narrative:
+      'As a boy growing up in Smyrna, Irenaeus listened to the aged Polycarp preach — and through Polycarp, he heard the living echo of the apostle John himself.',
+    additionalNarrative:
+      'Irenaeus carried that apostolic witness westward, becoming bishop of Lyon in Gaul — bringing the good news of Jesus from the heart of Asia Minor to the frontiers of the Roman world.',
+    thirdNarrative:
+      'Notice his connections: Polycarp, who shaped him, and Hippolytus of Rome, whom he in turn influenced. Each link in the chain carries the faith forward.',
+    highlightConnectionId: 'hippolytus',
+    keepModalOpen: true,
+  },
+  {
     id: 'hippolytus',
     personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus'],
     title: 'Hippolytus of Rome',
@@ -113,6 +126,17 @@ export const TOUR_SCENES = [
     title: 'Caesarius of Arles',
     narrative:
       'Caesarius of Arles was a student of Pomerius. As bishop, he drew heavily on Augustine\u2019s writings in his sermons, bringing the theology of the early church to the people of early medieval Gaul.',
+  },
+  {
+    id: 'year-530',
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', 'augustine', 'prosper-aquitaine', 'julianus-pomerius', 'caesarius-arles'],
+    title: 'What else is going on in 530\u00A0AD?',
+    narrative:
+      'By the year 530, Caesarius is an old man. The Western Roman Empire has fallen, but the faith endures. Justinian reigns in Constantinople, codifying Roman law. Benedict of Nursia is writing his Rule, laying the foundation for Western monasticism.',
+    additionalNarrative:
+      'Click on a blank part of the timeline to see who\u2019s where, which monarchs are reigning, and what events take place before, during, and after a given year.',
+    additionalNarrativeStyle: 'italic',
+    openYearSummary: 530,
   },
   {
     id: 'build-out',

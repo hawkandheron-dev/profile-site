@@ -82,6 +82,15 @@
   animation: tourFadeIn 0.8s ease-out;
 }
 
+.tour-scene-italic {
+  font-style: italic;
+}
+
+.tour-scene-third {
+  margin-top: 16px;
+  animation: tourFadeIn 0.8s ease-out 0.3s both;
+}
+
 @keyframes tourFadeIn {
   from {
     opacity: 0;
@@ -140,6 +149,18 @@
 .tour-nav-primary:hover:not(:disabled) {
   background: #4a6cd6;
   border-color: #4a6cd6;
+}
+
+/* Highlighted connection pill during tour */
+.tour-highlight-pill {
+  outline: 2px solid #5b7ee8 !important;
+  outline-offset: 2px;
+  animation: tourPillPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes tourPillPulse {
+  0%, 100% { outline-color: #5b7ee8; }
+  50% { outline-color: #8fa8f0; }
 }
 
 /* Responsive: narrower on smaller screens */
