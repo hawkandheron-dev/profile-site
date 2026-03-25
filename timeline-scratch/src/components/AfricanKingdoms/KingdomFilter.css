@@ -1,0 +1,47 @@
+.ak-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(245, 240, 225, 0.95);
+  border-top: 1px solid rgba(120, 100, 70, 0.2);
+  border-bottom: 1px solid rgba(120, 100, 70, 0.2);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.ak-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  font-family: 'Alegreya Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 999px;
+  border: 1px solid rgba(120, 100, 70, 0.25);
+  background: transparent;
+  color: #4a3f2f;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.ak-filter-pill:hover {
+  background: rgba(120, 100, 70, 0.1);
+  border-color: rgba(120, 100, 70, 0.4);
+}
+
+.ak-filter-pill.active {
+  background: rgba(120, 100, 70, 0.15);
+  border-color: rgba(120, 100, 70, 0.5);
+  color: #2c2418;
+  font-weight: 600;
+}
+
+.ak-filter-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
