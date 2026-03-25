@@ -72,6 +72,14 @@ export function useTour({ fullData, timelineRef }) {
     ref.setYearsPerPixel?.(newYPP);
     // Set viewportStartYear directly — jumpToYear would use stale yearsPerPixel
     ref.setViewportStartYear?.(framedMin);
+
+    // Center vertically on the axis — panOffsetY from the full timeline
+    // may put the tour's smaller layout off-screen
+    if (info.axisY != null && info.height) {
+      const targetOffset = Math.max(0, info.axisY - info.height / 2);
+      const maxOffset = Math.max(0, (info.totalHeight || 0) - info.height);
+      ref.setVerticalOffset?.(Math.min(targetOffset, maxOffset));
+    }
   }, [fullData, timelineRef]);
 
   // Compute newly added IDs when scene changes
@@ -94,11 +102,12 @@ export function useTour({ fullData, timelineRef }) {
     if (!tourActive || !currentScene) return;
     if (currentScene.isBuildOut) return;
 
-    // Small delay so Timeline has re-rendered with new data
-    const id = requestAnimationFrame(() => {
+    // Delay so Timeline has re-rendered with new data and layout has settled
+    // (ResizeObserver and layout recomputation must complete first)
+    const timer = setTimeout(() => {
       frameVisiblePeople(currentScene.personIds);
-    });
-    return () => cancelAnimationFrame(id);
+    }, 50);
+    return () => clearTimeout(timer);
   }, [tourActive, sceneIndex, currentScene, frameVisiblePeople]);
 
   // Auto-open modal when scene has openPersonId

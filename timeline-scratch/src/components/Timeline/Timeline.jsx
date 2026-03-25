@@ -464,8 +464,8 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     setYearsPerPixel,
     setViewportStartYear,
     setVerticalOffset,
-    getViewportInfo: () => ({ width: dimensions.width, yearsPerPixel, viewportStartYear }),
-  }), [handleSearchSelect, handleSearchHighlight, handleSearchClearHighlight, jumpToYear, dimensions.width, setYearsPerPixel, setViewportStartYear, setVerticalOffset, yearsPerPixel, viewportStartYear]);
+    getViewportInfo: () => ({ width: dimensions.width, height: dimensions.height, yearsPerPixel, viewportStartYear, axisY: layout.axisY, totalHeight: layout.totalHeight }),
+  }), [handleSearchSelect, handleSearchHighlight, handleSearchClearHighlight, jumpToYear, dimensions.width, dimensions.height, setYearsPerPixel, setViewportStartYear, setVerticalOffset, yearsPerPixel, viewportStartYear, layout.axisY, layout.totalHeight]);
 
   // Compute set of highlighted item IDs for rendering
   const highlightedItemIds = useMemo(() => {
