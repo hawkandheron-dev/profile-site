@@ -470,9 +470,9 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
       setPinnedYear(year);
       setYearSummaryOpen(true);
     },
-    closeYearSummary: handleYearSummaryClose,
+    closeYearSummary: () => setYearSummaryOpen(false),
     getViewportInfo: () => ({ width: dimensions.width, height: dimensions.height, yearsPerPixel, viewportStartYear, axisY: layout.axisY, totalHeight: layout.totalHeight }),
-  }), [handleSearchSelect, handleSearchHighlight, handleSearchClearHighlight, handleModalClose, handleYearSummaryClose, jumpToYear, dimensions.width, dimensions.height, setYearsPerPixel, setViewportStartYear, setVerticalOffset, yearsPerPixel, viewportStartYear, layout.axisY, layout.totalHeight]);
+  }), [handleSearchSelect, handleSearchHighlight, handleSearchClearHighlight, handleModalClose, jumpToYear, dimensions.width, dimensions.height, setYearsPerPixel, setViewportStartYear, setVerticalOffset, yearsPerPixel, viewportStartYear, layout.axisY, layout.totalHeight]);
 
   // Compute set of highlighted item IDs for rendering
   const highlightedItemIds = useMemo(() => {
