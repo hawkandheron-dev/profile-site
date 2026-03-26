@@ -475,10 +475,10 @@ function ChurchHistorySupabaseApp() {
           setLoading(true);
         }
         setError(null);
-        const [result, scenes] = await Promise.all([
-          fetchChurchHistoryData(),
-          fetchTourScenes().catch(() => null),
-        ]);
+        // Fetch main data first (initializes Supabase client singleton),
+        // then tour scenes reuses the same client
+        const result = await fetchChurchHistoryData();
+        const scenes = await fetchTourScenes().catch(() => null);
         if (!cancelled) {
           setTimelineData(result.data);
           const people = (result.data.people || []).map(p => ({
