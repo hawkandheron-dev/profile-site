@@ -37,6 +37,10 @@ export function useTour({ fullData, timelineRef, scenes }) {
   const [buildOutIds, setBuildOutIds] = useState(null);
   const buildOutTimerRef = useRef(null);
 
+  // Stagger animation state: progressively reveal IDs in scenes with staggerIds
+  const [staggerRevealedIds, setStaggerRevealedIds] = useState(new Set());
+  const staggerTimerRef = useRef(null);
+
   // On mount, check localStorage to decide whether to show the welcome dialog
   useEffect(() => {
     try {
@@ -97,17 +101,61 @@ export function useTour({ fullData, timelineRef, scenes }) {
 
   // Compute newly added IDs when scene changes
   // Scene 0: no animation — people just appear (nothing to "grow from")
+  // Scenes with staggerIds are handled by the stagger effect below
   useEffect(() => {
     if (!tourActive || !currentScene || sceneIndex === 0) {
       setNewlyAddedIds(new Set());
       return;
     }
+    // Skip normal bulk computation for stagger scenes — the stagger effect handles it
+    if (currentScene.staggerIds) return;
 
     const prevScene = TOUR_SCENES[sceneIndex - 1];
     const prevIds = new Set(prevScene?.personIds || []);
     const currIds = currentScene.personIds || [];
     const added = new Set(currIds.filter(id => !prevIds.has(id)));
     setNewlyAddedIds(added);
+  }, [tourActive, sceneIndex, currentScene]);
+
+  // Stagger effect: progressively reveal IDs one at a time with 1200ms intervals
+  useEffect(() => {
+    if (!tourActive || !currentScene?.staggerIds) {
+      // Clean up any running stagger timer
+      if (staggerTimerRef.current) {
+        clearInterval(staggerTimerRef.current);
+        staggerTimerRef.current = null;
+      }
+      setStaggerRevealedIds(new Set());
+      return;
+    }
+
+    const ids = currentScene.staggerIds;
+    let idx = 0;
+
+    // Reveal the first ID immediately
+    setStaggerRevealedIds(new Set([ids[0]]));
+    setNewlyAddedIds(new Set([ids[0]]));
+    idx = 1;
+
+    if (ids.length <= 1) return;
+
+    const interval = setInterval(() => {
+      if (idx >= ids.length) {
+        clearInterval(interval);
+        staggerTimerRef.current = null;
+        return;
+      }
+      const nextId = ids[idx];
+      setStaggerRevealedIds(prev => new Set([...prev, nextId]));
+      setNewlyAddedIds(new Set([nextId]));
+      idx++;
+    }, 1200);
+
+    staggerTimerRef.current = interval;
+    return () => {
+      clearInterval(interval);
+      staggerTimerRef.current = null;
+    };
   }, [tourActive, sceneIndex, currentScene]);
 
   // Frame viewport whenever scene changes (but not during build-out)
@@ -255,21 +303,36 @@ export function useTour({ fullData, timelineRef, scenes }) {
 
     // Normal tour scene — filter to only the scene's people
     const visibleIds = new Set(currentScene?.personIds || []);
+    // Hide stagger IDs that haven't been revealed yet
+    if (currentScene?.staggerIds) {
+      for (const id of currentScene.staggerIds) {
+        if (!staggerRevealedIds.has(id)) visibleIds.delete(id);
+      }
+    }
     return {
       people: (fullData.people || []).filter(p => visibleIds.has(p.id)),
       // Include periods and points when the scene needs them (e.g. year-530)
       periods: currentScene?.includePeriodsAndPoints ? (fullData.periods || []) : [],
       points: currentScene?.includePeriodsAndPoints ? (fullData.points || []) : [],
     };
-  }, [tourActive, fullData, currentScene, buildOutIds]);
+  }, [tourActive, fullData, currentScene, buildOutIds, staggerRevealedIds]);
 
   // ── Controls ─────────────────────────────────────────────────────────
+  const clearStaggerTimer = useCallback(() => {
+    if (staggerTimerRef.current) {
+      clearInterval(staggerTimerRef.current);
+      staggerTimerRef.current = null;
+    }
+  }, []);
+
   const startTour = useCallback(() => {
     setShowWelcome(false);
     setSceneIndex(0);
     setBuildOutIds(null);
+    clearStaggerTimer();
+    setStaggerRevealedIds(new Set());
     setTourActive(true);
-  }, []);
+  }, [clearStaggerTimer]);
 
   const nextScene = useCallback(() => {
     const nextSceneDef = TOUR_SCENES[sceneIndex + 1];
@@ -302,6 +365,7 @@ export function useTour({ fullData, timelineRef, scenes }) {
     if (buildOutTimerRef.current) {
       clearInterval(buildOutTimerRef.current);
     }
+    clearStaggerTimer();
     setBuildOutIds(null);
     setTourActive(false);
     try {
@@ -309,7 +373,7 @@ export function useTour({ fullData, timelineRef, scenes }) {
     } catch {
       // ignore
     }
-  }, [timelineRef]);
+  }, [timelineRef, clearStaggerTimer]);
 
   const skipTour = useCallback(() => {
     timelineRef?.current?.closeModal?.();
@@ -317,6 +381,7 @@ export function useTour({ fullData, timelineRef, scenes }) {
     if (buildOutTimerRef.current) {
       clearInterval(buildOutTimerRef.current);
     }
+    clearStaggerTimer();
     setBuildOutIds(null);
     setTourActive(false);
     setShowWelcome(false);
@@ -325,7 +390,7 @@ export function useTour({ fullData, timelineRef, scenes }) {
     } catch {
       // ignore
     }
-  }, [timelineRef]);
+  }, [timelineRef, clearStaggerTimer]);
 
   const dismissWelcome = useCallback(() => {
     setShowWelcome(false);

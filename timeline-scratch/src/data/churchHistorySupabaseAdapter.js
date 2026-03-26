@@ -384,6 +384,7 @@ export async function fetchTourScenes() {
     if (row.open_year_summary != null) scene.openYearSummary = row.open_year_summary;
     if (row.include_periods_and_points) scene.includePeriodsAndPoints = true;
     if (row.is_build_out) scene.isBuildOut = true;
+    if (row.stagger_ids && row.stagger_ids.length > 0) scene.staggerIds = row.stagger_ids;
     return scene;
   });
 }
