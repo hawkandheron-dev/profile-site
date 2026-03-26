@@ -238,17 +238,13 @@ export function useTour({ fullData, timelineRef }) {
       return fullData;
     }
 
-    // Scene wants full data (e.g. year-530 so year summary modal shows everything)
-    if (currentScene?.useFullData) {
-      return fullData;
-    }
-
-    // Normal tour scene — filter to only the scene's people, hide periods/points
+    // Normal tour scene — filter to only the scene's people
     const visibleIds = new Set(currentScene?.personIds || []);
     return {
       people: (fullData.people || []).filter(p => visibleIds.has(p.id)),
-      periods: [],
-      points: [],
+      // Include periods and points when the scene needs them (e.g. year-530)
+      periods: currentScene?.includePeriodsAndPoints ? (fullData.periods || []) : [],
+      points: currentScene?.includePeriodsAndPoints ? (fullData.points || []) : [],
     };
   }, [tourActive, fullData, currentScene, buildOutIds]);
 

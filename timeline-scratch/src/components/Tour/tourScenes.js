@@ -129,7 +129,7 @@ export const TOUR_SCENES = [
   },
   {
     id: 'year-530',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', 'augustine', 'prosper-aquitaine', 'julianus-pomerius', 'caesarius-arles'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', 'augustine', 'prosper-aquitaine', 'julianus-pomerius', 'caesarius-arles', 'benedict-nursia', 'columba', 'finnian-moville', 'eastern-justinian-i', 'maurus'],
     title: 'What else is going on in 530\u00A0AD?',
     narrative:
       'By the year 530, Caesarius is an old man. The Western Roman Empire has fallen, but the faith endures. Justinian reigns in Constantinople, codifying Roman law. Benedict of Nursia is writing his Rule, laying the foundation for Western monasticism.',
@@ -137,7 +137,7 @@ export const TOUR_SCENES = [
       'Click on a blank part of the timeline to see who\u2019s where, which monarchs are reigning, and what events take place before, during, and after a given year.',
     additionalNarrativeStyle: 'italic',
     openYearSummary: 530,
-    useFullData: true,
+    includePeriodsAndPoints: true,
   },
   {
     id: 'build-out',
