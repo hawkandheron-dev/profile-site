@@ -46,7 +46,7 @@ export const TOUR_SCENES = [
   },
   {
     id: 'irenaeus-3',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus'],
     title: 'Irenaeus of Lyons',
     narrative:
       'As a boy growing up in Smyrna, Irenaeus listened to the aged Polycarp preach — and through Polycarp, he heard the living echo of the apostle John himself.',
@@ -137,6 +137,7 @@ export const TOUR_SCENES = [
       'Click on a blank part of the timeline to see who\u2019s where, which monarchs are reigning, and what events take place before, during, and after a given year.',
     additionalNarrativeStyle: 'italic',
     openYearSummary: 530,
+    useFullData: true,
   },
   {
     id: 'build-out',

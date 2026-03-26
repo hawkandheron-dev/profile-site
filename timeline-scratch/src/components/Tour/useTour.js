@@ -238,6 +238,11 @@ export function useTour({ fullData, timelineRef }) {
       return fullData;
     }
 
+    // Scene wants full data (e.g. year-530 so year summary modal shows everything)
+    if (currentScene?.useFullData) {
+      return fullData;
+    }
+
     // Normal tour scene — filter to only the scene's people, hide periods/points
     const visibleIds = new Set(currentScene?.personIds || []);
     return {
