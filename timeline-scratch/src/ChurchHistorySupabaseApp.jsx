@@ -10,7 +10,7 @@ import {
 } from '@clerk/clerk-react';
 import { Timeline } from './components/Timeline/Timeline.jsx';
 import { TimelineSearch } from './components/Timeline/components/TimelineSearch.jsx';
-import { fetchChurchHistoryData } from './data/churchHistorySupabaseAdapter.js';
+import { fetchChurchHistoryData, fetchTourScenes } from './data/churchHistorySupabaseAdapter.js';
 import { churchHistoryConfig } from './data/churchHistoryData.js';
 import { AddNoteModal } from './components/Notes/AddNoteModal.jsx';
 import { ViewMyNotesModal } from './components/Notes/ViewMyNotesModal.jsx';
@@ -112,7 +112,7 @@ function ClerkAuthHeader({ onAddNote, onViewNotes, isAdmin, isContributor, onRev
 /**
  * Inner app that calls useAuth — only rendered when ClerkProvider wraps us.
  */
-function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadData }) {
+function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadData, tourScenes }) {
   const { getToken, isSignedIn, userId } = useAuth();
   const { user: clerkUser } = useUser();
   const [addNoteOpen, setAddNoteOpen] = useState(false);
@@ -185,7 +185,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
   }, [onReloadData]);
 
   // Tour
-  const tour = useTour({ fullData: timelineData, timelineRef });
+  const tour = useTour({ fullData: timelineData, timelineRef, scenes: tourScenes });
 
   const handleSearchSelect = useCallback((type, item) => {
     timelineRef.current?.selectItem(type, item);
@@ -360,11 +360,11 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
 /**
  * Unauthenticated fallback (no Clerk key configured).
  */
-function UnauthenticatedApp({ timelineData, loading, error }) {
+function UnauthenticatedApp({ timelineData, loading, error, tourScenes }) {
   const timelineRef = useRef(null);
 
   // Tour
-  const tour = useTour({ fullData: timelineData, timelineRef });
+  const tour = useTour({ fullData: timelineData, timelineRef, scenes: tourScenes });
 
   const handleSearchSelect = useCallback((type, item) => {
     timelineRef.current?.selectItem(type, item);
@@ -461,6 +461,7 @@ function UnauthenticatedApp({ timelineData, loading, error }) {
 function ChurchHistorySupabaseApp() {
   const [timelineData, setTimelineData] = useState(null);
   const [allPeople, setAllPeople] = useState([]);
+  const [tourScenes, setTourScenes] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -474,7 +475,10 @@ function ChurchHistorySupabaseApp() {
           setLoading(true);
         }
         setError(null);
-        const result = await fetchChurchHistoryData();
+        const [result, scenes] = await Promise.all([
+          fetchChurchHistoryData(),
+          fetchTourScenes().catch(() => null),
+        ]);
         if (!cancelled) {
           setTimelineData(result.data);
           const people = (result.data.people || []).map(p => ({
@@ -482,6 +486,7 @@ function ChurchHistorySupabaseApp() {
             name: p.name,
           }));
           setAllPeople(people);
+          setTourScenes(scenes);
           setLoading(false);
         }
       } catch (err) {
@@ -509,12 +514,14 @@ function ChurchHistorySupabaseApp() {
           error={error}
           allPeople={allPeople}
           onReloadData={handleReloadData}
+          tourScenes={tourScenes}
         />
       ) : (
         <UnauthenticatedApp
           timelineData={timelineData}
           loading={loading}
           error={error}
+          tourScenes={tourScenes}
         />
       )}
     </div>

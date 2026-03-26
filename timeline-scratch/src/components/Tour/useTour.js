@@ -6,7 +6,7 @@
  */
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { TOUR_SCENES, TOUR_PERSON_IDS } from './tourScenes.js';
+import { TOUR_SCENES as FALLBACK_SCENES } from './tourScenes.js';
 import { getYear } from '../Timeline/utils/dateUtils.js';
 
 const LS_KEY = 'windhover-timeline-tour-completed';
@@ -15,9 +15,17 @@ const LS_KEY = 'windhover-timeline-tour-completed';
  * @param {Object}  opts
  * @param {Object}  opts.fullData       – the complete timeline data { people, points, periods }
  * @param {Object}  opts.timelineRef    – React ref to Timeline (imperative handle)
+ * @param {Array}   [opts.scenes]       – scene definitions from Supabase (falls back to static)
  * @returns tour state and controls
  */
-export function useTour({ fullData, timelineRef }) {
+export function useTour({ fullData, timelineRef, scenes }) {
+  const TOUR_SCENES = scenes ?? FALLBACK_SCENES;
+
+  // Compute the set of all person IDs featured in the tour (for build-out filtering)
+  const tourPersonIds = useMemo(() => new Set(
+    TOUR_SCENES.filter(s => s.personIds && s.personIds.length > 0)
+      .flatMap(s => s.personIds)
+  ), [TOUR_SCENES]);
   const [tourActive, setTourActive] = useState(false);
   const [sceneIndex, setSceneIndex] = useState(0);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -161,7 +169,7 @@ export function useTour({ fullData, timelineRef }) {
 
     // Gather all IDs not yet shown, grouped by type
     const remainingPeople = (fullData.people || [])
-      .filter(p => !TOUR_PERSON_IDS.has(p.id))
+      .filter(p => !tourPersonIds.has(p.id))
       .map(p => p.id);
 
     const allPointIds = (fullData.points || []).map(p => p.id);
@@ -179,7 +187,7 @@ export function useTour({ fullData, timelineRef }) {
     }
 
     // Start with tour people already visible
-    let revealedPeople = new Set(TOUR_PERSON_IDS);
+    let revealedPeople = new Set(tourPersonIds);
     let revealedPeriods = new Set();
     let revealedPoints = new Set();
     let batchIdx = 0;
