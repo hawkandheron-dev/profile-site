@@ -300,6 +300,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
                 onEntityUpdated={handleEntityUpdated}
                 onDataChanged={handleEntityUpdated}
                 animatingIds={tour.tourActive ? tour.newlyAddedIds : undefined}
+                animatingPointIds={tour.tourActive ? tour.newlyAddedPointIds : undefined}
                 hideLegend={tour.tourActive && !tour.currentScene?.isBuildOut}
               />
             </div>
@@ -430,6 +431,7 @@ function UnauthenticatedApp({ timelineData, loading, error, tourScenes }) {
                 config={churchHistoryConfig}
                 showBackgroundImage
                 animatingIds={tour.tourActive ? tour.newlyAddedIds : undefined}
+                animatingPointIds={tour.tourActive ? tour.newlyAddedPointIds : undefined}
                 hideLegend={tour.tourActive && !tour.currentScene?.isBuildOut}
               />
             </div>

@@ -382,6 +382,7 @@ export async function fetchTourScenes() {
     if (row.highlight_connection_id) scene.highlightConnectionId = row.highlight_connection_id;
     if (row.keep_modal_open) scene.keepModalOpen = true;
     if (row.open_year_summary != null) scene.openYearSummary = row.open_year_summary;
+    if (row.point_ids && row.point_ids.length > 0) scene.pointIds = row.point_ids;
     if (row.include_periods_and_points) scene.includePeriodsAndPoints = true;
     if (row.is_build_out) scene.isBuildOut = true;
     if (row.stagger_ids && row.stagger_ids.length > 0) scene.staggerIds = row.stagger_ids;

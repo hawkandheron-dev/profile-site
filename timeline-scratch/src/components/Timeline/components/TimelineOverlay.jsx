@@ -19,7 +19,8 @@ export function TimelineOverlay({
   hoveredPeriod,
   onItemHover,
   onItemClick,
-  wasDraggingRef
+  wasDraggingRef,
+  animatingPointIds
 }) {
   // Get hovered period date range for highlighting
   const hoveredPeriodRange = hoveredPeriod ? getYearRange(hoveredPeriod.startDate, hoveredPeriod.endDate) : null;
@@ -311,10 +312,12 @@ export function TimelineOverlay({
         dateDisplay = `${displayYear} ${era}`;
       }
 
+      const isNewPoint = animatingPointIds?.has(point.id);
+
       return (
         <div
           key={point.id}
-          className="point-callout"
+          className={`point-callout${isNewPoint ? ' point-pop-in' : ''}`}
           style={{
             position: 'absolute',
             left: `${x}px`,

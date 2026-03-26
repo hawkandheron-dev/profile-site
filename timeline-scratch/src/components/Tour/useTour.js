@@ -33,6 +33,9 @@ export function useTour({ fullData, timelineRef, scenes }) {
   // Track IDs that are newly added this scene (for grow animation)
   const [newlyAddedIds, setNewlyAddedIds] = useState(new Set());
 
+  // Track point IDs that are newly added this scene (for pop-in animation)
+  const [newlyAddedPointIds, setNewlyAddedPointIds] = useState(new Set());
+
   // Build-out animation state: list of IDs revealed so far during scene 15
   const [buildOutIds, setBuildOutIds] = useState(null);
   const buildOutTimerRef = useRef(null);
@@ -115,6 +118,20 @@ export function useTour({ fullData, timelineRef, scenes }) {
     const currIds = currentScene.personIds || [];
     const added = new Set(currIds.filter(id => !prevIds.has(id)));
     setNewlyAddedIds(added);
+  }, [tourActive, sceneIndex, currentScene]);
+
+  // Compute newly added point IDs when scene changes (for pop-in animation)
+  useEffect(() => {
+    if (!tourActive || !currentScene || sceneIndex === 0) {
+      setNewlyAddedPointIds(new Set());
+      return;
+    }
+
+    const prevScene = TOUR_SCENES[sceneIndex - 1];
+    const prevPointIds = new Set(prevScene?.pointIds || []);
+    const currPointIds = currentScene.pointIds || [];
+    const added = new Set(currPointIds.filter(id => !prevPointIds.has(id)));
+    setNewlyAddedPointIds(added);
   }, [tourActive, sceneIndex, currentScene]);
 
   // Stagger effect: progressively reveal IDs one at a time with 1200ms intervals
@@ -309,11 +326,14 @@ export function useTour({ fullData, timelineRef, scenes }) {
         if (!staggerRevealedIds.has(id)) visibleIds.delete(id);
       }
     }
+    // Points: filter by pointIds, or show all if includePeriodsAndPoints
+    const visiblePointIds = new Set(currentScene?.pointIds || []);
     return {
       people: (fullData.people || []).filter(p => visibleIds.has(p.id)),
-      // Include periods and points when the scene needs them (e.g. year-530)
       periods: currentScene?.includePeriodsAndPoints ? (fullData.periods || []) : [],
-      points: currentScene?.includePeriodsAndPoints ? (fullData.points || []) : [],
+      points: currentScene?.includePeriodsAndPoints
+        ? (fullData.points || [])
+        : (fullData.points || []).filter(p => visiblePointIds.has(p.id)),
     };
   }, [tourActive, fullData, currentScene, buildOutIds, staggerRevealedIds]);
 
@@ -410,6 +430,7 @@ export function useTour({ fullData, timelineRef, scenes }) {
     totalScenes: TOUR_SCENES.length,
     tourData,
     newlyAddedIds,
+    newlyAddedPointIds,
 
     // Controls
     startTour,
