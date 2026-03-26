@@ -150,6 +150,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     setVerticalOffset,
     setYearsPerPixel,
     setViewportStartYear,
+    animateViewport,
     isPanning
   } = useZoomPan({
     initialViewportStartYear: centeredViewportStart,
@@ -487,6 +488,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     setYearsPerPixel,
     setViewportStartYear,
     setVerticalOffset,
+    animateViewport,
     closeModal: handleModalClose,
     openYearSummary: (year) => {
       setSelectedItem(null); // close any person modal first
@@ -495,7 +497,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     },
     closeYearSummary: () => setYearSummaryOpen(false),
     getViewportInfo: () => ({ width: dimensions.width, height: dimensions.height, yearsPerPixel, viewportStartYear, axisY: layout.axisY, totalHeight: layout.totalHeight }),
-  }), [handleSearchSelect, handleSearchHighlight, handleSearchClearHighlight, handleModalClose, jumpToYear, dimensions.width, dimensions.height, setYearsPerPixel, setViewportStartYear, setVerticalOffset, yearsPerPixel, viewportStartYear, layout.axisY, layout.totalHeight]);
+  }), [handleSearchSelect, handleSearchHighlight, handleSearchClearHighlight, handleModalClose, jumpToYear, dimensions.width, dimensions.height, setYearsPerPixel, setViewportStartYear, setVerticalOffset, animateViewport, yearsPerPixel, viewportStartYear, layout.axisY, layout.totalHeight]);
 
   // Compute set of highlighted item IDs for rendering
   const highlightedItemIds = useMemo(() => {

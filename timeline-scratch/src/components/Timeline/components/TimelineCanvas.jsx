@@ -42,7 +42,7 @@ export function TimelineCanvas({
   useEffect(() => {
     if (animatingIds && animatingIds.size > 0) {
       const start = performance.now();
-      const duration = 600; // ms
+      const duration = 1200; // ms
 
       const tick = (now) => {
         const t = Math.min((now - start) / duration, 1);

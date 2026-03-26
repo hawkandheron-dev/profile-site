@@ -52,7 +52,7 @@ export function useTour({ fullData, timelineRef, scenes }) {
   const currentScene = TOUR_SCENES[sceneIndex];
 
   // ── Auto-frame viewport when scene changes ───────────────────────────
-  const frameVisiblePeople = useCallback((personIds) => {
+  const frameVisiblePeople = useCallback((personIds, animate = false) => {
     if (!timelineRef?.current || !fullData?.people || !personIds || personIds.length === 0) return;
 
     const people = fullData.people.filter(p => personIds.includes(p.id));
@@ -77,16 +77,21 @@ export function useTour({ fullData, timelineRef, scenes }) {
     if (!info) return;
 
     const newYPP = (framedMax - framedMin) / info.width;
-    ref.setYearsPerPixel?.(newYPP);
-    // Set viewportStartYear directly — jumpToYear would use stale yearsPerPixel
-    ref.setViewportStartYear?.(framedMin);
 
-    // Center vertically on the axis — panOffsetY from the full timeline
-    // may put the tour's smaller layout off-screen
+    // Compute target vertical offset
+    let targetOffsetY = 0;
     if (info.axisY != null && info.height) {
-      const targetOffset = Math.max(0, info.axisY - info.height / 2);
+      const raw = Math.max(0, info.axisY - info.height / 2);
       const maxOffset = Math.max(0, (info.totalHeight || 0) - info.height);
-      ref.setVerticalOffset?.(Math.min(targetOffset, maxOffset));
+      targetOffsetY = Math.min(raw, maxOffset);
+    }
+
+    if (animate && ref.animateViewport) {
+      ref.animateViewport(framedMin, newYPP, targetOffsetY, 800);
+    } else {
+      ref.setYearsPerPixel?.(newYPP);
+      ref.setViewportStartYear?.(framedMin);
+      ref.setVerticalOffset?.(targetOffsetY);
     }
   }, [fullData, timelineRef]);
 
@@ -112,8 +117,10 @@ export function useTour({ fullData, timelineRef, scenes }) {
 
     // Delay so Timeline has re-rendered with new data and layout has settled
     // (ResizeObserver and layout recomputation must complete first)
+    // Scene 0: instant (no prior position to animate from); others: smooth pan
+    const animate = sceneIndex > 0;
     const timer = setTimeout(() => {
-      frameVisiblePeople(currentScene.personIds);
+      frameVisiblePeople(currentScene.personIds, animate);
     }, 50);
     return () => clearTimeout(timer);
   }, [tourActive, sceneIndex, currentScene, frameVisiblePeople]);
