@@ -256,7 +256,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
 
   const isModalOpen = selectedItem !== null || yearSummaryOpen;
 
-  // Handle wheel for zoom
+  // Handle wheel/trackpad: pinch → zoom, two-finger scroll → pan
   const handleWheel = useCallback((e) => {
     e.preventDefault();
     if (isModalOpen) {
@@ -269,8 +269,30 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     const rect = container.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
 
-    handleZoom(e.deltaY / 100, mouseX, dimensions.width);
-  }, [handleZoom, dimensions.width, isModalOpen]);
+    // Pinch-to-zoom: browsers set ctrlKey for trackpad pinch gestures
+    if (e.ctrlKey) {
+      handleZoom(e.deltaY / 100, mouseX, dimensions.width);
+      return;
+    }
+
+    // Two-finger scroll → pan
+    const maxOffsetY = Math.max(0, layout.totalHeight - dimensions.height);
+    if (e.deltaX !== 0) {
+      handlePanX(-e.deltaX, dimensions.width);
+    }
+    if (e.deltaY !== 0) {
+      handlePanY(-e.deltaY, maxOffsetY);
+    }
+  }, [handleZoom, handlePanX, handlePanY, dimensions.width, dimensions.height, layout.totalHeight, isModalOpen]);
+
+  // Attach wheel listener as non-passive so preventDefault() works
+  // (prevents browser back/forward on horizontal swipe)
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [handleWheel]);
 
   // Handle mouse down for pan or blank click
   const handleMouseDown = useCallback((e) => {
@@ -624,7 +646,6 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     <div
       ref={containerRef}
       className="timeline-container"
-      onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
