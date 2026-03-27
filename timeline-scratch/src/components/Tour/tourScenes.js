@@ -158,7 +158,6 @@ export const TOUR_SCENES = [
   {
     id: 'jesus-intro',
     personIds: ['jesus'],
-    pointIds: POINTS_JESUS,
     title: 'Jesus',
     narrative:
       'To explore the history of the Christian church, a good place for us to start is with the life of Jesus.',
@@ -166,7 +165,6 @@ export const TOUR_SCENES = [
   {
     id: 'jesus',
     personIds: ['jesus', ...EMPERORS_JESUS],
-    pointIds: POINTS_JESUS,
     title: 'Jesus',
     narrative:
       'Jesus is born under the reign of Caesar Augustus, who ruled the Roman Empire from 27\u00A0BC to AD\u00A014.\n\nHis disciples later wrote that they saw him rise from the dead, and that forty days later, he ascended into the sky. They passed this testimony down to other followers of Jesus, who then did the same in their time.',
@@ -175,6 +173,13 @@ export const TOUR_SCENES = [
     id: 'john',
     personIds: ['jesus', 'john-evangelist', ...EMPERORS_JOHN],
     pointIds: POINTS_JOHN,
+    staggerIds: [
+      'john-evangelist',
+      'roman-tiberius', 'roman-caligula', 'roman-claudius', 'roman-nero',
+      'roman-galba-otho-vitellius', 'roman-vespasian', 'roman-titus',
+      'roman-domitian', 'roman-nerva', 'roman-trajan',
+    ],
+    staggerPointIds: [...POINTS_JOHN],
     title: 'John the Evangelist',
     narrative:
       'One of those disciples is a Jewish fisherman named John.\n\nOver the course of John\u2019s long lifetime there are 13 emperors, Jerusalem is destroyed by the Romans, and the church grows from a small Jewish sect in the province of Judea to a network of communities throughout the Empire.',

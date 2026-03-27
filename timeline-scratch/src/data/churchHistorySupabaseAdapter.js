@@ -386,6 +386,7 @@ export async function fetchTourScenes() {
     if (row.include_periods_and_points) scene.includePeriodsAndPoints = true;
     if (row.is_build_out) scene.isBuildOut = true;
     if (row.stagger_ids && row.stagger_ids.length > 0) scene.staggerIds = row.stagger_ids;
+    if (row.stagger_point_ids && row.stagger_point_ids.length > 0) scene.staggerPointIds = row.stagger_point_ids;
     return scene;
   });
 }

@@ -40,8 +40,9 @@ export function useTour({ fullData, timelineRef, scenes }) {
   const [buildOutIds, setBuildOutIds] = useState(null);
   const buildOutTimerRef = useRef(null);
 
-  // Stagger animation state: progressively reveal IDs in scenes with staggerIds
+  // Stagger animation state: progressively reveal IDs in scenes with staggerIds/staggerPointIds
   const [staggerRevealedIds, setStaggerRevealedIds] = useState(new Set());
+  const [staggerRevealedPointIds, setStaggerRevealedPointIds] = useState(new Set());
   const staggerTimerRef = useRef(null);
 
   // On mount, check localStorage to decide whether to show the welcome dialog
@@ -121,11 +122,13 @@ export function useTour({ fullData, timelineRef, scenes }) {
   }, [tourActive, sceneIndex, currentScene]);
 
   // Compute newly added point IDs when scene changes (for pop-in animation)
+  // Scenes with staggerPointIds are handled by the stagger effect below
   useEffect(() => {
     if (!tourActive || !currentScene || sceneIndex === 0) {
       setNewlyAddedPointIds(new Set());
       return;
     }
+    if (currentScene.staggerPointIds) return;
 
     const prevScene = TOUR_SCENES[sceneIndex - 1];
     const prevPointIds = new Set(prevScene?.pointIds || []);
@@ -134,37 +137,57 @@ export function useTour({ fullData, timelineRef, scenes }) {
     setNewlyAddedPointIds(added);
   }, [tourActive, sceneIndex, currentScene]);
 
-  // Stagger effect: progressively reveal IDs one at a time with 1200ms intervals
+  // Stagger effect: progressively reveal people and/or points one at a time
   useEffect(() => {
-    if (!tourActive || !currentScene?.staggerIds) {
+    const hasStagger = currentScene?.staggerIds || currentScene?.staggerPointIds;
+    if (!tourActive || !hasStagger) {
       // Clean up any running stagger timer
       if (staggerTimerRef.current) {
         clearInterval(staggerTimerRef.current);
         staggerTimerRef.current = null;
       }
       setStaggerRevealedIds(new Set());
+      setStaggerRevealedPointIds(new Set());
       return;
     }
 
-    const ids = currentScene.staggerIds;
+    // Build a combined sequence: people first, then points
+    const personIds = currentScene.staggerIds || [];
+    const pointIds = currentScene.staggerPointIds || [];
+    const combined = [
+      ...personIds.map(id => ({ type: 'person', id })),
+      ...pointIds.map(id => ({ type: 'point', id })),
+    ];
+
+    if (combined.length === 0) return;
+
+    const reveal = (entry) => {
+      if (entry.type === 'person') {
+        setStaggerRevealedIds(prev => new Set([...prev, entry.id]));
+        setNewlyAddedIds(new Set([entry.id]));
+      } else {
+        setStaggerRevealedPointIds(prev => new Set([...prev, entry.id]));
+        setNewlyAddedPointIds(new Set([entry.id]));
+      }
+    };
+
     let idx = 0;
 
-    // Reveal the first ID immediately
-    setStaggerRevealedIds(new Set([ids[0]]));
-    setNewlyAddedIds(new Set([ids[0]]));
+    // Reveal the first entry immediately
+    setStaggerRevealedIds(new Set());
+    setStaggerRevealedPointIds(new Set());
+    reveal(combined[0]);
     idx = 1;
 
-    if (ids.length <= 1) return;
+    if (combined.length <= 1) return;
 
     const interval = setInterval(() => {
-      if (idx >= ids.length) {
+      if (idx >= combined.length) {
         clearInterval(interval);
         staggerTimerRef.current = null;
         return;
       }
-      const nextId = ids[idx];
-      setStaggerRevealedIds(prev => new Set([...prev, nextId]));
-      setNewlyAddedIds(new Set([nextId]));
+      reveal(combined[idx]);
       idx++;
     }, 1200);
 
@@ -328,6 +351,12 @@ export function useTour({ fullData, timelineRef, scenes }) {
     }
     // Points: filter by pointIds, or show all if includePeriodsAndPoints
     const visiblePointIds = new Set(currentScene?.pointIds || []);
+    // Hide stagger point IDs that haven't been revealed yet
+    if (currentScene?.staggerPointIds) {
+      for (const id of currentScene.staggerPointIds) {
+        if (!staggerRevealedPointIds.has(id)) visiblePointIds.delete(id);
+      }
+    }
     return {
       people: (fullData.people || []).filter(p => visibleIds.has(p.id)),
       periods: currentScene?.includePeriodsAndPoints ? (fullData.periods || []) : [],
@@ -335,7 +364,7 @@ export function useTour({ fullData, timelineRef, scenes }) {
         ? (fullData.points || [])
         : (fullData.points || []).filter(p => visiblePointIds.has(p.id)),
     };
-  }, [tourActive, fullData, currentScene, buildOutIds, staggerRevealedIds]);
+  }, [tourActive, fullData, currentScene, buildOutIds, staggerRevealedIds, staggerRevealedPointIds]);
 
   // ── Controls ─────────────────────────────────────────────────────────
   const clearStaggerTimer = useCallback(() => {
@@ -351,6 +380,7 @@ export function useTour({ fullData, timelineRef, scenes }) {
     setBuildOutIds(null);
     clearStaggerTimer();
     setStaggerRevealedIds(new Set());
+    setStaggerRevealedPointIds(new Set());
     setTourActive(true);
   }, [clearStaggerTimer]);
 
