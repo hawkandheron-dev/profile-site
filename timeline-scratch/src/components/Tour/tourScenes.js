@@ -78,28 +78,110 @@ const POINTS_CAESARIUS = [
 ];
 
 
+// ── Cumulative emperor/monarch ID sets (built up by era) ────────────────────
+
+const EMPERORS_JESUS = [
+  'roman-augustus',
+];
+
+const EMPERORS_JOHN = [
+  ...EMPERORS_JESUS,
+  'roman-tiberius', 'roman-caligula', 'roman-claudius', 'roman-nero',
+  'roman-galba-otho-vitellius', 'roman-vespasian', 'roman-titus',
+  'roman-domitian', 'roman-nerva', 'roman-trajan',
+];
+
+const EMPERORS_POLYCARP = [
+  ...EMPERORS_JOHN,
+  'roman-hadrian', 'roman-antoninus',
+];
+
+const EMPERORS_IRENAEUS = [
+  ...EMPERORS_POLYCARP,
+  'roman-marcus-aurelius', 'roman-commodus', 'roman-septimius-severus',
+];
+
+const EMPERORS_HIPPOLYTUS = [
+  ...EMPERORS_IRENAEUS,
+  'roman-caracalla', 'roman-alexander-severus', 'roman-maximinus-thrax',
+];
+
+const EMPERORS_ORIGEN = [
+  ...EMPERORS_HIPPOLYTUS,
+  'roman-philip-arab', 'roman-decius', 'roman-gallienus', 'roman-valerian',
+];
+
+const EMPERORS_GREGORY_T = [
+  ...EMPERORS_ORIGEN,
+  'roman-aurelian',
+];
+
+const EMPERORS_MACRINA_ELDER = [
+  ...EMPERORS_GREGORY_T,
+  'roman-diocletian-maximian', 'roman-constantine', 'roman-constantius-ii',
+];
+
+const EMPERORS_CAPPADOCIANS = [
+  ...EMPERORS_MACRINA_ELDER,
+  'roman-julian', 'roman-valens', 'roman-theodosius-i',
+];
+
+const EMPERORS_AMBROSE = [
+  ...EMPERORS_CAPPADOCIANS,
+  'eastern-arcadius', 'western-honorius',
+];
+
+const EMPERORS_AUGUSTINE = [
+  ...EMPERORS_AMBROSE,
+  'eastern-theodosius-ii', 'western-valentinian-iii',
+];
+
+const EMPERORS_PROSPER = [
+  ...EMPERORS_AUGUSTINE,
+  'eastern-marcian', 'western-majorian',
+];
+
+const EMPERORS_POMERIUS = [
+  ...EMPERORS_PROSPER,
+  'eastern-leo-i', 'western-romulus-augustulus',
+];
+
+const EMPERORS_CAESARIUS = [
+  ...EMPERORS_POMERIUS,
+  'eastern-justinian-i',
+];
+
+
 // ── Scene definitions ────────────────────────────────────────────────────────
 
 export const TOUR_SCENES = [
   {
-    id: 'jesus',
+    id: 'jesus-intro',
     personIds: ['jesus'],
     pointIds: POINTS_JESUS,
     title: 'Jesus',
     narrative:
-      'This timeline shows how key figures in church history were connected through overlapping lifespans — teacher to student, mentor to disciple — forming an unbroken chain across centuries. We begin with Jesus of Nazareth, whose life and teachings launched a movement that would reshape the world.',
+      'To explore the history of the Christian church, a good place for us to start is with the life of Jesus.',
+  },
+  {
+    id: 'jesus',
+    personIds: ['jesus', ...EMPERORS_JESUS],
+    pointIds: POINTS_JESUS,
+    title: 'Jesus',
+    narrative:
+      'Jesus is born under the reign of Caesar Augustus, who ruled the Roman Empire from 27\u00A0BC to AD\u00A014.\n\nHis disciples later wrote that they saw him rise from the dead, and that forty days later, he ascended into the sky. They passed this testimony down to other followers of Jesus, who then did the same in their time.',
   },
   {
     id: 'john',
-    personIds: ['jesus', 'john-evangelist'],
+    personIds: ['jesus', 'john-evangelist', ...EMPERORS_JOHN],
     pointIds: POINTS_JOHN,
     title: 'John the Evangelist',
     narrative:
-      'John, the beloved disciple, outlived the other apostles. Notice how his lifespan stretches across the entire first century, overlapping with the next generation of church leaders.',
+      'One of those disciples is a Jewish fisherman named John.\n\nOver the course of John\u2019s long lifetime there are 13 emperors, Jerusalem is destroyed by the Romans, and the church grows from a small Jewish sect in the province of Judea to a network of communities throughout the Empire.',
   },
   {
     id: 'johns-events',
-    personIds: ['jesus', 'john-evangelist'],
+    personIds: ['jesus', 'john-evangelist', ...EMPERORS_JOHN],
     pointIds: POINTS_JOHN,
     title: 'Events of the Early Church',
     narrative:
@@ -107,40 +189,40 @@ export const TOUR_SCENES = [
   },
   {
     id: 'polycarp',
-    personIds: ['jesus', 'john-evangelist', 'polycarp'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', ...EMPERORS_POLYCARP],
     pointIds: POINTS_POLYCARP,
     title: 'Polycarp',
     narrative:
-      'Polycarp of Smyrna was traditionally held to be a disciple of John and ordained as bishop by him, according to Jerome. His life bridges the apostolic age and the era of the early church fathers.',
+      'In Smyrna, the young Polycarp grows up listening to John\u2019s testimony. Polycarp becomes the bishop of Smyrna; Tertullian writes a century later that the appointment was made by John himself.',
   },
   {
     id: 'irenaeus',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', ...EMPERORS_IRENAEUS],
     pointIds: POINTS_IRENAEUS,
     title: 'Irenaeus of Lyons',
     narrative:
-      'As a boy growing up in Smyrna, Irenaeus listened to the aged Polycarp preach — and through Polycarp, he heard the living echo of the apostle John himself.',
+      'As a boy growing up in Smyrna, Irenaeus listened to the aged Polycarp preach \u2014 and through Polycarp, he heard the living echo of the apostle John himself.',
   },
   {
     id: 'irenaeus-2',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', ...EMPERORS_IRENAEUS],
     pointIds: POINTS_IRENAEUS,
     title: 'Irenaeus of Lyons',
     narrative:
-      'As a boy growing up in Smyrna, Irenaeus listened to the aged Polycarp preach — and through Polycarp, he heard the living echo of the apostle John himself.',
+      'As a boy growing up in Smyrna, Irenaeus listened to the aged Polycarp preach \u2014 and through Polycarp, he heard the living echo of the apostle John himself.',
     additionalNarrative:
-      'Irenaeus carried that apostolic witness westward, becoming bishop of Lyon in Gaul — bringing the good news of Jesus from the heart of Asia Minor to the frontiers of the Roman world.',
+      'Irenaeus carried that apostolic witness westward, becoming bishop of Lyon in Gaul \u2014 bringing the good news of Jesus from the heart of Asia Minor to the frontiers of the Roman world.',
     openPersonId: 'irenaeus',
   },
   {
     id: 'irenaeus-3',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', ...EMPERORS_IRENAEUS],
     pointIds: POINTS_IRENAEUS,
     title: 'Irenaeus of Lyons',
     narrative:
-      'As a boy growing up in Smyrna, Irenaeus listened to the aged Polycarp preach — and through Polycarp, he heard the living echo of the apostle John himself.',
+      'As a boy growing up in Smyrna, Irenaeus listened to the aged Polycarp preach \u2014 and through Polycarp, he heard the living echo of the apostle John himself.',
     additionalNarrative:
-      'Irenaeus carried that apostolic witness westward, becoming bishop of Lyon in Gaul — bringing the good news of Jesus from the heart of Asia Minor to the frontiers of the Roman world.',
+      'Irenaeus carried that apostolic witness westward, becoming bishop of Lyon in Gaul \u2014 bringing the good news of Jesus from the heart of Asia Minor to the frontiers of the Roman world.',
     thirdNarrative:
       'Notice his connections: Polycarp, who shaped him, and Hippolytus of Rome, whom he in turn influenced. Each link in the chain carries the faith forward.',
     highlightConnectionId: 'hippolytus',
@@ -148,7 +230,7 @@ export const TOUR_SCENES = [
   },
   {
     id: 'hippolytus',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', ...EMPERORS_HIPPOLYTUS],
     pointIds: POINTS_HIPPOLYTUS,
     title: 'Hippolytus of Rome',
     narrative:
@@ -156,7 +238,7 @@ export const TOUR_SCENES = [
   },
   {
     id: 'origen',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', ...EMPERORS_ORIGEN],
     pointIds: POINTS_ORIGEN,
     title: 'Origen',
     narrative:
@@ -164,7 +246,7 @@ export const TOUR_SCENES = [
   },
   {
     id: 'gregory-thaumaturgus',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', ...EMPERORS_GREGORY_T],
     pointIds: POINTS_GREGORY_T,
     title: 'Gregory Thaumaturgus',
     narrative:
@@ -172,7 +254,7 @@ export const TOUR_SCENES = [
   },
   {
     id: 'macrina-elder',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', ...EMPERORS_MACRINA_ELDER],
     pointIds: POINTS_MACRINA_ELDER,
     title: 'Macrina the Elder',
     narrative:
@@ -180,7 +262,7 @@ export const TOUR_SCENES = [
   },
   {
     id: 'cappadocians',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', ...EMPERORS_CAPPADOCIANS],
     pointIds: POINTS_CAPPADOCIANS,
     staggerIds: ['macrina-younger', 'gregory-nyssa', 'basil-great'],
     title: 'The Grandchildren',
@@ -189,7 +271,7 @@ export const TOUR_SCENES = [
   },
   {
     id: 'ambrose',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', ...EMPERORS_AMBROSE],
     pointIds: POINTS_AMBROSE,
     title: 'Ambrose of Milan',
     narrative:
@@ -197,15 +279,15 @@ export const TOUR_SCENES = [
   },
   {
     id: 'augustine',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', 'augustine'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', 'augustine', ...EMPERORS_AUGUSTINE],
     pointIds: POINTS_AUGUSTINE,
     title: 'Augustine of Hippo',
     narrative:
-      'Augustine was baptized by Ambrose in Milan in 387. His writings — especially the Confessions and the City of God — shaped Western Christianity for a millennium and beyond.',
+      'Augustine was baptized by Ambrose in Milan in 387. His writings \u2014 especially the Confessions and the City of God \u2014 shaped Western Christianity for a millennium and beyond.',
   },
   {
     id: 'prosper',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', 'augustine', 'prosper-aquitaine'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', 'augustine', 'prosper-aquitaine', ...EMPERORS_PROSPER],
     pointIds: POINTS_PROSPER,
     title: 'Prosper of Aquitaine',
     narrative:
@@ -213,7 +295,7 @@ export const TOUR_SCENES = [
   },
   {
     id: 'pomerius',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', 'augustine', 'prosper-aquitaine', 'julianus-pomerius'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', 'augustine', 'prosper-aquitaine', 'julianus-pomerius', ...EMPERORS_POMERIUS],
     pointIds: POINTS_POMERIUS,
     title: 'Julianus Pomerius',
     narrative:
@@ -221,7 +303,7 @@ export const TOUR_SCENES = [
   },
   {
     id: 'caesarius',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', 'augustine', 'prosper-aquitaine', 'julianus-pomerius', 'caesarius-arles'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', 'augustine', 'prosper-aquitaine', 'julianus-pomerius', 'caesarius-arles', ...EMPERORS_CAESARIUS],
     pointIds: POINTS_CAESARIUS,
     title: 'Caesarius of Arles',
     narrative:
@@ -229,7 +311,7 @@ export const TOUR_SCENES = [
   },
   {
     id: 'year-530',
-    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', 'augustine', 'prosper-aquitaine', 'julianus-pomerius', 'caesarius-arles', 'benedict-nursia', 'columba', 'finnian-moville', 'eastern-justinian-i', 'maurus'],
+    personIds: ['jesus', 'john-evangelist', 'polycarp', 'irenaeus', 'hippolytus', 'origen', 'gregory-thaumaturgus', 'macrina-elder', 'macrina-younger', 'gregory-nyssa', 'basil-great', 'ambrose-milan', 'augustine', 'prosper-aquitaine', 'julianus-pomerius', 'caesarius-arles', 'benedict-nursia', 'columba', 'finnian-moville', 'eastern-justinian-i', 'maurus', ...EMPERORS_CAESARIUS],
     pointIds: POINTS_CAESARIUS,
     title: 'What else is going on in 530\u00A0AD?',
     narrative:
@@ -245,7 +327,7 @@ export const TOUR_SCENES = [
     personIds: null, // null = show ALL
     title: 'The Full Picture',
     narrative:
-      'From Jesus to Caesarius — an unbroken chain of overlapping lifespans spanning over five centuries. Now see the complete timeline: hundreds of interconnected lives across two millennia. Explore at your leisure.',
+      'From Jesus to Caesarius \u2014 an unbroken chain of overlapping lifespans spanning over five centuries. Now see the complete timeline: hundreds of interconnected lives across two millennia. Explore at your leisure.',
     isBuildOut: true,
   },
 ];
