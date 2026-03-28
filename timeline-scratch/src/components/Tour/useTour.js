@@ -189,7 +189,7 @@ export function useTour({ fullData, timelineRef, scenes }) {
       }
       reveal(combined[idx]);
       idx++;
-    }, 1200);
+    }, currentScene.staggerInterval || 1200);
 
     staggerTimerRef.current = interval;
     return () => {

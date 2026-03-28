@@ -135,9 +135,13 @@ export function TimelineCanvas({
       // Check if hovered
       const isHovered = hoveredItem?.id === person.id && hoveredItem?.type === 'person';
 
-      // Apply opacity based on period highlighting
+      // Apply opacity based on period highlighting and monarch dimming
       const inPeriod = isInHoveredPeriod(start, end);
-      const opacity = hoveredPeriod ? (inPeriod ? 1.0 : 0.3) : 1.0;
+      let opacity = hoveredPeriod ? (inPeriod ? 1.0 : 0.3) : 1.0;
+      // Monarchs are dimmed unless hovered
+      if (person.isMonarch && !isHovered && !hoveredPeriod) {
+        opacity = 0.4;
+      }
 
       // Check if this person is animating (grow from left to right)
       const isAnimating = animatingIds && animatingIds.has(person.id) && animProgress < 1;

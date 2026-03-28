@@ -64,7 +64,14 @@ export function TourPanel({
         )}
         {scene.thirdNarrative && (
           <p className="tour-scene-narrative tour-scene-third">
-            {scene.thirdNarrative}
+            {Array.isArray(scene.thirdNarrative)
+              ? scene.thirdNarrative.map((part, i) =>
+                  typeof part === 'string'
+                    ? part
+                    : <span key={i} className="tour-inline-highlight">{part.highlight}</span>
+                )
+              : scene.thirdNarrative
+            }
           </p>
         )}
       </div>

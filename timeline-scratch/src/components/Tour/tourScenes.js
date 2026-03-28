@@ -171,24 +171,23 @@ export const TOUR_SCENES = [
   },
   {
     id: 'john',
-    personIds: ['jesus', 'john-evangelist', ...EMPERORS_JOHN],
-    pointIds: POINTS_JOHN,
-    staggerIds: [
-      'john-evangelist',
-      'roman-tiberius', 'roman-caligula', 'roman-claudius', 'roman-nero',
-      'roman-galba-otho-vitellius', 'roman-vespasian', 'roman-titus',
-      'roman-domitian', 'roman-nerva', 'roman-trajan',
-    ],
-    staggerPointIds: [...POINTS_JOHN],
+    personIds: ['jesus', 'john-evangelist', ...EMPERORS_JESUS],
     title: 'John the Evangelist',
     narrative:
       'One of those disciples is a Jewish fisherman named John.\n\nOver the course of John\u2019s long lifetime there are 13 emperors, Jerusalem is destroyed by the Romans, and the church grows from a small Jewish sect in the province of Judea to a network of communities throughout the Empire.',
   },
   {
-    id: 'johns-events',
+    id: 'first-century',
     personIds: ['jesus', 'john-evangelist', ...EMPERORS_JOHN],
     pointIds: POINTS_JOHN,
-    title: 'Events of the Early Church',
+    staggerIds: [
+      'roman-tiberius', 'roman-caligula', 'roman-claudius', 'roman-nero',
+      'roman-galba-otho-vitellius', 'roman-vespasian', 'roman-titus',
+      'roman-domitian', 'roman-nerva', 'roman-trajan',
+    ],
+    staggerPointIds: [...POINTS_JOHN],
+    staggerInterval: 600,
+    title: 'The First Century',
     narrative:
       'During John\u2019s lifetime, there were a number of pivotal events that changed the world for the young church. Jerusalem was destroyed in 70\u00A0AD, the Apostle Paul wrote his epistles to churches across the Mediterranean, and other books were written by early church leaders.',
   },
@@ -228,8 +227,11 @@ export const TOUR_SCENES = [
       'As a boy growing up in Smyrna, Irenaeus listened to the aged Polycarp preach \u2014 and through Polycarp, he heard the living echo of the apostle John himself.',
     additionalNarrative:
       'Irenaeus carried that apostolic witness westward, becoming bishop of Lyon in Gaul \u2014 bringing the good news of Jesus from the heart of Asia Minor to the frontiers of the Roman world.',
-    thirdNarrative:
-      'Notice his connections: Polycarp, who shaped him, and Hippolytus of Rome, whom he in turn influenced. Each link in the chain carries the faith forward.',
+    thirdNarrative: [
+      'Notice his connections: Polycarp, who shaped him, and ',
+      { highlight: 'Hippolytus of Rome' },
+      ', whom he in turn influenced. Each link in the chain carries the faith forward.',
+    ],
     highlightConnectionId: 'hippolytus',
     keepModalOpen: true,
   },

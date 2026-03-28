@@ -31,11 +31,17 @@ export function TimelineOverlay({
     return startYear <= hoveredPeriodRange.end && endYear >= hoveredPeriodRange.start;
   };
 
-  // Get opacity for a person based on period highlighting
+  // Get opacity for a person based on period highlighting and monarch dimming
   const getPersonOpacity = (person) => {
-    if (!hoveredPeriod) return 1;
-    const { start, end } = getYearRange(person.startDate, person.endDate);
-    return isInHoveredPeriod(start, end) ? 1 : 0.3;
+    if (hoveredPeriod) {
+      const { start, end } = getYearRange(person.startDate, person.endDate);
+      return isInHoveredPeriod(start, end) ? 1 : 0.3;
+    }
+    // Monarchs are dimmed unless hovered
+    if (person.isMonarch) {
+      return (hoveredItem?.id === person.id && hoveredItem?.type === 'person') ? 1 : 0.4;
+    }
+    return 1;
   };
 
   // Get opacity for a point based on period highlighting

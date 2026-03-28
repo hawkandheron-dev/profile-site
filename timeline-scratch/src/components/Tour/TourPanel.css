@@ -153,14 +153,36 @@
 
 /* Highlighted connection pill during tour */
 .tour-highlight-pill {
-  outline: 2px solid #5b7ee8 !important;
-  outline-offset: 2px;
+  background: #5b7ee8 !important;
+  color: #fff !important;
+  border-color: #5b7ee8 !important;
   animation: tourPillPulse 1.5s ease-in-out infinite;
 }
 
+.tour-highlight-pill strong,
+.tour-highlight-pill span,
+.tour-highlight-pill em {
+  color: #fff !important;
+}
+
+.tour-highlight-pill .summary-color-dot {
+  display: none;
+}
+
 @keyframes tourPillPulse {
-  0%, 100% { outline-color: #5b7ee8; }
-  50% { outline-color: #8fa8f0; }
+  0%, 100% { background-color: #5b7ee8; }
+  50% { background-color: #4a6cd6; }
+}
+
+/* Inline highlight badge in tour narrative */
+.tour-inline-highlight {
+  display: inline;
+  background: #5b7ee8;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-style: normal;
+  white-space: nowrap;
 }
 
 /* Responsive: narrower on smaller screens */

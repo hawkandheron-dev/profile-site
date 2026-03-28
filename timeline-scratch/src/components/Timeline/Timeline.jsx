@@ -260,10 +260,10 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
 
   // Handle wheel/trackpad: pinch → zoom, two-finger scroll → pan
   const handleWheel = useCallback((e) => {
-    e.preventDefault();
     if (isModalOpen) {
-      return;
+      return; // Let the modal handle its own scrolling
     }
+    e.preventDefault();
 
     const container = containerRef.current;
     if (!container) return;
