@@ -133,7 +133,7 @@ export function TimelineCanvas({
       const color = getPersonColor(person, config);
 
       // Check if hovered
-      const isHovered = hoveredItem?.id === person.id && hoveredItem?.type === 'person';
+      const isHovered = hoveredItem?.item?.id === person.id && hoveredItem?.type === 'person';
 
       // Apply opacity based on period highlighting and monarch dimming
       const inPeriod = isInHoveredPeriod(start, end);

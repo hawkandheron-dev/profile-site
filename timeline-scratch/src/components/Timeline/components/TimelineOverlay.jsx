@@ -39,7 +39,7 @@ export function TimelineOverlay({
     }
     // Monarchs are dimmed unless hovered
     if (person.isMonarch) {
-      return (hoveredItem?.id === person.id && hoveredItem?.type === 'person') ? 1 : 0.4;
+      return (hoveredItem?.item?.id === person.id && hoveredItem?.type === 'person') ? 1 : 0.4;
     }
     return 1;
   };
