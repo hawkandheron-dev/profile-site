@@ -355,3 +355,39 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
     }
   };
 }
+
+// ── Fetch tour scenes ─────────────────────────────────────────────────────
+
+export async function fetchTourScenes() {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase
+    .from('CH_TourScenes')
+    .select('*')
+    .order('scene_order');
+
+  if (error) throw new Error(`Failed to fetch tour scenes: ${error.message}`);
+  if (!data || data.length === 0) return null; // fallback to static scenes
+
+  return data.map(row => {
+    const scene = {
+      id: row.scene_id,
+      personIds: row.person_ids, // null for build-out, array otherwise
+      title: row.title,
+      narrative: row.narrative,
+    };
+    if (row.additional_narrative) scene.additionalNarrative = row.additional_narrative;
+    if (row.additional_narrative_style) scene.additionalNarrativeStyle = row.additional_narrative_style;
+    if (row.third_narrative) scene.thirdNarrative = row.third_narrative;
+    if (row.open_person_id) scene.openPersonId = row.open_person_id;
+    if (row.highlight_connection_id) scene.highlightConnectionId = row.highlight_connection_id;
+    if (row.keep_modal_open) scene.keepModalOpen = true;
+    if (row.open_year_summary != null) scene.openYearSummary = row.open_year_summary;
+    if (row.point_ids && row.point_ids.length > 0) scene.pointIds = row.point_ids;
+    if (row.include_periods_and_points) scene.includePeriodsAndPoints = true;
+    if (row.is_build_out) scene.isBuildOut = true;
+    if (row.stagger_ids && row.stagger_ids.length > 0) scene.staggerIds = row.stagger_ids;
+    if (row.stagger_point_ids && row.stagger_point_ids.length > 0) scene.staggerPointIds = row.stagger_point_ids;
+    if (row.stagger_interval != null) scene.staggerInterval = row.stagger_interval;
+    return scene;
+  });
+}

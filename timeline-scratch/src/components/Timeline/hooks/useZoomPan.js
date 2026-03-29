@@ -32,6 +32,9 @@ export function useZoomPan({
   const isPanning = useRef(false);
   const lastMousePos = useRef({ x: 0, y: 0 });
 
+  // Viewport animation ref (for smooth tour transitions)
+  const viewportAnimRef = useRef(null);
+
   /**
    * Handle zoom centered on a point
    */
@@ -153,6 +156,44 @@ export function useZoomPan({
     setPanOffsetY(offset);
   }, []);
 
+  /**
+   * Smoothly animate viewport to target position/zoom/offset
+   */
+  const animateViewport = useCallback((targetStartYear, targetYPP, targetOffsetY, duration = 800) => {
+    // Cancel any in-progress animation
+    if (viewportAnimRef.current) {
+      cancelAnimationFrame(viewportAnimRef.current);
+      viewportAnimRef.current = null;
+    }
+
+    // Capture current values at animation start
+    const fromStart = viewportStartYear;
+    const fromYPP = yearsPerPixel;
+    const fromOffsetY = panOffsetY;
+    const startTime = performance.now();
+
+    // Ease-in-out cubic
+    const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    const tick = (now) => {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      const p = ease(t);
+
+      setViewportStartYear(fromStart + (targetStartYear - fromStart) * p);
+      setYearsPerPixel(fromYPP + (targetYPP - fromYPP) * p);
+      setPanOffsetY(fromOffsetY + (targetOffsetY - fromOffsetY) * p);
+
+      if (t < 1) {
+        viewportAnimRef.current = requestAnimationFrame(tick);
+      } else {
+        viewportAnimRef.current = null;
+      }
+    };
+
+    viewportAnimRef.current = requestAnimationFrame(tick);
+  }, [viewportStartYear, yearsPerPixel, panOffsetY]);
+
   return {
     viewportStartYear,
     yearsPerPixel,
@@ -166,6 +207,9 @@ export function useZoomPan({
     reset,
     jumpToYear,
     setVerticalOffset,
+    setYearsPerPixel,
+    setViewportStartYear,
+    animateViewport,
     isPanning: isPanning.current
   };
 }

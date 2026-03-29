@@ -19,7 +19,7 @@ import { getYear, getYearRange } from './utils/dateUtils.js';
 import bgManuscript from '../../assets/bg-manuscript.jpg';
 import './Timeline.css';
 
-export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged, showBackgroundImage = false, layoutSizes }, ref) {
+export const Timeline = forwardRef(function Timeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged, showBackgroundImage = false, layoutSizes, animatingIds, animatingPointIds, hideLegend = false }, ref) {
   const isMobile = useMobileDetect();
 
   // Render mobile timeline on small viewports
@@ -56,11 +56,14 @@ export const Timeline = forwardRef(function Timeline({ data, config, onViewportC
       onDataChanged={onDataChanged}
       showBackgroundImage={showBackgroundImage}
       layoutSizes={layoutSizes}
+      animatingIds={animatingIds}
+      animatingPointIds={animatingPointIds}
+      hideLegend={hideLegend}
     />
   );
 });
 
-const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged, showBackgroundImage = false, layoutSizes }, ref) {
+const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onViewportChange, onItemClick, suppressModal = false, authContext, allPeople, adminContext, contributorContext, onEntityUpdated, onDataChanged, showBackgroundImage = false, layoutSizes, animatingIds, animatingPointIds, hideLegend = false }, ref) {
   const containerRef = useRef(null);
   const wasDraggingRef = useRef(false);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
@@ -146,6 +149,9 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     reset,
     jumpToYear,
     setVerticalOffset,
+    setYearsPerPixel,
+    setViewportStartYear,
+    animateViewport,
     isPanning
   } = useZoomPan({
     initialViewportStartYear: centeredViewportStart,
@@ -252,12 +258,12 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
 
   const isModalOpen = selectedItem !== null || yearSummaryOpen;
 
-  // Handle wheel for zoom
+  // Handle wheel/trackpad: pinch → zoom, two-finger scroll → pan
   const handleWheel = useCallback((e) => {
-    e.preventDefault();
     if (isModalOpen) {
-      return;
+      return; // Let the modal handle its own scrolling
     }
+    e.preventDefault();
 
     const container = containerRef.current;
     if (!container) return;
@@ -265,8 +271,30 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     const rect = container.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
 
-    handleZoom(e.deltaY / 100, mouseX, dimensions.width);
-  }, [handleZoom, dimensions.width, isModalOpen]);
+    // Pinch-to-zoom: browsers set ctrlKey for trackpad pinch gestures
+    if (e.ctrlKey) {
+      handleZoom(e.deltaY / 100, mouseX, dimensions.width);
+      return;
+    }
+
+    // Two-finger scroll → pan
+    const maxOffsetY = Math.max(0, layout.totalHeight - dimensions.height);
+    if (e.deltaX !== 0) {
+      handlePanX(-e.deltaX, dimensions.width);
+    }
+    if (e.deltaY !== 0) {
+      handlePanY(-e.deltaY, maxOffsetY);
+    }
+  }, [handleZoom, handlePanX, handlePanY, dimensions.width, dimensions.height, layout.totalHeight, isModalOpen]);
+
+  // Attach wheel listener as non-passive so preventDefault() works
+  // (prevents browser back/forward on horizontal swipe)
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [handleWheel]);
 
   // Handle mouse down for pan or blank click
   const handleMouseDown = useCallback((e) => {
@@ -456,7 +484,21 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     selectItem: handleSearchSelect,
     highlight: handleSearchHighlight,
     clearHighlight: handleSearchClearHighlight,
-  }), [handleSearchSelect, handleSearchHighlight, handleSearchClearHighlight]);
+    // Tour support: viewport control
+    jumpToYear: (year) => jumpToYear(year, dimensions.width),
+    setYearsPerPixel,
+    setViewportStartYear,
+    setVerticalOffset,
+    animateViewport,
+    closeModal: handleModalClose,
+    openYearSummary: (year) => {
+      setSelectedItem(null); // close any person modal first
+      setPinnedYear(year);
+      setYearSummaryOpen(true);
+    },
+    closeYearSummary: () => setYearSummaryOpen(false),
+    getViewportInfo: () => ({ width: dimensions.width, height: dimensions.height, yearsPerPixel, viewportStartYear, axisY: layout.axisY, totalHeight: layout.totalHeight }),
+  }), [handleSearchSelect, handleSearchHighlight, handleSearchClearHighlight, handleModalClose, jumpToYear, dimensions.width, dimensions.height, setYearsPerPixel, setViewportStartYear, setVerticalOffset, animateViewport, yearsPerPixel, viewportStartYear, layout.axisY, layout.totalHeight]);
 
   // Compute set of highlighted item IDs for rendering
   const highlightedItemIds = useMemo(() => {
@@ -607,7 +649,6 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     <div
       ref={containerRef}
       className="timeline-container"
-      onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -677,6 +718,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         wasDraggingRef={wasDraggingRef}
         highlightedItemIds={highlightedItemIds}
         currentHighlightId={currentHighlightId}
+        animatingIds={animatingIds}
       />
 
       <TimelineOverlay
@@ -694,6 +736,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         onItemHover={handleItemHover}
         onItemClick={handleItemClickInternal}
         wasDraggingRef={wasDraggingRef}
+        animatingPointIds={animatingPointIds}
       />
 
       {/* Cursor year display - follows cursor */}
@@ -719,15 +762,17 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         </div>
       )}
 
-      <TimelineLegend
-        legend={defaultConfig.legend}
-        isVisible={true}
-        filters={filters}
-        onFilterToggle={handleFilterToggle}
-        onMouseEnter={() => setIsOverControls(true)}
-        onMouseLeave={() => setIsOverControls(false)}
-        siteTitle={defaultConfig.siteTitle}
-      />
+      {!hideLegend && (
+        <TimelineLegend
+          legend={defaultConfig.legend}
+          isVisible={true}
+          filters={filters}
+          onFilterToggle={handleFilterToggle}
+          onMouseEnter={() => setIsOverControls(true)}
+          onMouseLeave={() => setIsOverControls(false)}
+          siteTitle={defaultConfig.siteTitle}
+        />
+      )}
 
       <TimelineModal
         isOpen={selectedItem !== null}
