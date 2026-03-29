@@ -10,7 +10,7 @@ import {
 } from '@clerk/clerk-react';
 import { Timeline } from './components/Timeline/Timeline.jsx';
 import { TimelineSearch } from './components/Timeline/components/TimelineSearch.jsx';
-import { fetchChurchHistoryData, fetchTourScenes } from './data/churchHistorySupabaseAdapter.js';
+import { fetchChurchHistoryData, fetchTourScenes, updateLinkedMediaCrop } from './data/churchHistorySupabaseAdapter.js';
 import { churchHistoryConfig } from './data/churchHistoryData.js';
 import { AddNoteModal } from './components/Notes/AddNoteModal.jsx';
 import { ViewMyNotesModal } from './components/Notes/ViewMyNotesModal.jsx';
@@ -187,6 +187,12 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
   // Tour
   const tour = useTour({ fullData: timelineData, timelineRef, scenes: tourScenes });
 
+  const handleMediaCropUpdate = useCallback((mediaId, posX, posY) => {
+    if (!isAdmin) return;
+    updateLinkedMediaCrop(mediaId, posX, posY, () => getToken({ template: 'supabase' }))
+      .catch(err => console.warn('Failed to save crop position:', err));
+  }, [isAdmin, getToken]);
+
   const handleSearchSelect = useCallback((type, item) => {
     timelineRef.current?.selectItem(type, item);
   }, []);
@@ -302,6 +308,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
                 animatingIds={tour.tourActive ? tour.newlyAddedIds : undefined}
                 animatingPointIds={tour.tourActive ? tour.newlyAddedPointIds : undefined}
                 hideLegend={tour.tourActive && !tour.currentScene?.isBuildOut}
+                isTourMode={tour.tourActive}
               />
             </div>
             {tour.tourActive && (
@@ -313,6 +320,9 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
                 onPrev={tour.prevScene}
                 onSkip={tour.skipTour}
                 onComplete={tour.completeTour}
+                media={tour.sceneMedia}
+                isAdmin={isAdmin}
+                onMediaCropUpdate={handleMediaCropUpdate}
               />
             )}
           </div>
@@ -433,6 +443,7 @@ function UnauthenticatedApp({ timelineData, loading, error, tourScenes }) {
                 animatingIds={tour.tourActive ? tour.newlyAddedIds : undefined}
                 animatingPointIds={tour.tourActive ? tour.newlyAddedPointIds : undefined}
                 hideLegend={tour.tourActive && !tour.currentScene?.isBuildOut}
+                isTourMode={tour.tourActive}
               />
             </div>
             {tour.tourActive && (
@@ -444,6 +455,7 @@ function UnauthenticatedApp({ timelineData, loading, error, tourScenes }) {
                 onPrev={tour.prevScene}
                 onSkip={tour.skipTour}
                 onComplete={tour.completeTour}
+                media={tour.sceneMedia}
               />
             )}
           </div>
