@@ -236,11 +236,14 @@ const rawData = {
 };
 
 const knownConnections = [
+  { type: 'known', people: ['jesus', 'john-evangelist'] },
   { type: 'known', people: ['john-evangelist', 'polycarp'] },
   { type: 'known', people: ['john-evangelist', 'papias'] },
   { type: 'known', people: ['ignatius-antioch', 'polycarp'] },
   { type: 'known', people: ['papias', 'polycarp'] },
   { type: 'known', people: ['polycarp', 'irenaeus'] },
+  { type: 'known', people: ['irenaeus', 'hippolytus'] },
+  { type: 'known', people: ['hippolytus', 'origen'] },
   { type: 'known', people: ['justin-martyr', 'tatians'] },
   { type: 'known', people: ['clement-alexandria', 'origen'] },
   { type: 'known', people: ['origen', 'gregory-thaumaturgus'] },
@@ -254,6 +257,7 @@ const knownConnections = [
   { type: 'known', people: ['macrina-younger', 'gregory-nyssa'] },
   { type: 'known', people: ['basil-great', 'gregory-nazianzus'] },
   { type: 'known', people: ['basil-great', 'gregory-nyssa'] },
+  { type: 'known', people: ['basil-great', 'ambrose-milan'] },
   { type: 'known', people: ['gregory-nazianzus', 'gregory-nyssa'] },
   { type: 'known', people: ['ambrose-milan', 'augustine'] },
   { type: 'known', people: ['pope-damasus-1', 'jerome'] },

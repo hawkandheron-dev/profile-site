@@ -19,7 +19,8 @@ export function TimelineOverlay({
   hoveredPeriod,
   onItemHover,
   onItemClick,
-  wasDraggingRef
+  wasDraggingRef,
+  animatingPointIds
 }) {
   // Get hovered period date range for highlighting
   const hoveredPeriodRange = hoveredPeriod ? getYearRange(hoveredPeriod.startDate, hoveredPeriod.endDate) : null;
@@ -30,11 +31,17 @@ export function TimelineOverlay({
     return startYear <= hoveredPeriodRange.end && endYear >= hoveredPeriodRange.start;
   };
 
-  // Get opacity for a person based on period highlighting
+  // Get opacity for a person based on period highlighting and monarch dimming
   const getPersonOpacity = (person) => {
-    if (!hoveredPeriod) return 1;
-    const { start, end } = getYearRange(person.startDate, person.endDate);
-    return isInHoveredPeriod(start, end) ? 1 : 0.3;
+    if (hoveredPeriod) {
+      const { start, end } = getYearRange(person.startDate, person.endDate);
+      return isInHoveredPeriod(start, end) ? 1 : 0.3;
+    }
+    // Monarchs are dimmed unless hovered
+    if (person.isMonarch) {
+      return (hoveredItem?.item?.id === person.id && hoveredItem?.type === 'person') ? 1 : 0.4;
+    }
+    return 1;
   };
 
   // Get opacity for a point based on period highlighting
@@ -311,10 +318,12 @@ export function TimelineOverlay({
         dateDisplay = `${displayYear} ${era}`;
       }
 
+      const isNewPoint = animatingPointIds?.has(point.id);
+
       return (
         <div
           key={point.id}
-          className="point-callout"
+          className={`point-callout${isNewPoint ? ' point-pop-in' : ''}`}
           style={{
             position: 'absolute',
             left: `${x}px`,

@@ -2,7 +2,7 @@
  * Canvas layer for timeline rendering
  */
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { yearToPixel, getYearLabelInterval } from '../utils/coordinates.js';
 import { getYearRange } from '../utils/dateUtils.js';
 import {
@@ -29,10 +29,39 @@ export function TimelineCanvas({
   onItemClick,
   wasDraggingRef,
   highlightedItemIds = new Set(),
-  currentHighlightId = null
+  currentHighlightId = null,
+  animatingIds
 }) {
   const canvasRef = useRef(null);
   const hitMapRef = useRef(new Map()); // For click detection
+
+  // Grow animation state — progress 0→1 drives a clip on newly added bars
+  const [animProgress, setAnimProgress] = useState(1);
+  const animFrameRef = useRef(null);
+
+  useEffect(() => {
+    if (animatingIds && animatingIds.size > 0) {
+      const start = performance.now();
+      const duration = 1200; // ms
+
+      const tick = (now) => {
+        const t = Math.min((now - start) / duration, 1);
+        // ease-out cubic
+        setAnimProgress(1 - Math.pow(1 - t, 3));
+        if (t < 1) {
+          animFrameRef.current = requestAnimationFrame(tick);
+        }
+      };
+
+      setAnimProgress(0);
+      animFrameRef.current = requestAnimationFrame(tick);
+      return () => {
+        if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      };
+    } else {
+      setAnimProgress(1);
+    }
+  }, [animatingIds]);
 
   // Get hovered period date range for highlighting
   const hoveredPeriodRange = hoveredPeriod ? getYearRange(hoveredPeriod.startDate, hoveredPeriod.endDate) : null;
@@ -85,7 +114,7 @@ export function TimelineCanvas({
 
     // Draw search highlights on top
     renderSearchHighlights(ctx, layout);
-  }, [width, height, viewportStartYear, yearsPerPixel, panOffsetY, layout, config, hoveredItem, hoveredPeriod, highlightedItemIds, currentHighlightId]);
+  }, [width, height, viewportStartYear, yearsPerPixel, panOffsetY, layout, config, hoveredItem, hoveredPeriod, highlightedItemIds, currentHighlightId, animatingIds, animProgress]);
 
   // Render people
   function renderPeople(ctx, people) {
@@ -104,15 +133,30 @@ export function TimelineCanvas({
       const color = getPersonColor(person, config);
 
       // Check if hovered
-      const isHovered = hoveredItem?.id === person.id && hoveredItem?.type === 'person';
+      const isHovered = hoveredItem?.item?.id === person.id && hoveredItem?.type === 'person';
 
-      // Apply opacity based on period highlighting
+      // Apply opacity based on period highlighting and monarch dimming
       const inPeriod = isInHoveredPeriod(start, end);
-      const opacity = hoveredPeriod ? (inPeriod ? 1.0 : 0.3) : 1.0;
+      let opacity = hoveredPeriod ? (inPeriod ? 1.0 : 0.3) : 1.0;
+      // Monarchs are dimmed unless hovered
+      if (person.isMonarch && !isHovered && !hoveredPeriod) {
+        opacity = 0.4;
+      }
+
+      // Check if this person is animating (grow from left to right)
+      const isAnimating = animatingIds && animatingIds.has(person.id) && animProgress < 1;
 
       // Save context state for opacity
       ctx.save();
       ctx.globalAlpha = opacity;
+
+      // Apply clip for grow animation
+      if (isAnimating) {
+        const clipWidth = displayWidth * animProgress;
+        ctx.beginPath();
+        ctx.rect(x, y - 2, clipWidth, boxHeight + 4);
+        ctx.clip();
+      }
 
       // Monarchs: draw lifespan in lighter shade, reign in full color
       if (person.isMonarch && person.reignStartYear != null && person.reignEndYear != null) {
