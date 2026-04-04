@@ -8,6 +8,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { TOUR_SCENES as FALLBACK_SCENES } from './tourScenes.js';
 import { getYear } from '../Timeline/utils/dateUtils.js';
+import { fetchLinkedMedia } from '../../data/churchHistorySupabaseAdapter.js';
 
 const LS_KEY = 'windhover-timeline-tour-completed';
 
@@ -44,6 +45,10 @@ export function useTour({ fullData, timelineRef, scenes }) {
   const [staggerRevealedIds, setStaggerRevealedIds] = useState(new Set());
   const [staggerRevealedPointIds, setStaggerRevealedPointIds] = useState(new Set());
   const staggerTimerRef = useRef(null);
+  const staggerPointTimerRef = useRef(null);
+
+  // Linked media for tour scenes
+  const [mediaMap, setMediaMap] = useState(new Map());
 
   // On mount, check localStorage to decide whether to show the welcome dialog
   useEffect(() => {
@@ -57,7 +62,16 @@ export function useTour({ fullData, timelineRef, scenes }) {
     }
   }, []);
 
+  // Fetch linked media for all tour scene IDs on mount
+  useEffect(() => {
+    const sceneIds = TOUR_SCENES.map(s => s.id);
+    fetchLinkedMedia('tour_scene', sceneIds)
+      .then(map => setMediaMap(map))
+      .catch(() => setMediaMap(new Map()));
+  }, [TOUR_SCENES]);
+
   const currentScene = TOUR_SCENES[sceneIndex];
+  const sceneMedia = mediaMap.get(currentScene?.id) || null;
 
   // ── Auto-frame viewport when scene changes ───────────────────────────
   const frameVisiblePeople = useCallback((personIds, animate = false) => {
@@ -137,64 +151,90 @@ export function useTour({ fullData, timelineRef, scenes }) {
     setNewlyAddedPointIds(added);
   }, [tourActive, sceneIndex, currentScene]);
 
-  // Stagger effect: progressively reveal people and/or points one at a time
+  // Stagger effect: reveal people then points with separate intervals
   useEffect(() => {
     const hasStagger = currentScene?.staggerIds || currentScene?.staggerPointIds;
     if (!tourActive || !hasStagger) {
-      // Clean up any running stagger timer
       if (staggerTimerRef.current) {
         clearInterval(staggerTimerRef.current);
         staggerTimerRef.current = null;
+      }
+      if (staggerPointTimerRef.current) {
+        clearInterval(staggerPointTimerRef.current);
+        staggerPointTimerRef.current = null;
       }
       setStaggerRevealedIds(new Set());
       setStaggerRevealedPointIds(new Set());
       return;
     }
 
-    // Build a combined sequence: people first, then points
     const personIds = currentScene.staggerIds || [];
     const pointIds = currentScene.staggerPointIds || [];
-    const combined = [
-      ...personIds.map(id => ({ type: 'person', id })),
-      ...pointIds.map(id => ({ type: 'point', id })),
-    ];
+    const defaultInterval = currentScene.staggerInterval || 1200;
+    const personInterval = currentScene.staggerPersonInterval || defaultInterval;
+    const pointInterval = currentScene.staggerPointInterval || defaultInterval;
 
-    if (combined.length === 0) return;
-
-    const reveal = (entry) => {
-      if (entry.type === 'person') {
-        setStaggerRevealedIds(prev => new Set([...prev, entry.id]));
-        setNewlyAddedIds(new Set([entry.id]));
-      } else {
-        setStaggerRevealedPointIds(prev => new Set([...prev, entry.id]));
-        setNewlyAddedPointIds(new Set([entry.id]));
-      }
-    };
-
-    let idx = 0;
-
-    // Reveal the first entry immediately
     setStaggerRevealedIds(new Set());
     setStaggerRevealedPointIds(new Set());
-    reveal(combined[0]);
-    idx = 1;
 
-    if (combined.length <= 1) return;
+    // Reveal people first
+    let pIdx = 0;
+    if (personIds.length > 0) {
+      setStaggerRevealedIds(new Set([personIds[0]]));
+      setNewlyAddedIds(new Set([personIds[0]]));
+      pIdx = 1;
+    }
 
-    const interval = setInterval(() => {
-      if (idx >= combined.length) {
-        clearInterval(interval);
-        staggerTimerRef.current = null;
-        return;
-      }
-      reveal(combined[idx]);
-      idx++;
-    }, currentScene.staggerInterval || 1200);
+    const startPointStagger = () => {
+      if (pointIds.length === 0) return;
+      let ptIdx = 0;
+      // Reveal first point immediately
+      setStaggerRevealedPointIds(new Set([pointIds[0]]));
+      setNewlyAddedPointIds(new Set([pointIds[0]]));
+      ptIdx = 1;
 
-    staggerTimerRef.current = interval;
+      if (pointIds.length <= 1) return;
+      const ptInterval = setInterval(() => {
+        if (ptIdx >= pointIds.length) {
+          clearInterval(ptInterval);
+          staggerPointTimerRef.current = null;
+          return;
+        }
+        setStaggerRevealedPointIds(prev => new Set([...prev, pointIds[ptIdx]]));
+        setNewlyAddedPointIds(new Set([pointIds[ptIdx]]));
+        ptIdx++;
+      }, pointInterval);
+      staggerPointTimerRef.current = ptInterval;
+    };
+
+    if (personIds.length <= 1) {
+      // No more people to reveal — start points immediately
+      startPointStagger();
+    } else {
+      const pInterval = setInterval(() => {
+        if (pIdx >= personIds.length) {
+          clearInterval(pInterval);
+          staggerTimerRef.current = null;
+          // People done — start point stagger
+          startPointStagger();
+          return;
+        }
+        setStaggerRevealedIds(prev => new Set([...prev, personIds[pIdx]]));
+        setNewlyAddedIds(new Set([personIds[pIdx]]));
+        pIdx++;
+      }, personInterval);
+      staggerTimerRef.current = pInterval;
+    }
+
     return () => {
-      clearInterval(interval);
-      staggerTimerRef.current = null;
+      if (staggerTimerRef.current) {
+        clearInterval(staggerTimerRef.current);
+        staggerTimerRef.current = null;
+      }
+      if (staggerPointTimerRef.current) {
+        clearInterval(staggerPointTimerRef.current);
+        staggerPointTimerRef.current = null;
+      }
     };
   }, [tourActive, sceneIndex, currentScene]);
 
@@ -372,6 +412,10 @@ export function useTour({ fullData, timelineRef, scenes }) {
       clearInterval(staggerTimerRef.current);
       staggerTimerRef.current = null;
     }
+    if (staggerPointTimerRef.current) {
+      clearInterval(staggerPointTimerRef.current);
+      staggerPointTimerRef.current = null;
+    }
   }, []);
 
   const startTour = useCallback(() => {
@@ -461,6 +505,7 @@ export function useTour({ fullData, timelineRef, scenes }) {
     tourData,
     newlyAddedIds,
     newlyAddedPointIds,
+    sceneMedia,
 
     // Controls
     startTour,

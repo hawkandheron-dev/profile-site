@@ -388,6 +388,61 @@ export async function fetchTourScenes() {
     if (row.stagger_ids && row.stagger_ids.length > 0) scene.staggerIds = row.stagger_ids;
     if (row.stagger_point_ids && row.stagger_point_ids.length > 0) scene.staggerPointIds = row.stagger_point_ids;
     if (row.stagger_interval != null) scene.staggerInterval = row.stagger_interval;
+    if (row.stagger_person_interval != null) scene.staggerPersonInterval = row.stagger_person_interval;
+    if (row.stagger_point_interval != null) scene.staggerPointInterval = row.stagger_point_interval;
     return scene;
   });
+}
+
+// ── Fetch linked media ────────────────────────────────────────────────────
+
+export async function fetchLinkedMedia(entityType, entityIds) {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase
+    .from('CH_LinkedMedia')
+    .select('*')
+    .eq('entity_type', entityType)
+    .in('entity_id', entityIds)
+    .order('sort_order');
+
+  if (error) {
+    console.warn('Failed to fetch linked media:', error.message);
+    return new Map();
+  }
+
+  // Return a Map keyed by entity_id (first media per entity for now)
+  const mediaMap = new Map();
+  for (const row of data || []) {
+    if (!mediaMap.has(row.entity_id)) {
+      mediaMap.set(row.entity_id, {
+        mediaId: row.media_id,
+        mediaUrl: row.media_url,
+        sourcePageUrl: row.source_page_url,
+        altText: row.alt_text,
+        attribution: row.attribution,
+        cropPositionX: row.crop_position_x,
+        cropPositionY: row.crop_position_y,
+        cropScale: row.crop_scale,
+      });
+    }
+  }
+  return mediaMap;
+}
+
+// ── Update linked media crop (admin only) ─────────────────────────────────
+
+export async function updateLinkedMediaCrop(mediaId, posX, posY, getToken) {
+  const { makeSupabaseClient } = await import('../lib/supabase.ts');
+  const supabase = makeSupabaseClient(getToken);
+
+  const { error } = await supabase
+    .from('CH_LinkedMedia')
+    .update({
+      crop_position_x: Math.round(posX),
+      crop_position_y: Math.round(posY),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('media_id', mediaId);
+
+  if (error) throw new Error(`Failed to update media crop: ${error.message}`);
 }

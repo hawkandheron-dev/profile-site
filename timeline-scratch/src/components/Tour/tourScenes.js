@@ -187,6 +187,8 @@ export const TOUR_SCENES = [
     ],
     staggerPointIds: [...POINTS_JOHN],
     staggerInterval: 600,
+    staggerPersonInterval: 300,
+    staggerPointInterval: 80,
     title: 'The First Century',
     narrative:
       'During John\u2019s lifetime, there were a number of pivotal events that changed the world for the young church. Jerusalem was destroyed in 70\u00A0AD, the Apostle Paul wrote his epistles to churches across the Mediterranean, and other books were written by early church leaders.',
