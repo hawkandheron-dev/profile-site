@@ -68,3 +68,23 @@
     transform: scale(1);
   }
 }
+
+/* Drop-in animation for points during tour mode */
+.point-drop-in {
+  animation: pointDropIn 250ms ease-out forwards;
+}
+
+@keyframes pointDropIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-60px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

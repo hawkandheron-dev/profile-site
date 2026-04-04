@@ -1,6 +1,98 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { Icon } from '../Timeline/components/Icon.jsx';
 import './TourPanel.css';
+
+function TourImage({ media, isAdmin, onCropUpdate }) {
+  const [imgError, setImgError] = useState(false);
+  const [adjusting, setAdjusting] = useState(false);
+  const [posX, setPosX] = useState(media.cropPositionX ?? 50);
+  const [posY, setPosY] = useState(media.cropPositionY ?? 50);
+  const containerRef = useRef(null);
+  const dragRef = useRef(null);
+
+  // Reset position when media changes
+  useEffect(() => {
+    setPosX(media.cropPositionX ?? 50);
+    setPosY(media.cropPositionY ?? 50);
+    setImgError(false);
+    setAdjusting(false);
+  }, [media.mediaId]);
+
+  const handleMouseDown = useCallback((e) => {
+    if (!adjusting) return;
+    e.preventDefault();
+    dragRef.current = { startX: e.clientX, startY: e.clientY, startPosX: posX, startPosY: posY };
+
+    const handleMouseMove = (e) => {
+      if (!dragRef.current || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      // Convert pixel movement to percentage (inverted: drag right = position moves left)
+      const dx = ((e.clientX - dragRef.current.startX) / rect.width) * -100;
+      const dy = ((e.clientY - dragRef.current.startY) / rect.height) * -100;
+      setPosX(Math.max(0, Math.min(100, dragRef.current.startPosX + dx)));
+      setPosY(Math.max(0, Math.min(100, dragRef.current.startPosY + dy)));
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      dragRef.current = null;
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, [adjusting, posX, posY]);
+
+  const handleSave = useCallback(() => {
+    setAdjusting(false);
+    onCropUpdate?.(media.mediaId, posX, posY);
+  }, [media.mediaId, posX, posY, onCropUpdate]);
+
+  const handleCancel = useCallback(() => {
+    setPosX(media.cropPositionX ?? 50);
+    setPosY(media.cropPositionY ?? 50);
+    setAdjusting(false);
+  }, [media.cropPositionX, media.cropPositionY]);
+
+  if (imgError) return null;
+
+  return (
+    <div
+      className={'tour-scene-image' + (adjusting ? ' tour-scene-image-adjusting' : '')}
+      ref={containerRef}
+      onMouseDown={handleMouseDown}
+    >
+      <img
+        src={media.mediaUrl}
+        alt={media.altText || ''}
+        style={{ objectPosition: `${posX}% ${posY}%` }}
+        onError={() => setImgError(true)}
+        draggable={false}
+      />
+      {isAdmin && !adjusting && (
+        <button
+          className="tour-image-adjust-btn"
+          onClick={(e) => { e.stopPropagation(); setAdjusting(true); }}
+          title="Adjust image position"
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M6 1v10M1 6h10" />
+            <path d="M6 1L4 3M6 1l2 2M6 11L4 9M6 11l2-2M1 6l2-2M1 6l2 2M11 6l-2-2M11 6l-2 2" />
+          </svg>
+        </button>
+      )}
+      {adjusting && (
+        <div className="tour-image-adjust-controls">
+          <button className="tour-image-save-btn" onClick={handleSave}>Save</button>
+          <button className="tour-image-cancel-btn" onClick={handleCancel}>Cancel</button>
+        </div>
+      )}
+      {media.attribution && (
+        <span className="tour-image-attribution">{media.attribution}</span>
+      )}
+    </div>
+  );
+}
 
 export function TourPanel({
   scene,
@@ -10,6 +102,9 @@ export function TourPanel({
   onPrev,
   onSkip,
   onComplete,
+  media,
+  isAdmin,
+  onMediaCropUpdate,
 }) {
   const isFirst = sceneIndex === 0;
   const isLast = sceneIndex === totalScenes - 1;
@@ -50,6 +145,13 @@ export function TourPanel({
       </div>
 
       <div className="tour-panel-body" key={scene.id}>
+        {media && (
+          <TourImage
+            media={media}
+            isAdmin={isAdmin}
+            onCropUpdate={onMediaCropUpdate}
+          />
+        )}
         <h3 className="tour-scene-title">{scene.title}</h3>
         <p className="tour-scene-narrative">{scene.narrative}</p>
         {scene.additionalNarrative && (
