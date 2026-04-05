@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { sanitizeHtml } from '../../utils/sanitize.js';
 import './IconStickerSheet.css';
 
 // Preferred icon set - curated selection for primary use
@@ -154,7 +155,7 @@ function IconCard({ collection, iconId, name, inverted = false }) {
     <div className={cardClass} title={name}>
       <div
         className="icon-preview"
-        dangerouslySetInnerHTML={{ __html: svgContent || '' }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(svgContent || '') }}
       />
       <span className="icon-name">{name}</span>
     </div>

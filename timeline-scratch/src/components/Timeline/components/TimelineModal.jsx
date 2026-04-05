@@ -13,6 +13,7 @@
 import { useEffect, useMemo, useCallback, useState } from 'react';
 import { formatDateRange, getYear } from '../utils/dateUtils.js';
 import { Icon } from './Icon.jsx';
+import { sanitizeHtml } from '../../../utils/sanitize.js';
 import { getWorksForAuthor } from '../../../data/works.js';
 import { fetchDescription } from '../../../services/wikipediaService.js';
 import {
@@ -559,7 +560,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
           <div
             className="modal-description"
             onClick={handleReferenceClick}
-            dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(descriptionHtml) }}
           />
         )}
 
@@ -581,7 +582,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
                 </a>
                 <div
                   className="modal-wiki-text"
-                  dangerouslySetInnerHTML={{ __html: wikiDesc.text }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(wikiDesc.text) }}
                 />
               </>
             )}
