@@ -5,7 +5,7 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
-  background: #f5f0e1;
+  background: var(--color-parchment);
   overflow: hidden;
   position: relative;
 }
@@ -30,11 +30,11 @@
   gap: 4px;
   padding: 6px 10px;
   border: 1px solid rgba(120, 100, 70, 0.25);
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -52,7 +52,7 @@
 
 .mobile-zoom-label {
   font-size: 11px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   min-width: 56px;
   text-align: center;
 }
@@ -78,7 +78,7 @@
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;
-  background: #f5f0e1;
+  background: var(--color-parchment);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -89,7 +89,7 @@
 .mobile-filter-item input[type="checkbox"] {
   width: 14px;
   height: 14px;
-  accent-color: #8b7355;
+  accent-color: var(--color-accent);
 }
 
 .mobile-filter-swatch {
@@ -141,7 +141,7 @@
   flex-direction: column;
   padding: 0;
   overflow: hidden;
-  background: var(--person-color, #5b7ee8);
+  background: var(--person-color, var(--color-cat-people));
   box-shadow: 0 1px 4px rgba(60, 50, 30, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -249,7 +249,7 @@
 .mobile-point-name {
   font-size: 11px;
   font-weight: 700;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   line-height: 1.25;
   white-space: normal;
   overflow-wrap: break-word;
@@ -259,7 +259,7 @@
 .mobile-point-year {
   font-size: 9px;
   font-weight: 500;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 /* ── Year gutter (z-index 10, dark overlay, sticky left) ── */

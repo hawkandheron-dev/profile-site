@@ -5,16 +5,16 @@
 }
 
 .ak-map-tooltip .maplibregl-popup-content {
-  background: var(--color-parchment-light, #faf6eb);
+  background: var(--color-parchment-light, var(--color-parchment-light));
   border: 1px solid rgba(120, 100, 70, 0.3);
   border-radius: 8px;
   padding: 8px 12px;
   font-family: 'Alegreya Sans', sans-serif;
   font-size: 13px;
-  color: #2c2418;
+  color: var(--color-ink);
   box-shadow: 0 2px 8px rgba(60, 50, 30, 0.15);
 }
 
 .ak-map-tooltip .maplibregl-popup-tip {
-  border-top-color: #faf6eb;
+  border-top-color: var(--color-parchment-light);
 }

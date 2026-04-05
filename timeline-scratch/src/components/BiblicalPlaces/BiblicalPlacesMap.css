@@ -13,8 +13,8 @@
 /* ── Map tooltip popup ─────────────────────────────────────────────────── */
 
 .bp-map-tooltip .maplibregl-popup-content {
-  background: #faf6eb;
-  color: #2c2418;
+  background: var(--color-parchment-light);
+  color: var(--color-ink);
   font-size: 13px;
   line-height: 1.4;
   padding: 8px 12px;
@@ -24,12 +24,12 @@
 }
 
 .bp-map-tooltip .maplibregl-popup-tip {
-  border-top-color: #faf6eb;
+  border-top-color: var(--color-parchment-light);
 }
 
 .bp-popup-count {
   font-size: 11px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 /* ── Narrative Age filter bar ──────────────────────────────────────────── */
@@ -55,7 +55,7 @@
   display: flex;
   align-items: center;
   padding: 10px 16px;
-  background: var(--color-parchment, #f5f0e1);
+  background: var(--color-parchment, var(--color-parchment));
   border-radius: 12px 12px 0 0;
 }
 
@@ -78,7 +78,7 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-ink, #2c2418);
+  color: var(--color-ink, var(--color-ink));
   line-height: 1;
 }
 
@@ -86,7 +86,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 500;
-  color: var(--color-ink-faded, #7a6f5f);
+  color: var(--color-ink-faded, var(--color-ink-faded));
 }
 
 /* ── Tab row ──────────────────────────────────────────────────────────── */
@@ -105,7 +105,7 @@
   font: inherit;
   font-size: 12px;
   font-weight: 600;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   padding: 6px 12px;
   border-radius: 8px 8px 0 0;
   cursor: pointer;
@@ -115,13 +115,13 @@
 }
 
 .bp-filter-tab:hover {
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   background: rgba(139, 115, 85, 0.06);
 }
 
 .bp-filter-tab-active {
-  color: #2c2418;
-  border-bottom: 2px solid #8b7355;
+  color: var(--color-ink);
+  border-bottom: 2px solid var(--color-accent);
   margin-bottom: -1px;
 }
 
@@ -145,7 +145,7 @@
   border: 1px solid transparent;
   border-radius: 16px;
   background: rgba(139, 115, 85, 0.08);
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   font: inherit;
   font-size: 12px;
   cursor: pointer;
@@ -159,14 +159,14 @@
 
 .bp-age-pill-active {
   background: rgba(139, 115, 85, 0.2);
-  box-shadow: 0 0 0 2px var(--age-color, #8b7355);
+  box-shadow: 0 0 0 2px var(--age-color, var(--color-accent));
 }
 
 .bp-age-pill-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--age-color, #8b7355);
+  background: var(--age-color, var(--color-accent));
   flex-shrink: 0;
 }
 
@@ -182,15 +182,15 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: var(--route-color, #8b7355);
-  border: 2.5px solid #faf6eb;
+  background: var(--route-color, var(--color-accent));
+  border: 2.5px solid var(--color-parchment-light);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   font-weight: 700;
-  color: #faf6eb;
+  color: var(--color-parchment-light);
   cursor: default;
   user-select: none;
 }
@@ -199,8 +199,8 @@
 .bp-edit-wp-node {
   width: 16px;
   height: 16px;
-  background: var(--route-color, #8b7355);
-  border: 2px solid #faf6eb;
+  background: var(--route-color, var(--color-accent));
+  border: 2px solid var(--color-parchment-light);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   border-radius: 3px;
   transform: rotate(45deg);
@@ -223,7 +223,7 @@
   border-radius: 50%;
   background: #d32f2f;
   color: #fff;
-  border: 1.5px solid #faf6eb;
+  border: 1.5px solid var(--color-parchment-light);
   font-size: 12px;
   line-height: 1;
   display: none;
@@ -243,13 +243,13 @@
   height: 20px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.85);
-  border: 2px dashed var(--route-color, #8b7355);
+  border: 2px dashed var(--route-color, var(--color-accent));
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   font-weight: 700;
-  color: var(--route-color, #8b7355);
+  color: var(--route-color, var(--color-accent));
   cursor: pointer;
   opacity: 0.5;
   transition: opacity 0.15s ease, transform 0.15s ease;

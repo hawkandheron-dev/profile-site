@@ -13,7 +13,7 @@
 
 .suggest-new-modal {
   position: relative;
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   border-radius: 14px;
   max-width: 700px;
   width: 100%;
@@ -30,14 +30,14 @@
   background: none;
   border: none;
   font-size: 24px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   cursor: pointer;
   padding: 4px 8px;
   line-height: 1;
 }
 
 .suggest-new-close:hover {
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 /* ── Type picker ─────────────────────────────────────────────────────── */
@@ -46,13 +46,13 @@
   margin: 0 0 8px;
   font-size: 20px;
   font-weight: 700;
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .suggest-new-desc {
   margin: 0 0 20px;
   font-size: 14px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   line-height: 1.4;
 }
 
@@ -78,7 +78,7 @@
 }
 
 .suggest-new-option:hover {
-  border-color: #5b7ee8;
+  border-color: var(--color-action);
   background: #f0f4fc;
 }
 
@@ -86,18 +86,18 @@
   font-size: 28px;
 }
 
-.suggest-new-option--person .suggest-new-option-icon { color: #5b7ee8; }
-.suggest-new-option--event .suggest-new-option-icon { color: #f9a825; }
-.suggest-new-option--era .suggest-new-option-icon { color: #4caf50; }
+.suggest-new-option--person .suggest-new-option-icon { color: var(--color-cat-people); }
+.suggest-new-option--event .suggest-new-option-icon { color: var(--color-cat-documents); }
+.suggest-new-option--era .suggest-new-option-icon { color: var(--color-cat-councils); }
 
 .suggest-new-option strong {
   font-size: 15px;
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .suggest-new-option span:last-child {
   font-size: 12px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 /* ── Form wrapper ────────────────────────────────────────────────────── */
@@ -113,7 +113,7 @@
   padding: 4px 10px;
   border: none;
   background: none;
-  color: #5b7ee8;
+  color: var(--color-action);
   cursor: pointer;
   margin-bottom: 8px;
 }
@@ -151,7 +151,7 @@
   }
 
   .suggest-new-option:hover {
-    border-color: #5b7ee8;
+    border-color: var(--color-action);
     background: #1e2a40;
   }
 

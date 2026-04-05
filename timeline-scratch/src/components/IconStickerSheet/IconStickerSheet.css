@@ -1,13 +1,13 @@
 .icon-sticker-sheet {
   height: 100%;
   overflow-y: auto;
-  background: #f5f0e1;
+  background: var(--color-parchment);
   padding: 0;
 }
 
 .sheet-header {
   padding: 30px 40px 20px;
-  background: linear-gradient(to bottom, #faf6eb, #f5f0e1);
+  background: linear-gradient(to bottom, var(--color-parchment-light), var(--color-parchment));
   border-bottom: 1px solid rgba(120,100,70,0.25);
   position: sticky;
   top: 0;
@@ -18,14 +18,14 @@
   margin: 0 0 8px;
   font-size: 28px;
   font-weight: 600;
-  color: #2c2418;
+  color: var(--color-ink);
   font-family: 'Cormorant', Georgia, 'Times New Roman', serif;
 }
 
 .sheet-description {
   margin: 0 0 20px;
   font-size: 14px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   font-style: italic;
 }
 
@@ -38,24 +38,24 @@
 .filter-tab {
   padding: 8px 16px;
   border: 1px solid rgba(120,100,70,0.3);
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   border-radius: 4px;
   font-size: 13px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .filter-tab:hover {
-  background: #f5f0e1;
+  background: var(--color-parchment);
   border-color: rgba(120,100,70,0.5);
 }
 
 .filter-tab.active {
-  background: #2c2418;
-  color: #faf6eb;
-  border-color: #2c2418;
+  background: var(--color-ink);
+  color: var(--color-parchment-light);
+  border-color: var(--color-ink);
 }
 
 .collections-container {
@@ -76,7 +76,7 @@
   margin: 0 0 4px;
   font-size: 20px;
   font-weight: 600;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   font-family: 'Cormorant', Georgia, 'Times New Roman', serif;
 }
 
@@ -103,7 +103,7 @@
   flex-direction: column;
   align-items: center;
   padding: 16px 8px 12px;
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   border: 1px solid rgba(120,100,70,0.25);
   border-radius: 6px;
   cursor: pointer;
@@ -111,7 +111,7 @@
 }
 
 .icon-card:hover {
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   border-color: rgba(120,100,70,0.3);
   box-shadow: 0 2px 8px rgba(60, 50, 30, 0.1);
   transform: translateY(-2px);
@@ -123,7 +123,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #2c2418;
+  color: var(--color-ink);
   margin-bottom: 8px;
 }
 
@@ -134,7 +134,7 @@
 
 .icon-name {
   font-size: 11px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   text-align: center;
   line-height: 1.3;
   max-width: 100%;
@@ -153,7 +153,7 @@
 .variant-label {
   font-size: 14px;
   font-weight: 500;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   margin: 24px 0 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -165,18 +165,18 @@
 
 /* Inverted icon cards */
 .icon-card-inverted {
-  background: #2c2418;
-  border-color: #2c2418;
+  background: var(--color-ink);
+  border-color: var(--color-ink);
 }
 
 .icon-card-inverted:hover {
-  background: #4a3f2f;
-  border-color: #4a3f2f;
+  background: var(--color-ink-light);
+  border-color: var(--color-ink-light);
   box-shadow: 0 2px 8px rgba(30, 20, 10, 0.2);
 }
 
 .icon-card-inverted .icon-preview {
-  color: #faf6eb;
+  color: var(--color-parchment-light);
 }
 
 .icon-card-inverted .icon-name {
@@ -273,6 +273,6 @@
   }
 
   .icon-card-inverted .icon-name {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 }

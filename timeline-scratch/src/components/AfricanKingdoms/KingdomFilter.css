@@ -21,7 +21,7 @@
   border-radius: 999px;
   border: 1px solid rgba(120, 100, 70, 0.25);
   background: transparent;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   cursor: pointer;
   white-space: nowrap;
   transition: background 160ms ease, border-color 160ms ease;
@@ -35,7 +35,7 @@
 .ak-filter-pill.active {
   background: rgba(120, 100, 70, 0.15);
   border-color: rgba(120, 100, 70, 0.5);
-  color: #2c2418;
+  color: var(--color-ink);
   font-weight: 600;
 }
 

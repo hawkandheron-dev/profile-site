@@ -35,8 +35,8 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   touch-action: pan-y;
-  background: #faf6eb;
-  color: #2c2418;
+  background: var(--color-parchment-light);
+  color: var(--color-ink);
   border-radius: 16px;
   padding: 32px;
   box-shadow: 0 24px 60px rgba(60, 50, 30, 0.3);
@@ -72,16 +72,16 @@
   justify-content: center;
   border-radius: 8px;
   transition: background-color 0.2s ease;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 .modal-close:hover {
   background-color: rgba(120, 100, 70, 0.1);
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .modal-close:focus-visible {
-  outline: 2px solid #8b7355;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
@@ -99,7 +99,7 @@
   font-size: 26px;
   font-weight: 600;
   line-height: 1.3;
-  color: #2c2418;
+  color: var(--color-ink);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -127,7 +127,7 @@
 }
 
 .modal-search-link:focus-visible {
-  outline: 2px solid #8b7355;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
@@ -138,14 +138,14 @@
 .modal-date {
   margin: 0 0 4px;
   font-size: 16px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   font-weight: 500;
 }
 
 .modal-location {
   margin: 0 0 8px;
   font-size: 15px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 /* Historical Map */
@@ -157,7 +157,7 @@
   margin: 0 0 8px;
   font-size: 14px;
   font-weight: 600;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -205,8 +205,8 @@
 
 /* Highlighted pill in the Who's Where list */
 .summary-pill-highlighted {
-  background: #e8dfc8;
-  box-shadow: 0 0 0 2px #8b7355;
+  background: var(--color-parchment-dark);
+  box-shadow: 0 0 0 2px var(--color-accent);
   border-radius: 12px;
 }
 
@@ -216,8 +216,8 @@
 
 /* Year map pin tooltip */
 .year-map-tooltip .maplibregl-popup-content {
-  background: #faf6eb;
-  color: #2c2418;
+  background: var(--color-parchment-light);
+  color: var(--color-ink);
   font-size: 13px;
   line-height: 1.4;
   padding: 6px 10px;
@@ -227,7 +227,7 @@
 }
 
 .year-map-tooltip .maplibregl-popup-tip {
-  border-top-color: #faf6eb;
+  border-top-color: var(--color-parchment-light);
 }
 
 .modal-period {
@@ -241,7 +241,7 @@
   margin: 0 0 20px;
   line-height: 1.7;
   font-size: 15px;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .modal-description p {
@@ -257,7 +257,7 @@
   margin: 0 0 20px;
   line-height: 1.7;
   font-size: 15px;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .modal-wiki-loading {
@@ -278,7 +278,7 @@
 .modal-wiki-source {
   display: inline-block;
   font-size: 13px;
-  color: #8b7355;
+  color: var(--color-accent);
   text-decoration: none;
   font-style: italic;
 }
@@ -297,7 +297,7 @@
   margin: 0 0 12px;
   font-size: 16px;
   font-weight: 600;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .modal-works {
@@ -309,17 +309,17 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.7;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .modal-works-inline a {
-  color: #8b7355;
+  color: var(--color-accent);
   text-decoration: underline;
   transition: color 0.2s ease;
 }
 
 .modal-works-inline a:hover {
-  color: #6d5a42;
+  color: var(--color-accent-hover);
 }
 
 /* Wikipedia / Britannica attribution at top */
@@ -327,7 +327,7 @@
   display: inline-block;
   font-size: 12px;
   font-weight: 600;
-  color: #8b7355;
+  color: var(--color-accent);
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -337,7 +337,7 @@
 }
 
 .modal-wiki-attribution:hover {
-  color: #6d5a42;
+  color: var(--color-accent-hover);
   border-bottom-color: rgba(109, 90, 66, 0.5);
 }
 
@@ -350,7 +350,7 @@
 .modal-links li {
   margin-bottom: 8px;
   font-size: 14px;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .modal-work-title {
@@ -366,18 +366,18 @@
 }
 
 .modal-work-links span[aria-hidden="true"] {
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 .modal-links a {
-  color: #8b7355;
+  color: var(--color-accent);
   text-decoration: underline;
   font: inherit;
   transition: color 0.2s ease;
 }
 
 .modal-links a:hover {
-  color: #6d5a42;
+  color: var(--color-accent-hover);
   text-decoration: underline;
 }
 
@@ -406,29 +406,29 @@
 }
 
 .modal-pill {
-  background: #f5f0e1;
+  background: var(--color-parchment);
   border: 1px solid transparent;
   border-radius: 12px;
   cursor: pointer;
   font: inherit;
   padding: 4px 10px;
   font-size: 13px;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .modal-pill:hover {
-  background: #e8dfc8;
+  background: var(--color-parchment-dark);
 }
 
 .modal-pill:focus-visible {
-  outline: 2px solid #8b7355;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
 .modal-reference {
   background: none;
   border: none;
-  color: #8b7355;
+  color: var(--color-accent);
   cursor: pointer;
   font: inherit;
   padding: 0;
@@ -436,11 +436,11 @@
 }
 
 .modal-reference:hover {
-  color: #6d5a42;
+  color: var(--color-accent-hover);
 }
 
 .modal-reference:focus-visible {
-  outline: 2px solid #8b7355;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -463,7 +463,7 @@
   margin: 0 0 10px;
   font-size: 14px;
   font-weight: 600;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   display: flex;
@@ -484,7 +484,7 @@
 
 .summary-list-compact .summary-item {
   margin-bottom: 0;
-  background: #f5f0e1;
+  background: var(--color-parchment);
   padding: 4px 10px;
   border-radius: 12px;
   font-size: 13px;
@@ -503,11 +503,11 @@
 }
 
 .summary-pill:hover {
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .summary-pill:focus-visible {
-  outline: 2px solid #8b7355;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
   border-radius: 8px;
 }
@@ -517,7 +517,7 @@
   align-items: center;
   margin-bottom: 8px;
   font-size: 14px;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .summary-color-dot {
@@ -552,7 +552,7 @@
   flex-shrink: 0;
   min-width: 110px;
   font-size: 0.78em;
-  color: #8b7355;
+  color: var(--color-accent);
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
@@ -571,7 +571,7 @@
   margin: 0;
   font: inherit;
   font-size: inherit;
-  color: #8b7355;
+  color: var(--color-accent);
   cursor: pointer;
   text-align: left;
   text-decoration: underline;
@@ -596,7 +596,7 @@
   border: none;
   font: inherit;
   font-size: 13px;
-  color: #8b7355;
+  color: var(--color-accent);
   cursor: pointer;
   padding: 0;
   text-decoration: underline;
@@ -604,7 +604,7 @@
 }
 
 .modal-edit-btn:hover {
-  color: #6d5a42;
+  color: var(--color-accent-hover);
   text-decoration-color: rgba(109, 90, 66, 0.6);
 }
 
@@ -636,7 +636,7 @@
 .modal-edit-conn-name {
   font-size: 14px;
   font-weight: 500;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -658,19 +658,19 @@
   border-radius: 6px;
   font: inherit;
   font-size: 13px;
-  background: #faf6eb;
-  color: #2c2418;
+  background: var(--color-parchment-light);
+  color: var(--color-ink);
 }
 
 .modal-edit-input:focus {
-  outline: 2px solid #8b7355;
+  outline: 2px solid var(--color-accent);
   outline-offset: -1px;
   border-color: transparent;
 }
 
 .modal-edit-input-url {
   font-size: 12px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 .modal-edit-input-short {
@@ -683,8 +683,8 @@
   border-radius: 6px;
   font: inherit;
   font-size: 12px;
-  background: #faf6eb;
-  color: #4a3f2f;
+  background: var(--color-parchment-light);
+  color: var(--color-ink-light);
   cursor: pointer;
 }
 
@@ -708,7 +708,7 @@
 
 /* ── Source edit card ──────────────────────────────────────────── */
 .modal-edit-card {
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   border: 1px solid rgba(120, 100, 70, 0.2);
   border-radius: 8px;
   padding: 10px;
@@ -749,7 +749,7 @@
   background: #ede5d3;
   border-radius: 12px;
   font-size: 13px;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .modal-edit-remove-inline {
@@ -815,7 +815,7 @@
 .modal-delete-confirm-text {
   margin: 0 0 12px;
   font-size: 14px;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .modal-delete-confirm-actions {
@@ -860,7 +860,7 @@
   }
 
   .modal-wiki-loading {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .modal-wiki-source {
@@ -934,7 +934,7 @@
   }
 
   .summary-nearby-label {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .summary-nearby-link {
@@ -960,7 +960,7 @@
   }
 
   .historical-map-date {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .summary-pill-highlighted {
