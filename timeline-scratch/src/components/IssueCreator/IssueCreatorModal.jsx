@@ -13,7 +13,7 @@ const ISSUE_TYPES = [
   { value: 'bug',             label: 'Bug' },
 ];
 
-export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appId, getPageContext }) {
+export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appId, getPageContext, onSubmitted }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [issueType, setIssueType] = useState('general');
@@ -69,7 +69,7 @@ export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appI
     setSaving(true);
     setError(null);
     try {
-      await submitIssue(
+      const submitted = await submitIssue(
         {
           app_id: appId,
           title: title.trim(),
@@ -81,12 +81,13 @@ export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appI
         getToken,
       );
       setSuccess(true);
+      onSubmitted?.(submitted);
       setTimeout(() => onClose(), 1500);
     } catch (err) {
       setError(err.message || 'Failed to submit issue.');
       setSaving(false);
     }
-  }, [title, description, issueType, pageContext, appId, clerkUserId, getToken, onClose]);
+  }, [title, description, issueType, pageContext, appId, clerkUserId, getToken, onClose, onSubmitted]);
 
   if (!isOpen) return null;
 
@@ -108,7 +109,7 @@ export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appI
             </p>
 
             {/* Issue type pills */}
-            <div className="issue-type-pills">
+            <div className="issue-type-pills" data-tour="issue-type-pills">
               {ISSUE_TYPES.map(t => (
                 <button
                   key={t.value}
@@ -131,6 +132,7 @@ export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appI
                 onChange={e => setTitle(e.target.value)}
                 placeholder="Short summary of the issue"
                 maxLength={200}
+                data-tour="issue-title-input"
               />
             </label>
 
@@ -143,6 +145,7 @@ export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appI
                 onChange={e => setDescription(e.target.value)}
                 placeholder="Describe what you noticed, what you expected, or what you'd like changed..."
                 rows={5}
+                data-tour="issue-description-textarea"
               />
             </label>
 
@@ -181,6 +184,7 @@ export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appI
                 className="btn btn-rect btn-accent"
                 onClick={handleSubmit}
                 disabled={saving}
+                data-tour="issue-submit-btn"
               >
                 {saving ? 'Submitting...' : 'Submit Issue'}
               </button>

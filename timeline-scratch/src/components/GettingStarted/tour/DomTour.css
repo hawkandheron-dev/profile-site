@@ -1,0 +1,160 @@
+/* ── DomTour — spotlight overlay + popover ─────────────────────────────── */
+
+.dom-tour-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  pointer-events: none;
+}
+
+.dom-tour-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: auto;
+}
+
+.dom-tour-ring {
+  fill: none;
+  stroke: var(--color-accent, #b87333);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.dom-tour-popover {
+  position: fixed;
+  background: var(--color-parchment-light, #f4ead5);
+  border: 1.5px solid var(--color-border-hover, rgba(120, 100, 70, 0.5));
+  border-radius: var(--radius-md, 12px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+  padding: 16px 18px 14px;
+  color: var(--color-ink, #2c2418);
+  pointer-events: auto;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.dom-tour-centered {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.dom-tour-step-count {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink-faded, #7a6f5c);
+  margin-bottom: 6px;
+}
+
+.dom-tour-title {
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--color-ink, #2c2418);
+  line-height: 1.25;
+}
+
+.dom-tour-body {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--color-ink, #2c2418);
+  margin-bottom: 14px;
+}
+
+.dom-tour-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.dom-tour-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.dom-tour-btn {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill, 999px);
+  border: 1.5px solid var(--color-border-hover, rgba(120, 100, 70, 0.5));
+  background: transparent;
+  color: var(--color-ink, #2c2418);
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+.dom-tour-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dom-tour-btn:not(:disabled):hover {
+  border-color: var(--color-accent, #b87333);
+  color: var(--color-accent, #b87333);
+}
+
+.dom-tour-btn-primary {
+  background: var(--color-accent, #b87333);
+  border-color: var(--color-accent, #b87333);
+  color: var(--color-parchment-light, #f4ead5);
+}
+
+.dom-tour-btn-primary:not(:disabled):hover {
+  background: var(--color-accent, #b87333);
+  color: var(--color-parchment-light, #f4ead5);
+  filter: brightness(0.95);
+}
+
+.dom-tour-skip {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  color: var(--color-ink-faded, #7a6f5c);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 140ms ease, color 140ms ease;
+  padding: 4px 2px;
+}
+
+.dom-tour-skip:hover {
+  color: var(--color-ink, #2c2418);
+  text-decoration-color: var(--color-ink-faded, #7a6f5c);
+}
+
+/* ── Dark mode ──────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  .dom-tour-popover {
+    background: #1e1b16;
+    border-color: #3a3528;
+    color: #f0ebe0;
+  }
+  .dom-tour-title { color: #f0ebe0; }
+  .dom-tour-body  { color: #d8cfbb; }
+  .dom-tour-btn {
+    border-color: #3a3528;
+    color: #f0ebe0;
+  }
+  .dom-tour-btn-primary {
+    color: #1e1b16;
+  }
+  .dom-tour-skip { color: #a09888; }
+  .dom-tour-skip:hover { color: #f0ebe0; }
+}
+
+/* ── Mobile ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 560px) {
+  .dom-tour-popover {
+    width: calc(100vw - 24px) !important;
+    max-width: 360px;
+  }
+}
