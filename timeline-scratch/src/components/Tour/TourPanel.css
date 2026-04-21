@@ -1,8 +1,8 @@
 .tour-panel {
   width: 320px;
   flex-shrink: 0;
-  background: #faf6eb;
-  color: #2c2418;
+  background: var(--color-parchment-light);
+  color: var(--color-ink);
   display: flex;
   flex-direction: column;
   border-left: 1px solid rgba(120, 100, 70, 0.25);
@@ -54,7 +54,7 @@
 
 .tour-skip-btn:hover {
   background: rgba(120, 100, 70, 0.12);
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .tour-panel-body {
@@ -84,7 +84,7 @@
 
 .tour-scene-image-adjusting {
   cursor: grab;
-  outline: 2px solid #5b7ee8;
+  outline: 2px solid var(--color-action);
   outline-offset: -2px;
 }
 
@@ -133,7 +133,7 @@
 }
 
 .tour-image-save-btn {
-  background: #5b7ee8;
+  background: var(--color-action);
   color: #fff;
 }
 
@@ -210,7 +210,7 @@
   border: 1px solid rgba(120, 100, 70, 0.25);
   border-radius: 10px;
   background: transparent;
-  color: #2c2418;
+  color: var(--color-ink);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -232,9 +232,9 @@
 }
 
 .tour-nav-primary {
-  background: #5b7ee8;
+  background: var(--color-action);
   color: #fff;
-  border-color: #5b7ee8;
+  border-color: var(--color-action);
 }
 
 .tour-nav-primary:hover:not(:disabled) {
@@ -244,9 +244,9 @@
 
 /* Highlighted connection pill during tour */
 .tour-highlight-pill {
-  background: #5b7ee8 !important;
+  background: var(--color-action) !important;
   color: #fff !important;
-  border-color: #5b7ee8 !important;
+  border-color: var(--color-action) !important;
   animation: tourPillPulse 1.5s ease-in-out infinite;
 }
 
@@ -261,14 +261,14 @@
 }
 
 @keyframes tourPillPulse {
-  0%, 100% { background-color: #5b7ee8; }
+  0%, 100% { background-color: var(--color-action); }
   50% { background-color: #4a6cd6; }
 }
 
 /* Inline highlight badge in tour narrative */
 .tour-inline-highlight {
   display: inline;
-  background: #5b7ee8;
+  background: var(--color-action);
   color: #fff;
   padding: 2px 8px;
   border-radius: 10px;

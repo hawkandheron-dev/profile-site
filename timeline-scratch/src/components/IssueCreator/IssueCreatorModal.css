@@ -13,7 +13,7 @@
 
 .issue-modal {
   position: relative;
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   border-radius: 14px;
   max-width: 560px;
   width: 100%;
@@ -30,14 +30,14 @@
   background: none;
   border: none;
   font-size: 24px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   cursor: pointer;
   padding: 4px 8px;
   line-height: 1;
 }
 
 .issue-modal-close:hover {
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 /* ── Header ─────────────────────────────────────────────────────────── */
@@ -46,13 +46,13 @@
   margin: 0 0 6px;
   font-size: 20px;
   font-weight: 700;
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .issue-modal-desc {
   margin: 0 0 16px;
   font-size: 13px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   line-height: 1.4;
 }
 
@@ -79,13 +79,13 @@
 }
 
 .issue-type-pill:hover {
-  border-color: #8b7355;
+  border-color: var(--color-accent);
 }
 
 .issue-type-pill.active {
-  background: #8b7355;
-  border-color: #8b7355;
-  color: #faf6eb;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-parchment-light);
 }
 
 /* ── Form fields ────────────────────────────────────────────────────── */
@@ -95,7 +95,7 @@
   margin-bottom: 14px;
   font-size: 13px;
   font-weight: 600;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .issue-field-input,
@@ -109,7 +109,7 @@
   border: 1.5px solid rgba(120, 100, 70, 0.25);
   border-radius: 8px;
   background: white;
-  color: #2c2418;
+  color: var(--color-ink);
   outline: none;
   transition: border-color 160ms ease;
   box-sizing: border-box;
@@ -117,7 +117,7 @@
 
 .issue-field-input:focus,
 .issue-field-textarea:focus {
-  border-color: #8b7355;
+  border-color: var(--color-accent);
 }
 
 .issue-field-textarea {
@@ -135,7 +135,7 @@
   font-family: inherit;
   font-size: 12px;
   font-weight: 500;
-  color: #8b7355;
+  color: var(--color-accent);
   background: none;
   border: none;
   cursor: pointer;
@@ -146,7 +146,7 @@
 }
 
 .issue-context-toggle:hover {
-  text-decoration-color: #8b7355;
+  text-decoration-color: var(--color-accent);
 }
 
 .issue-context-preview {
@@ -179,7 +179,7 @@
 .issue-screenshot-label {
   font-size: 13px;
   font-weight: 600;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 .issue-screenshot-coming-soon {
@@ -254,12 +254,12 @@
   }
 
   .issue-type-pill:hover {
-    border-color: #8b7355;
+    border-color: var(--color-accent);
   }
 
   .issue-type-pill.active {
-    background: #8b7355;
-    color: #faf6eb;
+    background: var(--color-accent);
+    color: var(--color-parchment-light);
   }
 
   .issue-field-label {
@@ -275,7 +275,7 @@
 
   .issue-field-input:focus,
   .issue-field-textarea:focus {
-    border-color: #8b7355;
+    border-color: var(--color-accent);
   }
 
   .issue-context-toggle {
@@ -297,7 +297,7 @@
   }
 
   .issue-screenshot-coming-soon {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .issue-modal-error {

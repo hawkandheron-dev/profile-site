@@ -13,9 +13,9 @@
  */
 
 const API_KEYS = {
-  europeana: 'gundranicnit',
-  nypl: 'ibkrfk0w1tltqba0',
-  smithsonian: 'iFOAFBXuQbz6G82rlZxdkWcA9srIVvrnVjcy9zDl'
+  europeana: import.meta.env.VITE_EUROPEANA_KEY || '',
+  nypl: import.meta.env.VITE_NYPL_TOKEN || '',
+  smithsonian: import.meta.env.VITE_SMITHSONIAN_KEY || '',
 };
 
 // ---------------------------------------------------------------------------

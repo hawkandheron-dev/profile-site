@@ -7,7 +7,7 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background: #f5f0e1;
+  background: var(--color-parchment);
 }
 
 /* ----- Header ----- */
@@ -18,7 +18,7 @@
   justify-content: space-between;
   padding: 12px 20px;
   border-left: 5px solid #a09888;
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   border-bottom: 1px solid rgba(120,100,70,0.25);
   flex-shrink: 0;
   gap: 12px;
@@ -35,7 +35,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #2c2418;
+  color: var(--color-ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -60,18 +60,18 @@
   padding: 6px 14px;
   border: 1px solid rgba(120,100,70,0.25);
   border-radius: 6px;
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   font-size: 13px;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .vision-board-btn:hover {
-  background: #e8dfc8;
+  background: var(--color-parchment-dark);
   border-color: rgba(120,100,70,0.4);
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .vision-board-btn:disabled {
@@ -99,7 +99,7 @@
   padding: 16px 24px;
   border-left: 4px solid #a09888;
   margin: 16px 20px 0;
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   border-radius: 0 8px 8px 0;
   box-shadow: 0 1px 3px rgba(60,50,30,0.06);
 }
@@ -108,13 +108,13 @@
   margin: 0 0 8px;
   font-size: 15px;
   font-weight: 600;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   line-height: 1.4;
 }
 
 .vision-board-era-description {
   font-size: 14px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   line-height: 1.55;
 }
 
@@ -245,7 +245,7 @@
   margin-bottom: 16px;
   border-radius: 10px;
   overflow: hidden;
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   box-shadow: 0 1px 4px rgba(60,50,30,0.08);
   text-decoration: none;
   color: inherit;
@@ -261,7 +261,7 @@
 
 .vision-board-card-image-wrapper {
   width: 100%;
-  background: #e8dfc8;
+  background: var(--color-parchment-dark);
   line-height: 0;
   position: relative;
 }
@@ -334,7 +334,7 @@
 .vision-board-card-title {
   font-size: 12px;
   font-weight: 500;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -450,11 +450,11 @@
   }
 
   .vision-board-card-meta {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .vision-board-favorites-label {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .vb-preview-modal {
@@ -466,7 +466,7 @@
   }
 
   .vb-preview-meta {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .vb-preview-attribution {
@@ -502,11 +502,11 @@
   }
 
   .vision-board-loading-more {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .vision-board-empty {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 }
 
@@ -536,7 +536,7 @@
   max-width: 900px;
   max-height: 90vh;
   width: 100%;
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(30, 20, 10, 0.4);
@@ -576,7 +576,7 @@
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #2c2418;
+  color: var(--color-ink);
   line-height: 1.35;
 }
 
@@ -589,7 +589,7 @@
 .vb-preview-attribution {
   margin: 0;
   font-size: 13px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 .vb-preview-actions {
@@ -606,16 +606,16 @@
   padding: 8px 16px;
   border: 1px solid rgba(120,100,70,0.25);
   border-radius: 8px;
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   font-size: 13px;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .vb-preview-fav-btn:hover {
-  background: #f5f0e1;
+  background: var(--color-parchment);
   border-color: rgba(120,100,70,0.4);
 }
 
@@ -634,9 +634,9 @@
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border: 1px solid var(--source-color, #7a6f5f);
+  border: 1px solid var(--source-color, var(--color-ink-faded));
   border-radius: 8px;
-  background: var(--source-color, #7a6f5f);
+  background: var(--source-color, var(--color-ink-faded));
   font-size: 13px;
   color: #fff;
   text-decoration: none;

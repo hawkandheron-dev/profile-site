@@ -3,7 +3,7 @@
   height: 100%;
   position: relative;
   overflow: hidden;
-  background: var(--color-parchment, #f5f0e1);
+  background: var(--color-parchment, var(--color-parchment));
   cursor: grab;
   user-select: none;
 }
@@ -26,7 +26,7 @@
 .timeline-bg-overlay {
   position: absolute;
   inset: 0;
-  background: var(--color-parchment, #f5f0e1);
+  background: var(--color-parchment, var(--color-parchment));
   opacity: 0.45;
   pointer-events: none;
   z-index: 0;

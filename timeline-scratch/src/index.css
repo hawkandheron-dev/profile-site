@@ -26,6 +26,13 @@
   --color-danger:          #9e3a2a;
   --color-danger-hover:    #87301f;
 
+  /* Timeline category colors (data visualization — intentionally distinct from parchment palette) */
+  --color-cat-people:    #5b7ee8;
+  --color-cat-councils:  #4caf50;
+  --color-cat-emperors:  #f57c00;
+  --color-cat-documents: #f9a825;
+  --color-cat-eras:      #00acc1;
+
   /* Radii */
   --radius-sm:   6px;
   --radius-md:   12px;

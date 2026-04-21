@@ -11,7 +11,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: var(--color-parchment-light, #faf6eb);
+  background: var(--color-parchment-light, var(--color-parchment-light));
   border: 1px solid var(--color-border-hover, rgba(120, 100, 70, 0.5));
   border-radius: 999px;
   box-shadow: 0 2px 8px var(--color-shadow, rgba(60, 50, 30, 0.12));
@@ -19,18 +19,18 @@
 }
 
 .timeline-search-input-wrap:focus-within {
-  border-color: var(--color-accent, #8b7355);
+  border-color: var(--color-accent, var(--color-accent));
   box-shadow: 0 2px 8px var(--color-shadow, rgba(60, 50, 30, 0.12)), 0 0 0 3px rgba(120, 100, 70, 0.08);
 }
 
 .timeline-search-input-wrap.find-mode {
   border-radius: 18px;
-  background: var(--color-parchment, #f5f0e1);
+  background: var(--color-parchment, var(--color-parchment));
 }
 
 .timeline-search-input-wrap svg {
   flex-shrink: 0;
-  color: var(--color-ink-faded, #7a6f5f);
+  color: var(--color-ink-faded, var(--color-ink-faded));
 }
 
 .timeline-search-input {
@@ -40,12 +40,12 @@
   background: transparent;
   font-family: inherit;
   font-size: 14px;
-  color: var(--color-ink, #2c2418);
+  color: var(--color-ink, var(--color-ink));
   outline: none;
 }
 
 .timeline-search-input::placeholder {
-  color: var(--color-ink-faded, #7a6f5f);
+  color: var(--color-ink-faded, var(--color-ink-faded));
   opacity: 0.7;
 }
 
@@ -63,7 +63,7 @@
   border-radius: 50%;
   font-size: 14px;
   line-height: 1;
-  color: var(--color-ink-faded, #7a6f5f);
+  color: var(--color-ink-faded, var(--color-ink-faded));
   cursor: pointer;
   transition: background 0.15s ease;
   aspect-ratio: 1;
@@ -71,7 +71,7 @@
 
 .timeline-search-clear:hover {
   background: rgba(120, 100, 70, 0.25);
-  color: var(--color-ink, #2c2418);
+  color: var(--color-ink, var(--color-ink));
 }
 
 /* Find mode navigation */
@@ -86,7 +86,7 @@
 
 .timeline-search-find-count {
   font-size: 12px;
-  color: var(--color-ink-faded, #7a6f5f);
+  color: var(--color-ink-faded, var(--color-ink-faded));
   white-space: nowrap;
   min-width: 60px;
   text-align: center;
@@ -104,7 +104,7 @@
   font-size: 18px;
   font-weight: 300;
   line-height: 1;
-  color: var(--color-ink-light, #4a3f2f);
+  color: var(--color-ink-light, var(--color-ink-light));
   cursor: pointer;
   transition: background 0.15s ease;
 }
@@ -134,7 +134,7 @@
   margin: 0;
   padding: 6px;
   list-style: none;
-  background: var(--color-parchment-light, #faf6eb);
+  background: var(--color-parchment-light, var(--color-parchment-light));
   border: 1px solid var(--color-border-hover, rgba(120, 100, 70, 0.5));
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(60, 50, 30, 0.18);
@@ -161,7 +161,7 @@
   flex: 1;
   min-width: 0;
   font-size: 14px;
-  color: var(--color-ink, #2c2418);
+  color: var(--color-ink, var(--color-ink));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -169,7 +169,7 @@
 
 .timeline-search-option-name strong {
   font-weight: 600;
-  color: var(--color-accent-hover, #6d5a42);
+  color: var(--color-accent-hover, var(--color-accent-hover));
 }
 
 .timeline-search-option-type {
@@ -181,7 +181,7 @@
   letter-spacing: 0.04em;
   border-radius: 4px;
   background: rgba(120, 100, 70, 0.1);
-  color: var(--color-ink-faded, #7a6f5f);
+  color: var(--color-ink-faded, var(--color-ink-faded));
 }
 
 .timeline-search-option-type.type-person {
