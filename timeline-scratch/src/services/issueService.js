@@ -1,8 +1,16 @@
 /**
  * Issue service for the cross-app issue reporting system.
- * Handles CRUD on App_Issues.
+ * Handles CRUD on App_Issues and discussion comments on App_Issue_Comments.
  */
 import { makeSupabaseClient } from '../lib/supabase.ts';
+
+export const ISSUE_STATUSES = [
+  'submitted',
+  'in_review',
+  'on_roadmap',
+  'implemented',
+  'not_going_to_do',
+];
 
 function getClient(getToken) {
   if (!getToken) throw new Error('Auth token provider required');
@@ -29,7 +37,7 @@ export async function submitIssue({ app_id, title, description, issue_type, page
       issue_type: issue_type || 'general',
       page_context: page_context || null,
       submitted_by: clerkUserId,
-      status: 'open',
+      status: 'submitted',
     })
     .select()
     .single();
@@ -82,21 +90,43 @@ export async function fetchAllIssues(appId, getToken, statusFilter = null) {
 }
 
 /**
- * Resolve an issue (admin only).
+ * Set an issue's status (admin only). Accepts any of ISSUE_STATUSES.
+ * When moving to 'implemented' or 'not_going_to_do', records actor + notes +
+ * resolved_at for audit. Other statuses clear resolved_at.
  */
-export async function resolveIssue(issueId, resolverUserId, resolverNotes, getToken) {
+export async function setIssueStatus(issueId, status, actorUserId, notes, getToken) {
+  if (!ISSUE_STATUSES.includes(status)) {
+    throw new Error(`Unknown status: ${status}`);
+  }
+
   const supabase = getClient(getToken);
+
+  const terminal = status === 'implemented' || status === 'not_going_to_do';
+  const update = { status };
+  if (notes !== undefined) update.resolver_notes = notes || null;
+  if (terminal) {
+    update.resolved_at = new Date().toISOString();
+    update.resolved_by = actorUserId || null;
+  } else {
+    update.resolved_at = null;
+    update.resolved_by = null;
+  }
+
   const { error } = await supabase
     .from('App_Issues')
-    .update({
-      status: 'resolved',
-      resolver_notes: resolverNotes || null,
-      resolved_at: new Date().toISOString(),
-      resolved_by: resolverUserId,
-    })
+    .update(update)
     .eq('issue_id', issueId);
 
   if (error) throw error;
+}
+
+/**
+ * Legacy resolve helper — keeps old callers working by delegating to
+ * setIssueStatus with 'implemented'.
+ * @deprecated Prefer setIssueStatus.
+ */
+export async function resolveIssue(issueId, resolverUserId, resolverNotes, getToken) {
+  return setIssueStatus(issueId, 'implemented', resolverUserId, resolverNotes, getToken);
 }
 
 /**
@@ -106,4 +136,72 @@ export async function resolveIssue(issueId, resolverUserId, resolverNotes, getTo
 export async function uploadScreenshot(_file, _getToken) {
   // TODO: implement with Supabase Storage when ready
   return null;
+}
+
+// ── Comments (discussion thread on an issue) ────────────────────────────────
+
+/**
+ * Fetch comments for an issue, oldest first.
+ */
+export async function fetchIssueComments(issueId, getToken) {
+  const supabase = getClient(getToken);
+  const { data, error } = await supabase
+    .from('App_Issue_Comments')
+    .select('*')
+    .eq('issue_id', issueId)
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+  return data || [];
+}
+
+/**
+ * Add a comment to an issue. The caller must be the issue submitter or an admin.
+ */
+export async function addIssueComment(issueId, body, clerkUserId, getToken) {
+  const supabase = getClient(getToken);
+  const trimmed = (body || '').trim();
+  if (!trimmed) throw new Error('Comment cannot be empty');
+
+  const { data, error } = await supabase
+    .from('App_Issue_Comments')
+    .insert({
+      issue_id: issueId,
+      author_clerk_user_id: clerkUserId,
+      body: trimmed,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Update a comment's body. Author or admin only (enforced by RLS).
+ */
+export async function updateIssueComment(commentId, body, getToken) {
+  const supabase = getClient(getToken);
+  const trimmed = (body || '').trim();
+  if (!trimmed) throw new Error('Comment cannot be empty');
+
+  const { error } = await supabase
+    .from('App_Issue_Comments')
+    .update({ body: trimmed })
+    .eq('comment_id', commentId);
+
+  if (error) throw error;
+}
+
+/**
+ * Delete a comment. Author or admin only (enforced by RLS).
+ */
+export async function deleteIssueComment(commentId, getToken) {
+  const supabase = getClient(getToken);
+  const { error } = await supabase
+    .from('App_Issue_Comments')
+    .delete()
+    .eq('comment_id', commentId);
+
+  if (error) throw error;
 }

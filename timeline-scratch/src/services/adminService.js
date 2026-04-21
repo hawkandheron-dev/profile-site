@@ -6,9 +6,15 @@ import { makeSupabaseClient } from '../lib/supabase.ts';
 
 /**
  * Ensure the current user has a row in the users table.
- * On first sign-in this creates a 'viewer' row; subsequent calls are no-ops.
- * Uses select-then-insert to avoid upsert RLS issues (upsert requires both
- * INSERT and UPDATE policies, but only admins can UPDATE).
+ *
+ * Order of operations on sign-in:
+ *   1. If a row already exists for this clerk_user_id, backfill missing
+ *      display_name/email and return.
+ *   2. Otherwise, try to CLAIM a pending-invite row (clerk_user_id IS NULL)
+ *      matching this user's email — admins pre-seed these with
+ *      role='contributor'. The "Users can claim pending invite" RLS policy
+ *      enforces the email match against the JWT's email claim.
+ *   3. Otherwise, INSERT a new viewer row (self-registration).
  */
 export async function ensureUserExists(getToken, clerkUserId, email, displayName) {
   if (!getToken || !clerkUserId) return;
@@ -16,7 +22,7 @@ export async function ensureUserExists(getToken, clerkUserId, email, displayName
   try {
     const supabase = makeSupabaseClient(getToken);
 
-    // Check if user already exists (any role)
+    // 1. Existing claimed row?
     const { data: existing } = await supabase
       .from('users')
       .select('clerk_user_id, display_name, email')
@@ -24,8 +30,6 @@ export async function ensureUserExists(getToken, clerkUserId, email, displayName
       .maybeSingle();
 
     if (existing) {
-      // Update display_name/email if they were missing (e.g. first registration
-      // happened before Clerk user profile was fully loaded)
       const updates = {};
       if (!existing.display_name && displayName) updates.display_name = displayName;
       if (!existing.email && email) updates.email = email;
@@ -38,7 +42,31 @@ export async function ensureUserExists(getToken, clerkUserId, email, displayName
       return;
     }
 
-    // Insert new viewer row. The RLS policy requires role='viewer' explicitly.
+    // 2. Pending invite for this email?
+    if (email) {
+      const normalizedEmail = email.toLowerCase();
+      const { data: claimed, error: claimErr } = await supabase
+        .from('users')
+        .update({
+          clerk_user_id: clerkUserId,
+          display_name: displayName || null,
+        })
+        .is('clerk_user_id', null)
+        .ilike('email', normalizedEmail)
+        .select('clerk_user_id, role')
+        .maybeSingle();
+
+      if (!claimErr && claimed) {
+        // Invite claimed — role stays as pre-seeded (e.g. 'contributor')
+        return;
+      }
+      if (claimErr && claimErr.code !== 'PGRST116') {
+        // PGRST116 = no rows matched; anything else is unexpected
+        console.warn('[adminService] pending-invite claim failed:', claimErr);
+      }
+    }
+
+    // 3. Fall back to self-register as viewer
     const { error } = await supabase
       .from('users')
       .insert({

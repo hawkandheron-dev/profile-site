@@ -18,6 +18,8 @@ import { checkUserRole, ensureUserExists } from './services/adminService.js';
 import { AdminSuggestionsPage } from './components/Suggestions/AdminSuggestionsPage.jsx';
 import { SuggestNewModal } from './components/Suggestions/SuggestNewModal.jsx';
 import { IssueCreatorButton } from './components/IssueCreator/IssueCreatorButton.jsx';
+import { GettingStartedPage } from './components/GettingStarted/GettingStartedPage.jsx';
+import { CollaboratorsOnlyNotice } from './components/GettingStarted/CollaboratorsOnlyNotice.jsx';
 import { Icon } from './components/Timeline/components/Icon.jsx';
 import { useTour } from './components/Tour/useTour.js';
 import { WelcomeDialog } from './components/Tour/WelcomeDialog.jsx';
@@ -61,7 +63,19 @@ function NavDropdown() {
  * Auth header rendered only when Clerk is configured.
  * Isolated so the useAuth hook is always called inside ClerkProvider.
  */
-function ClerkAuthHeader({ onAddNote, onViewNotes, isAdmin, isContributor, onReviewSuggestions, onSuggestNew, getToken, clerkUserId, getPageContext }) {
+function ClerkAuthHeader({
+  onAddNote,
+  onViewNotes,
+  isAdmin,
+  isContributor,
+  onReviewSuggestions,
+  onSuggestNew,
+  onOpenGettingStarted,
+  hideIssueCreator = false,
+  getToken,
+  clerkUserId,
+  getPageContext,
+}) {
   const { isSignedIn } = useAuth();
 
   return (
@@ -79,14 +93,21 @@ function ClerkAuthHeader({ onAddNote, onViewNotes, isAdmin, isContributor, onRev
               + Suggest New Entry
             </button>
           )}
-          <IssueCreatorButton
-            isContributor={isContributor}
-            isAdmin={isAdmin}
-            getToken={getToken}
-            clerkUserId={clerkUserId}
-            appId="ch-timeline"
-            getPageContext={getPageContext}
-          />
+          {!hideIssueCreator && (
+            <IssueCreatorButton
+              isContributor={isContributor}
+              isAdmin={isAdmin}
+              getToken={getToken}
+              clerkUserId={clerkUserId}
+              appId="ch-timeline"
+              getPageContext={getPageContext}
+            />
+          )}
+          {(isContributor || isAdmin) && (
+            <button type="button" className="btn" onClick={onOpenGettingStarted}>
+              Getting Started
+            </button>
+          )}
           {isAdmin && (
             <button type="button" className="btn btn-warning" onClick={onReviewSuggestions}>
               Review Suggestions
@@ -120,7 +141,8 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
   const [suggestNewOpen, setSuggestNewOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isContributor, setIsContributor] = useState(false);
-  const [view, setView] = useState('timeline'); // 'timeline' | 'suggestions'
+  const [userRole, setUserRole] = useState(null);
+  const [view, setView] = useState('timeline'); // 'timeline' | 'suggestions' | 'getting-started'
   const timelineRef = useRef(null);
 
   // Auto-register user on sign-in, then check their role.
@@ -142,18 +164,46 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
     const email = clerkUser?.primaryEmailAddress?.emailAddress;
     const displayName = clerkUser?.fullName || clerkUser?.firstName || null;
 
-    // Ensure the user has a row in the users table (creates as 'viewer' if new)
+    // Ensure the user has a row in the users table (creates as 'viewer' if new,
+    // or claims a pre-seeded contributor invite row by email)
     ensureUserExists(getTokenForSupabase, userId, email, displayName)
       .then(() => checkUserRole(getTokenForSupabase, userId))
       .then(result => {
         if (!cancelled) {
           setIsAdmin(result.isAdmin);
           setIsContributor(result.isContributor);
+          setUserRole(result.role);
         }
       });
 
     return () => { cancelled = true; };
   }, [isSignedIn, userId, getToken, clerkUserLoaded]);
+
+  // Deep-link support: sync view ↔ location.hash for getting-started.
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const syncFromHash = () => {
+      const hash = (window.location.hash || '').replace(/^#/, '');
+      if (hash === 'getting-started') setView('getting-started');
+      else if (view === 'getting-started') setView('timeline');
+    };
+    window.addEventListener('hashchange', syncFromHash);
+    syncFromHash();
+    return () => window.removeEventListener('hashchange', syncFromHash);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const wantHash = view === 'getting-started' ? 'getting-started' : '';
+    const curHash = (window.location.hash || '').replace(/^#/, '');
+    if (wantHash && curHash !== wantHash) {
+      window.location.hash = wantHash;
+    } else if (!wantHash && curHash === 'getting-started') {
+      // Clear the hash without adding a history entry
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, [view]);
 
   const handleAddNoteClose = useCallback(() => {
     setAddNoteOpen(false);
@@ -222,6 +272,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
                 isContributor={isContributor}
                 onReviewSuggestions={() => setView('suggestions')}
                 onSuggestNew={() => setSuggestNewOpen(true)}
+                onOpenGettingStarted={() => setView('getting-started')}
                 getToken={getTokenForSupabase}
                 clerkUserId={userId}
                 getPageContext={getPageContext}
@@ -235,6 +286,58 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
             clerkUserId={userId}
             onBack={() => setView('timeline')}
           />
+        </div>
+      </>
+    );
+  }
+
+  // Getting Started page for invited collaborators
+  if (view === 'getting-started') {
+    const email = clerkUser?.primaryEmailAddress?.emailAddress;
+    const displayName = clerkUser?.fullName || clerkUser?.firstName || null;
+    const canEnter = isContributor || isAdmin;
+
+    return (
+      <>
+        <header className="app-header">
+          <div className="header-content">
+            <div className="header-left">
+              <h1 className="site-title"><strong>History of the Christian Church</strong> <span>Lifespans</span></h1>
+            </div>
+            <div className="header-right">
+              <ClerkAuthHeader
+                onAddNote={() => setAddNoteOpen(true)}
+                onViewNotes={() => setViewNotesOpen(true)}
+                isAdmin={isAdmin}
+                isContributor={isContributor}
+                onReviewSuggestions={() => setView('suggestions')}
+                onSuggestNew={() => setSuggestNewOpen(true)}
+                onOpenGettingStarted={() => setView('getting-started')}
+                hideIssueCreator
+                getToken={getTokenForSupabase}
+                clerkUserId={userId}
+                getPageContext={getPageContext}
+              />
+              <button type="button" className="btn" onClick={() => setView('timeline')}>
+                Back to Timeline
+              </button>
+            </div>
+          </div>
+        </header>
+        <div className="tab-content" style={{ overflow: 'auto' }}>
+          {canEnter ? (
+            <GettingStartedPage
+              getToken={getTokenForSupabase}
+              clerkUserId={userId}
+              displayName={displayName}
+              email={email}
+              role={userRole}
+              appId="ch-timeline"
+              getPageContext={getPageContext}
+            />
+          ) : (
+            <CollaboratorsOnlyNotice onBack={() => setView('timeline')} />
+          )}
         </div>
       </>
     );
@@ -271,6 +374,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
               isContributor={isContributor}
               onReviewSuggestions={() => setView('suggestions')}
               onSuggestNew={() => setSuggestNewOpen(true)}
+              onOpenGettingStarted={() => setView('getting-started')}
               getToken={getTokenForSupabase}
               clerkUserId={userId}
               getPageContext={getPageContext}
