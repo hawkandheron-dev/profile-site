@@ -4,8 +4,8 @@
   height: 100vh;
   overflow-y: auto;
   overscroll-behavior: contain;
-  background: #faf6eb;
-  color: #2c2418;
+  background: var(--color-parchment-light);
+  color: var(--color-ink);
   padding: 24px;
   box-shadow: -4px 0 24px rgba(60, 50, 30, 0.15);
 }
@@ -33,12 +33,12 @@
   justify-content: center;
   border-radius: 8px;
   transition: background-color 0.2s ease;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 .bp-modal-close:hover {
   background-color: rgba(120, 100, 70, 0.1);
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 /* ── Narrative age navigation (prev / next) ───────────────────────────── */
@@ -62,7 +62,7 @@
   padding: 6px 10px;
   font: inherit;
   font-size: 12px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   transition: background-color 0.2s ease, color 0.2s ease;
   max-width: 50%;
   min-width: 0;
@@ -70,7 +70,7 @@
 
 .bp-age-nav-btn:hover {
   background-color: rgba(120, 100, 70, 0.15);
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .bp-age-nav-prev {
@@ -103,13 +103,13 @@
   font-size: 24px;
   font-weight: 600;
   line-height: 1.3;
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .bp-modal-subtitle {
   margin: 0 0 8px;
   font-size: 15px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 .bp-modal-age-context {
@@ -121,7 +121,7 @@
 
 .bp-modal-year-range {
   font-size: 14px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   font-style: italic;
 }
 
@@ -129,7 +129,7 @@
   margin: 0 0 20px;
   line-height: 1.7;
   font-size: 15px;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 /* ── Sections ──────────────────────────────────────────────────────────── */
@@ -144,7 +144,7 @@
   margin: 0 0 12px;
   font-size: 14px;
   font-weight: 600;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -212,7 +212,7 @@
   font: inherit;
   font-size: 15px;
   font-weight: 600;
-  color: #2c2418;
+  color: var(--color-ink);
   cursor: pointer;
   padding: 0;
   text-align: left;
@@ -222,8 +222,8 @@
 }
 
 .bp-event-name:hover {
-  color: #8b7355;
-  text-decoration-color: #8b7355;
+  color: var(--color-accent);
+  text-decoration-color: var(--color-accent);
 }
 
 .bp-event-type {
@@ -233,7 +233,7 @@
   border-radius: 8px;
   font-size: 11px;
   font-weight: 500;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   background: rgba(120, 100, 70, 0.1);
   text-transform: capitalize;
   vertical-align: middle;
@@ -251,7 +251,7 @@
   margin: 6px 0 8px;
   font-size: 14px;
   line-height: 1.6;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 /* ── Scripture references ──────────────────────────────────────────────── */
@@ -259,7 +259,7 @@
 .bp-scripture-ref {
   display: inline-block;
   font-size: 13px;
-  color: #8b7355;
+  color: var(--color-accent);
   font-style: italic;
   margin-left: 6px;
 }
@@ -274,19 +274,19 @@
 }
 
 .bp-pill {
-  background: #f5f0e1;
+  background: var(--color-parchment);
   border: 1px solid transparent;
   border-radius: 12px;
   cursor: pointer;
   font: inherit;
   padding: 4px 10px;
   font-size: 13px;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   transition: background 0.15s ease;
 }
 
 .bp-pill:hover {
-  background: #e8dfc8;
+  background: var(--color-parchment-dark);
 }
 
 .bp-pill-sm {
@@ -310,16 +310,16 @@
 .bp-source-list li {
   margin-bottom: 6px;
   font-size: 14px;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .bp-source-list a {
-  color: #8b7355;
+  color: var(--color-accent);
   text-decoration: underline;
 }
 
 .bp-source-list a:hover {
-  color: #6d5a42;
+  color: var(--color-accent-hover);
 }
 
 .bp-source-name {
@@ -331,13 +331,13 @@
 
 .bp-reference-link {
   display: inline-block;
-  color: #8b7355;
+  color: var(--color-accent);
   text-decoration: underline;
   font-size: 14px;
 }
 
 .bp-reference-link:hover {
-  color: #6d5a42;
+  color: var(--color-accent-hover);
 }
 
 /* ── Person card with events ───────────────────────────────────────────── */
@@ -356,7 +356,7 @@
   font: inherit;
   font-size: 15px;
   font-weight: 600;
-  color: #2c2418;
+  color: var(--color-ink);
   cursor: pointer;
   padding: 0;
   text-align: left;
@@ -366,15 +366,15 @@
 }
 
 .bp-person-name-btn:hover {
-  color: #8b7355;
-  text-decoration-color: #8b7355;
+  color: var(--color-accent);
+  text-decoration-color: var(--color-accent);
 }
 
 .bp-person-context {
   display: inline-block;
   margin-left: 6px;
   font-size: 13px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   font-style: italic;
 }
 
@@ -398,14 +398,14 @@
   font: inherit;
   font-size: 13px;
   font-weight: 600;
-  color: #6d5a42;
+  color: var(--color-accent-hover);
   cursor: pointer;
   padding: 0;
   text-transform: capitalize;
 }
 
 .bp-person-event-title:hover {
-  color: #8b7355;
+  color: var(--color-accent);
   text-decoration: underline;
 }
 
@@ -429,7 +429,7 @@
 
 .bp-verse-place {
   font-weight: 700;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .bp-verse-cite {
@@ -439,13 +439,13 @@
   margin-top: 4px;
   font-size: 11px;
   font-style: normal;
-  color: #8b7355;
+  color: var(--color-accent);
 }
 
 .bp-verse-linkout {
   display: inline-flex;
   align-items: center;
-  color: #8b7355;
+  color: var(--color-accent);
   opacity: 0.7;
   transition: opacity 0.15s;
 }
@@ -467,7 +467,7 @@
   margin-top: 4px;
   font-size: 11px;
   font-style: normal;
-  color: #8b7355;
+  color: var(--color-accent);
   cursor: pointer;
   text-decoration: underline;
   text-decoration-color: rgba(139, 115, 85, 0.3);
@@ -505,14 +505,14 @@
   align-items: center;
   gap: 5px;
   font-style: normal;
-  color: #8b7355;
+  color: var(--color-accent);
   font-size: 12px;
 }
 
 /* ── Section variants: during (focus) vs before/after (context) ────────── */
 
 .bp-section-during .bp-section-title {
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   font-size: 15px;
 }
 
@@ -577,7 +577,7 @@
   }
 
   .bp-modal-year-range {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .bp-section-during .bp-section-title {
@@ -585,11 +585,11 @@
   }
 
   .bp-section-context .bp-section-title {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .bp-empty-message {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .bp-section {
@@ -629,7 +629,7 @@
   }
 
   .bp-age-scripture {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .bp-pill {
@@ -642,7 +642,7 @@
   }
 
   .bp-pill-context {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .bp-source-list li {
@@ -658,7 +658,7 @@
   }
 
   .bp-source-name {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .bp-reference-link {
@@ -685,7 +685,7 @@
   }
 
   .bp-person-context {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .bp-person-event-title {
@@ -697,7 +697,7 @@
   }
 
   .bp-verse {
-    border-left-color: #8b7355;
+    border-left-color: var(--color-accent);
     background: rgba(139, 115, 85, 0.08);
     color: #d8d0c4;
   }

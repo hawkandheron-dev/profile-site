@@ -5,7 +5,7 @@
   margin: 0 auto;
   padding: 24px 20px;
   font-family: inherit;
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .suggestions-page-header {
@@ -19,7 +19,7 @@
   margin: 0;
   font-size: 22px;
   font-weight: 700;
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 /* .suggestions-back-btn uses .btn from design system */
@@ -40,20 +40,20 @@
   border-radius: 999px;
   border: 1px solid rgba(120, 100, 70, 0.25);
   background: transparent;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   cursor: pointer;
   transition: all 160ms ease;
 }
 
 .suggestions-filter-btn:hover {
   background: rgba(120, 100, 70, 0.08);
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .suggestions-filter-btn.active {
-  background: #2c2418;
-  color: #faf6eb;
-  border-color: #2c2418;
+  background: var(--color-ink);
+  color: var(--color-parchment-light);
+  border-color: var(--color-ink);
 }
 
 /* ── Loading / Error / Empty ─────────────────────────────────────────── */
@@ -84,7 +84,7 @@
 .suggestion-card {
   border: 1px solid rgba(120, 100, 70, 0.2);
   border-radius: 10px;
-  background: #faf6eb;
+  background: var(--color-parchment-light);
   overflow: hidden;
   transition: box-shadow 160ms ease;
 }
@@ -94,7 +94,7 @@
 }
 
 .suggestion-card--approved {
-  border-left: 3px solid #4caf50;
+  border-left: 3px solid var(--color-cat-councils);
 }
 
 .suggestion-card--rejected {
@@ -103,7 +103,7 @@
 }
 
 .suggestion-card--pending {
-  border-left: 3px solid #f9a825;
+  border-left: 3px solid var(--color-cat-documents);
 }
 
 .suggestion-card-header {
@@ -159,12 +159,12 @@
 
 .suggestion-card-type {
   font-size: 13px;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 .suggestion-card-name {
   font-size: 14px;
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .suggestion-card-date {
@@ -202,7 +202,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   padding: 6px 10px;
   border-bottom: 2px solid rgba(120, 100, 70, 0.15);
 }
@@ -217,19 +217,19 @@
 
 .suggestion-diff-label {
   font-weight: 500;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   white-space: nowrap;
   width: 140px;
 }
 
 .suggestion-diff-current {
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 .suggestion-diff-highlight {
   background: #fffde7;
   font-weight: 500;
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .suggestion-diff-changed .suggestion-diff-current {
@@ -243,7 +243,7 @@
   background: #f0ebe0;
   border-radius: 6px;
   font-size: 13px;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 /* ── Actions ─────────────────────────────────────────────────────────── */
@@ -271,12 +271,12 @@
   border-radius: 6px;
   min-width: 200px;
   background: white;
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .suggestion-reject-input:focus {
   outline: none;
-  border-color: #8b7355;
+  border-color: var(--color-accent);
   box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.15);
 }
 
@@ -334,7 +334,7 @@
   }
 
   .suggestion-diff-current {
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .suggestion-reviewer-notes {

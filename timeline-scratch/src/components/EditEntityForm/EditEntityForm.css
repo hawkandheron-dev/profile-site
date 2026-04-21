@@ -3,7 +3,7 @@
 .edit-entity-form {
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 2px solid #8b7355;
+  border-top: 2px solid var(--color-accent);
 }
 
 .edit-form-header {
@@ -17,7 +17,7 @@
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
 }
 
 .edit-form-hint {
@@ -47,7 +47,7 @@
 .edit-field-label {
   font-size: 11px;
   font-weight: 600;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -62,7 +62,7 @@
   border: 1px solid rgba(120, 100, 70, 0.25);
   border-radius: 6px;
   background: white;
-  color: #2c2418;
+  color: var(--color-ink);
   transition: border-color 160ms ease;
 }
 
@@ -70,14 +70,14 @@
 .edit-field select:focus,
 .edit-field textarea:focus {
   outline: none;
-  border-color: #8b7355;
+  border-color: var(--color-accent);
   box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.15);
 }
 
 .edit-field input[readonly],
 .edit-field textarea[readonly] {
   background: #f0ebe0;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   cursor: not-allowed;
 }
 
@@ -102,7 +102,7 @@
 .edit-field-checkbox input[type="checkbox"] {
   width: 16px;
   height: 16px;
-  accent-color: #8b7355;
+  accent-color: var(--color-accent);
   cursor: pointer;
 }
 
@@ -158,8 +158,8 @@
 }
 
 .edit-form-result-info {
-  background: #e8dfc8;
-  color: #4a3f2f;
+  background: var(--color-parchment-dark);
+  color: var(--color-ink-light);
 }
 
 /* ── Loading / Error states ──────────────────────────────────────────── */
@@ -170,13 +170,13 @@
   text-align: center;
   color: #a09888;
   font-style: italic;
-  border-top: 2px solid #8b7355;
+  border-top: 2px solid var(--color-accent);
 }
 
 .edit-form-error {
   margin-top: 24px;
   padding: 16px;
-  border-top: 2px solid #8b7355;
+  border-top: 2px solid var(--color-accent);
   color: #8b2020;
 }
 
@@ -197,7 +197,7 @@
   border: 1px solid rgba(139, 115, 85, 0.4);
   border-radius: 999px;
   background: transparent;
-  color: #8b7355;
+  color: var(--color-accent);
   cursor: pointer;
   transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
   vertical-align: middle;
@@ -205,23 +205,23 @@
 
 .modal-edit-toggle:hover {
   background: rgba(139, 115, 85, 0.1);
-  border-color: #8b7355;
+  border-color: var(--color-accent);
 }
 
 .modal-edit-toggle.active {
-  background: #8b7355;
-  color: #faf6eb;
-  border-color: #8b7355;
+  background: var(--color-accent);
+  color: var(--color-parchment-light);
+  border-color: var(--color-accent);
 }
 
 .modal-edit-toggle.active:hover {
-  background: #6d5a42;
+  background: var(--color-accent-hover);
 }
 
 /* ── Suggest mode ────────────────────────────────────────────────────── */
 
 .edit-entity-form--suggest {
-  border-top-color: #5b7ee8;
+  border-top-color: var(--color-action);
 }
 
 .edit-form-suggest-note {
@@ -235,26 +235,26 @@
 }
 
 .modal-suggest-toggle {
-  color: #5b7ee8;
+  color: var(--color-action);
   border-color: rgba(91, 126, 232, 0.4);
 }
 
 .modal-suggest-toggle:hover {
   background: rgba(91, 126, 232, 0.1);
-  border-color: #5b7ee8;
+  border-color: var(--color-action);
 }
 
 .modal-suggest-toggle.active {
-  background: #5b7ee8;
+  background: var(--color-action);
   color: #fff;
-  border-color: #5b7ee8;
+  border-color: var(--color-action);
 }
 
 /* ── Dark mode ───────────────────────────────────────────────────────── */
 
 @media (prefers-color-scheme: dark) {
   .edit-entity-form {
-    border-top-color: #6d5a42;
+    border-top-color: var(--color-accent-hover);
   }
 
   .edit-form-header h3 {
@@ -284,7 +284,7 @@
   .edit-field input[readonly],
   .edit-field textarea[readonly] {
     background: #1e1b16;
-    color: #7a6f5f;
+    color: var(--color-ink-faded);
   }
 
   .edit-form-result-success {
@@ -303,12 +303,12 @@
   }
 
   .edit-form-loading {
-    border-top-color: #6d5a42;
-    color: #7a6f5f;
+    border-top-color: var(--color-accent-hover);
+    color: var(--color-ink-faded);
   }
 
   .edit-form-error {
-    border-top-color: #6d5a42;
+    border-top-color: var(--color-accent-hover);
     color: #f08080;
   }
 
@@ -334,7 +334,7 @@
   }
 
   .edit-entity-form--suggest {
-    border-top-color: #5b7ee8;
+    border-top-color: var(--color-action);
   }
 
   .edit-form-suggest-note {
@@ -353,8 +353,8 @@
   }
 
   .modal-suggest-toggle.active {
-    background: #5b7ee8;
+    background: var(--color-action);
     color: #fff;
-    border-color: #5b7ee8;
+    border-color: var(--color-action);
   }
 }

@@ -18,6 +18,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { SOURCE_LABELS, SOURCE_COLORS } from '../../services/imageApiService.js';
+import { sanitizeHtml } from '../../utils/sanitize.js';
 import './VisionBoard.css';
 
 export function VisionBoard({
@@ -139,7 +140,7 @@ export function VisionBoard({
           {eraDescription && (
             <div
               className="vision-board-era-description"
-              dangerouslySetInnerHTML={{ __html: eraDescription }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(eraDescription) }}
             />
           )}
         </div>

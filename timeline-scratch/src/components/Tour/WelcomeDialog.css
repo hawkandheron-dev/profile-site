@@ -26,8 +26,8 @@
   z-index: 1;
   max-width: 460px;
   width: 90vw;
-  background: #faf6eb;
-  color: #2c2418;
+  background: var(--color-parchment-light);
+  color: var(--color-ink);
   border-radius: 16px;
   padding: 36px 32px 28px;
   box-shadow: 0 24px 60px rgba(60, 50, 30, 0.35);
@@ -81,7 +81,7 @@
 }
 
 .welcome-btn-primary {
-  background: #5b7ee8;
+  background: var(--color-action);
   color: #fff;
 }
 
@@ -91,7 +91,7 @@
 
 .welcome-btn-secondary {
   background: rgba(120, 100, 70, 0.12);
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .welcome-btn-secondary:hover {

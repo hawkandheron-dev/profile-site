@@ -6,7 +6,13 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [react()],
   base: './', // Use relative paths for assets
+  esbuild: {
+    drop: ['console', 'debugger'],
+  },
   build: {
+    outDir: '../apps',
+    emptyOutDir: true,
+    sourcemap: false,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),

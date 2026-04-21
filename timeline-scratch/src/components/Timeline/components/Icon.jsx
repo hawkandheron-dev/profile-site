@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { sanitizeHtml } from '../../../utils/sanitize.js';
 
 // Map of icon names to their collection and file
 const iconMap = {
@@ -82,7 +83,7 @@ export function Icon({ name, size = 24, color = 'currentColor', className = '' }
     <span
       className={`icon ${className}`}
       style={{ display: 'inline-flex', width: size, height: size }}
-      dangerouslySetInnerHTML={{ __html: processedSvg }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(processedSvg) }}
     />
   );
 }
@@ -131,7 +132,7 @@ export function ShapeIcon({ shape, color, size = 18 }) {
     <span
       className="shape-icon"
       style={{ display: 'inline-flex', width: size, height: size }}
-      dangerouslySetInnerHTML={{ __html: processedSvg }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(processedSvg) }}
     />
   );
 }

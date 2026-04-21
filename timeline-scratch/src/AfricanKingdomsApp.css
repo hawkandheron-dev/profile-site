@@ -5,7 +5,7 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  background: #f5f0e1;
+  background: var(--color-parchment);
 }
 
 /* ── Header ─────────────────────────────────────────────────────────── */
@@ -28,21 +28,21 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   text-decoration: none;
   transition: background 160ms ease, color 160ms ease;
 }
 
 .ak-home-link:hover {
   background: rgba(120, 100, 70, 0.12);
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .ak-title {
   font-family: 'Cormorant', Georgia, serif;
   font-size: 1.3rem;
   font-weight: 600;
-  color: #2c2418;
+  color: var(--color-ink);
   margin: 0;
   line-height: 1;
 }
@@ -50,7 +50,7 @@
 .ak-subtitle {
   font-family: 'Alegreya Sans', sans-serif;
   font-size: 0.8rem;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   font-style: italic;
 }
 
@@ -72,7 +72,7 @@
   border: none;
   border-radius: 50%;
   background: transparent;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
   cursor: pointer;
   transition: background 160ms ease, color 160ms ease;
   padding: 0;
@@ -80,7 +80,7 @@
 
 .ak-year-nav-btn:hover {
   background: rgba(120, 100, 70, 0.15);
-  color: #2c2418;
+  color: var(--color-ink);
 }
 
 .ak-year-nav-btn:active {
@@ -91,7 +91,7 @@
   font-family: 'Alegreya Sans', sans-serif;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   background: rgba(120, 100, 70, 0.1);
   padding: 4px 12px;
   border-radius: 999px;
@@ -117,7 +117,7 @@
 }
 
 .ak-timeline-area .timeline-container {
-  background: #f5f0e1;
+  background: var(--color-parchment);
 }
 
 /* ── Loading ────────────────────────────────────────────────────────── */
@@ -128,16 +128,16 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: #f5f0e1;
+  background: var(--color-parchment);
   font-family: 'Alegreya Sans', sans-serif;
-  color: #7a6f5f;
+  color: var(--color-ink-faded);
 }
 
 .ak-loading-spinner {
   width: 32px;
   height: 32px;
   border: 3px solid rgba(120, 100, 70, 0.2);
-  border-top-color: #8b7355;
+  border-top-color: var(--color-accent);
   border-radius: 50%;
   animation: ak-spin 0.8s linear infinite;
   margin-bottom: 16px;
@@ -155,9 +155,9 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: #f5f0e1;
+  background: var(--color-parchment);
   font-family: 'Alegreya Sans', sans-serif;
-  color: #4a3f2f;
+  color: var(--color-ink-light);
   text-align: center;
   padding: 20px;
 }
@@ -176,7 +176,7 @@
   border-radius: 999px;
   border: 1px solid rgba(120, 100, 70, 0.25);
   background: transparent;
-  color: #2c2418;
+  color: var(--color-ink);
   cursor: pointer;
 }
 

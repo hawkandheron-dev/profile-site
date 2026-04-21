@@ -12,38 +12,13 @@ let supabaseClient = null;
 async function getSupabase() {
   if (supabaseClient) return supabaseClient;
 
-  // Try fetching config from Cloudflare Pages Function first,
-  // then fall back to a local config script.
-  let url = '';
-  let key = '';
-
-  try {
-    const res = await fetch('/api/supabase-config');
-    if (res.ok) {
-      const script = await res.text();
-      // Config script sets window.SUPABASE_URL and window.SUPABASE_ANON_KEY
-      const fn = new Function(script);
-      fn();
-    }
-  } catch {
-    // Try local config
-    try {
-      const res = await fetch('/supabase-config.js');
-      if (res.ok) {
-        const script = await res.text();
-        const fn = new Function(script);
-        fn();
-      }
-    } catch {
-      // ignore
-    }
-  }
-
-  url = window.SUPABASE_URL || '';
-  key = window.SUPABASE_ANON_KEY || '';
+  // Config is set on window by the <script src="/api/supabase-config"> tag
+  // in the HTML entry point before React boots.
+  const url = window.SUPABASE_URL || '';
+  const key = window.SUPABASE_ANON_KEY || '';
 
   if (!url || !key) {
-    throw new Error('Supabase configuration not found. Check /api/supabase-config or supabase-config.js');
+    throw new Error('Supabase configuration not found. Ensure the config script has loaded.');
   }
 
   supabaseClient = createClient(url, key);
