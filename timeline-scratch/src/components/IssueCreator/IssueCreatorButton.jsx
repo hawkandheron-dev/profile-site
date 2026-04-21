@@ -16,6 +16,7 @@ export function IssueCreatorButton({ isContributor, isAdmin, getToken, clerkUser
         className="btn"
         onClick={() => setOpen(true)}
         title="Submit feedback, report an issue, or suggest a correction"
+        data-tour="issue-create-btn"
       >
         Submit Feedback
       </button>
