@@ -562,6 +562,62 @@ code {
 }
 
 /* ===================================================
+   CREDITS (about page)
+   =================================================== */
+.site-credits {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border);
+}
+
+.site-credits h2 {
+  font-size: 1.3rem;
+  margin: 0 0 8px;
+}
+
+.site-credits h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 20px 0 8px;
+  color: var(--color-ink-light);
+}
+
+.credits-intro {
+  font-size: 0.95rem;
+  color: var(--color-ink-faded);
+  margin: 0 0 4px;
+}
+
+.credits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.credits-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: rgba(245, 240, 225, 0.4);
+}
+
+.credits-meta {
+  font-size: 0.85rem;
+  color: var(--color-ink-faded);
+}
+
+.credits-note {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--color-ink-faded);
+}
+
+/* ===================================================
    FOOTER
    =================================================== */
 .site-footer {
@@ -569,6 +625,19 @@ code {
   padding: 40px 20px 24px;
   font-size: 0.9rem;
   color: var(--color-ink-faded);
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.site-footer a {
+  color: inherit;
+  text-decoration-color: rgba(120, 100, 70, 0.35);
+}
+
+.site-footer a:hover {
+  color: var(--color-accent);
 }
 
 /* ===================================================

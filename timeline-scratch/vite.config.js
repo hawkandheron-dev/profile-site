@@ -17,6 +17,10 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         'church-history': resolve(__dirname, 'church-history.html'),
+        'church-history-timeline': resolve(__dirname, 'church-history-timeline.html'),
+        // Redirect stub for the old URL. Kept as a build input so
+        // apps/church-history-supabase.html remains a (redirecting) page
+        // rather than a 404 for existing bookmarks.
         'church-history-supabase': resolve(__dirname, 'church-history-supabase.html'),
         'historical-eras': resolve(__dirname, 'historical-eras.html'),
         'biblical-places': resolve(__dirname, 'biblical-places.html'),
