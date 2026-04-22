@@ -105,7 +105,7 @@ function ClerkAuthHeader({
           )}
           {(isContributor || isAdmin) && (
             <button type="button" className="btn" onClick={onOpenGettingStarted}>
-              Getting Started
+              Contributor Portal
             </button>
           )}
           {isAdmin && (
