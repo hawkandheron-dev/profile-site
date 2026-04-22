@@ -937,7 +937,7 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
           </div>
         )}
 
-        {itemType === 'person' && authContext && (
+        {itemType === 'person' && authContext && adminContext?.isAdmin && (
           <NotesSection
             personId={item.id}
             personName={item.name}

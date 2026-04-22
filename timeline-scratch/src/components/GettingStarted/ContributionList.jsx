@@ -2,11 +2,21 @@ import { ContributionRow } from './ContributionRow.jsx';
 import { STATUS_LABELS } from './StatusPill.jsx';
 import './GettingStarted.css';
 
-export function ContributionList({ issues, loading, error, onSubmitNew, clerkUserId, getToken }) {
+export function ContributionList({
+  issues,
+  loading,
+  error,
+  onSubmitNew,
+  clerkUserId,
+  getToken,
+  isAdmin = false,
+  submitterNameById,
+  onIssueUpdated,
+}) {
   return (
     <section className="gs-contributions" data-tour="my-contributions-list">
       <div className="gs-contributions-header">
-        <h2>My contributions</h2>
+        <h2>{isAdmin ? 'All contributions' : 'My contributions'}</h2>
         <button type="button" className="btn btn-accent" onClick={onSubmitNew}>
           + New feedback
         </button>
@@ -34,6 +44,9 @@ export function ContributionList({ issues, loading, error, onSubmitNew, clerkUse
               issue={issue}
               clerkUserId={clerkUserId}
               getToken={getToken}
+              isAdmin={isAdmin}
+              submitterName={submitterNameById?.[issue.submitted_by]}
+              onIssueUpdated={onIssueUpdated}
             />
           ))}
         </ul>

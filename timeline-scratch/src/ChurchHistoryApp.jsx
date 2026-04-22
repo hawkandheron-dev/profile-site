@@ -26,7 +26,7 @@ function NavDropdown() {
       {open && (
         <div className="nav-dropdown-menu">
           <a href="../../index.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Home</a>
-          <a href="./church-history-supabase.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Supabase Version</a>
+          <a href="./church-history-timeline.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Live Version</a>
           <a href="../../church-history-supabase.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Data Browser</a>
         </div>
       )}

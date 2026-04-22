@@ -16,7 +16,7 @@ import { ContributionList } from './ContributionList.jsx';
 import { DomTour } from './tour/DomTour.jsx';
 import { useDomTour } from './tour/useDomTour.js';
 import { makeGettingStartedSteps } from './tour/gettingStartedSteps.js';
-import { fetchMyIssues } from '../../services/issueService.js';
+import { fetchMyIssues, fetchSubmittersByIds } from '../../services/issueService.js';
 import './GettingStarted.css';
 
 export function GettingStartedPage({
@@ -31,8 +31,11 @@ export function GettingStartedPage({
   const [issues, setIssues] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [submitterNameById, setSubmitterNameById] = useState({});
 
   const [modalOpen, setModalOpen] = useState(false);
+
+  const isAdmin = role === 'admin';
 
   const contributionsRef = useRef(null);
 
@@ -55,6 +58,22 @@ export function GettingStartedPage({
   }, [getToken, appId]);
 
   useEffect(() => { loadIssues(); }, [loadIssues]);
+
+  // Fetch display names for submitters that aren't the current user.
+  useEffect(() => {
+    if (!issues || issues.length === 0 || !getToken) return;
+    const ids = [...new Set(issues.map(i => i.submitted_by).filter(id => id && id !== clerkUserId))];
+    if (ids.length === 0) { setSubmitterNameById({}); return; }
+    let cancelled = false;
+    fetchSubmittersByIds(ids, getToken)
+      .then(map => { if (!cancelled) setSubmitterNameById(map); })
+      .catch(() => { /* non-fatal — row will omit the "by X" */ });
+    return () => { cancelled = true; };
+  }, [issues, clerkUserId, getToken]);
+
+  const handleIssueUpdated = useCallback((issueId, patch) => {
+    setIssues(prev => prev?.map(i => i.issue_id === issueId ? { ...i, ...patch } : i));
+  }, []);
 
   const requestOpenIssueModal = useCallback(() => { setModalOpen(true); }, []);
   const requestCloseIssueModal = useCallback(() => { setModalOpen(false); }, []);
@@ -118,6 +137,9 @@ export function GettingStartedPage({
           onSubmitNew={() => setModalOpen(true)}
           clerkUserId={clerkUserId}
           getToken={getToken}
+          isAdmin={isAdmin}
+          submitterNameById={submitterNameById}
+          onIssueUpdated={handleIssueUpdated}
         />
       </div>
 

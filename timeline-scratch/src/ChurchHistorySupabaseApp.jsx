@@ -82,12 +82,16 @@ function ClerkAuthHeader({
     <div className="auth-actions">
       {isSignedIn && (
         <>
-          <button type="button" className="btn" onClick={onAddNote}>
-            + Add Note
-          </button>
-          <button type="button" className="btn" onClick={onViewNotes}>
-            View My Notes
-          </button>
+          {isAdmin && (
+            <>
+              <button type="button" className="btn" onClick={onAddNote}>
+                + Add Note
+              </button>
+              <button type="button" className="btn" onClick={onViewNotes}>
+                View My Notes
+              </button>
+            </>
+          )}
           {isContributor && (
             <button type="button" className="btn btn-action" onClick={onSuggestNew}>
               + Suggest New Entry
@@ -387,7 +391,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
       <div className="tab-content">
         {loading && (
           <div style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>
-            Loading data from Supabase...
+            Loading the timeline…
           </div>
         )}
         {error && (
@@ -440,7 +444,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
         />
       )}
 
-      {addNoteOpen && (
+      {isAdmin && addNoteOpen && (
         <AddNoteModal
           isOpen
           onClose={handleAddNoteClose}
@@ -450,7 +454,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
         />
       )}
 
-      {viewNotesOpen && (
+      {isAdmin && viewNotesOpen && (
         <ViewMyNotesModal
           isOpen
           onClose={() => setViewNotesOpen(false)}
@@ -528,7 +532,7 @@ function UnauthenticatedApp({ timelineData, loading, error, tourScenes }) {
       <div className="tab-content">
         {loading && (
           <div style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>
-            Loading data from Supabase...
+            Loading the timeline…
           </div>
         )}
         {error && (
