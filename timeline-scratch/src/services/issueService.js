@@ -65,6 +65,33 @@ export async function fetchMyIssues(appId, getToken) {
   return data || [];
 }
 
+/**
+ * Fetch display names for a set of Clerk user IDs. Returns a map
+ * { clerk_user_id → display_name || email || null }.
+ *
+ * RLS controls which users rows are visible: admins see everyone;
+ * non-admins only see themselves and readable admin profiles. Any IDs the
+ * caller cannot see are simply absent from the returned map.
+ */
+export async function fetchSubmittersByIds(ids, getToken) {
+  const unique = [...new Set((ids || []).filter(Boolean))];
+  if (unique.length === 0) return {};
+
+  const supabase = getClient(getToken);
+  const { data, error } = await supabase
+    .from('users')
+    .select('clerk_user_id, display_name, email')
+    .in('clerk_user_id', unique);
+
+  if (error) throw error;
+
+  const map = {};
+  for (const row of data || []) {
+    map[row.clerk_user_id] = row.display_name || row.email || null;
+  }
+  return map;
+}
+
 // ── Admin operations ────────────────────────────────────────────────────────
 
 /**

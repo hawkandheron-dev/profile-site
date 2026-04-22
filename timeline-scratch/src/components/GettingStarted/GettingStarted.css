@@ -222,6 +222,22 @@
   background: rgba(120, 100, 70, 0.05);
 }
 
+.gs-row-caret {
+  flex: 0 0 auto;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--color-ink-faded, #5a4f3f);
+  width: 14px;
+  text-align: center;
+  transform: rotate(0deg);
+  transition: transform 150ms ease;
+  user-select: none;
+}
+
+.gs-row-expanded .gs-row-caret {
+  transform: rotate(90deg);
+}
+
 .gs-row-header-main {
   display: flex;
   flex-direction: column;
@@ -252,6 +268,10 @@
 }
 
 .gs-row-dot { opacity: 0.5; }
+
+.gs-row-submitter {
+  font-style: italic;
+}
 
 .gs-row-body {
   padding: 4px 16px 18px;
@@ -320,6 +340,80 @@
   overflow-y: auto;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+/* ── Admin status control (inside expanded row) ─────────────────────── */
+
+.gs-row-admin-control {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1.5px dashed rgba(184, 115, 51, 0.35);
+  border-radius: 8px;
+  background: rgba(184, 115, 51, 0.05);
+}
+
+.gs-row-admin-control-header {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-accent, #b87333);
+  margin-bottom: 10px;
+}
+
+.gs-row-admin-control-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gs-row-admin-control-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-ink-faded, #5a4f3f);
+}
+
+.gs-row-admin-control-select,
+.gs-row-admin-control-textarea {
+  font-family: inherit;
+  font-size: 13.5px;
+  padding: 6px 10px;
+  border: 1.5px solid rgba(120, 100, 70, 0.25);
+  border-radius: 6px;
+  background: white;
+  color: var(--color-ink, #2c2418);
+  font-weight: 400;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 140ms ease;
+}
+
+.gs-row-admin-control-textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.gs-row-admin-control-select:focus,
+.gs-row-admin-control-textarea:focus {
+  border-color: var(--color-accent, #b87333);
+}
+
+.gs-row-admin-control-error {
+  margin: 8px 0 0;
+  padding: 6px 10px;
+  background: #fce4ec;
+  color: #c62828;
+  font-size: 12.5px;
+  border-radius: 6px;
+}
+
+.gs-row-admin-control-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
 }
 
 /* ── Status pills ───────────────────────────────────────────────────── */
@@ -567,10 +661,16 @@
     border-color: rgba(184, 115, 51, 0.3);
   }
 
-  .gs-comment-textarea {
+  .gs-comment-textarea,
+  .gs-row-admin-control-select,
+  .gs-row-admin-control-textarea {
     background: #252118;
     border-color: #3a3528;
     color: #f0ebe0;
+  }
+
+  .gs-row-admin-control {
+    background: rgba(184, 115, 51, 0.08);
   }
 
   .gs-row-context-pre {
