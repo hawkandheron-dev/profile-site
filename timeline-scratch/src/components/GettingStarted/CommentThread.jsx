@@ -18,8 +18,9 @@ function formatTimestamp(iso) {
 
 /**
  * Flat comment stream for one issue. Lazy-loads on first expand.
- * Author names are shown as "You" for self and "Windhover team" for others
- * to avoid a public-read carve-out on the users table.
+ * Self comments are labelled "You"; admin replies show the admin's
+ * display_name (readable via the admin-profile SELECT policy), falling
+ * back to "Windhover team" when the name isn't resolvable.
  */
 export function CommentThread({ issueId, clerkUserId, getToken }) {
   const [comments, setComments] = useState(null);
@@ -64,12 +65,13 @@ export function CommentThread({ issueId, clerkUserId, getToken }) {
         <ul className="gs-comment-list">
           {comments.map(c => {
             const isSelf = c.author_clerk_user_id === clerkUserId;
+            const label = isSelf
+              ? 'You'
+              : (c.author_display_name || 'Windhover team');
             return (
               <li key={c.comment_id} className={`gs-comment${isSelf ? ' gs-comment-self' : ''}`}>
                 <div className="gs-comment-meta">
-                  <span className="gs-comment-author">
-                    {isSelf ? 'You' : 'Windhover team'}
-                  </span>
+                  <span className="gs-comment-author">{label}</span>
                   <span className="gs-comment-time">{formatTimestamp(c.created_at)}</span>
                 </div>
                 <div className="gs-comment-body">{c.body}</div>

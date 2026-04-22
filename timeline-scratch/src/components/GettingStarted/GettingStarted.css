@@ -22,6 +22,13 @@
   letter-spacing: -0.01em;
 }
 
+.gs-welcome-greeting {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-ink, #2c2418);
+  margin: 0 0 8px;
+}
+
 .gs-welcome-lede {
   font-size: 15px;
   line-height: 1.6;
@@ -500,6 +507,7 @@
   .gs-page { color: #f0ebe0; }
 
   .gs-welcome-title,
+  .gs-welcome-greeting,
   .gs-tour-cta-copy h2,
   .gs-contributions-header h2,
   .gs-row-title,

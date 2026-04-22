@@ -5,7 +5,7 @@ export function CollaboratorsOnlyNotice({ onBack }) {
     <section className="gs-notice">
       <h1 className="gs-notice-title">Invited collaborators only</h1>
       <p>
-        The Getting Started area is for people invited to contribute to the
+        The Contributor Portal is for people invited to contribute to the
         Windhover Church History Timeline. If you'd like to help build the
         timeline, please reach out to the Windhover team for an invitation.
       </p>

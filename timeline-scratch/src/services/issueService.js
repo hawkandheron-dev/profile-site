@@ -141,7 +141,9 @@ export async function uploadScreenshot(_file, _getToken) {
 // ── Comments (discussion thread on an issue) ────────────────────────────────
 
 /**
- * Fetch comments for an issue, oldest first.
+ * Fetch comments for an issue, oldest first. Enriches each row with
+ * `author_display_name` when the commenter's users row is readable (admins
+ * are readable via the "Authenticated can read admin profiles" policy).
  */
 export async function fetchIssueComments(issueId, getToken) {
   const supabase = getClient(getToken);
@@ -152,7 +154,22 @@ export async function fetchIssueComments(issueId, getToken) {
     .order('created_at', { ascending: true });
 
   if (error) throw error;
-  return data || [];
+  const comments = data || [];
+  if (comments.length === 0) return comments;
+
+  const authorIds = [...new Set(comments.map(c => c.author_clerk_user_id).filter(Boolean))];
+  if (authorIds.length === 0) return comments;
+
+  const { data: authors } = await supabase
+    .from('users')
+    .select('clerk_user_id, display_name')
+    .in('clerk_user_id', authorIds);
+
+  const nameById = new Map((authors || []).map(u => [u.clerk_user_id, u.display_name]));
+  return comments.map(c => ({
+    ...c,
+    author_display_name: nameById.get(c.author_clerk_user_id) || null,
+  }));
 }
 
 /**
