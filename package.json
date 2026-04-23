@@ -1,7 +1,19 @@
 {
   "name": "profile-site",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "cd timeline-scratch && npm install && npm run build"
+    "build": "cd timeline-scratch && npm install && npm run build",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.2",
+    "jsdom": "^25.0.1",
+    "serve": "^14.2.4",
+    "vitest": "^2.1.8"
   }
 }
