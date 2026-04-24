@@ -5,13 +5,17 @@
 /* --- Google Fonts: Cormorant (display) + Alegreya Sans (body) --- */
 @import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
 
-/* --- Outfit ExtraBold (title) --- */
+/* --- Outfit ExtraBold (title) ---
+   font-display: block — pair with <link rel="preload"> in each page's
+   <head> so the block period resolves before first paint (and in any
+   case, happens behind the page loader overlay). Prevents the hero
+   title from flashing into the fallback font then swapping. */
 @font-face {
   font-family: 'Outfit';
   src: url('resources/fonts/Outfit/static/Outfit-ExtraBold.ttf') format('truetype');
   font-weight: 800;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 /* --- CSS Custom Properties (Design Tokens) --- */
@@ -175,6 +179,7 @@ code {
 .hero-logo {
   width: auto;
   height: clamp(84px, 14vw, 130px);
+  aspect-ratio: 2570 / 1865; /* reserve width to prevent CLS */
   object-fit: contain;
   flex-shrink: 0;
   /* Tint the black logo to match --color-ink (#2c2418) */
