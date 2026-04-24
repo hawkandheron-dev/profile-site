@@ -35,26 +35,36 @@
 
   // ── Bootstrap ──────────────────────────────────────────────────────────
   async function init() {
-    await waitForConfig();
+    try {
+      await waitForConfig();
+    } catch (err) {
+      // Config never arrived. Surface a visible auth-unavailable state so
+      // the broken page is debuggable instead of looking hung.
+      mountAuthUnavailableUI('Site config unavailable');
+      return;
+    }
 
     const { createClient } = window.supabase; // from CDN global
     supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
-    // Fetch content and render immediately (no auth required)
-    await fetchAndRender();
-
-    // Attempt Clerk sign-in to determine admin status
-    await initClerk();
+    // Run content fetch and Clerk init in parallel — Sign In must not wait
+    // on the CMS content query, which can be slow on cold Supabase.
+    await Promise.allSettled([fetchAndRender(), initClerk()]);
   }
 
-  /** Wait until Supabase globals are set (config script may load async). */
+  /** Wait until Supabase globals are set, or reject after timeoutMs.
+   *  Delegates to the shared helper from auth-helpers.js. */
   function waitForConfig() {
-    return new Promise((resolve) => {
-      const check = () => {
-        if (window.SUPABASE_URL && window.SUPABASE_ANON_KEY) return resolve();
-        setTimeout(check, 50);
-      };
-      check();
+    const helpers = window.__authHelpers;
+    if (!helpers || typeof helpers.waitForConfig !== 'function') {
+      console.error('[editable-content] window.__authHelpers.waitForConfig '
+        + 'missing — ensure <script type="module" src="auth-helpers.js"> '
+        + 'is included before editable-content.js.');
+      return Promise.reject(new Error('auth-helpers not loaded'));
+    }
+    return helpers.waitForConfig({ timeoutMs: 10000 }).catch((err) => {
+      console.error('[editable-content]', err.message);
+      throw err;
     });
   }
 
@@ -138,21 +148,13 @@
 
   // ── Clerk & Admin Check ────────────────────────────────────────────────
 
-  /** Derive the Clerk Frontend API URL from a publishable key.
-   *  Keys are formatted as pk_test_<base64> or pk_live_<base64>. */
-  function getFrontendApi(publishableKey) {
-    const raw = publishableKey.replace(/^pk_(test|live)_/, '');
-    // atob gives us the Frontend API hostname (may have a trailing $)
-    return atob(raw).replace(/\$$/, '');
-  }
-
   /** Dynamically load Clerk JS from the Clerk Frontend API CDN.
    *  The script auto-initializes window.Clerk when loaded with the
    *  data-clerk-publishable-key attribute. */
   function loadClerkScript(publishableKey) {
     return new Promise((resolve, reject) => {
       if (window.Clerk) return resolve();
-      const frontendApi = getFrontendApi(publishableKey);
+      const frontendApi = window.__authHelpers.getFrontendApi(publishableKey);
       const s = document.createElement('script');
       s.src = 'https://' + frontendApi + '/npm/@clerk/clerk-js@5/dist/clerk.browser.js';
       s.async = true;
@@ -166,12 +168,19 @@
 
   async function initClerk() {
     const clerkPubKey = window.CLERK_PUBLISHABLE_KEY;
-    if (!clerkPubKey) return;
+    if (!clerkPubKey) {
+      console.error('[editable-content] CLERK_PUBLISHABLE_KEY missing — set '
+        + 'it in Cloudflare Pages env vars (Settings → Environment '
+        + 'variables) for both Production and Preview, then redeploy.');
+      mountAuthUnavailableUI('Auth not configured');
+      return;
+    }
 
     try {
       await loadClerkScript(clerkPubKey);
     } catch (err) {
-      console.warn('[editable-content] Could not load Clerk:', err.message);
+      console.error('[editable-content] Could not load Clerk JS:', err.message);
+      mountAuthUnavailableUI('Auth script failed to load');
       return;
     }
 
@@ -244,6 +253,25 @@
     btn.id = 'ec-sign-in-btn';
     nav.appendChild(btn);
     wireUpAuthButton(btn);
+  }
+
+  /** Render a disabled Sign-in button so a missing/broken auth config is
+   *  visibly distinct from a working signed-out state. Updates the
+   *  existing #ec-sign-in-btn (e.g. about.html ships one in markup) or
+   *  creates one in .top-nav as a fallback. Idempotent. */
+  function mountAuthUnavailableUI(reason) {
+    let btn = document.getElementById('ec-sign-in-btn');
+    if (!btn) {
+      const nav = document.querySelector('.top-nav');
+      if (!nav) return;
+      btn = document.createElement('button');
+      btn.className = 'ec-auth-btn';
+      btn.id = 'ec-sign-in-btn';
+      nav.appendChild(btn);
+    }
+    btn.disabled = true;
+    btn.textContent = 'Sign-in unavailable';
+    btn.title = reason || 'Auth not configured';
   }
 
   function wireUpAuthButton(btn) {

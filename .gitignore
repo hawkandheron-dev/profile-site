@@ -2,6 +2,11 @@
 dist/
 apps/
 
+# Test artifacts
+playwright-report/
+test-results/
+.vitest-cache/
+
 # Dependencies
 node_modules/
 
