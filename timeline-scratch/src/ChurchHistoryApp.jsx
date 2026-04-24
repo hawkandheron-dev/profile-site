@@ -1,41 +1,14 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Timeline } from './components/Timeline/Timeline.jsx';
 import { TimelineSearch } from './components/Timeline/components/TimelineSearch.jsx';
 import { Icon } from './components/Timeline/components/Icon.jsx';
+import { SiteNavPanel } from './components/SiteNavPanel.jsx';
 import { churchHistoryData, churchHistoryConfig } from './data/churchHistoryData.js';
 import './App.css';
 
-function NavDropdown() {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [open]);
-
-  return (
-    <div className="nav-dropdown" ref={ref}>
-      <button className="btn btn-icon nav-dropdown-toggle" onClick={() => setOpen(!open)} title="Navigation">
-        <Icon name="menu" size={18} />
-      </button>
-      {open && (
-        <div className="nav-dropdown-menu">
-          <a href="../../index.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Home</a>
-          <a href="./church-history-timeline.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Live Version</a>
-          <a href="../../church-history-supabase.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Data Browser</a>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function ChurchHistoryApp() {
   const timelineRef = useRef(null);
+  const [navOpen, setNavOpen] = useState(false);
 
   const handleViewportChange = (viewport) => {
     console.log('Viewport changed:', viewport);
@@ -62,6 +35,15 @@ function ChurchHistoryApp() {
     <div className="app">
       <header className="app-header">
         <div className="header-content">
+          <button
+            className="btn btn-icon site-nav-toggle"
+            onClick={() => setNavOpen(true)}
+            aria-label="Open navigation"
+            aria-expanded={navOpen}
+            title="Navigation"
+          >
+            <Icon name="menu" size={18} />
+          </button>
           <div className="header-left">
             <TimelineSearch
               data={churchHistoryData}
@@ -75,10 +57,14 @@ function ChurchHistoryApp() {
               <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign In</button>
               <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
             </div>
-            <NavDropdown />
           </div>
         </div>
       </header>
+      <SiteNavPanel
+        open={navOpen}
+        onClose={() => setNavOpen(false)}
+        activeKey="church-history"
+      />
       <div className="tab-content">
         <div className="timeline-wrapper">
           <Timeline
