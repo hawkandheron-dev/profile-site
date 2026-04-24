@@ -1,17 +1,21 @@
 /**
- * loader.js — Page loader lifecycle.
+ * loader.js — Two-state page loader lifecycle.
  *
- * Holds the overlay up until fonts, images, and window.load are ready.
- * Enforces a 1s minimum so the user registers the loader, and a 5s hard
- * cap so a stalled resource can never trap the page.
+ * State 1 (Loading): shimmer bar + "Loading" sub-text, aria-busy=true.
+ * State 2 (Ready):   Enter button fades in, shimmer bar fades out.
+ *                    User dismisses by clicking the Enter button, pressing
+ *                    Enter/Space (button is autofocused), or clicking
+ *                    anywhere on the overlay.
+ *
+ * Transitions to Ready when Promise.all(window.load, document.fonts.ready)
+ * resolves — or after a 5s hard cap so a stalled resource can't trap the
+ * user in the Loading state forever.
  *
  * Opt a page in by including a <div id="page-loader" class="page-loader">.
- * Loaded via <script defer> in <head>.
  */
 (function () {
   'use strict';
 
-  var MIN_VISIBLE_MS = 1000;
   var HARD_TIMEOUT_MS = 5000;
 
   function prefersReducedMotion() {
@@ -41,35 +45,53 @@
 
     document.documentElement.style.overflow = 'hidden';
 
-    var reduced = prefersReducedMotion();
-    var minVisible = reduced ? 0 : MIN_VISIBLE_MS;
+    var enterBtn = loader.querySelector('.page-loader-enter');
+    var dismissed = false;
+    var ready = false;
 
-    var ready = Promise.all([waitForWindowLoad(), waitForFonts()]);
-    var minTimer = waitMs(minVisible);
+    function dismiss() {
+      if (dismissed) return;
+      dismissed = true;
+
+      loader.classList.add('is-leaving');
+      loader.setAttribute('aria-hidden', 'true');
+
+      var transitionMs = prefersReducedMotion() ? 320 : 720;
+      setTimeout(function () {
+        loader.setAttribute('hidden', '');
+        document.documentElement.style.overflow = '';
+      }, transitionMs);
+    }
+
+    function markReady() {
+      if (ready) return;
+      ready = true;
+      loader.classList.add('is-ready');
+      loader.setAttribute('aria-busy', 'false');
+      loader.removeAttribute('role'); // was progressbar; no longer accurate
+      if (enterBtn) {
+        requestAnimationFrame(function () {
+          try { enterBtn.focus({ preventScroll: true }); }
+          catch (_) { enterBtn.focus(); }
+        });
+      }
+    }
+
+    if (enterBtn) {
+      enterBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        dismiss();
+      });
+    }
+
+    // Secondary affordance: click anywhere on the overlay once it's ready.
+    loader.addEventListener('click', function () {
+      if (ready) dismiss();
+    });
+
+    var readyP = Promise.all([waitForWindowLoad(), waitForFonts()]);
     var hardCap = waitMs(HARD_TIMEOUT_MS);
-
-    Promise.race([
-      Promise.all([ready, minTimer]),
-      hardCap
-    ]).then(function () { dismiss(loader); });
-  }
-
-  var dismissed = false;
-  function dismiss(loader) {
-    if (dismissed) return;
-    dismissed = true;
-
-    loader.classList.add('is-leaving');
-    loader.setAttribute('aria-hidden', 'true');
-    loader.setAttribute('aria-busy', 'false');
-
-    var reduced = prefersReducedMotion();
-    var transitionMs = reduced ? 320 : 720;
-
-    setTimeout(function () {
-      loader.setAttribute('hidden', '');
-      document.documentElement.style.overflow = '';
-    }, transitionMs);
+    Promise.race([readyP, hardCap]).then(markReady);
   }
 
   if (document.readyState === 'loading') {

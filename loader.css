@@ -73,16 +73,29 @@
   text-transform: uppercase;
   color: var(--color-ink-faded, #7a6f5f);
   margin: -12px 0 0;
+  transition: opacity 260ms ease;
+}
+
+/* Bar and Enter button share a grid cell so the swap doesn't shift layout. */
+.page-loader-cta {
+  display: grid;
+  place-items: center;
+  min-height: 48px;
+  margin-top: 4px;
+}
+
+.page-loader-cta > * {
+  grid-area: 1 / 1;
 }
 
 .page-loader-bar {
   position: relative;
   width: min(240px, 60vw);
   height: 2px;
-  margin-top: 4px;
   border-radius: 999px;
   background: rgba(120, 100, 70, 0.18);
   overflow: hidden;
+  transition: opacity 260ms ease;
 }
 
 .page-loader-bar::after {
@@ -107,6 +120,60 @@
   100% { transform: translateX(350%); }
 }
 
+/* Enter button — hidden by default, revealed in the "ready" state. */
+.page-loader-enter {
+  font-family: 'Outfit', 'Century Gothic', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: var(--color-ink, #2c2418);
+  background: transparent;
+  border: 1px solid rgba(120, 100, 70, 0.45);
+  border-radius: 999px;
+  padding: 11px 34px;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition:
+    opacity 420ms ease,
+    transform 420ms cubic-bezier(0.2, 0.7, 0.3, 1),
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.page-loader-enter:hover,
+.page-loader-enter:focus-visible {
+  background: rgba(120, 100, 70, 0.12);
+  border-color: rgba(120, 100, 70, 0.75);
+  color: var(--color-ink, #2c2418);
+  outline: none;
+}
+
+.page-loader-enter:focus-visible {
+  box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.28);
+}
+
+/* Ready state: shimmer bar + "Loading" sub fade out, Enter button fades in.
+   Overlay becomes a secondary click-to-dismiss target (handled in loader.js). */
+.page-loader.is-ready {
+  cursor: pointer;
+}
+
+.page-loader.is-ready .page-loader-bar,
+.page-loader.is-ready .page-loader-sub {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.page-loader.is-ready .page-loader-enter {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
 /* Dismiss — roll up */
 .page-loader.is-leaving {
   transform: translateY(-100%);
@@ -116,7 +183,7 @@
   display: none !important;
 }
 
-/* Reduced motion: cross-fade, no shimmer */
+/* Reduced motion: cross-fade, no shimmer, no translate */
 @media (prefers-reduced-motion: reduce) {
   .page-loader {
     transition: opacity 300ms ease;
@@ -129,5 +196,8 @@
     animation: none;
     width: 100%;
     opacity: 0.4;
+  }
+  .page-loader-enter {
+    transform: none;
   }
 }
