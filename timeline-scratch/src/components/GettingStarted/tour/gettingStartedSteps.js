@@ -71,9 +71,9 @@ export function makeGettingStartedSteps({
       onExit: () => { requestCloseIssueModal?.(); },
     },
     {
-      id: 'my-contributions',
-      target: '[data-tour="my-contributions-list"]',
-      title: 'Track your contributions',
+      id: 'contributions',
+      target: '[data-tour="contributions-list"]',
+      title: 'Track contributions',
       body: (
         'Every submission shows up here with its current status. ' +
         'Click a row to see the full description, admin notes, and the ' +

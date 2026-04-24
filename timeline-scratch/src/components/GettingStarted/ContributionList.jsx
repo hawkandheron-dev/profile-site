@@ -14,7 +14,7 @@ export function ContributionList({
   onIssueUpdated,
 }) {
   return (
-    <section className="gs-contributions" data-tour="my-contributions-list">
+    <section className="gs-contributions" data-tour="contributions-list">
       <div className="gs-contributions-header">
         <h2>All contributions</h2>
         <button type="button" className="btn btn-accent" onClick={onSubmitNew}>
