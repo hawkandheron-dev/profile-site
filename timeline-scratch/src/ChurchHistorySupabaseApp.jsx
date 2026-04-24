@@ -522,8 +522,13 @@ function UnauthenticatedApp({ timelineData, loading, error, tourScenes }) {
               {' '}Tour
             </button>
             <div className="auth-actions">
-              <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign In</button>
-              <button className="btn" title="Sign in to save notes, add entries, or make suggestions">Sign Up</button>
+              <button
+                className="btn"
+                disabled
+                title="Auth not configured — set CLERK_PUBLISHABLE_KEY in Cloudflare Pages env vars"
+              >
+                Sign-in unavailable
+              </button>
             </div>
             <NavDropdown />
           </div>
