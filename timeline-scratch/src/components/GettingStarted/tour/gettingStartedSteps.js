@@ -65,7 +65,7 @@ export function makeGettingStartedSteps({
       title: 'Submit it',
       body: (
         'Your submission lands in the admins\' review queue and appears ' +
-        'below under "My contributions" with a status of Submitted.'
+        'below under "All contributions" with a status of Submitted.'
       ),
       placement: 'top',
       onExit: () => { requestCloseIssueModal?.(); },
