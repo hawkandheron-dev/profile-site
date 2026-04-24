@@ -17,6 +17,17 @@
   'use strict';
 
   var HARD_TIMEOUT_MS = 5000;
+  var SEEN_KEY = 'windhover.loaderSeen';
+
+  function hasSeen() {
+    try { return sessionStorage.getItem(SEEN_KEY) === '1'; }
+    catch (_) { return false; }
+  }
+
+  function markSeen() {
+    try { sessionStorage.setItem(SEEN_KEY, '1'); }
+    catch (_) {}
+  }
 
   function prefersReducedMotion() {
     return !!(window.matchMedia &&
@@ -43,6 +54,13 @@
     var loader = document.getElementById('page-loader');
     if (!loader) return;
 
+    // Returning visitor within the same session: skip the overlay entirely.
+    if (hasSeen()) {
+      loader.setAttribute('hidden', '');
+      loader.setAttribute('aria-hidden', 'true');
+      return;
+    }
+
     document.documentElement.style.overflow = 'hidden';
 
     var enterBtn = loader.querySelector('.page-loader-enter');
@@ -52,6 +70,7 @@
     function dismiss() {
       if (dismissed) return;
       dismissed = true;
+      markSeen();
 
       loader.classList.add('is-leaving');
       loader.setAttribute('aria-hidden', 'true');

@@ -13,10 +13,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     <!-- Loader: inline critical styles so the overlay paints on first byte,
-         before loader.css arrives. Remaining styles are in loader.css. -->
+         before loader.css arrives. Remaining styles are in loader.css.
+         The sync gate below suppresses the overlay for returning visitors
+         within the same browser session (see loader.js for details). -->
+    <script>
+      try {
+        if (sessionStorage.getItem('windhover.loaderSeen') === '1') {
+          document.documentElement.setAttribute('data-loader-seen', '');
+        }
+      } catch (_) {}
+    </script>
     <style>
       #page-loader{position:fixed;inset:0;z-index:9999;background:#f5f0e1;display:flex;align-items:center;justify-content:center}
       #page-loader[hidden]{display:none!important}
+      html[data-loader-seen] #page-loader{display:none!important}
     </style>
     <link rel="stylesheet" href="loader.css" />
     <script defer src="loader.js"></script>
@@ -57,12 +67,12 @@
     </header>
 
     <nav class="landing-nav" aria-label="Tools">
-      <a class="button landing-nav-link" href="apps/index.html">Timeline</a>
       <a class="button landing-nav-link" href="apps/church-history-timeline.html">Church history timeline</a>
-      <a class="button landing-nav-link" href="pantheons-supabase.html">Pantheons Database</a>
+      <a class="button landing-nav-link" href="apps/index.html">Timeline</a>
+      <a class="button landing-nav-link" href="pantheons-supabase.html">Pantheons database</a>
       <a class="button landing-nav-link" href="apps/biblical-places.html">Biblical history atlas</a>
-      <a class="button landing-nav-link admin-only" href="apps/african-kingdoms.html" style="display:none;">African Kingdoms</a>
-      <a class="button landing-nav-link admin-only" href="design-system.html" style="display:none;">Design System</a>
+      <a class="button landing-nav-link admin-only" href="apps/african-kingdoms.html" style="display:none;">African kingdoms</a>
+      <a class="button landing-nav-link admin-only" href="design-system.html" style="display:none;">Design system</a>
     </nav>
 
     <footer class="site-footer">
@@ -76,6 +86,10 @@
     <script src="/api/supabase-config"></script>
     <!-- Shared auth helpers (module; deferred — runs before DOMContentLoaded) -->
     <script type="module" src="auth-helpers.js"></script>
+    <!-- Shared site header (nav + mobile drawer). Loads before
+         editable-content.js so the .top-nav auth slot is attached to the
+         header before Clerk wiring injects Sign-in / Edit Mode buttons. -->
+    <script src="nav.js"></script>
     <!-- Site-wide behaviour (dropdown close, etc.) -->
     <script src="site.js"></script>
     <!-- Editable content system -->
