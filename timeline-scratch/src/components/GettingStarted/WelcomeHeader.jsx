@@ -9,7 +9,7 @@ export function WelcomeHeader({ displayName, email, role }) {
       <p className="gs-welcome-lede">
         Thank you for contributing to the Windhover Church History Timeline.
         This page is where you can learn how to submit feedback, see the
-        status of your submissions, and discuss them with the team.
+        status of contributions from across the team, and discuss them.
       </p>
       {role && (
         <span className={`gs-role-pill gs-role-${role}`}>

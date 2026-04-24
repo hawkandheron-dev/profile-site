@@ -65,15 +65,15 @@ export function makeGettingStartedSteps({
       title: 'Submit it',
       body: (
         'Your submission lands in the admins\' review queue and appears ' +
-        'below under "My contributions" with a status of Submitted.'
+        'below under "All contributions" with a status of Submitted.'
       ),
       placement: 'top',
       onExit: () => { requestCloseIssueModal?.(); },
     },
     {
-      id: 'my-contributions',
-      target: '[data-tour="my-contributions-list"]',
-      title: 'Track your contributions',
+      id: 'contributions',
+      target: '[data-tour="contributions-list"]',
+      title: 'Track contributions',
       body: (
         'Every submission shows up here with its current status. ' +
         'Click a row to see the full description, admin notes, and the ' +

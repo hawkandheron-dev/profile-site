@@ -14,9 +14,9 @@ export function ContributionList({
   onIssueUpdated,
 }) {
   return (
-    <section className="gs-contributions" data-tour="my-contributions-list">
+    <section className="gs-contributions" data-tour="contributions-list">
       <div className="gs-contributions-header">
-        <h2>{isAdmin ? 'All contributions' : 'My contributions'}</h2>
+        <h2>All contributions</h2>
         <button type="button" className="btn btn-accent" onClick={onSubmitNew}>
           + New feedback
         </button>
@@ -24,14 +24,14 @@ export function ContributionList({
 
       <StatusLegend />
 
-      {loading && <div className="gs-contributions-loading">Loading your submissions…</div>}
+      {loading && <div className="gs-contributions-loading">Loading contributions…</div>}
       {error && <div className="gs-contributions-error">{error}</div>}
 
       {!loading && !error && (!issues || issues.length === 0) && (
         <div className="gs-contributions-empty">
-          <p>You haven't submitted any feedback yet.</p>
+          <p>No contributions yet.</p>
           <button type="button" className="btn btn-accent" onClick={onSubmitNew}>
-            Submit your first piece of feedback
+            Submit the first piece of feedback
           </button>
         </div>
       )}
