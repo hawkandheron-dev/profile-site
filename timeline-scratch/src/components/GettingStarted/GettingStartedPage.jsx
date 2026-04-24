@@ -1,8 +1,9 @@
 /**
  * Getting Started page for invited contributors.
  *
- * Shows a welcome banner, a tour CTA, and a "My contributions" list of the
- * user's App_Issues submissions (with status + discussion thread).
+ * Shows a welcome banner, a tour CTA, and an "All contributions" list of
+ * App_Issues submissions across the contributor pool (with status +
+ * discussion thread).
  *
  * Renders its own IssueCreatorModal (wired through a local openSignal so the
  * DomTour can open it programmatically on step 2). The header's global
@@ -51,7 +52,7 @@ export function GettingStartedPage({
       const list = await fetchMyIssues(appId, getToken);
       setIssues(list);
     } catch (err) {
-      setError(err.message || 'Failed to load your submissions.');
+      setError(err.message || 'Failed to load contributions.');
     } finally {
       setLoading(false);
     }
