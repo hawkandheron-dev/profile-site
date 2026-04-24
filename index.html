@@ -5,10 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Windhover History</title>
     <link rel="icon" type="image/png" href="resources/logos/Windhover_BLK.png" />
+
+    <!-- Preload critical assets so the loader dismisses into a fully-painted page -->
+    <link rel="preload" href="resources/logos/Windhover_BLK.png" as="image" />
+    <link rel="preload" href="resources/fonts/Outfit/static/Outfit-ExtraBold.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Loader: inline critical styles so the overlay paints on first byte,
+         before loader.css arrives. Remaining styles are in loader.css. -->
+    <style>
+      #page-loader{position:fixed;inset:0;z-index:9999;background:#f5f0e1;display:flex;align-items:center;justify-content:center}
+      #page-loader[hidden]{display:none!important}
+    </style>
+    <link rel="stylesheet" href="loader.css" />
+    <script defer src="loader.js"></script>
+
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="editable-content.css" />
   </head>
   <body>
+    <!-- Page loader — dismissed by loader.js once fonts/images/window.load are ready -->
+    <div id="page-loader" class="page-loader" role="progressbar" aria-label="Loading page" aria-busy="true">
+      <div class="page-loader-inner">
+        <img class="page-loader-logo" src="resources/logos/Windhover_BLK.png" alt="" width="120" height="120" />
+        <h2 class="page-loader-title">Windhover</h2>
+        <div class="page-loader-sub">Loading</div>
+        <div class="page-loader-bar" aria-hidden="true"></div>
+      </div>
+    </div>
+    <noscript><style>#page-loader{display:none!important}</style></noscript>
+
     <!-- Splash image kept in file but not displayed -->
     <img class="splash" src="highcountry_1.png" alt="High country landscape" />
 
@@ -18,7 +45,7 @@
 
     <header class="hero">
       <div class="hero-brand">
-        <img class="hero-logo" src="resources/logos/Windhover_BLK.png" alt="Windhover bird logo" />
+        <img class="hero-logo" src="resources/logos/Windhover_BLK.png" alt="Windhover bird logo" width="2570" height="1865" />
         <div class="hero-text">
           <h1 class="hero-title">Windhover</h1>
           <p class="hero-tagline" data-content-key="home.hero_tagline"></p>

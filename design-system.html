@@ -4,9 +4,32 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Design System — The Mews</title>
+
+    <link rel="preload" href="resources/logos/Windhover_BLK.png" as="image" />
+    <link rel="preload" href="resources/fonts/Outfit/static/Outfit-ExtraBold.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <style>
+      #page-loader{position:fixed;inset:0;z-index:9999;background:#f5f0e1;display:flex;align-items:center;justify-content:center}
+      #page-loader[hidden]{display:none!important}
+    </style>
+    <link rel="stylesheet" href="loader.css" />
+    <script defer src="loader.js"></script>
+
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div id="page-loader" class="page-loader" role="progressbar" aria-label="Loading page" aria-busy="true">
+      <div class="page-loader-inner">
+        <img class="page-loader-logo" src="resources/logos/Windhover_BLK.png" alt="" width="120" height="120" />
+        <h2 class="page-loader-title">Design System</h2>
+        <div class="page-loader-sub">Loading</div>
+        <div class="page-loader-bar" aria-hidden="true"></div>
+      </div>
+    </div>
+    <noscript><style>#page-loader{display:none!important}</style></noscript>
+
     <nav class="top-nav" aria-label="Primary">
       <a href="index.html">Home</a>
     </nav>

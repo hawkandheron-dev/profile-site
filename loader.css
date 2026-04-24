@@ -1,0 +1,133 @@
+/* ============================================================
+   Page loader — parchment overlay with indeterminate shimmer
+   ============================================================ */
+
+.page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(
+      ellipse 120% 100% at 50% 40%,
+      var(--color-parchment-light, #faf6eb) 0%,
+      var(--color-parchment, #f5f0e1) 55%,
+      var(--color-parchment-dark, #e8dfc8) 100%
+    );
+  transition:
+    transform 700ms cubic-bezier(0.76, 0, 0.24, 1),
+    opacity 400ms ease;
+  will-change: transform, opacity;
+}
+
+/* Subtle paper-grain texture (inline SVG noise, no extra request). */
+.page-loader::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.17  0 0 0 0 0.14  0 0 0 0 0.09  0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.page-loader-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 0 24px;
+  max-width: 480px;
+  text-align: center;
+}
+
+.page-loader-logo {
+  width: 120px;
+  height: 120px;
+  max-width: 30vw;
+  max-height: 30vw;
+  object-fit: contain;
+  /* Tint the black logo to --color-ink — matches .hero-logo in style.css */
+  filter: invert(12%) sepia(20%) saturate(800%) hue-rotate(10deg) brightness(95%);
+}
+
+.page-loader-title {
+  font-family: 'Outfit', 'Century Gothic', sans-serif;
+  font-size: clamp(1.2rem, 2.8vw, 1.75rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-ink, #2c2418);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.page-loader-sub {
+  font-family: 'Alegreya Sans', 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-ink-faded, #7a6f5f);
+  margin: -12px 0 0;
+}
+
+.page-loader-bar {
+  position: relative;
+  width: min(240px, 60vw);
+  height: 2px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: rgba(120, 100, 70, 0.18);
+  overflow: hidden;
+}
+
+.page-loader-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(139, 115, 85, 0) 0%,
+    rgba(139, 115, 85, 1) 50%,
+    rgba(139, 115, 85, 0) 100%
+  );
+  animation: page-loader-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes page-loader-shimmer {
+  0%   { transform: translateX(-115%); }
+  100% { transform: translateX(350%); }
+}
+
+/* Dismiss — roll up */
+.page-loader.is-leaving {
+  transform: translateY(-100%);
+}
+
+.page-loader[hidden] {
+  display: none !important;
+}
+
+/* Reduced motion: cross-fade, no shimmer */
+@media (prefers-reduced-motion: reduce) {
+  .page-loader {
+    transition: opacity 300ms ease;
+  }
+  .page-loader.is-leaving {
+    transform: none;
+    opacity: 0;
+  }
+  .page-loader-bar::after {
+    animation: none;
+    width: 100%;
+    opacity: 0.4;
+  }
+}
