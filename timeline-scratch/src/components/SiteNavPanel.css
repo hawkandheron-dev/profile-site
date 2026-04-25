@@ -1,0 +1,169 @@
+/* SiteNavPanel — left slide-in overlay.
+   Mirrors the visual language of TourPanel (parchment, soft shadow, subtle
+   border) but is fixed-positioned with a backdrop. */
+
+.site-nav-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 25, 15, 0.25);
+  z-index: 1100;
+  animation: siteNavBackdropFadeIn 0.2s ease-out;
+}
+
+@keyframes siteNavBackdropFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.site-nav-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 320px;
+  max-width: 85vw;
+  background: var(--color-parchment-light);
+  color: var(--color-ink);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(120, 100, 70, 0.25);
+  box-shadow: 4px 0 20px rgba(60, 50, 30, 0.15);
+  z-index: 1101;
+  animation: siteNavPanelSlideIn 0.28s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+@keyframes siteNavPanelSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.site-nav-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(120, 100, 70, 0.15);
+}
+
+.site-nav-panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8a7d6b;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.site-nav-panel-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #8a7d6b;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.site-nav-panel-close:hover,
+.site-nav-panel-close:focus-visible {
+  background: rgba(120, 100, 70, 0.12);
+  color: var(--color-ink);
+  outline: none;
+}
+
+.site-nav-panel-body {
+  flex: 1;
+  padding: 16px 12px;
+  overflow-y: auto;
+}
+
+.site-nav-panel-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.site-nav-panel-item {
+  display: block;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-ink);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.site-nav-panel-item:hover,
+.site-nav-panel-item:focus-visible {
+  background: rgba(120, 100, 70, 0.1);
+  outline: none;
+}
+
+.site-nav-panel-item.is-active {
+  background: var(--color-ink);
+  color: var(--color-parchment-light);
+}
+
+.site-nav-panel-item.is-active:hover,
+.site-nav-panel-item.is-active:focus-visible {
+  background: #1f1810;
+}
+
+@media (prefers-color-scheme: dark) {
+  .site-nav-panel {
+    background: rgba(30, 27, 22, 0.98);
+    color: #f0ebe0;
+    border-right-color: rgba(58, 53, 40, 0.6);
+  }
+
+  .site-nav-panel-title {
+    color: #a09888;
+  }
+
+  .site-nav-panel-close {
+    color: #a09888;
+  }
+
+  .site-nav-panel-close:hover,
+  .site-nav-panel-close:focus-visible {
+    background: rgba(200, 180, 140, 0.12);
+    color: #f0ebe0;
+  }
+
+  .site-nav-panel-item {
+    color: #f0ebe0;
+  }
+
+  .site-nav-panel-item:hover,
+  .site-nav-panel-item:focus-visible {
+    background: rgba(200, 180, 140, 0.12);
+  }
+
+  .site-nav-panel-item.is-active {
+    background: #f0ebe0;
+    color: #1e1b16;
+  }
+
+  .site-nav-panel-item.is-active:hover,
+  .site-nav-panel-item.is-active:focus-visible {
+    background: #fff;
+  }
+}
+
+/* Prevent page scroll while panel is open */
+body:has(.site-nav-panel) {
+  overflow: hidden;
+}

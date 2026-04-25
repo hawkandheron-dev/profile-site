@@ -10,9 +10,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
+    <script>
+      try {
+        if (sessionStorage.getItem('windhover.loaderSeen') === '1') {
+          document.documentElement.setAttribute('data-loader-seen', '');
+        }
+      } catch (_) {}
+    </script>
     <style>
       #page-loader{position:fixed;inset:0;z-index:9999;background:#f5f0e1;display:flex;align-items:center;justify-content:center}
       #page-loader[hidden]{display:none!important}
+      html[data-loader-seen] #page-loader{display:none!important}
     </style>
     <link rel="stylesheet" href="loader.css" />
     <script defer src="loader.js"></script>
@@ -24,7 +32,7 @@
     <div id="page-loader" class="page-loader" role="progressbar" aria-label="Loading page" aria-busy="true">
       <div class="page-loader-inner">
         <img class="page-loader-logo" src="resources/logos/Windhover_BLK.png" alt="" width="120" height="120" />
-        <h2 class="page-loader-title">Pantheons Database</h2>
+        <h2 class="page-loader-title">Pantheons database</h2>
         <div class="page-loader-sub">Loading</div>
         <div class="page-loader-cta">
           <div class="page-loader-bar" aria-hidden="true"></div>

@@ -21,6 +21,7 @@ import { IssueCreatorButton } from './components/IssueCreator/IssueCreatorButton
 import { GettingStartedPage } from './components/GettingStarted/GettingStartedPage.jsx';
 import { CollaboratorsOnlyNotice } from './components/GettingStarted/CollaboratorsOnlyNotice.jsx';
 import { Icon } from './components/Timeline/components/Icon.jsx';
+import { SiteNavPanel } from './components/SiteNavPanel.jsx';
 import { useTour } from './components/Tour/useTour.js';
 import { WelcomeDialog } from './components/Tour/WelcomeDialog.jsx';
 import { TourPanel } from './components/Tour/TourPanel.jsx';
@@ -30,32 +31,17 @@ const BIRD_LOGO = new URL('../../../resources/logos/Windhover_BLK.png', import.m
 
 const hasClerk = !!(window.CLERK_PUBLISHABLE_KEY || import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 
-function NavDropdown() {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [open]);
-
+function SiteNavToggle({ onOpen }) {
   return (
-    <div className="nav-dropdown" ref={ref}>
-      <button className="btn btn-icon nav-dropdown-toggle" onClick={() => setOpen(!open)} title="Navigation">
-        <Icon name="menu" size={18} />
-      </button>
-      {open && (
-        <div className="nav-dropdown-menu">
-          <a href="../../index.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Home</a>
-          <a href="./church-history.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>JSON Version</a>
-          <a href="../../church-history-supabase.html" className="nav-dropdown-item" onClick={() => setOpen(false)}>Data Browser</a>
-        </div>
-      )}
-    </div>
+    <button
+      className="btn btn-icon site-nav-toggle"
+      onClick={onOpen}
+      aria-label="Open navigation"
+      title="Navigation"
+      type="button"
+    >
+      <Icon name="menu" size={18} />
+    </button>
   );
 }
 
@@ -147,6 +133,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
   const [isContributor, setIsContributor] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [view, setView] = useState('timeline'); // 'timeline' | 'suggestions' | 'getting-started'
+  const [navOpen, setNavOpen] = useState(false);
   const timelineRef = useRef(null);
 
   // Auto-register user on sign-in, then check their role.
@@ -265,6 +252,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
       <>
         <header className="app-header">
           <div className="header-content">
+            <SiteNavToggle onOpen={() => setNavOpen(true)} />
             <div className="header-left">
               <h1 className="site-title"><strong>History of the Christian Church</strong> <span>Lifespans</span></h1>
             </div>
@@ -291,6 +279,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
             onBack={() => setView('timeline')}
           />
         </div>
+        <SiteNavPanel open={navOpen} onClose={() => setNavOpen(false)} activeKey="church-history" />
       </>
     );
   }
@@ -305,6 +294,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
       <>
         <header className="app-header">
           <div className="header-content">
+            <SiteNavToggle onOpen={() => setNavOpen(true)} />
             <div className="header-left">
               <h1 className="site-title"><strong>History of the Christian Church</strong> <span>Lifespans</span></h1>
             </div>
@@ -343,6 +333,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
             <CollaboratorsOnlyNotice onBack={() => setView('timeline')} />
           )}
         </div>
+        <SiteNavPanel open={navOpen} onClose={() => setNavOpen(false)} activeKey="church-history" />
       </>
     );
   }
@@ -351,6 +342,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
     <>
       <header className="app-header">
         <div className="header-content">
+          <SiteNavToggle onOpen={() => setNavOpen(true)} />
           <div className="header-left">
             {timelineData && (
               <TimelineSearch
@@ -383,10 +375,10 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
               clerkUserId={userId}
               getPageContext={getPageContext}
             />
-            <NavDropdown />
           </div>
         </div>
       </header>
+      <SiteNavPanel open={navOpen} onClose={() => setNavOpen(false)} activeKey="church-history" />
 
       <div className="tab-content">
         {loading && (
@@ -481,6 +473,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
  */
 function UnauthenticatedApp({ timelineData, loading, error, tourScenes }) {
   const timelineRef = useRef(null);
+  const [navOpen, setNavOpen] = useState(false);
 
   // Tour
   const tour = useTour({ fullData: timelineData, timelineRef, scenes: tourScenes });
@@ -501,6 +494,7 @@ function UnauthenticatedApp({ timelineData, loading, error, tourScenes }) {
     <>
       <header className="app-header">
         <div className="header-content">
+          <SiteNavToggle onOpen={() => setNavOpen(true)} />
           <div className="header-left">
             {timelineData && (
               <TimelineSearch
@@ -530,10 +524,10 @@ function UnauthenticatedApp({ timelineData, loading, error, tourScenes }) {
                 Sign-in unavailable
               </button>
             </div>
-            <NavDropdown />
           </div>
         </div>
       </header>
+      <SiteNavPanel open={navOpen} onClose={() => setNavOpen(false)} activeKey="church-history" />
       <div className="tab-content">
         {loading && (
           <div style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>
