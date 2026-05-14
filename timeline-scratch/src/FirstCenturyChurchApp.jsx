@@ -11,12 +11,11 @@ import {
 import {
   fetchFirstCenturyChurchData,
   buildGlobalGraph,
+  buildChurchGraph,
 } from './data/firstCenturyChurchSupabaseAdapter.js';
 import { ChurchMap } from './components/FirstCenturyChurch/ChurchMap.jsx';
 import { ChurchGraph } from './components/FirstCenturyChurch/ChurchGraph.jsx';
-import { ChurchPanel } from './components/FirstCenturyChurch/ChurchPanel.jsx';
-import { PersonPanel } from './components/FirstCenturyChurch/PersonPanel.jsx';
-import { HouseholdPanel } from './components/FirstCenturyChurch/HouseholdPanel.jsx';
+import { NodeDetailCard } from './components/FirstCenturyChurch/NodeDetailCard.jsx';
 import { JourneyOverlayControl } from './components/FirstCenturyChurch/JourneyOverlayControl.jsx';
 import { ChurchSearch } from './components/FirstCenturyChurch/ChurchSearch.jsx';
 import { checkUserRole, ensureUserExists } from './services/adminService.js';
@@ -29,8 +28,8 @@ function FirstCenturyChurchApp() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [modalStack, setModalStack] = useState([]); // [{ type, id }]
   const [selectedChurchId, setSelectedChurchId] = useState(null);
+  const [selectedNode, setSelectedNode] = useState(null); // { type, id } | null
   const [activeJourney, setActiveJourney] = useState(null); // journey_id | null
   const [showGlobalGraph, setShowGlobalGraph] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -80,30 +79,66 @@ function FirstCenturyChurchApp() {
     return () => { cancelled = true; };
   }, []);
 
-  // ── Modal stack ─────────────────────────────────────────────────────────
+  // ── Selection ───────────────────────────────────────────────────────────
 
-  const pushModal = useCallback((type, id) => {
-    setModalStack(prev => {
-      const top = prev[prev.length - 1];
-      if (top && top.type === type && top.id === id) return prev;
-      return [...prev, { type, id }];
-    });
-  }, []);
-  const popModal = useCallback(() => setModalStack(prev => prev.slice(0, -1)), []);
-  const closeAllModals = useCallback(() => setModalStack([]), []);
-  const currentModal = modalStack.length > 0 ? modalStack[modalStack.length - 1] : null;
-
-  // ── Entity selection ────────────────────────────────────────────────────
-
-  const handleSelectEntity = useCallback((type, id) => {
+  // Focus a church: anchor its connection web on the map, frame the church
+  // together with the other churches its travelers bridge to, and open its
+  // detail card.
+  const handleSelectChurch = useCallback((churchId) => {
+    if (!data) return;
+    const church = data.churchMap.get(churchId);
+    if (!church) return;
     setShowGlobalGraph(false);
-    pushModal(type, id);
-    if (type === 'church' && data) {
-      setSelectedChurchId(id);
-      const church = data.churchMap.get(id);
-      if (church && mapRef.current?.flyTo) mapRef.current.flyTo(church.lng, church.lat);
+    setSelectedChurchId(churchId);
+    setSelectedNode({ type: 'church', id: churchId });
+
+    const graph = buildChurchGraph(data, churchId);
+    const others = (graph.otherChurchIds || [])
+      .map(id => data.churchMap.get(id))
+      .filter(c => c && c.lat != null && c.lng != null);
+    if (others.length && church.lat != null && church.lng != null) {
+      const lngs = [church.lng, ...others.map(c => c.lng)];
+      const lats = [church.lat, ...others.map(c => c.lat)];
+      mapRef.current?.fitBounds?.([
+        [Math.min(...lngs), Math.min(...lats)],
+        [Math.max(...lngs), Math.max(...lats)],
+      ]);
+    } else if (church.lat != null && church.lng != null) {
+      mapRef.current?.flyTo?.(church.lng, church.lat);
     }
-  }, [pushModal, data]);
+  }, [data]);
+
+  // A node clicked in the on-map web: churches re-focus the web, people and
+  // households open the detail card.
+  const handleSelectNode = useCallback((node) => {
+    if (node.type === 'church') handleSelectChurch(node.entityId);
+    else setSelectedNode({ type: node.type, id: node.entityId });
+  }, [handleSelectChurch]);
+
+  // Navigation from inside the detail card (by type + entity id).
+  const handleCardNavigate = useCallback((type, id) => {
+    if (type === 'church') handleSelectChurch(id);
+    else setSelectedNode({ type, id });
+  }, [handleSelectChurch]);
+
+  // Clicking empty land/sea on the map clears the focused web + card.
+  const handleBackgroundClick = useCallback(() => {
+    setSelectedChurchId(null);
+    setSelectedNode(null);
+  }, []);
+
+  // Header search: churches focus the on-map web; people focus their primary
+  // church's web and open their own card.
+  const handleSearchSelect = useCallback((type, id) => {
+    if (type === 'church') {
+      handleSelectChurch(id);
+    } else if (type === 'person') {
+      const memberships = data?.personMembershipsMap.get(id) || [];
+      const primary = memberships.find(m => m.is_primary) || memberships[0];
+      if (primary) handleSelectChurch(primary.church_id);
+      setSelectedNode({ type: 'person', id });
+    }
+  }, [data, handleSelectChurch]);
 
   // ── Journey overlay ─────────────────────────────────────────────────────
 
@@ -130,10 +165,10 @@ function FirstCenturyChurchApp() {
   const handleReset = useCallback(() => {
     setActiveJourney(null);
     setSelectedChurchId(null);
+    setSelectedNode(null);
     setShowGlobalGraph(false);
-    closeAllModals();
     mapRef.current?.reset?.();
-  }, [closeAllModals]);
+  }, []);
 
   // ── Derived ─────────────────────────────────────────────────────────────
 
@@ -149,27 +184,32 @@ function FirstCenturyChurchApp() {
     () => (showGlobalGraph && data ? buildGlobalGraph(data) : { nodes: [], links: [] }),
     [showGlobalGraph, data],
   );
+  const focusedGraph = useMemo(
+    () => (selectedChurchId && data ? buildChurchGraph(data, selectedChurchId) : null),
+    [selectedChurchId, data],
+  );
 
-  const showReset = !!(activeJourney || modalStack.length > 0 || selectedChurchId);
+  const showReset = !!(activeJourney || selectedChurchId || selectedNode);
 
   const getPageContext = useCallback(() => ({
     app: 'first-century-church',
     url: window.location.pathname,
     activeFilters: { journey: activeJourney },
-    selectedEntity: currentModal ? { type: currentModal.type, id: currentModal.id } : null,
-    modalStack: modalStack.length > 0 ? modalStack : null,
-  }), [activeJourney, currentModal, modalStack]);
+    selectedEntity: selectedNode
+      || (selectedChurchId ? { type: 'church', id: selectedChurchId } : null),
+  }), [activeJourney, selectedNode, selectedChurchId]);
 
   const handleGlobalGraphNode = useCallback((node) => {
-    handleSelectEntity(node.type, node.entityId);
-  }, [handleSelectEntity]);
+    setShowGlobalGraph(false);
+    handleSelectNode(node);
+  }, [handleSelectNode]);
 
   return (
     <div className="fcc-app">
       <header className="fcc-header">
         {data && (
           <div className="fcc-header-search">
-            <ChurchSearch data={data} onSelect={handleSelectEntity} />
+            <ChurchSearch data={data} onSelect={handleSearchSelect} />
           </div>
         )}
         {hasClerk && (
@@ -207,7 +247,10 @@ function FirstCenturyChurchApp() {
             churches={data.churches}
             churchPersonCount={data.churchPersonCount}
             selectedChurchId={selectedChurchId}
-            onSelectChurch={(id) => handleSelectEntity('church', id)}
+            onSelectChurch={handleSelectChurch}
+            onBackgroundClick={handleBackgroundClick}
+            focusedGraph={focusedGraph}
+            onSelectNode={handleSelectNode}
             journeyStops={activeJourneyStops}
             journeyColor={activeJourneyObj?.color}
           />
@@ -229,7 +272,7 @@ function FirstCenturyChurchApp() {
                 {activeJourneyStops.map(s => (
                   <li key={s.id}>
                     {s.church_id ? (
-                      <button className="fcc-link-btn" onClick={() => handleSelectEntity('church', s.church_id)}>
+                      <button className="fcc-link-btn" onClick={() => handleSelectChurch(s.church_id)}>
                         {s.displayName}
                       </button>
                     ) : (
@@ -241,37 +284,13 @@ function FirstCenturyChurchApp() {
             </div>
           )}
 
-          {currentModal && (
-            <div className="fcc-side-panel">
-              {currentModal.type === 'church' && (
-                <ChurchPanel
-                  data={data}
-                  churchId={currentModal.id}
-                  onSelectEntity={handleSelectEntity}
-                  onClose={closeAllModals}
-                />
-              )}
-              {currentModal.type === 'person' && (
-                <PersonPanel
-                  data={data}
-                  personId={currentModal.id}
-                  onSelectEntity={handleSelectEntity}
-                  onClose={closeAllModals}
-                  canGoBack={modalStack.length > 1}
-                  onBack={popModal}
-                />
-              )}
-              {currentModal.type === 'household' && (
-                <HouseholdPanel
-                  data={data}
-                  householdId={currentModal.id}
-                  onSelectEntity={handleSelectEntity}
-                  onClose={closeAllModals}
-                  canGoBack={modalStack.length > 1}
-                  onBack={popModal}
-                />
-              )}
-            </div>
+          {selectedNode && (
+            <NodeDetailCard
+              data={data}
+              node={selectedNode}
+              onNavigate={handleCardNavigate}
+              onClose={() => setSelectedNode(null)}
+            />
           )}
 
           {showGlobalGraph && (

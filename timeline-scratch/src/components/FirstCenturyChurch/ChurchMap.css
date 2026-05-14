@@ -1,3 +1,8 @@
+.fcc-map-wrap {
+  position: absolute;
+  inset: 0;
+}
+
 .fcc-map-container {
   position: absolute;
   inset: 0;

@@ -1,0 +1,184 @@
+.fcc-detail-card {
+  position: absolute;
+  top: 4.25rem;
+  left: 1rem;
+  z-index: 19;
+  width: 330px;
+  max-width: 88vw;
+  max-height: calc(100vh - 9rem);
+  display: flex;
+  flex-direction: column;
+  background: #faf6eb;
+  border: 1px solid #d8cca9;
+  border-left: 4px solid var(--accent, #8b7355);
+  border-radius: 8px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.22);
+  font-family: 'Alegreya Sans', system-ui, sans-serif;
+  color: #2c2418;
+  overflow: hidden;
+}
+
+.fcc-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.7rem 0.85rem 0.6rem;
+  border-bottom: 1px solid #e4d9b8;
+  background: #f1e8cd;
+}
+.fcc-detail-card--person .fcc-card-header { background: #e9eef2; }
+.fcc-detail-card--household .fcc-card-header { background: #ece8f2; }
+
+.fcc-card-titles { flex: 1; min-width: 0; }
+.fcc-card-title { margin: 0; font-size: 1.1rem; line-height: 1.25; }
+.fcc-card-subtitle {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: #8a7a55;
+}
+
+.fcc-card-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent, #8b7355);
+  flex-shrink: 0;
+  margin-right: 0.3rem;
+  vertical-align: baseline;
+}
+.fcc-card-dot--lg {
+  width: 12px;
+  height: 12px;
+  margin: 0.28rem 0 0;
+}
+
+.fcc-card-close {
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: #6b5b45;
+  cursor: pointer;
+  padding: 0 0.15rem;
+}
+.fcc-card-close:hover { color: #2c2418; }
+
+.fcc-card-body {
+  padding: 0.75rem 0.85rem 1rem;
+  overflow-y: auto;
+}
+
+.fcc-card-desc { margin: 0 0 0.5rem; font-size: 0.9rem; line-height: 1.5; }
+.fcc-card-note { margin: 0.35rem 0; font-size: 0.85rem; color: #5b4f3a; }
+
+.fcc-card-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.83rem;
+  color: #5b4f3a;
+  margin: 0.4rem 0 0.2rem;
+}
+
+.fcc-card-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #8a7a55;
+}
+
+.fcc-card-section { margin-top: 0.9rem; }
+.fcc-card-section-title {
+  margin: 0 0 0.4rem;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #8a7a55;
+  border-bottom: 1px solid #e4d9b8;
+  padding-bottom: 0.2rem;
+}
+
+.fcc-card-link {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: #8a5a2b;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(138, 90, 43, 0.4);
+}
+.fcc-card-link:hover { color: #6b4420; }
+
+.fcc-card-list { list-style: none; margin: 0; padding: 0; }
+.fcc-card-list-item { margin: 0.5rem 0; }
+
+.fcc-card-plain-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.88rem;
+}
+.fcc-card-plain-list li { margin: 0.2rem 0; }
+
+.fcc-card-chip {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  border: 1px solid #e4d9b8;
+  background: #fff;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.fcc-card-chip:hover { background: #fcf8ee; border-color: #d8cca9; }
+.fcc-card-chip-name { font-size: 0.9rem; font-weight: 600; }
+.fcc-card-chip-role {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #8a7a55;
+  white-space: nowrap;
+}
+.fcc-card-context {
+  margin: 0.25rem 0 0;
+  font-size: 0.83rem;
+  color: #5b4f3a;
+  line-height: 1.45;
+}
+
+.fcc-card-badge {
+  display: inline-block;
+  background: #d98c2b;
+  color: #faf6eb;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  margin-bottom: 0.55rem;
+}
+
+.fcc-card-scripture { margin: 0.45rem 0; }
+.fcc-card-scripture-label {
+  margin: 0 0 0.2rem;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #5b4f3a;
+}
+
+@media (max-width: 640px) {
+  .fcc-detail-card {
+    top: auto;
+    bottom: 4rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    width: auto;
+    max-width: none;
+    max-height: 55vh;
+  }
+}

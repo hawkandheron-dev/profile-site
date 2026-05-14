@@ -274,6 +274,8 @@ export function buildChurchGraph(data, churchId) {
     label: church.name,
     color: churchColor(church),
     val: 14,
+    lat: church.lat,
+    lng: church.lng,
   });
 
   const memberships = data.churchMembershipsMap.get(churchId) || [];
@@ -314,12 +316,41 @@ export function buildChurchGraph(data, churchId) {
           color: churchColor(pm.church),
           val: 9,
           isOtherChurch: true,
+          lat: pm.church.lat,
+          lng: pm.church.lng,
         });
         links.push({
           source: `person:${m.person_id}`,
           target: `church:${pm.church_id}`,
           role: pm.role,
         });
+      });
+    }
+  });
+
+  // Households at this church become nodes too: church -> household -> members.
+  const households = data.churchHouseholdsMap.get(churchId) || [];
+  households.forEach(h => {
+    addNode({
+      id: `household:${h.household_id}`,
+      type: 'household',
+      entityId: h.household_id,
+      label: h.name,
+      color: '#8a7fae',
+      val: 6,
+    });
+    links.push({
+      source: `church:${church.church_id}`,
+      target: `household:${h.household_id}`,
+      kind: 'household',
+    });
+  });
+  memberships.forEach(m => {
+    if (m.household_id && nodeIds.has(`household:${m.household_id}`)) {
+      links.push({
+        source: `household:${m.household_id}`,
+        target: `person:${m.person_id}`,
+        kind: 'household-member',
       });
     }
   });

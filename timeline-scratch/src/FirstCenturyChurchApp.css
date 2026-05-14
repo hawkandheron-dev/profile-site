@@ -245,115 +245,7 @@
 }
 .fcc-journey-stop-list li { margin: 0.15rem 0; }
 
-/* ── Side panel ──────────────────────────────────────────────────────────── */
-
-.fcc-side-panel {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 380px;
-  max-width: 92vw;
-  z-index: 18;
-  background: #faf6eb;
-  border-left: 1px solid #d8cca9;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.16);
-  overflow-y: auto;
-}
-
-.fcc-panel { display: flex; flex-direction: column; min-height: 100%; }
-
-.fcc-panel-header {
-  padding: 1rem 1rem 0.7rem;
-  border-bottom: 1px solid #e4d9b8;
-  background: #f1e8cd;
-}
-.fcc-panel-header--person { background: #e9eef2; }
-.fcc-panel-header--household { background: #ece8f2; }
-
-.fcc-panel-title-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.fcc-panel-title {
-  margin: 0;
-  font-size: 1.2rem;
-  flex: 1;
-}
-.fcc-panel-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--accent, #8b7355);
-  flex-shrink: 0;
-}
-.fcc-panel-dot--inline {
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  margin-right: 0.3rem;
-  vertical-align: baseline;
-}
-.fcc-panel-close,
-.fcc-panel-back {
-  border: none;
-  background: transparent;
-  font-size: 1.4rem;
-  line-height: 1;
-  color: #6b5b45;
-  cursor: pointer;
-  padding: 0 0.2rem;
-}
-.fcc-panel-close:hover,
-.fcc-panel-back:hover { color: #2c2418; }
-.fcc-panel-subtitle {
-  margin: 0.3rem 0 0;
-  font-size: 0.82rem;
-  color: #8a7a55;
-}
-
-.fcc-panel-body { padding: 0.85rem 1rem 1.5rem; }
-
-.fcc-panel-desc { margin: 0 0 0.6rem; font-size: 0.92rem; line-height: 1.5; }
-.fcc-panel-note { margin: 0.4rem 0; font-size: 0.86rem; color: #5b4f3a; }
-
-.fcc-panel-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  font-size: 0.84rem;
-  color: #5b4f3a;
-  margin: 0.5rem 0 0.2rem;
-}
-
-.fcc-panel-section { margin-top: 1.1rem; }
-.fcc-panel-section-title {
-  margin: 0 0 0.4rem;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: #8a7a55;
-  border-bottom: 1px solid #e4d9b8;
-  padding-bottom: 0.2rem;
-}
-.fcc-panel-hint {
-  margin: 0 0 0.4rem;
-  font-size: 0.8rem;
-  color: #8a7a55;
-  font-style: italic;
-}
-
-.fcc-panel-graph {
-  height: 300px;
-  border: 1px solid #e4d9b8;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.fcc-panel-list { margin: 0; padding-left: 1.1rem; font-size: 0.88rem; }
-.fcc-panel-list li { margin: 0.2rem 0; }
-.fcc-panel-list-note { color: #8a7a55; }
+/* ── Shared link button (journey stop list, etc.) ────────────────────────── */
 
 .fcc-link-btn {
   border: none;
@@ -367,60 +259,6 @@
   text-decoration-color: rgba(138, 90, 43, 0.4);
 }
 .fcc-link-btn:hover { color: #6b4420; }
-
-/* People list */
-.fcc-people-list { list-style: none; margin: 0; padding: 0; }
-.fcc-people-item { margin: 0.5rem 0; }
-
-.fcc-person-chip {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 0.5rem;
-  border: 1px solid #e4d9b8;
-  background: #fff;
-  border-radius: 6px;
-  padding: 0.4rem 0.6rem;
-  font-family: inherit;
-  cursor: pointer;
-  text-align: left;
-}
-.fcc-person-chip:hover { background: #fcf8ee; border-color: #d8cca9; }
-.fcc-person-chip--traveler { border-left: 3px solid #d98c2b; }
-.fcc-person-name { font-size: 0.92rem; font-weight: 600; }
-.fcc-person-role {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #8a7a55;
-  white-space: nowrap;
-}
-.fcc-person-context {
-  margin: 0.25rem 0 0;
-  font-size: 0.84rem;
-  color: #5b4f3a;
-  line-height: 1.45;
-}
-
-.fcc-traveler-badge {
-  display: inline-block;
-  background: #d98c2b;
-  color: #faf6eb;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 0.3rem 0.6rem;
-  border-radius: 999px;
-  margin-bottom: 0.6rem;
-}
-
-.fcc-scripture-block { margin: 0.5rem 0; }
-.fcc-scripture-label {
-  margin: 0 0 0.2rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #5b4f3a;
-}
 
 /* ── Global graph overlay ────────────────────────────────────────────────── */
 
@@ -445,10 +283,20 @@
 .fcc-global-header p { margin: 0; font-size: 0.86rem; color: #5b4f3a; max-width: 60ch; }
 .fcc-global-graph { flex: 1; min-height: 0; }
 
+.fcc-panel-close {
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: #6b5b45;
+  cursor: pointer;
+  padding: 0 0.2rem;
+}
+.fcc-panel-close:hover { color: #2c2418; }
+
 /* ── Mobile ──────────────────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
-  .fcc-side-panel { width: 100vw; max-width: 100vw; }
   .fcc-journey-info { bottom: 8rem; }
   .fcc-controls { gap: 0.5rem 0.75rem; }
   .fcc-controls-actions { margin-left: 0; }

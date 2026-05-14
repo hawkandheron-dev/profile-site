@@ -1,9 +1,10 @@
-import { useEffect, useRef, useImperativeHandle, forwardRef, useCallback } from 'react';
+import { useEffect, useRef, useState, useImperativeHandle, forwardRef, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { filterByDate } from '@openhistoricalmap/maplibre-gl-dates';
 import MaplibreLanguage from '@openhistoricalmap/maplibre-gl-language';
 import { churchColor } from '../../data/firstCenturyChurchSupabaseAdapter.js';
+import { ChurchWebOverlay } from './ChurchWebOverlay.jsx';
 import './ChurchMap.css';
 
 const OHM_STYLE_URL = 'https://www.openhistoricalmap.org/map-styles/main/main.json';
@@ -20,12 +21,22 @@ const MAP_YEAR = '0050';
  * as a numbered polyline.
  */
 export const ChurchMap = forwardRef(function ChurchMap(
-  { churches, churchPersonCount, selectedChurchId, onSelectChurch, journeyStops, journeyColor },
+  {
+    churches, churchPersonCount, selectedChurchId, onSelectChurch,
+    onBackgroundClick, focusedGraph, onSelectNode, journeyStops, journeyColor,
+  },
   ref,
 ) {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const popupRef = useRef(null);
+  const [mapInstance, setMapInstance] = useState(null);
+
+  // Keep latest callbacks in refs so the mount-once load handler stays fresh.
+  const onSelectChurchRef = useRef(onSelectChurch);
+  const onBackgroundClickRef = useRef(onBackgroundClick);
+  useEffect(() => { onSelectChurchRef.current = onSelectChurch; }, [onSelectChurch]);
+  useEffect(() => { onBackgroundClickRef.current = onBackgroundClick; }, [onBackgroundClick]);
 
   useImperativeHandle(ref, () => ({
     flyTo(lng, lat) {
@@ -234,12 +245,22 @@ export const ChurchMap = forwardRef(function ChurchMap(
       // ── Interactions ──────────────────────────────────────────────────
       map.on('click', 'church-pins', (e) => {
         const f = e.features[0];
-        if (f) onSelectChurch(f.properties.church_id);
+        if (f) onSelectChurchRef.current?.(f.properties.church_id);
       });
 
       map.on('click', 'journey-stop-circles', (e) => {
         const f = e.features[0];
-        if (f?.properties?.church_id) onSelectChurch(f.properties.church_id);
+        if (f?.properties?.church_id) onSelectChurchRef.current?.(f.properties.church_id);
+      });
+
+      // Clicking empty land/sea clears the focused web. The connection-web
+      // overlay stops propagation when one of its nodes is hit, so this only
+      // fires for genuine background clicks.
+      map.on('click', (e) => {
+        const hits = map.queryRenderedFeatures(e.point, {
+          layers: ['church-pins', 'clusters', 'journey-stop-circles'],
+        });
+        if (!hits.length) onBackgroundClickRef.current?.();
       });
 
       map.on('click', 'clusters', async (e) => {
@@ -281,6 +302,8 @@ export const ChurchMap = forwardRef(function ChurchMap(
 
       map.on('mouseenter', 'clusters', () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', 'clusters', () => { map.getCanvas().style.cursor = ''; });
+
+      setMapInstance(map);
     });
 
     // Pin the basemap to the first-century world.
@@ -289,11 +312,33 @@ export const ChurchMap = forwardRef(function ChurchMap(
     });
 
     return () => {
+      setMapInstance(null);
       mapRef.current = null;
       if (popupRef.current) popupRef.current.remove();
       map.remove();
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Dim the basemap pins and hide labels while a connection web is focused,
+  // so the overlay's own church nodes read cleanly.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return undefined;
+    const apply = () => {
+      if (!map.getLayer('church-pins')) return false;
+      const focused = !!focusedGraph;
+      map.setLayoutProperty('church-labels', 'visibility', focused ? 'none' : 'visible');
+      map.setPaintProperty('church-pins', 'circle-opacity', focused ? 0.3 : 1);
+      map.setPaintProperty('church-pins', 'circle-stroke-opacity', focused ? 0.3 : 1);
+      return true;
+    };
+    if (!apply()) {
+      const onLoad = () => apply();
+      map.once('load', onLoad);
+      return () => map.off('load', onLoad);
+    }
+    return undefined;
+  }, [focusedGraph]);
 
   // Update church pins when data / selection changes
   useEffect(() => {
@@ -338,5 +383,17 @@ export const ChurchMap = forwardRef(function ChurchMap(
     }
   }, [buildJourneyGeoJSON, journeyColor]);
 
-  return <div className="fcc-map-container" ref={mapContainerRef} />;
+  return (
+    <div className="fcc-map-wrap">
+      <div className="fcc-map-container" ref={mapContainerRef} />
+      {mapInstance && focusedGraph && (
+        <ChurchWebOverlay
+          key={selectedChurchId}
+          map={mapInstance}
+          graph={focusedGraph}
+          onSelectNode={onSelectNode}
+        />
+      )}
+    </div>
+  );
 });
