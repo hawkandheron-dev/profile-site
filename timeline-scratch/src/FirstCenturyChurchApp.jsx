@@ -92,18 +92,7 @@ function FirstCenturyChurchApp() {
     setSelectedChurchId(churchId);
     setSelectedNode({ type: 'church', id: churchId });
 
-    const graph = buildChurchGraph(data, churchId);
-    const others = (graph.otherChurchIds || [])
-      .map(id => data.churchMap.get(id))
-      .filter(c => c && c.lat != null && c.lng != null);
-    if (others.length && church.lat != null && church.lng != null) {
-      const lngs = [church.lng, ...others.map(c => c.lng)];
-      const lats = [church.lat, ...others.map(c => c.lat)];
-      mapRef.current?.fitBounds?.([
-        [Math.min(...lngs), Math.min(...lats)],
-        [Math.max(...lngs), Math.max(...lats)],
-      ]);
-    } else if (church.lat != null && church.lng != null) {
+    if (church.lat != null && church.lng != null) {
       mapRef.current?.flyTo?.(church.lng, church.lat);
     }
   }, [data]);
@@ -121,9 +110,10 @@ function FirstCenturyChurchApp() {
     else setSelectedNode({ type, id });
   }, [handleSelectChurch]);
 
-  // Clicking empty land/sea on the map clears the focused web + card.
+  // Clicking empty land/sea on the map deselects any pinned node (closes the
+  // detail card and clears the click-highlight). The focused city's web stays
+  // up — use the Reset button to clear it.
   const handleBackgroundClick = useCallback(() => {
-    setSelectedChurchId(null);
     setSelectedNode(null);
   }, []);
 
@@ -188,6 +178,7 @@ function FirstCenturyChurchApp() {
     () => (selectedChurchId && data ? buildChurchGraph(data, selectedChurchId) : null),
     [selectedChurchId, data],
   );
+  const selectedNodeId = selectedNode ? `${selectedNode.type}:${selectedNode.id}` : null;
 
   const showReset = !!(activeJourney || selectedChurchId || selectedNode);
 
@@ -251,6 +242,7 @@ function FirstCenturyChurchApp() {
             onBackgroundClick={handleBackgroundClick}
             focusedGraph={focusedGraph}
             onSelectNode={handleSelectNode}
+            selectedNodeId={selectedNodeId}
             journeyStops={activeJourneyStops}
             journeyColor={activeJourneyObj?.color}
           />

@@ -26,29 +26,66 @@ function tooltipSub(node) {
   return node.role ? node.role.replace(/-/g, ' ') : null;
 }
 
+// Member-ring radius (px) at map zoom level REF_ZOOM. Other orbits derive from
+// this. The exponent controls how quickly orbits grow with the map's zoom —
+// a value < 1 means orbits expand more gently than the map.
+const BASE_MEMBER_ORBIT = 85;
+const ORBIT_ZOOM_EXP = 0.65;
+const REF_ZOOM = 5;
+
 /**
  * Geo-anchored connection web drawn on a transparent canvas over the map.
  *
- * Church nodes are pinned to their real map coordinates (via map.project)
- * every frame; person and household nodes are positioned by a d3-force
- * simulation running in screen-pixel space. As the map pans/zooms the church
- * anchors are re-projected and the whole web is translated to follow.
+ * Church nodes are pinned to their real map coordinates every frame; person
+ * and household nodes are positioned by a d3-force simulation in screen-pixel
+ * space. The orbit ring sizes scale (more gently than the map) with the map
+ * zoom so the cloud expands when you zoom in and stays visible when you zoom
+ * out, clamped to a fraction of the viewport.
  *
- * The canvas itself is pointer-events:none — hover and click hit-testing is
- * done by listening on the map's canvas container, so the map keeps all of
- * its native interactions and empty-space clicks still reach it.
+ * The canvas is pointer-events:none — hover and click hit-testing happens on
+ * the map's canvas container, so the map keeps its native interactions and
+ * empty-space clicks still reach it.
  */
-export function ChurchWebOverlay({ map, graph, onSelectNode }) {
+export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
   const canvasRef = useRef(null);
   const simRef = useRef(null);
   const nodesRef = useRef([]);
   const linksRef = useRef([]);
   const nodeByIdRef = useRef(new Map());
+  const focusChurchRef = useRef(null);
+  const radiiRef = useRef({
+    member: BASE_MEMBER_ORBIT,
+    visitor: BASE_MEMBER_ORBIT * 1.7,
+    household: BASE_MEMBER_ORBIT * 0.55,
+    householdMember: BASE_MEMBER_ORBIT * 0.32,
+    bridge: BASE_MEMBER_ORBIT * 1.2,
+  });
   const hoverRef = useRef(null);
+  const selectedRef = useRef(selectedId);
   const onSelectRef = useRef(onSelectNode);
   const [tooltip, setTooltip] = useState(null);
 
   useEffect(() => { onSelectRef.current = onSelectNode; }, [onSelectNode]);
+
+  // Compute orbit radii for the current map zoom + viewport. Clamped so the
+  // cloud is never collapsed (min member ring 50px) and never larger than
+  // ~42% of the smaller viewport dimension.
+  const computeRadii = useCallback(() => {
+    if (!map) return;
+    const container = map.getContainer();
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    const cap = Math.min(w, h) * 0.42;
+    const mult = Math.pow(2, (map.getZoom() - REF_ZOOM) * ORBIT_ZOOM_EXP);
+    const member = Math.max(50, Math.min(cap / 1.7, BASE_MEMBER_ORBIT * mult));
+    radiiRef.current = {
+      member,
+      visitor: Math.min(cap, member * 1.7),
+      household: member * 0.55,
+      householdMember: member * 0.32,
+      bridge: member * 1.2,
+    };
+  }, [map]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -71,8 +108,12 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
     const links = linksRef.current;
     if (!nodes.length) return;
 
+    // Click-pinned highlight stays on; hover takes precedence when active.
     const hoverId = hoverRef.current;
-    const neighborIds = hoverId ? neighborSet(links, hoverId) : null;
+    const selId = selectedRef.current;
+    const activeId = hoverId || selId;
+    const neighborIds = activeId ? neighborSet(links, activeId) : null;
+    const focus = focusChurchRef.current;
 
     links.forEach(l => {
       const s = typeof l.source === 'object' ? l.source : nodeByIdRef.current.get(l.source);
@@ -83,23 +124,29 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
 
       if (isBridge) {
         // A connection to another church: a thread that curls out of the
-        // person and fades toward the far church. The curve and the fade are
-        // anchored to a fixed *screen* distance near the person, so both stay
+        // person and fades toward the far church. The curve + fade are
+        // anchored to a fixed *screen* distance near the person so both stay
         // visible at any zoom — the church endpoint is often far off-screen.
         const dim = neighborIds && !on;
-        const head = dim ? 0.08 : on ? 0.9 : 0.5;
+        const head = dim ? 0.08 : on ? 1.0 : 0.5;
         const dx = t.x - s.x;
         const dy = t.y - s.y;
         const len = Math.hypot(dx, dy) || 1;
         const ux = dx / len;
         const uy = dy / len;
-        // Control point near the person so the curve bends here, then
-        // straightens as it heads outward.
+        // Bow direction is always outward from the focused church so threads
+        // arc away from the orbit instead of criss-crossing through it.
+        let px = -uy;
+        let py = ux;
+        if (focus) {
+          const rx = s.x - focus.x;
+          const ry = s.y - focus.y;
+          if (px * rx + py * ry < 0) { px = uy; py = -ux; }
+        }
         const reach = Math.min(len * 0.5, 130);
         const bow = reach * 0.55;
-        const cx = s.x + ux * reach - uy * bow;
-        const cy = s.y + uy * reach + ux * bow;
-        // Fade to transparent within a fixed distance of the person.
+        const cx = s.x + ux * reach + px * bow;
+        const cy = s.y + uy * reach + py * bow;
         const fade = Math.min(1, (on ? 620 : 300) / len);
         const grad = ctx.createLinearGradient(s.x, s.y, t.x, t.y);
         grad.addColorStop(0, `rgba(217, 140, 43, ${head})`);
@@ -109,12 +156,12 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
         ctx.moveTo(s.x, s.y);
         ctx.quadraticCurveTo(cx, cy, t.x, t.y);
         ctx.strokeStyle = grad;
-        ctx.lineWidth = on ? 1.8 : 1;
+        ctx.lineWidth = on ? 1.9 : 1;
         ctx.stroke();
         return;
       }
 
-      // Structural links (member / visitor / household) — straight solid threads.
+      // Structural links (member / visitor / household / household-member).
       let color = 'rgba(107, 91, 69, 0.4)';
       let width = 1.1;
       if (neighborIds) {
@@ -147,29 +194,54 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
       }
       ctx.stroke();
 
-      const showLabel = n.type === 'church' || n.type === 'household' || n.id === hoverId;
-      if (showLabel) {
-        const fontSize = n.type === 'church' ? 12.5 : 10.5;
+      // Labels: always visible in the focused web — but the hovered node's
+      // name is taken over by the floating tooltip, so suppress it here.
+      const isHovered = n.id === hoverId;
+      if (!isHovered) {
+        const fontSize = n.type === 'church' ? 12.5 : 9.5;
         ctx.font = `${n.type === 'church' ? '600 ' : ''}${fontSize}px 'Alegreya Sans', system-ui, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
         ctx.lineJoin = 'round';
         ctx.lineWidth = 3;
         ctx.strokeStyle = 'rgba(250, 246, 235, 0.95)';
         ctx.fillStyle = '#2c2418';
+        let lx;
+        let ly;
+        if (focus && n.id !== focus.id) {
+          // Place the label outward from the focused church.
+          const rx = n.x - focus.x;
+          const ry = n.y - focus.y;
+          const rLen = Math.hypot(rx, ry) || 1;
+          const ux = rx / rLen;
+          const uy = ry / rLen;
+          lx = n.x + ux * (r + 4);
+          ly = n.y + uy * (r + 4);
+          ctx.textAlign = ux > 0.35 ? 'left' : ux < -0.35 ? 'right' : 'center';
+          ctx.textBaseline = uy > 0.35 ? 'top' : uy < -0.35 ? 'bottom' : 'middle';
+        } else {
+          lx = n.x;
+          ly = n.y + r + 2.5;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+        }
         const label = n.label || '';
-        const ly = n.y + r + 2.5;
-        ctx.strokeText(label, n.x, ly);
-        ctx.fillText(label, n.x, ly);
+        ctx.strokeText(label, lx, ly);
+        ctx.fillText(label, lx, ly);
       }
       ctx.globalAlpha = 1;
     });
   }, [map]);
 
-  // Build the simulation. The overlay is keyed by the focused church, so it
-  // mounts fresh for each church — this effect runs once per mount.
+  // Persistent click-highlight: track the App's selectedId and redraw.
+  useEffect(() => {
+    selectedRef.current = selectedId;
+    draw();
+  }, [selectedId, draw]);
+
+  // Build / rebuild the simulation when the focused graph changes.
   useEffect(() => {
     if (!map || !graph || !graph.nodes || !graph.nodes.length) return undefined;
+
+    computeRadii();
 
     const container = map.getContainer();
     const w = container.clientWidth;
@@ -187,12 +259,15 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
     });
     const focusChurch = nodes.find(n => n.type === 'church' && !n.isOtherChurch && n.fx != null)
       || nodes.find(n => n.type === 'church' && n.fx != null);
+    focusChurchRef.current = focusChurch || null;
+
+    const seedRing = radiiRef.current.member;
     nodes.forEach(n => {
       if (n.x == null) {
         const bx = focusChurch ? focusChurch.x : w / 2;
         const by = focusChurch ? focusChurch.y : h / 2;
         const a = Math.random() * Math.PI * 2;
-        const d = 30 + Math.random() * 70;
+        const d = seedRing * 0.5 + Math.random() * seedRing * 0.6;
         n.x = bx + Math.cos(a) * d;
         n.y = by + Math.sin(a) * d;
       }
@@ -200,24 +275,25 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
 
     const links = graph.links.map(l => ({ ...l }));
 
+    // distance/strength read from radiiRef so they pick up zoom-scaled values
+    // on every tick.
     const linkDistance = (l) => {
+      const r = radiiRef.current;
       switch (l.kind) {
-        case 'household-member': return 26;
-        case 'household': return 44;
-        case 'bridge': return 90;
-        case 'visitor': return 135; // passing through — wide outer ring
-        default: return 70; // member
+        case 'household-member': return r.householdMember;
+        case 'household': return r.household;
+        case 'bridge': return r.bridge;
+        case 'visitor': return r.visitor;
+        default: return r.member;
       }
     };
-    // Bridge links (to other churches) carry no force — the person orbits the
-    // focused church and the connection is shown only as a drawn thread.
     const linkStrength = (l) => {
       switch (l.kind) {
         case 'bridge': return 0;
         case 'household-member': return 0.6;
         case 'household': return 0.35;
-        case 'visitor': return 0.3; // looser hold than full members
-        default: return 0.5; // member
+        case 'visitor': return 0.3;
+        default: return 0.5;
       }
     };
 
@@ -238,13 +314,14 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
     draw();
 
     return () => { sim.stop(); };
-  }, [map, graph, draw]);
+  }, [map, graph, draw, computeRadii]);
 
-  // Keep church nodes pinned to geography as the map moves; drag the rest along.
+  // Map sync: re-pin churches, rescale orbits for the current zoom, redraw.
   useEffect(() => {
     if (!map) return undefined;
 
     const syncToMap = () => {
+      computeRadii();
       const nodes = nodesRef.current;
       if (nodes.length) {
         let dx = 0; let dy = 0;
@@ -267,7 +344,7 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
           });
         }
         const sim = simRef.current;
-        if (sim) sim.alpha(Math.max(sim.alpha(), 0.18)).restart();
+        if (sim) sim.alpha(Math.max(sim.alpha(), 0.25)).restart();
       }
       draw();
     };
@@ -278,9 +355,9 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
       map.off('move', syncToMap);
       map.off('resize', syncToMap);
     };
-  }, [map, draw]);
+  }, [map, draw, computeRadii]);
 
-  // Hover + click hit-testing, driven off the map's own canvas container.
+  // Hover + click hit-testing.
   useEffect(() => {
     if (!map) return undefined;
     const el = map.getCanvasContainer();

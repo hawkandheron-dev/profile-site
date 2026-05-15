@@ -23,7 +23,8 @@ const MAP_YEAR = '0050';
 export const ChurchMap = forwardRef(function ChurchMap(
   {
     churches, churchPersonCount, selectedChurchId, onSelectChurch,
-    onBackgroundClick, focusedGraph, onSelectNode, journeyStops, journeyColor,
+    onBackgroundClick, focusedGraph, onSelectNode, selectedNodeId,
+    journeyStops, journeyColor,
   },
   ref,
 ) {
@@ -392,6 +393,7 @@ export const ChurchMap = forwardRef(function ChurchMap(
           map={mapInstance}
           graph={focusedGraph}
           onSelectNode={onSelectNode}
+          selectedId={selectedNodeId}
         />
       )}
     </div>
