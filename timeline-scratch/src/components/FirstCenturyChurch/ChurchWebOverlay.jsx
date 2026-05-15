@@ -78,20 +78,25 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
       const s = typeof l.source === 'object' ? l.source : nodeByIdRef.current.get(l.source);
       const t = typeof l.target === 'object' ? l.target : nodeByIdRef.current.get(l.target);
       if (!s || !t || s.x == null || t.x == null) return;
-      let color = 'rgba(107, 91, 69, 0.32)';
-      let width = 1;
+      const isBridge = l.kind === 'bridge';
+      // Structural links read as solid threads; bridges to other churches are
+      // faint dashed threads so the orbit around the focused church dominates.
+      let color = isBridge ? 'rgba(217, 140, 43, 0.32)' : 'rgba(107, 91, 69, 0.4)';
+      let width = isBridge ? 0.7 : 1.1;
       if (neighborIds) {
         const on = neighborIds.has(s.id) && neighborIds.has(t.id);
-        color = on ? 'rgba(217, 140, 43, 0.8)' : 'rgba(107, 91, 69, 0.07)';
-        width = on ? 2 : 0.5;
+        color = on ? 'rgba(217, 140, 43, 0.85)' : 'rgba(107, 91, 69, 0.06)';
+        width = on ? 2 : 0.4;
       }
       ctx.beginPath();
       ctx.moveTo(s.x, s.y);
       ctx.lineTo(t.x, t.y);
       ctx.strokeStyle = color;
       ctx.lineWidth = width;
+      ctx.setLineDash(isBridge ? [4, 3] : []);
       ctx.stroke();
     });
+    ctx.setLineDash([]);
 
     nodes.forEach(n => {
       if (n.x == null || n.y == null) return;
@@ -164,11 +169,30 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
 
     const links = graph.links.map(l => ({ ...l }));
 
+    const linkDistance = (l) => {
+      switch (l.kind) {
+        case 'household-member': return 26;
+        case 'household': return 44;
+        case 'bridge': return 90;
+        default: return 70; // member
+      }
+    };
+    // Bridge links (to other churches) carry no force — the member orbits the
+    // focused church and the connection is shown only as a drawn thread.
+    const linkStrength = (l) => {
+      switch (l.kind) {
+        case 'bridge': return 0;
+        case 'household-member': return 0.6;
+        case 'household': return 0.35;
+        default: return 0.5; // member
+      }
+    };
+
     const sim = forceSimulation(nodes)
       .force('link', forceLink(links).id(d => d.id)
-        .distance(l => (l.kind === 'household-member' ? 30 : l.kind === 'household' ? 46 : 58))
-        .strength(0.32))
-      .force('charge', forceManyBody().strength(-120).distanceMax(260))
+        .distance(linkDistance)
+        .strength(linkStrength))
+      .force('charge', forceManyBody().strength(-110).distanceMax(260))
       .force('collide', forceCollide().radius(d => nodeRadius(d) + 7).strength(0.9))
       .alpha(1)
       .alphaDecay(0.028)

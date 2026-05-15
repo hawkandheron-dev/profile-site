@@ -300,6 +300,7 @@ export function buildChurchGraph(data, churchId) {
       source: `person:${m.person_id}`,
       target: `church:${church.church_id}`,
       role: m.role,
+      kind: 'member',
     });
 
     // For travelers, pull in their other churches one hop out
@@ -319,10 +320,14 @@ export function buildChurchGraph(data, churchId) {
           lat: pm.church.lat,
           lng: pm.church.lng,
         });
+        // A traveler's link to a church *other* than the focused one: drawn as
+        // a thread, but it exerts no pull so the person still orbits the
+        // focused church rather than being dragged across the map.
         links.push({
           source: `person:${m.person_id}`,
           target: `church:${pm.church_id}`,
           role: pm.role,
+          kind: 'bridge',
         });
       });
     }
