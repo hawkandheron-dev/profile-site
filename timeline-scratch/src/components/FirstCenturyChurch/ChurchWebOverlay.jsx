@@ -19,7 +19,7 @@ function neighborSet(links, id) {
 
 function tooltipSub(node) {
   if (node.type === 'church') return node.isOtherChurch ? 'Connected church' : 'Church';
-  if (node.type === 'household') return 'House church';
+  if (node.type === 'household') return 'Household';
   if (node.isTraveler) {
     return `Connects ${node.churchCount} ${node.churchCount === 1 ? 'community' : 'communities'}`;
   }
@@ -87,6 +87,21 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
     };
   }, [map]);
 
+  // Hoisted so the map-sync effect can re-apply it on zoom — d3-force caches
+  // distances at `.distance()` call time, so just mutating radiiRef isn't
+  // enough to make the orbits expand. Re-applying this function pushes the
+  // current radii into the cached array.
+  const linkDistance = useCallback((l) => {
+    const r = radiiRef.current;
+    switch (l.kind) {
+      case 'household-member': return r.householdMember;
+      case 'household': return r.household;
+      case 'bridge': return r.bridge;
+      case 'visitor': return r.visitor;
+      default: return r.member;
+    }
+  }, []);
+
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     const container = map?.getContainer();
@@ -128,7 +143,7 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
         // anchored to a fixed *screen* distance near the person so both stay
         // visible at any zoom — the church endpoint is often far off-screen.
         const dim = neighborIds && !on;
-        const head = dim ? 0.08 : on ? 1.0 : 0.5;
+        const head = dim ? 0.12 : on ? 1.0 : 0.7;
         const dx = t.x - s.x;
         const dy = t.y - s.y;
         const len = Math.hypot(dx, dy) || 1;
@@ -143,20 +158,26 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
           const ry = s.y - focus.y;
           if (px * rx + py * ry < 0) { px = uy; py = -ux; }
         }
-        const reach = Math.min(len * 0.5, 130);
-        const bow = reach * 0.55;
+        const reach = Math.min(len * 0.5, 160);
+        const bow = reach * 0.6;
         const cx = s.x + ux * reach + px * bow;
         const cy = s.y + uy * reach + py * bow;
-        const fade = Math.min(1, (on ? 620 : 300) / len);
-        const grad = ctx.createLinearGradient(s.x, s.y, t.x, t.y);
+        // Fade runs along the *forward direction* (chord direction) for a
+        // fixed screen distance, not from s to t. Because the curve bows
+        // back-shifted along the chord, gradient-from-s-to-t would put the
+        // bow apex deep in the faded region and hide the arc entirely.
+        const fadeLen = on ? 900 : 520;
+        const grad = ctx.createLinearGradient(
+          s.x, s.y,
+          s.x + ux * fadeLen, s.y + uy * fadeLen,
+        );
         grad.addColorStop(0, `rgba(217, 140, 43, ${head})`);
-        grad.addColorStop(fade, 'rgba(217, 140, 43, 0)');
-        if (fade < 1) grad.addColorStop(1, 'rgba(217, 140, 43, 0)');
+        grad.addColorStop(1, 'rgba(217, 140, 43, 0)');
         ctx.beginPath();
         ctx.moveTo(s.x, s.y);
         ctx.quadraticCurveTo(cx, cy, t.x, t.y);
         ctx.strokeStyle = grad;
-        ctx.lineWidth = on ? 1.9 : 1;
+        ctx.lineWidth = on ? 2 : 1.1;
         ctx.stroke();
         return;
       }
@@ -275,18 +296,6 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
 
     const links = graph.links.map(l => ({ ...l }));
 
-    // distance/strength read from radiiRef so they pick up zoom-scaled values
-    // on every tick.
-    const linkDistance = (l) => {
-      const r = radiiRef.current;
-      switch (l.kind) {
-        case 'household-member': return r.householdMember;
-        case 'household': return r.household;
-        case 'bridge': return r.bridge;
-        case 'visitor': return r.visitor;
-        default: return r.member;
-      }
-    };
     const linkStrength = (l) => {
       switch (l.kind) {
         case 'bridge': return 0;
@@ -314,7 +323,7 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
     draw();
 
     return () => { sim.stop(); };
-  }, [map, graph, draw, computeRadii]);
+  }, [map, graph, draw, computeRadii, linkDistance]);
 
   // Map sync: re-pin churches, rescale orbits for the current zoom, redraw.
   useEffect(() => {
@@ -344,7 +353,13 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
           });
         }
         const sim = simRef.current;
-        if (sim) sim.alpha(Math.max(sim.alpha(), 0.25)).restart();
+        if (sim) {
+          // Re-push the (zoom-scaled) target distances into the link force's
+          // cached array — d3-force only re-reads them when .distance() is
+          // called, not when the closure's source data changes.
+          sim.force('link').distance(linkDistance);
+          sim.alpha(Math.max(sim.alpha(), 0.3)).restart();
+        }
       }
       draw();
     };
@@ -355,7 +370,7 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
       map.off('move', syncToMap);
       map.off('resize', syncToMap);
     };
-  }, [map, draw, computeRadii]);
+  }, [map, draw, computeRadii, linkDistance]);
 
   // Hover + click hit-testing.
   useEffect(() => {

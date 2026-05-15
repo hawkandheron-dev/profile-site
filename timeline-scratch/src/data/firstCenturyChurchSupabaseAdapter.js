@@ -259,6 +259,15 @@ export function churchColor(church) {
   return REGION_COLORS[church.region_id] || '#8b7355';
 }
 
+/** Normalise household labels — every variant ("House church of …",
+ * "House of …") displays as "Household of …". */
+export function householdLabel(name) {
+  if (!name) return name;
+  return name
+    .replace(/^house church of /i, 'Household of ')
+    .replace(/^house of /i, 'Household of ');
+}
+
 /**
  * Build a focused force-graph for a single church: the church node, every
  * person connected to it, the households at it, and — for travelers — the
@@ -365,7 +374,7 @@ export function buildChurchGraph(data, churchId) {
       id: `household:${h.household_id}`,
       type: 'household',
       entityId: h.household_id,
-      label: h.name,
+      label: householdLabel(h.name),
       color: '#8a7fae',
       val: 6,
     });

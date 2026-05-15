@@ -1,11 +1,11 @@
 import { ScriptureVerse } from '../BiblicalPlaces/ScriptureVerse.jsx';
-import { churchColor } from '../../data/firstCenturyChurchSupabaseAdapter.js';
+import { churchColor, householdLabel } from '../../data/firstCenturyChurchSupabaseAdapter.js';
 import './NodeDetailCard.css';
 
 const ROLE_LABELS = {
   founder: 'Founder', apostle: 'Apostle', overseer: 'Overseer', elder: 'Elder',
   deacon: 'Deacon', prophet: 'Prophet', teacher: 'Teacher',
-  'host-of-house-church': 'Host of a house church', 'letter-carrier': 'Letter carrier',
+  'host-of-house-church': 'Host of a household', 'letter-carrier': 'Letter carrier',
   'traveling-companion': 'Traveling companion', 'co-worker': 'Co-worker',
   member: 'Member', greeted: 'Greeted', mentioned: 'Mentioned', opponent: 'Opponent',
   patron: 'Patron', convert: 'Convert', relative: 'Relative of Paul',
@@ -125,8 +125,8 @@ export function NodeDetailCard({ data, node, onNavigate, onClose }) {
     const household = data.householdMap.get(node.id);
     if (!household) return null;
     accent = '#8a7fae';
-    title = household.name;
-    subtitle = 'House church';
+    title = householdLabel(household.name);
+    subtitle = 'Household';
     const church = household.church_id ? data.churchMap.get(household.church_id) : null;
     const head = household.head_person_id ? data.personMap.get(household.head_person_id) : null;
     // Group households (Aristobulus, Narcissus) are headed by a pseudo-person
