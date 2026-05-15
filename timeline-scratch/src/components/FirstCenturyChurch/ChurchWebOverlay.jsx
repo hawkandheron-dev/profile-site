@@ -26,6 +26,17 @@ function tooltipSub(node) {
   return node.role ? node.role.replace(/-/g, ' ') : null;
 }
 
+// Stable 0..1 hash from a string — used to give each person a deterministic
+// per-render distance multiplier so the orbit reads as a cloud, not a ring.
+function hashStr(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0) / 4294967295;
+}
+
 // Member-ring radius (px) at map zoom level REF_ZOOM. Other orbits derive from
 // this. The exponent controls how quickly orbits grow with the map's zoom —
 // a value < 1 means orbits expand more gently than the map.
@@ -91,14 +102,19 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
   // distances at `.distance()` call time, so just mutating radiiRef isn't
   // enough to make the orbits expand. Re-applying this function pushes the
   // current radii into the cached array.
+  //
+  // Per-person stable jitter scatters member/visitor dots across a wide band
+  // so the cluster looks like an organic cloud instead of a perfect ring.
   const linkDistance = useCallback((l) => {
     const r = radiiRef.current;
+    const srcId = typeof l.source === 'object' ? l.source.id : l.source;
+    const jitter = 0.7 + hashStr(srcId) * 0.7; // 0.7 .. 1.4
     switch (l.kind) {
       case 'household-member': return r.householdMember;
       case 'household': return r.household;
       case 'bridge': return r.bridge;
-      case 'visitor': return r.visitor;
-      default: return r.member;
+      case 'visitor': return r.visitor * jitter;
+      default: return r.member * jitter; // member
     }
   }, []);
 
@@ -138,44 +154,59 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
       const on = neighborIds ? (neighborIds.has(s.id) && neighborIds.has(t.id)) : null;
 
       if (isBridge) {
-        // A connection to another church: a thread that curls out of the
-        // person and fades toward the far church. The curve + fade are
-        // anchored to a fixed *screen* distance near the person so both stay
-        // visible at any zoom — the church endpoint is often far off-screen.
+        // Bridge thread: a *straight radial spoke* continues out past every
+        // dot in the cluster, then a quadratic arc sweeps outward and toward
+        // the target church. Drawing radially first guarantees the thread is
+        // always outside the orbit (no other dot is further from the focus
+        // than the outermost ring), and the fade gradient is also anchored
+        // along the radial direction so the curve stays visible at any zoom.
         const dim = neighborIds && !on;
         const head = dim ? 0.12 : on ? 1.0 : 0.7;
-        const dx = t.x - s.x;
-        const dy = t.y - s.y;
-        const len = Math.hypot(dx, dy) || 1;
-        const ux = dx / len;
-        const uy = dy / len;
-        // Bow direction is always outward from the focused church so threads
-        // arc away from the orbit instead of criss-crossing through it.
-        let px = -uy;
-        let py = ux;
+
+        let rUx;
+        let rUy;
         if (focus) {
-          const rx = s.x - focus.x;
-          const ry = s.y - focus.y;
-          if (px * rx + py * ry < 0) { px = uy; py = -ux; }
+          const rdx = s.x - focus.x;
+          const rdy = s.y - focus.y;
+          const rL = Math.hypot(rdx, rdy) || 1;
+          rUx = rdx / rL;
+          rUy = rdy / rL;
+        } else {
+          const dx = t.x - s.x;
+          const dy = t.y - s.y;
+          const len = Math.hypot(dx, dy) || 1;
+          rUx = dx / len;
+          rUy = dy / len;
         }
-        const reach = Math.min(len * 0.5, 160);
-        const bow = reach * 0.6;
-        const cx = s.x + ux * reach + px * bow;
-        const cy = s.y + uy * reach + py * bow;
-        // Fade runs along the *forward direction* (chord direction) for a
-        // fixed screen distance, not from s to t. Because the curve bows
-        // back-shifted along the chord, gradient-from-s-to-t would put the
-        // bow apex deep in the faded region and hide the arc entirely.
-        const fadeLen = on ? 900 : 520;
+
+        const radii = radiiRef.current;
+        const outerRing = radii.visitor;
+        const focusX = focus ? focus.x : s.x;
+        const focusY = focus ? focus.y : s.y;
+        const personRadial = Math.hypot(s.x - focusX, s.y - focusY);
+        // Spoke ends just past the outer (visitor) ring so it clears every dot.
+        const spokeLen = Math.max(40, outerRing * 1.12 - personRadial);
+        const spokeEndX = s.x + rUx * spokeLen;
+        const spokeEndY = s.y + rUy * spokeLen;
+
+        // Arc control sits further along the radial direction — the curve
+        // continues bowing outward before sweeping toward the target.
+        const arcReach = outerRing * 0.95;
+        const ctrlX = spokeEndX + rUx * arcReach;
+        const ctrlY = spokeEndY + rUy * arcReach;
+
+        const fadeLen = on ? 1100 : 700;
         const grad = ctx.createLinearGradient(
           s.x, s.y,
-          s.x + ux * fadeLen, s.y + uy * fadeLen,
+          s.x + rUx * fadeLen, s.y + rUy * fadeLen,
         );
         grad.addColorStop(0, `rgba(217, 140, 43, ${head})`);
         grad.addColorStop(1, 'rgba(217, 140, 43, 0)');
+
         ctx.beginPath();
         ctx.moveTo(s.x, s.y);
-        ctx.quadraticCurveTo(cx, cy, t.x, t.y);
+        ctx.lineTo(spokeEndX, spokeEndY);
+        ctx.quadraticCurveTo(ctrlX, ctrlY, t.x, t.y);
         ctx.strokeStyle = grad;
         ctx.lineWidth = on ? 2 : 1.1;
         ctx.stroke();
