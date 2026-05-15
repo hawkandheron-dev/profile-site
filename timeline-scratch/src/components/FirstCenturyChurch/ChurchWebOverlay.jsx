@@ -82,19 +82,29 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
       const on = neighborIds ? (neighborIds.has(s.id) && neighborIds.has(t.id)) : null;
 
       if (isBridge) {
-        // A connection to another church: a gentle curved thread that fades
-        // from the person (source) out toward the far church (target).
+        // A connection to another church: a thread that curls out of the
+        // person and fades toward the far church. The curve and the fade are
+        // anchored to a fixed *screen* distance near the person, so both stay
+        // visible at any zoom — the church endpoint is often far off-screen.
         const dim = neighborIds && !on;
-        const head = dim ? 0.07 : on ? 0.9 : 0.5;
-        const grad = ctx.createLinearGradient(s.x, s.y, t.x, t.y);
-        grad.addColorStop(0, `rgba(217, 140, 43, ${head})`);
-        grad.addColorStop(1, 'rgba(217, 140, 43, 0)');
+        const head = dim ? 0.08 : on ? 0.9 : 0.5;
         const dx = t.x - s.x;
         const dy = t.y - s.y;
         const len = Math.hypot(dx, dy) || 1;
-        const bow = Math.min(60, len * 0.15);
-        const cx = (s.x + t.x) / 2 + (-dy / len) * bow;
-        const cy = (s.y + t.y) / 2 + (dx / len) * bow;
+        const ux = dx / len;
+        const uy = dy / len;
+        // Control point near the person so the curve bends here, then
+        // straightens as it heads outward.
+        const reach = Math.min(len * 0.5, 130);
+        const bow = reach * 0.55;
+        const cx = s.x + ux * reach - uy * bow;
+        const cy = s.y + uy * reach + ux * bow;
+        // Fade to transparent within a fixed distance of the person.
+        const fade = Math.min(1, (on ? 620 : 300) / len);
+        const grad = ctx.createLinearGradient(s.x, s.y, t.x, t.y);
+        grad.addColorStop(0, `rgba(217, 140, 43, ${head})`);
+        grad.addColorStop(fade, 'rgba(217, 140, 43, 0)');
+        if (fade < 1) grad.addColorStop(1, 'rgba(217, 140, 43, 0)');
         ctx.beginPath();
         ctx.moveTo(s.x, s.y);
         ctx.quadraticCurveTo(cx, cy, t.x, t.y);
