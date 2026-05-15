@@ -79,12 +79,35 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
       const t = typeof l.target === 'object' ? l.target : nodeByIdRef.current.get(l.target);
       if (!s || !t || s.x == null || t.x == null) return;
       const isBridge = l.kind === 'bridge';
-      // Structural links read as solid threads; bridges to other churches are
-      // faint dashed threads so the orbit around the focused church dominates.
-      let color = isBridge ? 'rgba(217, 140, 43, 0.32)' : 'rgba(107, 91, 69, 0.4)';
-      let width = isBridge ? 0.7 : 1.1;
+      const on = neighborIds ? (neighborIds.has(s.id) && neighborIds.has(t.id)) : null;
+
+      if (isBridge) {
+        // A connection to another church: a gentle curved thread that fades
+        // from the person (source) out toward the far church (target).
+        const dim = neighborIds && !on;
+        const head = dim ? 0.07 : on ? 0.9 : 0.5;
+        const grad = ctx.createLinearGradient(s.x, s.y, t.x, t.y);
+        grad.addColorStop(0, `rgba(217, 140, 43, ${head})`);
+        grad.addColorStop(1, 'rgba(217, 140, 43, 0)');
+        const dx = t.x - s.x;
+        const dy = t.y - s.y;
+        const len = Math.hypot(dx, dy) || 1;
+        const bow = Math.min(60, len * 0.15);
+        const cx = (s.x + t.x) / 2 + (-dy / len) * bow;
+        const cy = (s.y + t.y) / 2 + (dx / len) * bow;
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        ctx.quadraticCurveTo(cx, cy, t.x, t.y);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = on ? 1.8 : 1;
+        ctx.stroke();
+        return;
+      }
+
+      // Structural links (member / visitor / household) — straight solid threads.
+      let color = 'rgba(107, 91, 69, 0.4)';
+      let width = 1.1;
       if (neighborIds) {
-        const on = neighborIds.has(s.id) && neighborIds.has(t.id);
         color = on ? 'rgba(217, 140, 43, 0.85)' : 'rgba(107, 91, 69, 0.06)';
         width = on ? 2 : 0.4;
       }
@@ -93,10 +116,8 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
       ctx.lineTo(t.x, t.y);
       ctx.strokeStyle = color;
       ctx.lineWidth = width;
-      ctx.setLineDash(isBridge ? [4, 3] : []);
       ctx.stroke();
     });
-    ctx.setLineDash([]);
 
     nodes.forEach(n => {
       if (n.x == null || n.y == null) return;
@@ -174,16 +195,18 @@ export function ChurchWebOverlay({ map, graph, onSelectNode }) {
         case 'household-member': return 26;
         case 'household': return 44;
         case 'bridge': return 90;
+        case 'visitor': return 135; // passing through — wide outer ring
         default: return 70; // member
       }
     };
-    // Bridge links (to other churches) carry no force — the member orbits the
+    // Bridge links (to other churches) carry no force — the person orbits the
     // focused church and the connection is shown only as a drawn thread.
     const linkStrength = (l) => {
       switch (l.kind) {
         case 'bridge': return 0;
         case 'household-member': return 0.6;
         case 'household': return 0.35;
+        case 'visitor': return 0.3; // looser hold than full members
         default: return 0.5; // member
       }
     };

@@ -88,6 +88,16 @@ function transformToFccFormat(
   const personMap = new Map();
   dbPeople.forEach(p => personMap.set(p.person_id, p));
 
+  // Two Romans 16 entries ("the household of Aristobulus / Narcissus") exist
+  // in the data both as a household *and* as a pseudo-person that heads it.
+  // Track those pseudo-person ids so the graph can show one node, not two.
+  const householdGroupIds = new Set();
+  dbPeople.forEach(p => {
+    if (/-household$/.test(p.person_id) || /^the household of/i.test(p.name || '')) {
+      householdGroupIds.add(p.person_id);
+    }
+  });
+
   const householdMap = new Map();
   dbHouseholds.forEach(h => householdMap.set(h.household_id, h));
 
@@ -220,6 +230,7 @@ function transformToFccFormat(
     journeyPeopleMap,
     // derived
     travelerIds,
+    householdGroupIds,
     churchPersonCount,
   };
 }
@@ -281,8 +292,20 @@ export function buildChurchGraph(data, churchId) {
   const memberships = data.churchMembershipsMap.get(churchId) || [];
   const otherChurchIds = new Set();
 
+  // Group households (Aristobulus, Narcissus) whose only "member" is their
+  // pseudo-person head — shown as a single household node, not church + person.
+  const groupHouseholdIds = new Set();
+
   memberships.forEach(m => {
+    // Skip the "household of …" pseudo-person rows — the household node added
+    // below is their single representation.
+    if (data.householdGroupIds.has(m.person_id)) {
+      if (m.household_id) groupHouseholdIds.add(m.household_id);
+      return;
+    }
+
     const isTraveler = data.travelerIds.has(m.person_id);
+    const isVisitor = !m.is_primary; // home church is elsewhere — passing through
     const churchCount = (data.personMembershipsMap.get(m.person_id) || []).length;
     addNode({
       id: `person:${m.person_id}`,
@@ -292,18 +315,20 @@ export function buildChurchGraph(data, churchId) {
       gender: m.person.gender,
       role: m.role,
       isTraveler,
+      isVisitor,
       churchCount,
-      color: isTraveler ? '#d98c2b' : '#6b8caf',
-      val: isTraveler ? 7 : 4,
+      color: isVisitor ? '#d98c2b' : '#6b8caf',
+      val: isVisitor ? 7 : 4,
     });
     links.push({
       source: `person:${m.person_id}`,
       target: `church:${church.church_id}`,
       role: m.role,
-      kind: 'member',
+      kind: isVisitor ? 'visitor' : 'member',
     });
 
-    // For travelers, pull in their other churches one hop out
+    // For anyone connected to other churches, pull those in one hop out so the
+    // bridge threads are visible — regardless of member/visitor status.
     if (isTraveler) {
       const personMemberships = data.personMembershipsMap.get(m.person_id) || [];
       personMemberships.forEach(pm => {
@@ -320,9 +345,8 @@ export function buildChurchGraph(data, churchId) {
           lat: pm.church.lat,
           lng: pm.church.lng,
         });
-        // A traveler's link to a church *other* than the focused one: drawn as
-        // a thread, but it exerts no pull so the person still orbits the
-        // focused church rather than being dragged across the map.
+        // Link to a church *other* than the focused one: drawn as a fading
+        // thread, but it exerts no pull so the person still orbits this church.
         links.push({
           source: `person:${m.person_id}`,
           target: `church:${pm.church_id}`,
@@ -334,6 +358,7 @@ export function buildChurchGraph(data, churchId) {
   });
 
   // Households at this church become nodes too: church -> household -> members.
+  // Group households carry no member nodes — they sit in the member orbit.
   const households = data.churchHouseholdsMap.get(churchId) || [];
   households.forEach(h => {
     addNode({
@@ -347,11 +372,13 @@ export function buildChurchGraph(data, churchId) {
     links.push({
       source: `church:${church.church_id}`,
       target: `household:${h.household_id}`,
-      kind: 'household',
+      kind: groupHouseholdIds.has(h.household_id) ? 'member' : 'household',
     });
   });
   memberships.forEach(m => {
-    if (m.household_id && nodeIds.has(`household:${m.household_id}`)) {
+    if (m.household_id
+      && nodeIds.has(`household:${m.household_id}`)
+      && nodeIds.has(`person:${m.person_id}`)) {
       links.push({
         source: `household:${m.household_id}`,
         target: `person:${m.person_id}`,

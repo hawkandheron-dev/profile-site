@@ -129,9 +129,15 @@ export function NodeDetailCard({ data, node, onNavigate, onClose }) {
     subtitle = 'House church';
     const church = household.church_id ? data.churchMap.get(household.church_id) : null;
     const head = household.head_person_id ? data.personMap.get(household.head_person_id) : null;
+    // Group households (Aristobulus, Narcissus) are headed by a pseudo-person
+    // that just echoes the household name — skip the head + member lines.
+    const isGroup = household.head_person_id
+      && data.householdGroupIds.has(household.head_person_id);
     const members = [];
-    for (const list of data.churchMembershipsMap.values()) {
-      list.forEach(m => { if (m.household_id === node.id) members.push(m); });
+    if (!isGroup) {
+      for (const list of data.churchMembershipsMap.values()) {
+        list.forEach(m => { if (m.household_id === node.id) members.push(m); });
+      }
     }
     body = (
       <>
@@ -144,7 +150,7 @@ export function NodeDetailCard({ data, node, onNavigate, onClose }) {
           </p>
         )}
         {household.description && <p className="fcc-card-desc">{household.description}</p>}
-        {head && (
+        {head && !isGroup && (
           <p className="fcc-card-note">
             <strong>Headed by:</strong>{' '}
             <button className="fcc-card-link" onClick={() => onNavigate('person', head.person_id)}>
