@@ -20,11 +20,12 @@ import './SiteNavPanel.css';
  *                highlighted style
  */
 const NAV_ITEMS = [
-  { key: 'home',            href: '../../index.html',                     label: 'Home' },
-  { key: 'church-history',  href: './church-history-timeline.html',       label: 'CH Timeline' },
-  { key: 'pantheons',       href: '../../pantheons-supabase.html',        label: 'Pantheons' },
-  { key: 'biblical-atlas',  href: './biblical-places.html',               label: 'Biblical atlas' },
-  { key: 'timeline',        href: './index.html',                         label: 'Timeline component' },
+  { key: 'home',                href: '../../index.html',                     label: 'Home' },
+  { key: 'church-history',      href: './church-history-timeline.html',       label: 'CH Timeline' },
+  { key: 'pantheons',           href: '../../pantheons-supabase.html',        label: 'Pantheons' },
+  { key: 'biblical-atlas',      href: './biblical-places.html',               label: 'Biblical atlas' },
+  { key: 'timeline',            href: './index.html',                         label: 'Timeline component' },
+  { key: 'contributor-portal',  href: './contributor-portal.html',            label: 'Contributor portal' },
 ];
 
 export function SiteNavPanel({ open, onClose, activeKey }) {

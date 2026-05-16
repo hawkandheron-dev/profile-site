@@ -4,6 +4,7 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { submitIssue } from '../../services/issueService.js';
+import { APP_SECTIONS, APP_SECTION_LABELS } from '../../data/appSections.js';
 import './IssueCreatorModal.css';
 
 const ISSUE_TYPES = [
@@ -13,10 +14,15 @@ const ISSUE_TYPES = [
   { value: 'bug',             label: 'Bug' },
 ];
 
+function defaultSectionFor(appId) {
+  return APP_SECTION_LABELS[appId] ? appId : 'general';
+}
+
 export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appId, getPageContext, onSubmitted }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [issueType, setIssueType] = useState('general');
+  const [appSection, setAppSection] = useState(() => defaultSectionFor(appId));
   const [pageContext, setPageContext] = useState(null);
   const [contextExpanded, setContextExpanded] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -40,11 +46,12 @@ export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appI
       setTitle('');
       setDescription('');
       setIssueType('general');
+      setAppSection(defaultSectionFor(appId));
       setError(null);
       setSuccess(false);
       setContextExpanded(false);
     }
-  }, [isOpen]);
+  }, [isOpen, appId]);
 
   // Escape to close
   useEffect(() => {
@@ -71,7 +78,7 @@ export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appI
     try {
       const submitted = await submitIssue(
         {
-          app_id: appId,
+          app_id: appSection,
           title: title.trim(),
           description: description.trim(),
           issue_type: issueType,
@@ -87,7 +94,7 @@ export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appI
       setError(err.message || 'Failed to submit issue.');
       setSaving(false);
     }
-  }, [title, description, issueType, pageContext, appId, clerkUserId, getToken, onClose, onSubmitted]);
+  }, [title, description, issueType, appSection, pageContext, clerkUserId, getToken, onClose, onSubmitted]);
 
   if (!isOpen) return null;
 
@@ -107,6 +114,20 @@ export function IssueCreatorModal({ isOpen, onClose, getToken, clerkUserId, appI
             <p className="issue-modal-desc">
               Describe the problem or suggestion. Context from the current page is captured automatically.
             </p>
+
+            {/* Section picker */}
+            <label className="issue-field-label">
+              Section of the site this is about
+              <select
+                className="issue-field-input"
+                value={appSection}
+                onChange={e => setAppSection(e.target.value)}
+              >
+                {APP_SECTIONS.map(s => (
+                  <option key={s.id} value={s.id}>{s.label}</option>
+                ))}
+              </select>
+            </label>
 
             {/* Issue type pills */}
             <div className="issue-type-pills" data-tour="issue-type-pills">

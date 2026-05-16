@@ -436,6 +436,7 @@ function BiblicalPlacesApp() {
         )}
         {hasClerk && (
           <div className="bp-header-auth">
+            <a className="bp-auth-btn" href="./contributor-portal.html" style={{ textDecoration: 'none' }}>Contributor Portal</a>
             <SignedOut>
               <SignInButton mode="modal">
                 <button className="bp-auth-btn" title="Sign in to report issues">Sign In</button>
