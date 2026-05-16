@@ -256,6 +256,22 @@ code {
   outline: none;
 }
 
+/* Filled accent variant — for a single standout action on a page.
+   Use sparingly: the default .button is the everyday affordance. */
+.button-accent {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-parchment-light);
+}
+
+.button-accent:hover,
+.button-accent:focus-visible {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+  color: var(--color-parchment-light);
+  outline: none;
+}
+
 /* ===================================================
    SECONDARY ACTIONS (About, Substack, Sign In, More)
    =================================================== */

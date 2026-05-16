@@ -19,7 +19,6 @@ import { AdminSuggestionsPage } from './components/Suggestions/AdminSuggestionsP
 import { SuggestNewModal } from './components/Suggestions/SuggestNewModal.jsx';
 import { IssueCreatorButton } from './components/IssueCreator/IssueCreatorButton.jsx';
 import { GettingStartedPage } from './components/GettingStarted/GettingStartedPage.jsx';
-import { CollaboratorsOnlyNotice } from './components/GettingStarted/CollaboratorsOnlyNotice.jsx';
 import { Icon } from './components/Timeline/components/Icon.jsx';
 import { SiteNavPanel } from './components/SiteNavPanel.jsx';
 import { useTour } from './components/Tour/useTour.js';
@@ -93,11 +92,9 @@ function ClerkAuthHeader({
               getPageContext={getPageContext}
             />
           )}
-          {(isContributor || isAdmin) && (
-            <button type="button" className="btn" onClick={onOpenGettingStarted}>
-              Contributor Portal
-            </button>
-          )}
+          <button type="button" className="btn" onClick={onOpenGettingStarted}>
+            Contributor Portal
+          </button>
           {isAdmin && (
             <button type="button" className="btn btn-warning" onClick={onReviewSuggestions}>
               Review Suggestions
@@ -284,11 +281,11 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
     );
   }
 
-  // Getting Started page for invited collaborators
+  // Contributor Portal — open to anyone. Writes (Submit Feedback, comments)
+  // are gated inside the page; reads stay subject to Supabase RLS.
   if (view === 'getting-started') {
     const email = clerkUser?.primaryEmailAddress?.emailAddress;
     const displayName = clerkUser?.fullName || clerkUser?.firstName || null;
-    const canEnter = isContributor || isAdmin;
 
     return (
       <>
@@ -319,19 +316,18 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
           </div>
         </header>
         <div className="tab-content" style={{ overflow: 'auto' }}>
-          {canEnter ? (
-            <GettingStartedPage
-              getToken={getTokenForSupabase}
-              clerkUserId={userId}
-              displayName={displayName}
-              email={email}
-              role={userRole}
-              appId="ch-timeline"
-              getPageContext={getPageContext}
-            />
-          ) : (
-            <CollaboratorsOnlyNotice onBack={() => setView('timeline')} />
-          )}
+          <GettingStartedPage
+            getToken={getTokenForSupabase}
+            clerkUserId={userId}
+            displayName={displayName}
+            email={email}
+            role={userRole}
+            isSignedIn={isSignedIn}
+            isContributor={isContributor}
+            isAdmin={isAdmin}
+            appId="ch-timeline"
+            getPageContext={getPageContext}
+          />
         </div>
         <SiteNavPanel open={navOpen} onClose={() => setNavOpen(false)} activeKey="church-history" />
       </>

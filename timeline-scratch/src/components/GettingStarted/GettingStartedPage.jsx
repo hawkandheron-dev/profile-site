@@ -26,6 +26,9 @@ export function GettingStartedPage({
   displayName,
   email,
   role,
+  isSignedIn = false,
+  isContributor = false,
+  isAdmin: isAdminProp,
   appId = 'ch-timeline',
   getPageContext,
 }) {
@@ -36,7 +39,9 @@ export function GettingStartedPage({
 
   const [modalOpen, setModalOpen] = useState(false);
 
-  const isAdmin = role === 'admin';
+  // Prefer the prop when provided; fall back to role string for direct callers.
+  const isAdmin = typeof isAdminProp === 'boolean' ? isAdminProp : role === 'admin';
+  const canWrite = isContributor || isAdmin;
 
   const contributionsRef = useRef(null);
 
@@ -45,7 +50,10 @@ export function GettingStartedPage({
   const tourButtonRef = useRef(null);
 
   const loadIssues = useCallback(async () => {
-    if (!getToken) return;
+    // RLS only returns rows to contributors/admins. Skip the fetch for
+    // anyone else so we don't surface a token error or an empty-because-
+    // forbidden state — the page renders a placeholder instead.
+    if (!getToken || !canWrite) return;
     setLoading(true);
     setError(null);
     try {
@@ -56,7 +64,7 @@ export function GettingStartedPage({
     } finally {
       setLoading(false);
     }
-  }, [getToken, appId]);
+  }, [getToken, appId, canWrite]);
 
   useEffect(() => { loadIssues(); }, [loadIssues]);
 
@@ -109,42 +117,68 @@ export function GettingStartedPage({
 
   return (
     <div className="gs-page">
-      <WelcomeHeader displayName={displayName} email={email} role={role} />
+      <WelcomeHeader
+        displayName={displayName}
+        email={email}
+        role={role}
+        isSignedIn={isSignedIn}
+        isContributor={isContributor}
+        isAdmin={isAdmin}
+      />
 
-      <TourCta onStart={tour.start} completedAt={tour.completedAt} />
+      {canWrite && <TourCta onStart={tour.start} completedAt={tour.completedAt} />}
 
-      {/* Dedicated feedback button for the tour to anchor on. Also the
-          primary call-to-action on this page for opening the modal. */}
+      {/* Always render the button so the [data-tour="issue-create-btn"] anchor
+          exists; disable it for non-contributors and swap the hint. */}
       <div className="gs-feedback-button-row">
         <button
           ref={tourButtonRef}
           type="button"
           className="btn btn-accent"
-          onClick={() => setModalOpen(true)}
+          onClick={() => { if (canWrite) setModalOpen(true); }}
+          disabled={!canWrite}
+          aria-disabled={!canWrite}
           data-tour="issue-create-btn"
         >
           Submit Feedback
         </button>
         <span className="gs-feedback-button-hint">
-          Click any time to open the feedback form.
+          {canWrite
+            ? 'Click any time to open the feedback form.'
+            : 'Submitting feedback is reserved for contributors invited by the Windhover team.'}
         </span>
       </div>
 
       <div ref={contributionsRef}>
-        <ContributionList
-          issues={issues}
-          loading={loading}
-          error={error}
-          onSubmitNew={() => setModalOpen(true)}
-          clerkUserId={clerkUserId}
-          getToken={getToken}
-          isAdmin={isAdmin}
-          submitterNameById={submitterNameById}
-          onIssueUpdated={handleIssueUpdated}
-        />
+        {canWrite ? (
+          <ContributionList
+            issues={issues}
+            loading={loading}
+            error={error}
+            onSubmitNew={() => setModalOpen(true)}
+            clerkUserId={clerkUserId}
+            getToken={getToken}
+            isAdmin={isAdmin}
+            submitterNameById={submitterNameById}
+            onIssueUpdated={handleIssueUpdated}
+          />
+        ) : (
+          <section className="gs-contributions">
+            <div className="gs-contributions-header">
+              <h2>All contributions</h2>
+            </div>
+            <div className="gs-contributions-empty">
+              <p>
+                {isSignedIn
+                  ? 'Contributors invited by the Windhover team can see and discuss feedback here.'
+                  : 'Sign in as a contributor to see and discuss feedback here.'}
+              </p>
+            </div>
+          </section>
+        )}
       </div>
 
-      {modalOpen && (
+      {modalOpen && canWrite && (
         <IssueCreatorModal
           isOpen
           onClose={() => setModalOpen(false)}
