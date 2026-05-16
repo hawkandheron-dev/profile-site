@@ -1,0 +1,303 @@
+/* ── First Century Church Directory ─────────────────────────────────────── */
+
+.fcc-app {
+  position: fixed;
+  inset: 0;
+  font-family: 'Alegreya Sans', system-ui, sans-serif;
+  color: #2c2418;
+  background: #f4eedc;
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.fcc-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.75rem 1rem;
+  pointer-events: none;
+}
+
+.fcc-header-search,
+.fcc-header-auth { pointer-events: auto; }
+
+.fcc-header-auth {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fcc-auth-btn {
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #c9bd9c;
+  background: #faf6eb;
+  color: #2c2418;
+  cursor: pointer;
+}
+.fcc-auth-btn:hover { background: #fff; }
+
+/* ── Search ──────────────────────────────────────────────────────────────── */
+
+.fcc-search { position: relative; width: 280px; max-width: 60vw; }
+
+.fcc-search-input {
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #c9bd9c;
+  background: #faf6eb;
+  color: #2c2418;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+.fcc-search-input:focus { outline: 2px solid #b08a4f; }
+
+.fcc-search-results {
+  list-style: none;
+  margin: 0.3rem 0 0;
+  padding: 0.25rem;
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: #faf6eb;
+  border: 1px solid #c9bd9c;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.fcc-search-result {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #2c2418;
+  cursor: pointer;
+  border-radius: 6px;
+  text-align: left;
+}
+.fcc-search-result:hover { background: #ece3c9; }
+.fcc-search-result-type {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8a7a55;
+}
+
+/* ── Loading / error ─────────────────────────────────────────────────────── */
+
+.fcc-loading,
+.fcc-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #6b5b45;
+}
+.fcc-error { color: #a3402c; }
+
+/* ── Bottom controls bar ─────────────────────────────────────────────────── */
+
+.fcc-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  padding: 0.6rem 1rem;
+  background: rgba(250, 246, 235, 0.95);
+  border-top: 1px solid #d8cca9;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.fcc-controls-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 1rem;
+}
+.fcc-home-link {
+  text-decoration: none;
+  color: #6b5b45;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+.fcc-home-link:hover { color: #2c2418; }
+
+.fcc-controls-label {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8a7a55;
+  margin-right: 0.2rem;
+}
+
+.fcc-journey-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.fcc-journey-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: inherit;
+  font-size: 0.82rem;
+  padding: 0.32rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid #c9bd9c;
+  background: #faf6eb;
+  color: #2c2418;
+  cursor: pointer;
+}
+.fcc-journey-btn:hover { background: #fff; }
+.fcc-journey-btn--active {
+  background: var(--journey-color);
+  border-color: var(--journey-color);
+  color: #faf6eb;
+}
+.fcc-journey-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--journey-color);
+  border: 1px solid #faf6eb;
+}
+.fcc-journey-btn--active .fcc-journey-dot { background: #faf6eb; }
+
+.fcc-controls-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.fcc-global-btn,
+.fcc-reset-btn {
+  font-family: inherit;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.fcc-global-btn {
+  border: 1px solid #6b5b45;
+  background: #6b5b45;
+  color: #faf6eb;
+}
+.fcc-global-btn:hover { background: #564838; }
+.fcc-reset-btn {
+  border: 1px solid #c9bd9c;
+  background: #faf6eb;
+  color: #2c2418;
+}
+.fcc-reset-btn:hover { background: #fff; }
+
+/* ── Journey info card ───────────────────────────────────────────────────── */
+
+.fcc-journey-info {
+  position: absolute;
+  left: 1rem;
+  bottom: 4.5rem;
+  z-index: 16;
+  width: 270px;
+  max-width: 70vw;
+  background: #faf6eb;
+  border: 1px solid #d8cca9;
+  border-left: 4px solid var(--journey-color);
+  border-radius: 8px;
+  padding: 0.7rem 0.85rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.fcc-journey-info h3 { margin: 0 0 0.25rem; font-size: 1rem; }
+.fcc-journey-info p { margin: 0 0 0.5rem; font-size: 0.85rem; color: #5b4f3a; }
+.fcc-journey-stop-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+}
+.fcc-journey-stop-list li { margin: 0.15rem 0; }
+
+/* ── Shared link button (journey stop list, etc.) ────────────────────────── */
+
+.fcc-link-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: #8a5a2b;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(138, 90, 43, 0.4);
+}
+.fcc-link-btn:hover { color: #6b4420; }
+
+/* ── Global graph overlay ────────────────────────────────────────────────── */
+
+.fcc-global-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: #f4eedc;
+  display: flex;
+  flex-direction: column;
+}
+.fcc-global-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.9rem 1.2rem;
+  border-bottom: 1px solid #d8cca9;
+  background: #faf6eb;
+}
+.fcc-global-header h2 { margin: 0 0 0.2rem; font-size: 1.25rem; }
+.fcc-global-header p { margin: 0; font-size: 0.86rem; color: #5b4f3a; max-width: 60ch; }
+.fcc-global-graph { flex: 1; min-height: 0; }
+
+.fcc-panel-close {
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: #6b5b45;
+  cursor: pointer;
+  padding: 0 0.2rem;
+}
+.fcc-panel-close:hover { color: #2c2418; }
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .fcc-journey-info { bottom: 8rem; }
+  .fcc-controls { gap: 0.5rem 0.75rem; }
+  .fcc-controls-actions { margin-left: 0; }
+}

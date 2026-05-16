@@ -10,9 +10,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
+    <script>
+      try {
+        if (sessionStorage.getItem('windhover.loaderSeen') === '1') {
+          document.documentElement.setAttribute('data-loader-seen', '');
+        }
+      } catch (_) {}
+    </script>
     <style>
       #page-loader{position:fixed;inset:0;z-index:9999;background:#f5f0e1;display:flex;align-items:center;justify-content:center}
       #page-loader[hidden]{display:none!important}
+      html[data-loader-seen] #page-loader{display:none!important}
     </style>
     <link rel="stylesheet" href="loader.css" />
     <script defer src="loader.js"></script>
