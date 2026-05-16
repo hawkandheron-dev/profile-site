@@ -154,19 +154,21 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
       const on = neighborIds ? (neighborIds.has(s.id) && neighborIds.has(t.id)) : null;
 
       if (isBridge) {
-        // Bridge thread: a quadratic arc whose control point sits at the
-        // angular midpoint between person and target (going the short way
-        // around the focused church), well outside the outer ring. For
-        // same-side targets this produces a spoke-then-bend; for opposite-
-        // side targets (Paul NW of Rome with targets east) it sweeps wide
-        // around the cluster instead of cutting through it. The fade and
-        // stroke are kept light so the dots stay the headline.
-        const dim = neighborIds && !on;
-        const head = dim ? 0.06 : on ? 0.7 : 0.35;
+        // Bridge connections only render when the active (hovered/selected)
+        // node is involved. The default view stays clean — the dots are the
+        // headline, and the connections only surface as you investigate.
+        if (!on) return;
+
+        const head = 0.8;
 
         let ctrlX;
         let ctrlY;
         if (focus) {
+          // Control point sits at the angular midpoint between person and
+          // target (short way around the focused church), well outside the
+          // outer ring. Same-side targets read as spoke-then-bend; opposite-
+          // side targets sweep wide around the cluster instead of cutting
+          // through it.
           const angP = Math.atan2(s.y - focus.y, s.x - focus.x);
           const angT = Math.atan2(t.y - focus.y, t.x - focus.x);
           let dAng = angT - angP;
@@ -189,7 +191,7 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
         const gLen = Math.hypot(gdx, gdy) || 1;
         const ux = gdx / gLen;
         const uy = gdy / gLen;
-        const fadeLen = on ? 1100 : 700;
+        const fadeLen = 1100;
         const grad = ctx.createLinearGradient(
           s.x, s.y,
           s.x + ux * fadeLen, s.y + uy * fadeLen,
@@ -205,17 +207,19 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
           ctx.lineTo(t.x, t.y);
         }
         ctx.strokeStyle = grad;
-        ctx.lineWidth = on ? 1.6 : 0.9;
+        ctx.lineWidth = 1.6;
         ctx.stroke();
         return;
       }
 
       // Structural links (member / visitor / household / household-member).
+      // The active node's own spoke highlights amber; everything else holds
+      // its default tone — no dim-out of other people / households.
       let color = 'rgba(107, 91, 69, 0.4)';
       let width = 1.1;
-      if (neighborIds) {
-        color = on ? 'rgba(217, 140, 43, 0.85)' : 'rgba(107, 91, 69, 0.06)';
-        width = on ? 2 : 0.4;
+      if (on) {
+        color = 'rgba(217, 140, 43, 0.85)';
+        width = 2;
       }
       ctx.beginPath();
       ctx.moveTo(s.x, s.y);
@@ -227,8 +231,6 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
 
     nodes.forEach(n => {
       if (n.x == null || n.y == null) return;
-      const dimmed = neighborIds && !neighborIds.has(n.id);
-      ctx.globalAlpha = dimmed ? 0.16 : 1;
       const r = nodeRadius(n);
       ctx.beginPath();
       ctx.arc(n.x, n.y, r, 0, 2 * Math.PI);
@@ -276,7 +278,6 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
         ctx.strokeText(label, lx, ly);
         ctx.fillText(label, lx, ly);
       }
-      ctx.globalAlpha = 1;
     });
   }, [map]);
 
