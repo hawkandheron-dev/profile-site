@@ -154,61 +154,58 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
       const on = neighborIds ? (neighborIds.has(s.id) && neighborIds.has(t.id)) : null;
 
       if (isBridge) {
-        // Bridge thread: a *straight radial spoke* continues out past every
-        // dot in the cluster, then a quadratic arc sweeps outward and toward
-        // the target church. Drawing radially first guarantees the thread is
-        // always outside the orbit (no other dot is further from the focus
-        // than the outermost ring), and the fade gradient is also anchored
-        // along the radial direction so the curve stays visible at any zoom.
+        // Bridge thread: a quadratic arc whose control point sits at the
+        // angular midpoint between person and target (going the short way
+        // around the focused church), well outside the outer ring. For
+        // same-side targets this produces a spoke-then-bend; for opposite-
+        // side targets (Paul NW of Rome with targets east) it sweeps wide
+        // around the cluster instead of cutting through it. The fade and
+        // stroke are kept light so the dots stay the headline.
         const dim = neighborIds && !on;
-        const head = dim ? 0.12 : on ? 1.0 : 0.7;
+        const head = dim ? 0.06 : on ? 0.7 : 0.35;
 
-        let rUx;
-        let rUy;
+        let ctrlX;
+        let ctrlY;
         if (focus) {
-          const rdx = s.x - focus.x;
-          const rdy = s.y - focus.y;
-          const rL = Math.hypot(rdx, rdy) || 1;
-          rUx = rdx / rL;
-          rUy = rdy / rL;
+          const angP = Math.atan2(s.y - focus.y, s.x - focus.x);
+          const angT = Math.atan2(t.y - focus.y, t.x - focus.x);
+          let dAng = angT - angP;
+          while (dAng > Math.PI) dAng -= 2 * Math.PI;
+          while (dAng < -Math.PI) dAng += 2 * Math.PI;
+          const angMid = angP + dAng / 2;
+          const ctrlDist = radiiRef.current.visitor * 2.2;
+          ctrlX = focus.x + Math.cos(angMid) * ctrlDist;
+          ctrlY = focus.y + Math.sin(angMid) * ctrlDist;
         } else {
-          const dx = t.x - s.x;
-          const dy = t.y - s.y;
-          const len = Math.hypot(dx, dy) || 1;
-          rUx = dx / len;
-          rUy = dy / len;
+          ctrlX = (s.x + t.x) / 2;
+          ctrlY = (s.y + t.y) / 2;
         }
 
-        const radii = radiiRef.current;
-        const outerRing = radii.visitor;
-        const focusX = focus ? focus.x : s.x;
-        const focusY = focus ? focus.y : s.y;
-        const personRadial = Math.hypot(s.x - focusX, s.y - focusY);
-        // Spoke ends just past the outer (visitor) ring so it clears every dot.
-        const spokeLen = Math.max(40, outerRing * 1.12 - personRadial);
-        const spokeEndX = s.x + rUx * spokeLen;
-        const spokeEndY = s.y + rUy * spokeLen;
-
-        // Arc control sits further along the radial direction — the curve
-        // continues bowing outward before sweeping toward the target.
-        const arcReach = outerRing * 0.95;
-        const ctrlX = spokeEndX + rUx * arcReach;
-        const ctrlY = spokeEndY + rUy * arcReach;
-
+        // Gradient runs along the curve's start tangent (from s toward the
+        // control point) for a fixed screen distance — keeps the visible
+        // portion anchored to the actual direction the curve leaves in.
+        const gdx = ctrlX - s.x;
+        const gdy = ctrlY - s.y;
+        const gLen = Math.hypot(gdx, gdy) || 1;
+        const ux = gdx / gLen;
+        const uy = gdy / gLen;
         const fadeLen = on ? 1100 : 700;
         const grad = ctx.createLinearGradient(
           s.x, s.y,
-          s.x + rUx * fadeLen, s.y + rUy * fadeLen,
+          s.x + ux * fadeLen, s.y + uy * fadeLen,
         );
         grad.addColorStop(0, `rgba(217, 140, 43, ${head})`);
         grad.addColorStop(1, 'rgba(217, 140, 43, 0)');
 
         ctx.beginPath();
         ctx.moveTo(s.x, s.y);
-        ctx.lineTo(spokeEndX, spokeEndY);
-        ctx.quadraticCurveTo(ctrlX, ctrlY, t.x, t.y);
+        if (focus) {
+          ctx.quadraticCurveTo(ctrlX, ctrlY, t.x, t.y);
+        } else {
+          ctx.lineTo(t.x, t.y);
+        }
         ctx.strokeStyle = grad;
-        ctx.lineWidth = on ? 2 : 1.1;
+        ctx.lineWidth = on ? 1.6 : 0.9;
         ctx.stroke();
         return;
       }
