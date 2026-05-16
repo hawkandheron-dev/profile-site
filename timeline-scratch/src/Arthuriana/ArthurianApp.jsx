@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import falconSrc from '../../../resources/logos/Windhover_BLK.png';
 import { CHARACTERS } from './characters.js';
 import { Shield } from './ArthurianHeraldry.jsx';
 import { Graph, REL_TYPES } from './ArthurianGraph.jsx';
@@ -42,9 +43,22 @@ export function ArthurianApp() {
       <header className="topbar">
         <div className="brand">
           <svg width="34" height="40" viewBox="0 0 100 120">
+            <defs>
+              <clipPath id="brand-shield-clip">
+                <path d="M 9 7 L 91 7 L 91 56 C 91 87 70 107 50 115 C 30 107 9 87 9 56 Z"/>
+              </clipPath>
+              <filter id="brand-falcon-white" colorInterpolationFilters="sRGB">
+                <feColorMatrix type="matrix" values="-1 0 0 0 1  0 -1 0 0 1  0 0 -1 0 1  0 0 0 1 0"/>
+              </filter>
+            </defs>
             <path d="M 8 6 L 92 6 L 92 56 C 92 88 70 108 50 116 C 30 108 8 88 8 56 Z" fill="#a82c2a" stroke="#2a1810" strokeWidth="3"/>
-            {/* Windhover falcon: beak left, wing sweeping upper-right, tail lower-right */}
-            <path d="M 18,65 C 19,57 22,51 26,47 C 29,44 33,41 38,38 C 50,33 64,28 82,28 C 84,29 85,32 83,35 C 75,36 64,38 54,43 C 49,47 47,52 47,57 C 55,53 66,56 76,63 C 80,70 82,77 80,84 C 77,88 72,90 66,90 C 57,91 48,89 40,85 C 30,80 24,74 19,68 C 17,66 17,65 18,65 Z" fill="white"/>
+            <image
+              href={falconSrc}
+              x="10" y="14"
+              width="78" height="57"
+              clipPath="url(#brand-shield-clip)"
+              filter="url(#brand-falcon-white)"
+            />
           </svg>
           <div>
             <div className="brand-title">Arthuriana</div>
