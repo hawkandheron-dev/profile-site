@@ -42,7 +42,7 @@ export function ArthurianApp() {
 
       <header className="topbar">
         <div className="brand">
-          <svg width="44" height="52" viewBox="0 0 100 120">
+          <svg width="40" height="47" viewBox="0 0 100 120">
             <defs>
               <clipPath id="brand-shield-clip">
                 <path d="M 9 7 L 91 7 L 91 56 C 91 87 70 107 50 115 C 30 107 9 87 9 56 Z"/>
@@ -54,8 +54,8 @@ export function ArthurianApp() {
             <path d="M 8 6 L 92 6 L 92 56 C 92 88 70 108 50 116 C 30 108 8 88 8 56 Z" fill="#a82c2a" stroke="#2a1810" strokeWidth="3"/>
             <image
               href={falconSrc}
-              x="20" y="14"
-              width="60" height="44"
+              x="17" y="14"
+              width="66" height="48"
               clipPath="url(#brand-shield-clip)"
               filter="url(#brand-falcon-white)"
             />
