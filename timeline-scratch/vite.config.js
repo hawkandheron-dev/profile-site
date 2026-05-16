@@ -26,6 +26,7 @@ export default defineConfig({
         'biblical-places': resolve(__dirname, 'biblical-places.html'),
         'african-kingdoms': resolve(__dirname, 'african-kingdoms.html'),
         'first-century-church': resolve(__dirname, 'first-century-church.html'),
+        'contributor-portal': resolve(__dirname, 'contributor-portal.html'),
       },
     },
   },
