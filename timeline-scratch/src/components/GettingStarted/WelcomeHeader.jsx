@@ -7,15 +7,17 @@ export function WelcomeHeader({
   isSignedIn = false,
   isContributor = false,
   isAdmin = false,
+  siteWide = false,
 }) {
   const greeting = displayName || (email ? email.split('@')[0] : null);
   const canWrite = isContributor || isAdmin;
+  const scopeLabel = siteWide ? 'the Windhover site' : 'the Windhover Church History Timeline';
 
   let roleParagraph;
   if (canWrite) {
     roleParagraph = (
       <p className="gs-welcome-lede">
-        Thank you for contributing to the Windhover Church History Timeline.
+        Thank you for contributing to {scopeLabel}.
         This page is where you can submit feedback, see the status of
         contributions from across the team, and discuss them.
       </p>
@@ -39,15 +41,18 @@ export function WelcomeHeader({
     );
   }
 
+  const ledeScope = siteWide
+    ? 'across the whole Windhover site'
+    : 'for the Church History Timeline';
+
   return (
     <section className="gs-welcome">
       <h1 className="gs-welcome-title">Contributor Portal</h1>
       {greeting && <p className="gs-welcome-greeting">Welcome, {greeting}.</p>}
       <p className="gs-welcome-lede">
         The Contributor Portal is where the Windhover team reviews feedback
-        and suggestions for the Church History Timeline. Anyone can visit
-        this page to see how contributions move from submission to
-        discussion to roadmap.
+        and suggestions {ledeScope}. Anyone can visit this page to see how
+        contributions move from submission to discussion to roadmap.
       </p>
       {roleParagraph}
       {role && (

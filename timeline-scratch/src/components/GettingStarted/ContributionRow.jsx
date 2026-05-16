@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { StatusPill, STATUS_LABELS } from './StatusPill.jsx';
 import { CommentThread } from './CommentThread.jsx';
 import { setIssueStatus, ISSUE_STATUSES } from '../../services/issueService.js';
+import { appSectionLabel } from '../../data/appSections.js';
 import './GettingStarted.css';
 
 function formatDate(iso) {
@@ -29,6 +30,7 @@ export function ContributionRow({
   submitterName,
   isAdmin = false,
   onIssueUpdated,
+  showAppBadge = false,
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [showContext, setShowContext] = useState(false);
@@ -48,6 +50,12 @@ export function ContributionRow({
         <div className="gs-row-header-main">
           <span className="gs-row-title">{issue.title}</span>
           <span className="gs-row-meta">
+            {showAppBadge && (
+              <>
+                <span className="gs-row-app">{appSectionLabel(issue.app_id)}</span>
+                <span className="gs-row-dot">·</span>
+              </>
+            )}
             <span className="gs-row-type">{ISSUE_TYPE_LABELS[issue.issue_type] || issue.issue_type}</span>
             <span className="gs-row-dot">·</span>
             <span className="gs-row-date">{formatDate(issue.created_at)}</span>

@@ -267,7 +267,50 @@
   font-weight: 600;
 }
 
+.gs-row-app {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill, 999px);
+  background: rgba(120, 100, 70, 0.14);
+  color: var(--color-ink, #2c2418);
+  white-space: nowrap;
+}
+
 .gs-row-dot { opacity: 0.5; }
+
+/* ── Sectioned contribution groups ──────────────────────────────────── */
+
+.gs-section-group {
+  margin-bottom: 22px;
+}
+
+.gs-section-group:last-child {
+  margin-bottom: 0;
+}
+
+.gs-section-heading {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink-faded, #5a4f3f);
+  margin: 18px 0 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--color-border, rgba(120, 100, 70, 0.25));
+}
+
+.gs-section-empty {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--color-ink-faded, #5a4f3f);
+  padding: 12px 14px;
+  border: 1.5px dashed rgba(120, 100, 70, 0.2);
+  border-radius: var(--radius-md, 12px);
+}
 
 .gs-row-submitter {
   font-style: italic;

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   SignedIn,
   SignedOut,
@@ -18,7 +18,6 @@ import { checkUserRole, ensureUserExists } from './services/adminService.js';
 import { AdminSuggestionsPage } from './components/Suggestions/AdminSuggestionsPage.jsx';
 import { SuggestNewModal } from './components/Suggestions/SuggestNewModal.jsx';
 import { IssueCreatorButton } from './components/IssueCreator/IssueCreatorButton.jsx';
-import { GettingStartedPage } from './components/GettingStarted/GettingStartedPage.jsx';
 import { Icon } from './components/Timeline/components/Icon.jsx';
 import { SiteNavPanel } from './components/SiteNavPanel.jsx';
 import { useTour } from './components/Tour/useTour.js';
@@ -55,8 +54,6 @@ function ClerkAuthHeader({
   isContributor,
   onReviewSuggestions,
   onSuggestNew,
-  onOpenGettingStarted,
-  hideIssueCreator = false,
   getToken,
   clerkUserId,
   getPageContext,
@@ -82,19 +79,17 @@ function ClerkAuthHeader({
               + Suggest New Entry
             </button>
           )}
-          {!hideIssueCreator && (
-            <IssueCreatorButton
-              isContributor={isContributor}
-              isAdmin={isAdmin}
-              getToken={getToken}
-              clerkUserId={clerkUserId}
-              appId="ch-timeline"
-              getPageContext={getPageContext}
-            />
-          )}
-          <button type="button" className="btn" onClick={onOpenGettingStarted}>
+          <IssueCreatorButton
+            isContributor={isContributor}
+            isAdmin={isAdmin}
+            getToken={getToken}
+            clerkUserId={clerkUserId}
+            appId="ch-timeline"
+            getPageContext={getPageContext}
+          />
+          <a className="btn" href="./contributor-portal.html">
             Contributor Portal
-          </button>
+          </a>
           {isAdmin && (
             <button type="button" className="btn btn-warning" onClick={onReviewSuggestions}>
               Review Suggestions
@@ -128,8 +123,7 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
   const [suggestNewOpen, setSuggestNewOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isContributor, setIsContributor] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-  const [view, setView] = useState('timeline'); // 'timeline' | 'suggestions' | 'getting-started'
+  const [view, setView] = useState('timeline'); // 'timeline' | 'suggestions'
   const [navOpen, setNavOpen] = useState(false);
   const timelineRef = useRef(null);
 
@@ -160,38 +154,20 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
         if (!cancelled) {
           setIsAdmin(result.isAdmin);
           setIsContributor(result.isContributor);
-          setUserRole(result.role);
         }
       });
 
     return () => { cancelled = true; };
   }, [isSignedIn, userId, getToken, clerkUserLoaded]);
 
-  // Deep-link support: sync view ↔ location.hash for getting-started.
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const syncFromHash = () => {
-      const hash = (window.location.hash || '').replace(/^#/, '');
-      if (hash === 'getting-started') setView('getting-started');
-      else if (view === 'getting-started') setView('timeline');
-    };
-    window.addEventListener('hashchange', syncFromHash);
-    syncFromHash();
-    return () => window.removeEventListener('hashchange', syncFromHash);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  // Legacy deep-link: the portal used to live at #getting-started inside this
+  // app. Redirect bookmarks to the standalone Contributor Portal page.
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const wantHash = view === 'getting-started' ? 'getting-started' : '';
-    const curHash = (window.location.hash || '').replace(/^#/, '');
-    if (wantHash && curHash !== wantHash) {
-      window.location.hash = wantHash;
-    } else if (!wantHash && curHash === 'getting-started') {
-      // Clear the hash without adding a history entry
-      history.replaceState(null, '', window.location.pathname + window.location.search);
+    if ((window.location.hash || '') === '#getting-started') {
+      window.location.replace('./contributor-portal.html');
     }
-  }, [view]);
+  }, []);
 
   const handleAddNoteClose = useCallback(() => {
     setAddNoteOpen(false);
@@ -261,7 +237,6 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
                 isContributor={isContributor}
                 onReviewSuggestions={() => setView('suggestions')}
                 onSuggestNew={() => setSuggestNewOpen(true)}
-                onOpenGettingStarted={() => setView('getting-started')}
                 getToken={getTokenForSupabase}
                 clerkUserId={userId}
                 getPageContext={getPageContext}
@@ -274,59 +249,6 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
             getToken={() => getToken({ template: 'supabase' })}
             clerkUserId={userId}
             onBack={() => setView('timeline')}
-          />
-        </div>
-        <SiteNavPanel open={navOpen} onClose={() => setNavOpen(false)} activeKey="church-history" />
-      </>
-    );
-  }
-
-  // Contributor Portal — open to anyone. Writes (Submit Feedback, comments)
-  // are gated inside the page; reads stay subject to Supabase RLS.
-  if (view === 'getting-started') {
-    const email = clerkUser?.primaryEmailAddress?.emailAddress;
-    const displayName = clerkUser?.fullName || clerkUser?.firstName || null;
-
-    return (
-      <>
-        <header className="app-header">
-          <div className="header-content">
-            <SiteNavToggle onOpen={() => setNavOpen(true)} />
-            <div className="header-left">
-              <h1 className="site-title"><strong>History of the Christian Church</strong> <span>Lifespans</span></h1>
-            </div>
-            <div className="header-right">
-              <ClerkAuthHeader
-                onAddNote={() => setAddNoteOpen(true)}
-                onViewNotes={() => setViewNotesOpen(true)}
-                isAdmin={isAdmin}
-                isContributor={isContributor}
-                onReviewSuggestions={() => setView('suggestions')}
-                onSuggestNew={() => setSuggestNewOpen(true)}
-                onOpenGettingStarted={() => setView('getting-started')}
-                hideIssueCreator
-                getToken={getTokenForSupabase}
-                clerkUserId={userId}
-                getPageContext={getPageContext}
-              />
-              <button type="button" className="btn" onClick={() => setView('timeline')}>
-                Back to Timeline
-              </button>
-            </div>
-          </div>
-        </header>
-        <div className="tab-content" style={{ overflow: 'auto' }}>
-          <GettingStartedPage
-            getToken={getTokenForSupabase}
-            clerkUserId={userId}
-            displayName={displayName}
-            email={email}
-            role={userRole}
-            isSignedIn={isSignedIn}
-            isContributor={isContributor}
-            isAdmin={isAdmin}
-            appId="ch-timeline"
-            getPageContext={getPageContext}
           />
         </div>
         <SiteNavPanel open={navOpen} onClose={() => setNavOpen(false)} activeKey="church-history" />
@@ -366,7 +288,6 @@ function AuthenticatedApp({ timelineData, loading, error, allPeople, onReloadDat
               isContributor={isContributor}
               onReviewSuggestions={() => setView('suggestions')}
               onSuggestNew={() => setSuggestNewOpen(true)}
-              onOpenGettingStarted={() => setView('getting-started')}
               getToken={getTokenForSupabase}
               clerkUserId={userId}
               getPageContext={getPageContext}

@@ -31,6 +31,7 @@ export function GettingStartedPage({
   isAdmin: isAdminProp,
   appId = 'ch-timeline',
   getPageContext,
+  aggregateAcrossApps = false,
 }) {
   const [issues, setIssues] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -57,14 +58,14 @@ export function GettingStartedPage({
     setLoading(true);
     setError(null);
     try {
-      const list = await fetchMyIssues(appId, getToken);
+      const list = await fetchMyIssues(aggregateAcrossApps ? undefined : appId, getToken);
       setIssues(list);
     } catch (err) {
       setError(err.message || 'Failed to load contributions.');
     } finally {
       setLoading(false);
     }
-  }, [getToken, appId, canWrite]);
+  }, [getToken, appId, canWrite, aggregateAcrossApps]);
 
   useEffect(() => { loadIssues(); }, [loadIssues]);
 
@@ -124,6 +125,7 @@ export function GettingStartedPage({
         isSignedIn={isSignedIn}
         isContributor={isContributor}
         isAdmin={isAdmin}
+        siteWide={aggregateAcrossApps}
       />
 
       {canWrite && <TourCta onStart={tour.start} completedAt={tour.completedAt} />}
@@ -161,6 +163,7 @@ export function GettingStartedPage({
             isAdmin={isAdmin}
             submitterNameById={submitterNameById}
             onIssueUpdated={handleIssueUpdated}
+            groupBySection={aggregateAcrossApps}
           />
         ) : (
           <section className="gs-contributions">
