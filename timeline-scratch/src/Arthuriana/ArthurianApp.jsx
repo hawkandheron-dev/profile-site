@@ -43,7 +43,8 @@ export function ArthurianApp() {
         <div className="brand">
           <svg width="34" height="40" viewBox="0 0 100 120">
             <path d="M 8 6 L 92 6 L 92 56 C 92 88 70 108 50 116 C 30 108 8 88 8 56 Z" fill="#a82c2a" stroke="#2a1810" strokeWidth="3"/>
-            <path d="M 30 30 L 40 56 L 30 82 M 70 30 L 60 56 L 70 82 M 50 25 L 50 90" stroke="#d4a843" strokeWidth="3" fill="none"/>
+            {/* Windhover falcon: beak left, wing sweeping upper-right, tail lower-right */}
+            <path d="M 18,65 C 19,57 22,51 26,47 C 29,44 33,41 38,38 C 50,33 64,28 82,28 C 84,29 85,32 83,35 C 75,36 64,38 54,43 C 49,47 47,52 47,57 C 55,53 66,56 76,63 C 80,70 82,77 80,84 C 77,88 72,90 66,90 C 57,91 48,89 40,85 C 30,80 24,74 19,68 C 17,66 17,65 18,65 Z" fill="white"/>
           </svg>
           <div>
             <div className="brand-title">Arthuriana</div>
