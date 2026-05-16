@@ -25,6 +25,7 @@ export default defineConfig({
         'historical-eras': resolve(__dirname, 'historical-eras.html'),
         'biblical-places': resolve(__dirname, 'biblical-places.html'),
         'african-kingdoms': resolve(__dirname, 'african-kingdoms.html'),
+        'first-century-church': resolve(__dirname, 'first-century-church.html'),
       },
     },
   },
