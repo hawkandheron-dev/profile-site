@@ -26,6 +26,7 @@ const NAV_ITEMS = [
   { key: 'biblical-atlas',      href: './biblical-places.html',               label: 'Biblical atlas' },
   { key: 'timeline',            href: './index.html',                         label: 'Timeline component' },
   { key: 'contributor-portal',  href: './contributor-portal.html',            label: 'Contributor portal' },
+  { key: 'arthuriana',          href: './arthuriana.html',                    label: 'Arthuriana' },
 ];
 
 export function SiteNavPanel({ open, onClose, activeKey }) {
