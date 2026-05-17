@@ -522,3 +522,43 @@ body::after {
   .brand-sub { display: none; }
   .arthuriana-controls { left: 12px; bottom: 80px; }
 }
+
+/* ─── SUPABASE LOADING / ERROR STATES ──────────────────────────────────────── */
+.app-loading, .app-error {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--parchment);
+  font-family: 'Palatino Linotype', Palatino, 'Book Antiqua', serif;
+  color: var(--ink);
+}
+.app-loading-inner, .app-error-inner {
+  text-align: center;
+  padding: 48px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--parchment-soft);
+  box-shadow: var(--shadow-lg);
+}
+.app-loading-crest {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+  animation: crest-pulse 1.6s ease-in-out infinite;
+}
+@keyframes crest-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%       { opacity: 0.9; transform: scale(1.08); }
+}
+.app-error-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: var(--rouge);
+}
+.app-error-msg {
+  font-size: 14px;
+  color: var(--ink-mute);
+  max-width: 400px;
+}

@@ -5,3 +5,9 @@
 
 /api/*
   Cache-Control: no-store
+
+/apps/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/apps/assets/*
+  Cache-Control: public, max-age=31536000, immutable

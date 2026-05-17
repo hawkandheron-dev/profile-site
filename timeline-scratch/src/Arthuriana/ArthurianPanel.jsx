@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Shield } from './ArthurianHeraldry.jsx';
 import { REL_TYPES } from './ArthurianGraph.jsx';
-import { REALM_BY_ID, REALM_LABEL } from './characters.js';
+import {
+  REALM_BY_ID as STATIC_REALM_BY_ID,
+  REALM_LABEL as STATIC_REALM_LABEL,
+} from './characters.js';
 
 export const SOURCE_META = {
   'Geoffrey of Monmouth':    { date: 'c. 1136',    work: 'Historia Regum Britanniae' },
@@ -79,13 +82,15 @@ const ROLE_LABEL = {
   'other':       'Of the Wider Isle',
 };
 
-function RealmBadge({ id }) {
-  const label = REALM_LABEL[id] || id;
+function RealmBadge({ id, realmLabel }) {
+  const label = (realmLabel ?? STATIC_REALM_LABEL)[id] || id;
   const color = REALM_COLORS[id] || '#444';
   return <span className="realm-badge" style={{ background: color }}>{label}</span>;
 }
 
-export function Panel({ character, allCharacters, onClose, onNavigate, focusedRelTypes }) {
+export function Panel({ character, allCharacters, onClose, onNavigate, focusedRelTypes, realmData }) {
+  const realmById = realmData?.realmById ?? STATIC_REALM_BY_ID;
+  const realmLabel = realmData?.realmLabel ?? STATIC_REALM_LABEL;
   const [tab, setTab] = useState(null);
   const sources = character?.sources || [];
 
@@ -123,7 +128,7 @@ export function Panel({ character, allCharacters, onClose, onNavigate, focusedRe
           <div className="panel-title">{character.name}</div>
           <div className="panel-subtitle">{character.title}</div>
           <div className="panel-meta">
-            <RealmBadge id={REALM_BY_ID[character.id]} />
+            <RealmBadge id={realmById[character.id]} realmLabel={realmLabel} />
             <span className="role-tag">{ROLE_LABEL[character.group] || character.group}</span>
           </div>
           <div className="blazon-line">
