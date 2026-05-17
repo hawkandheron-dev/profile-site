@@ -55,7 +55,7 @@ function AuthenticatedPortal() {
     let cancelled = false;
     const getTokenForSupabase = () => getToken({ template: 'supabase' });
     const email = clerkUser?.primaryEmailAddress?.emailAddress;
-    const displayName = clerkUser?.fullName || clerkUser?.firstName || null;
+    const displayName = clerkUser?.username || clerkUser?.fullName || clerkUser?.firstName || null;
 
     ensureUserExists(getTokenForSupabase, userId, email, displayName)
       .then(() => checkUserRole(getTokenForSupabase, userId))
@@ -81,7 +81,7 @@ function AuthenticatedPortal() {
   }), []);
 
   const email = clerkUser?.primaryEmailAddress?.emailAddress;
-  const displayName = clerkUser?.fullName || clerkUser?.firstName || null;
+  const displayName = clerkUser?.username || clerkUser?.fullName || clerkUser?.firstName || null;
 
   return (
     <>

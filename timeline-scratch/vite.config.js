@@ -27,6 +27,8 @@ export default defineConfig({
         'african-kingdoms': resolve(__dirname, 'african-kingdoms.html'),
         'first-century-church': resolve(__dirname, 'first-century-church.html'),
         'contributor-portal': resolve(__dirname, 'contributor-portal.html'),
+        'arthuriana':         resolve(__dirname, 'arthuriana.html'),
+        'arthuriana-studio':  resolve(__dirname, 'arthuriana-studio.html'),
       },
     },
   },

@@ -31,7 +31,7 @@ export async function ensureUserExists(getToken, clerkUserId, email, displayName
 
     if (existing) {
       const updates = {};
-      if (!existing.display_name && displayName) updates.display_name = displayName;
+      if (displayName && displayName !== existing.display_name) updates.display_name = displayName;
       if (!existing.email && email) updates.email = email;
       if (Object.keys(updates).length > 0) {
         await supabase
