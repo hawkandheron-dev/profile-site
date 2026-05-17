@@ -1,7 +1,11 @@
 // ArthurianGraph.jsx — Graph layout & rendering for the Arthurian character map.
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { Shield } from './ArthurianHeraldry.jsx';
-import { REALMS, REALM_BY_ID, KNIGHT_ORDER_BY_REALM } from './characters.js';
+import {
+  REALMS as STATIC_REALMS,
+  REALM_BY_ID as STATIC_REALM_BY_ID,
+  KNIGHT_ORDER_BY_REALM as STATIC_KNIGHT_ORDER_BY_REALM,
+} from './characters.js';
 
 export const REL_TYPES = {
   family:     { label: 'Family',          color: '#7a1e1e', dash: 'none',    width: 2.2 },
@@ -14,7 +18,11 @@ export const REL_TYPES = {
 
 // ─── LAYOUTS ─────────────────────────────────────────────────────────────────
 
-function roundTableLayout(characters, w, h) {
+function roundTableLayout(characters, w, h, realmData) {
+  const REALMS = realmData?.realms ?? STATIC_REALMS;
+  const REALM_BY_ID = realmData?.realmById ?? STATIC_REALM_BY_ID;
+  const KNIGHT_ORDER_BY_REALM = realmData?.knightOrderByRealm ?? STATIC_KNIGHT_ORDER_BY_REALM;
+
   const cx = w / 2, cy = h / 2;
   const knightR = Math.min(w, h) * 0.34;
   const ringOuter = knightR - 28;
@@ -191,12 +199,12 @@ function forceWebLayout(characters, w, h) {
   return { positions };
 }
 
-function layoutFor(name, characters, w, h) {
-  if (name === 'round-table') return roundTableLayout(characters, w, h);
+function layoutFor(name, characters, w, h, realmData) {
+  if (name === 'round-table') return roundTableLayout(characters, w, h, realmData);
   if (name === 'hub')         return hubSpokeLayout(characters, w, h);
   if (name === 'tree')        return familyTreeLayout(characters, w, h);
   if (name === 'web')         return forceWebLayout(characters, w, h);
-  return roundTableLayout(characters, w, h);
+  return roundTableLayout(characters, w, h, realmData);
 }
 
 export function edgesFor(characters, focusId, relFilter) {
@@ -288,7 +296,7 @@ function GraphNode({ character, x, y, onClick, onHover, onLeave, focused, dimmed
   return (
     <div
       className={`gn ${focused ? 'gn-focus' : ''} ${dimmed ? 'gn-dim' : ''} ${hovered ? 'gn-hover' : ''}`}
-      style={{ left: x - w / 2, top: y - shieldSize * 0.6, width: w, height: h }}
+      style={{ position: 'absolute', left: x - w / 2, top: y - shieldSize * 0.6, width: w, height: h }}
       onClick={onClick}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
@@ -304,7 +312,7 @@ function GraphNode({ character, x, y, onClick, onHover, onLeave, focused, dimmed
 
 // ─── GRAPH ───────────────────────────────────────────────────────────────────
 
-export function Graph({ characters, layout, focusId, hoverId, onFocus, onHover, relFilter }) {
+export function Graph({ characters, layout, focusId, hoverId, onFocus, onHover, relFilter, realmData }) {
   const W = 1700, H = 1300;
   const containerRef = useRef(null);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -313,8 +321,8 @@ export function Graph({ characters, layout, focusId, hoverId, onFocus, onHover, 
   const dragRef = useRef(null);
 
   const { positions, table, sectorLabels } = useMemo(
-    () => layoutFor(layout, characters, W, H),
-    [layout, characters]
+    () => layoutFor(layout, characters, W, H, realmData),
+    [layout, characters, realmData]
   );
 
   const activeId = focusId || hoverId;
@@ -369,6 +377,7 @@ export function Graph({ characters, layout, focusId, hoverId, onFocus, onHover, 
       <div
         className="graph-inner"
         style={{
+          position: 'absolute', top: '50%', left: '50%',
           width: W, height: H,
           transform: `translate(-50%, -50%) translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
           transformOrigin: 'center center',
