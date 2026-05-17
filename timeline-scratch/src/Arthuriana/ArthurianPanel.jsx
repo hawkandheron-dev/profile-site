@@ -101,6 +101,7 @@ export function Panel({ character, allCharacters, onClose, onNavigate, focusedRe
   const seen = new Set();
   const buckets = {};
   rels.forEach(r => {
+    if (focusedRelTypes && focusedRelTypes[r.type] === false) return;
     const k = r.to + '|' + r.type;
     if (seen.has(k)) return;
     seen.add(k);
