@@ -208,7 +208,7 @@ function FirstCenturyChurchApp() {
         )}
         {hasClerk && (
           <div className="fcc-header-auth">
-            <a className="fcc-auth-btn" href="./contributor-portal.html" style={{ textDecoration: 'none' }}>Contributor Portal</a>
+            <a className="fcc-auth-btn fcc-auth-btn--contributor" href="./contributor-portal.html" style={{ textDecoration: 'none' }}>Contributor Portal</a>
             <SignedOut>
               <SignInButton mode="modal">
                 <button className="fcc-auth-btn" title="Sign in to report issues">Sign In</button>
