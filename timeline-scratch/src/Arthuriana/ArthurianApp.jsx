@@ -1,13 +1,14 @@
 import { useState, useMemo } from 'react';
 import falconSrc from '../../../resources/logos/Windhover_BLK.png';
-import { CHARACTERS } from './characters.js';
+import { CHARACTERS as STATIC_CHARACTERS } from './characters.js';
 import { Shield } from './ArthurianHeraldry.jsx';
 import { Graph, REL_TYPES } from './ArthurianGraph.jsx';
 import { Panel } from './ArthurianPanel.jsx';
 import { ArthurianControls } from './ArthurianControls.jsx';
 import './ArthurianApp.css';
 
-export function ArthurianApp() {
+export function ArthurianApp({ characters: propCharacters, realmData } = {}) {
+  const characters = propCharacters ?? STATIC_CHARACTERS;
   const [layout, setLayout]       = useState('round-table');
   const [relFilter, setRelFilter] = useState({
     family:     true,
@@ -25,16 +26,16 @@ export function ArthurianApp() {
   const handleRelFilter = (key, value) =>
     setRelFilter(f => ({ ...f, [key]: value }));
 
-  const focused = focusId ? CHARACTERS.find((c) => c.id === focusId) : null;
+  const focused = focusId ? characters.find((c) => c.id === focusId) : null;
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return CHARACTERS.filter((c) =>
+    return characters.filter((c) =>
       c.name.toLowerCase().includes(q) ||
       c.title.toLowerCase().includes(q)
     ).slice(0, 8);
-  }, [query]);
+  }, [query, characters]);
 
   return (
     <div className="app">
@@ -105,13 +106,14 @@ export function ArthurianApp() {
 
       <main className={`stage${focused ? ' has-panel' : ''}`}>
         <Graph
-          characters={CHARACTERS}
+          characters={characters}
           layout={layout}
           focusId={focusId}
           hoverId={hoverId}
           onFocus={(id) => setFocusId(id === focusId ? null : id)}
           onHover={(id) => setHoverId(id)}
           relFilter={relFilter}
+          realmData={realmData}
         />
 
         <div className="legend">
@@ -141,10 +143,11 @@ export function ArthurianApp() {
         {focused && (
           <Panel
             character={focused}
-            allCharacters={CHARACTERS}
+            allCharacters={characters}
             onClose={() => setFocusId(null)}
             onNavigate={(id) => setFocusId(id)}
             focusedRelTypes={relFilter}
+            realmData={realmData}
           />
         )}
       </main>
