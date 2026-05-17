@@ -24,7 +24,7 @@ export const ChurchMap = forwardRef(function ChurchMap(
   {
     churches, churchPersonCount, selectedChurchId, onSelectChurch,
     onBackgroundClick, focusedGraph, onSelectNode, selectedNodeId,
-    journeyStops, journeyColor,
+    journeyStops, journeyColor, webStyle,
   },
   ref,
 ) {
@@ -394,6 +394,7 @@ export const ChurchMap = forwardRef(function ChurchMap(
           graph={focusedGraph}
           onSelectNode={onSelectNode}
           selectedId={selectedNodeId}
+          webStyle={webStyle}
         />
       )}
     </div>

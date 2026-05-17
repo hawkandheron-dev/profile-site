@@ -32,6 +32,9 @@ function FirstCenturyChurchApp() {
   const [selectedNode, setSelectedNode] = useState(null); // { type, id } | null
   const [activeJourney, setActiveJourney] = useState(null); // journey_id | null
   const [showGlobalGraph, setShowGlobalGraph] = useState(false);
+  // Connection-line style for the focused city's web: spokes (radial),
+  // web (person↔person mesh), or hidden (just the dots + bridges on hover).
+  const [webStyle, setWebStyle] = useState('spokes');
   const [isAdmin, setIsAdmin] = useState(false);
   const [isContributor, setIsContributor] = useState(false);
   const mapRef = useRef(null);
@@ -246,6 +249,7 @@ function FirstCenturyChurchApp() {
             selectedNodeId={selectedNodeId}
             journeyStops={activeJourneyStops}
             journeyColor={activeJourneyObj?.color}
+            webStyle={webStyle}
           />
 
           <JourneyOverlayControl
@@ -255,6 +259,9 @@ function FirstCenturyChurchApp() {
             onShowGlobalGraph={() => setShowGlobalGraph(true)}
             showReset={showReset}
             onReset={handleReset}
+            webStyle={webStyle}
+            onWebStyleChange={setWebStyle}
+            showWebStyle={!!selectedChurchId}
           />
 
           {activeJourneyObj && (
@@ -279,6 +286,7 @@ function FirstCenturyChurchApp() {
 
           {selectedNode && (
             <NodeDetailCard
+              key={`${selectedNode.type}:${selectedNode.id}`}
               data={data}
               node={selectedNode}
               onNavigate={handleCardNavigate}

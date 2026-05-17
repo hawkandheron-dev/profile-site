@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ScriptureVerse } from '../BiblicalPlaces/ScriptureVerse.jsx';
 import { churchColor, householdLabel } from '../../data/firstCenturyChurchSupabaseAdapter.js';
 import './NodeDetailCard.css';
@@ -27,6 +28,12 @@ const CHURCH_TYPE_LABELS = {
  * onNavigate(type, id): jump to another entity (church re-focuses the web).
  */
 export function NodeDetailCard({ data, node, onNavigate, onClose }) {
+  // Mobile collapse: shrink the card to just the header + a 2-3 line teaser
+  // so the person / city under it stays visible. The app re-mounts this
+  // component (via key={type:id}) when the selection changes, so this
+  // resets to expanded for every new pick — no effect needed.
+  const [collapsed, setCollapsed] = useState(false);
+
   if (!node) return null;
 
   let accent = '#8b7355';
@@ -185,13 +192,25 @@ export function NodeDetailCard({ data, node, onNavigate, onClose }) {
   }
 
   return (
-    <div className={`fcc-detail-card fcc-detail-card--${node.type}`} style={{ '--accent': accent }}>
+    <div
+      className={`fcc-detail-card fcc-detail-card--${node.type}${collapsed ? ' fcc-detail-card--collapsed' : ''}`}
+      style={{ '--accent': accent }}
+    >
       <div className="fcc-card-header">
         <span className="fcc-card-dot fcc-card-dot--lg" />
         <div className="fcc-card-titles">
           <h2 className="fcc-card-title">{title}</h2>
           {subtitle && <p className="fcc-card-subtitle">{subtitle}</p>}
         </div>
+        <button
+          className="fcc-card-collapse"
+          onClick={() => setCollapsed(c => !c)}
+          aria-label={collapsed ? 'Expand details' : 'Collapse details'}
+          aria-expanded={!collapsed}
+          title={collapsed ? 'Expand' : 'Collapse'}
+        >
+          {collapsed ? '▴' : '▾'}
+        </button>
         <button className="fcc-card-close" onClick={onClose} aria-label="Close">×</button>
       </div>
       <div className="fcc-card-body">{body}</div>
