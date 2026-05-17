@@ -1,8 +1,14 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { forceSimulation, forceLink, forceManyBody, forceCollide } from 'd3-force';
+import { iconKeyFor, drawNodeIcon } from './personIcons.js';
 import './ChurchWebOverlay.css';
 
+// Bubble radius. Non-church nodes are drawn larger than their force-layout
+// `val` so their iconography (profile / house / foot) reads at a glance.
 function nodeRadius(n) {
+  if (n.type === 'church') return Math.max(3, n.val || 4);
+  if (n.type === 'household') return 11;
+  if (n.type === 'person') return n.isTraveler || n.isVisitor ? 12 : 11;
   return Math.max(3, n.val || 4);
 }
 
@@ -57,11 +63,17 @@ const REF_ZOOM = 5;
  * the map's canvas container, so the map keeps its native interactions and
  * empty-space clicks still reach it.
  */
-export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
+export function ChurchWebOverlay({
+  map, graph, onSelectNode, selectedId, webStyle = 'spokes',
+}) {
   const canvasRef = useRef(null);
   const simRef = useRef(null);
   const nodesRef = useRef([]);
   const linksRef = useRef([]);
+  // Person-to-person links derived from the focused church's membership —
+  // rendered when webStyle === 'web'. Built once per graph; the simulation
+  // never sees these so the orbit layout stays identical across modes.
+  const peerLinksRef = useRef([]);
   const nodeByIdRef = useRef(new Map());
   const focusChurchRef = useRef(null);
   const radiiRef = useRef({
@@ -73,6 +85,7 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
   });
   const hoverRef = useRef(null);
   const selectedRef = useRef(selectedId);
+  const webStyleRef = useRef(webStyle);
   const onSelectRef = useRef(onSelectNode);
   const [tooltip, setTooltip] = useState(null);
 
@@ -139,12 +152,32 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
     const links = linksRef.current;
     if (!nodes.length) return;
 
+    const style = webStyleRef.current;
+
     // Click-pinned highlight stays on; hover takes precedence when active.
     const hoverId = hoverRef.current;
     const selId = selectedRef.current;
     const activeId = hoverId || selId;
+    // For neighbour-set computation we always use the spoke graph — peer
+    // links in 'web' mode are a visual layer, not a navigation one.
     const neighborIds = activeId ? neighborSet(links, activeId) : null;
     const focus = focusChurchRef.current;
+
+    // Person↔person mesh (only in 'web' mode). Drawn under structural links
+    // so the bridges and active spokes always read on top.
+    if (style === 'web') {
+      ctx.strokeStyle = 'rgba(107, 91, 69, 0.18)';
+      ctx.lineWidth = 0.8;
+      peerLinksRef.current.forEach(pl => {
+        const s = nodeByIdRef.current.get(pl.source);
+        const t = nodeByIdRef.current.get(pl.target);
+        if (!s || !t || s.x == null || t.x == null) return;
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        ctx.lineTo(t.x, t.y);
+        ctx.stroke();
+      });
+    }
 
     links.forEach(l => {
       const s = typeof l.source === 'object' ? l.source : nodeByIdRef.current.get(l.source);
@@ -152,6 +185,12 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
       if (!s || !t || s.x == null || t.x == null) return;
       const isBridge = l.kind === 'bridge';
       const on = neighborIds ? (neighborIds.has(s.id) && neighborIds.has(t.id)) : null;
+
+      // Structural spokes (member/visitor/household/household-member) hide
+      // entirely in 'hidden' and 'web' modes — unless this spoke belongs to
+      // the active (hover/selected) node, in which case it lights up so the
+      // user can still trace what's connected to what.
+      if (!isBridge && style !== 'spokes' && !on) return;
 
       if (isBridge) {
         // Bridge connections only render when the active (hovered/selected)
@@ -240,10 +279,18 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
         ctx.lineWidth = n.isOtherChurch ? 1.5 : 3;
         ctx.strokeStyle = n.isOtherChurch ? '#faf6eb' : '#2c2418';
       } else {
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1.25;
         ctx.strokeStyle = '#faf6eb';
       }
       ctx.stroke();
+
+      // Iconography (person/household/traveler). Church nodes remain plain
+      // coloured discs so they read as places, not people.
+      const iconKey = iconKeyFor(n);
+      if (iconKey) {
+        ctx.fillStyle = '#faf6eb';
+        drawNodeIcon(ctx, iconKey, n.x, n.y, r);
+      }
 
       // Labels: always visible in the focused web — but the hovered node's
       // name is taken over by the floating tooltip, so suppress it here.
@@ -286,6 +333,12 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
     selectedRef.current = selectedId;
     draw();
   }, [selectedId, draw]);
+
+  // Webstyle changes (spokes / web / hidden) are pure render — no relayout.
+  useEffect(() => {
+    webStyleRef.current = webStyle;
+    draw();
+  }, [webStyle, draw]);
 
   // Build / rebuild the simulation when the focused graph changes.
   useEffect(() => {
@@ -345,9 +398,35 @@ export function ChurchWebOverlay({ map, graph, onSelectNode, selectedId }) {
       .alphaDecay(0.028)
       .on('tick', draw);
 
+    // Build the person↔person mesh once per graph: everyone tied to the
+    // focused church (member or visitor) gets linked to every other such
+    // person. Households join the mesh through their head/members too, so
+    // "Network" mode reads as a true community web, not just disconnected
+    // dots. Capped at a few hundred edges — bigger Roman-style clusters
+    // stay readable because the lines are very faint.
+    const focusChurchId = focusChurch?.id;
+    const peerLinks = [];
+    if (focusChurchId) {
+      const peers = nodes.filter(n =>
+        (n.type === 'person' || n.type === 'household')
+        && links.some(l => {
+          const s = typeof l.source === 'object' ? l.source.id : l.source;
+          const t = typeof l.target === 'object' ? l.target.id : l.target;
+          return (l.kind === 'member' || l.kind === 'visitor' || l.kind === 'household')
+            && ((s === n.id && t === focusChurchId) || (t === n.id && s === focusChurchId));
+        }),
+      );
+      for (let i = 0; i < peers.length; i++) {
+        for (let j = i + 1; j < peers.length; j++) {
+          peerLinks.push({ source: peers[i].id, target: peers[j].id });
+        }
+      }
+    }
+
     simRef.current = sim;
     nodesRef.current = nodes;
     linksRef.current = links;
+    peerLinksRef.current = peerLinks;
     nodeByIdRef.current = byId;
     draw();
 

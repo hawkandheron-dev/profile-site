@@ -191,6 +191,29 @@
 }
 .fcc-journey-btn--active .fcc-journey-dot { background: #faf6eb; }
 
+.fcc-web-style-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+.fcc-web-style-btn {
+  font-family: inherit;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid #c9bd9c;
+  background: #faf6eb;
+  color: #2c2418;
+  cursor: pointer;
+}
+.fcc-web-style-btn:hover { background: #fff; }
+.fcc-web-style-btn--active {
+  background: #6b5b45;
+  border-color: #6b5b45;
+  color: #faf6eb;
+}
+
 .fcc-controls-actions {
   display: flex;
   gap: 0.5rem;
