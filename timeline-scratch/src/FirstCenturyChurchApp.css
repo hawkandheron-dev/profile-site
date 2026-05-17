@@ -323,4 +323,30 @@
   .fcc-journey-info { bottom: 8rem; }
   .fcc-controls { gap: 0.5rem 0.75rem; }
   .fcc-controls-actions { margin-left: 0; }
+
+  /* Phone header: search above auth, both full-width so the Contributor
+     Portal / Sign-In buttons stop colliding with the search box. */
+  .fcc-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+    padding: 0.5rem 0.6rem;
+  }
+  .fcc-header-search { width: 100%; }
+  .fcc-search { width: 100%; max-width: none; }
+  .fcc-header-auth {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .fcc-auth-btn {
+    font-size: 0.78rem;
+    padding: 0.32rem 0.55rem;
+  }
+  /* Contributor Portal → "Contribute" on phones — shorter label, same link. */
+  .fcc-auth-btn--contributor { font-size: 0; }
+  .fcc-auth-btn--contributor::before {
+    content: 'Contribute';
+    font-size: 0.78rem;
+  }
 }

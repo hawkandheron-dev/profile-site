@@ -46,9 +46,13 @@ function hashStr(str) {
 // Member-ring radius (px) at map zoom level REF_ZOOM. Other orbits derive from
 // this. The exponent controls how quickly orbits grow with the map's zoom —
 // a value < 1 means orbits expand more gently than the map.
-const BASE_MEMBER_ORBIT = 85;
+const BASE_MEMBER_ORBIT = 56;
 const ORBIT_ZOOM_EXP = 0.65;
 const REF_ZOOM = 5;
+// 'Network' mode: each person links to its K closest peers — computed live
+// from current simulation positions. Keeps the mesh expressive (you can see
+// who's near whom) without the visual noise of a full N² mesh.
+const NETWORK_K = 4;
 
 /**
  * Geo-anchored connection web drawn on a transparent canvas over the map.
@@ -70,10 +74,12 @@ export function ChurchWebOverlay({
   const simRef = useRef(null);
   const nodesRef = useRef([]);
   const linksRef = useRef([]);
-  // Person-to-person links derived from the focused church's membership —
-  // rendered when webStyle === 'web'. Built once per graph; the simulation
-  // never sees these so the orbit layout stays identical across modes.
-  const peerLinksRef = useRef([]);
+  // Node ids of the focused church's peers (people + households tied to it).
+  // Used in 'web' mode to draw a K-nearest-neighbour mesh; the K=4 lookup
+  // runs each frame from live positions, so the mesh tracks the cloud.
+  // The simulation never sees these edges — the orbit layout stays identical
+  // across line-style modes.
+  const peerNodeIdsRef = useRef([]);
   const nodeByIdRef = useRef(new Map());
   const focusChurchRef = useRef(null);
   const radiiRef = useRef({
@@ -92,21 +98,22 @@ export function ChurchWebOverlay({
   useEffect(() => { onSelectRef.current = onSelectNode; }, [onSelectNode]);
 
   // Compute orbit radii for the current map zoom + viewport. Clamped so the
-  // cloud is never collapsed (min member ring 50px) and never larger than
-  // ~42% of the smaller viewport dimension.
+  // cloud is never collapsed (min member ring 35px) and never larger than
+  // ~36% of the smaller viewport dimension — keeps the orbit a tight halo
+  // around the city rather than a full-viewport bloom.
   const computeRadii = useCallback(() => {
     if (!map) return;
     const container = map.getContainer();
     const w = container.clientWidth;
     const h = container.clientHeight;
-    const cap = Math.min(w, h) * 0.42;
+    const cap = Math.min(w, h) * 0.36;
     const mult = Math.pow(2, (map.getZoom() - REF_ZOOM) * ORBIT_ZOOM_EXP);
-    const member = Math.max(50, Math.min(cap / 1.7, BASE_MEMBER_ORBIT * mult));
+    const member = Math.max(35, Math.min(cap / 1.4, BASE_MEMBER_ORBIT * mult));
     radiiRef.current = {
       member,
-      visitor: Math.min(cap, member * 1.7),
-      household: member * 0.55,
-      householdMember: member * 0.32,
+      visitor: Math.min(cap, member * 1.4),
+      household: member * 0.5,
+      householdMember: member * 0.3,
       bridge: member * 1.2,
     };
   }, [map]);
@@ -163,19 +170,32 @@ export function ChurchWebOverlay({
     const neighborIds = activeId ? neighborSet(links, activeId) : null;
     const focus = focusChurchRef.current;
 
-    // Person↔person mesh (only in 'web' mode). Drawn under structural links
-    // so the bridges and active spokes always read on top.
+    // Person↔person mesh (only in 'web' mode). Each peer gets a line to its
+    // K nearest peers, computed from current positions; the edge set is
+    // de-duped so a mutual pair only draws once. Drawn under structural
+    // links so bridges and active spokes always read on top.
     if (style === 'web') {
-      ctx.strokeStyle = 'rgba(107, 91, 69, 0.18)';
-      ctx.lineWidth = 0.8;
-      peerLinksRef.current.forEach(pl => {
-        const s = nodeByIdRef.current.get(pl.source);
-        const t = nodeByIdRef.current.get(pl.target);
-        if (!s || !t || s.x == null || t.x == null) return;
-        ctx.beginPath();
-        ctx.moveTo(s.x, s.y);
-        ctx.lineTo(t.x, t.y);
-        ctx.stroke();
+      const peers = peerNodeIdsRef.current
+        .map(id => nodeByIdRef.current.get(id))
+        .filter(n => n && n.x != null);
+      const drawn = new Set();
+      ctx.strokeStyle = 'rgba(107, 91, 69, 0.28)';
+      ctx.lineWidth = 0.9;
+      peers.forEach(a => {
+        const nearest = peers
+          .filter(b => b !== a)
+          .map(b => ({ b, d2: (b.x - a.x) ** 2 + (b.y - a.y) ** 2 }))
+          .sort((x, y) => x.d2 - y.d2)
+          .slice(0, NETWORK_K);
+        nearest.forEach(({ b }) => {
+          const key = a.id < b.id ? `${a.id}|${b.id}` : `${b.id}|${a.id}`;
+          if (drawn.has(key)) return;
+          drawn.add(key);
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        });
       });
     }
 
@@ -398,35 +418,30 @@ export function ChurchWebOverlay({
       .alphaDecay(0.028)
       .on('tick', draw);
 
-    // Build the person↔person mesh once per graph: everyone tied to the
-    // focused church (member or visitor) gets linked to every other such
-    // person. Households join the mesh through their head/members too, so
-    // "Network" mode reads as a true community web, not just disconnected
-    // dots. Capped at a few hundred edges — bigger Roman-style clusters
-    // stay readable because the lines are very faint.
+    // Identify the focused church's peers: every person/household tied to it
+    // via a structural spoke. The mesh-edge selection happens later in draw(),
+    // from live positions, so each frame can target the K nearest neighbours.
     const focusChurchId = focusChurch?.id;
-    const peerLinks = [];
+    const peerIds = [];
     if (focusChurchId) {
-      const peers = nodes.filter(n =>
-        (n.type === 'person' || n.type === 'household')
-        && links.some(l => {
-          const s = typeof l.source === 'object' ? l.source.id : l.source;
-          const t = typeof l.target === 'object' ? l.target.id : l.target;
-          return (l.kind === 'member' || l.kind === 'visitor' || l.kind === 'household')
-            && ((s === n.id && t === focusChurchId) || (t === n.id && s === focusChurchId));
-        }),
-      );
-      for (let i = 0; i < peers.length; i++) {
-        for (let j = i + 1; j < peers.length; j++) {
-          peerLinks.push({ source: peers[i].id, target: peers[j].id });
-        }
-      }
+      const peerSet = new Set();
+      links.forEach(l => {
+        if (l.kind !== 'member' && l.kind !== 'visitor' && l.kind !== 'household') return;
+        const s = typeof l.source === 'object' ? l.source.id : l.source;
+        const t = typeof l.target === 'object' ? l.target.id : l.target;
+        if (s === focusChurchId) peerSet.add(t);
+        else if (t === focusChurchId) peerSet.add(s);
+      });
+      peerSet.forEach(id => {
+        const n = byId.get(id);
+        if (n && (n.type === 'person' || n.type === 'household')) peerIds.push(id);
+      });
     }
 
     simRef.current = sim;
     nodesRef.current = nodes;
     linksRef.current = links;
-    peerLinksRef.current = peerLinks;
+    peerNodeIdsRef.current = peerIds;
     nodeByIdRef.current = byId;
     draw();
 
