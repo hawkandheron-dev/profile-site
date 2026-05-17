@@ -296,7 +296,7 @@ function GraphNode({ character, x, y, onClick, onHover, onLeave, focused, dimmed
   return (
     <div
       className={`gn ${focused ? 'gn-focus' : ''} ${dimmed ? 'gn-dim' : ''} ${hovered ? 'gn-hover' : ''}`}
-      style={{ left: x - w / 2, top: y - shieldSize * 0.6, width: w, height: h }}
+      style={{ position: 'absolute', left: x - w / 2, top: y - shieldSize * 0.6, width: w, height: h }}
       onClick={onClick}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
@@ -377,6 +377,7 @@ export function Graph({ characters, layout, focusId, hoverId, onFocus, onHover, 
       <div
         className="graph-inner"
         style={{
+          position: 'absolute', top: '50%', left: '50%',
           width: W, height: H,
           transform: `translate(-50%, -50%) translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
           transformOrigin: 'center center',
