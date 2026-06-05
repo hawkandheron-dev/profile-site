@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <filter id="tessera">
+      <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="2" seed="9"/>
+      <feColorMatrix values="0 0 0 0 0.85  0 0 0 0 0.78  0 0 0 0 0.6  0 0 0 0.32 0"/>
+    </filter>
+  </defs>
+  <rect width="256" height="256" fill="#ead9b0"/>
+  <rect width="256" height="256" filter="url(#tessera)"/>
+</svg>
