@@ -1,0 +1,70 @@
+name: Worship Supabase Migrations
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'worship/supabase/migrations/**'
+      - '.github/workflows/worship-supabase-migrations.yml'
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare DB URL
+        env:
+          WORSHIP_SUPABASE_DATABASE_URL: ${{ secrets.WORSHIP_SUPABASE_DATABASE_URL }}
+        run: |
+          if [ -z "$WORSHIP_SUPABASE_DATABASE_URL" ]; then
+            echo "WORSHIP_SUPABASE_DATABASE_URL is not set."
+            exit 1
+          fi
+          DB_URL="$WORSHIP_SUPABASE_DATABASE_URL"
+          # Switch to session mode (port 5432) if using transaction mode
+          # (port 6543). Session mode pins the connection, which helps
+          # with prepared-statement tracking.
+          DB_URL="${DB_URL//:6543/:5432}"
+          # Mask the URL so it doesn't appear in logs
+          echo "::add-mask::$DB_URL"
+          echo "MIGRATION_DB_URL=$DB_URL" >> "$GITHUB_ENV"
+
+      - name: Apply migrations
+        run: |
+          # Run each pending migration file through psql. psql uses the
+          # simple query protocol, which is fully compatible with
+          # transaction-mode connection pooling (see the windhover
+          # supabase-migrations workflow for background).
+          #
+          # We read the Supabase migration history table to determine
+          # which files are already applied, then run only new ones.
+
+          echo "=== Checking applied migrations ==="
+          APPLIED=$(psql "$MIGRATION_DB_URL" -t -A -c \
+            "SELECT version FROM supabase_migrations.schema_migrations ORDER BY version;" 2>/dev/null || echo "")
+
+          echo "=== Scanning migration files ==="
+          PENDING=0
+          for file in worship/supabase/migrations/*.sql; do
+            VERSION=$(basename "$file" | grep -oP '^\d+')
+            if echo "$APPLIED" | grep -q "^${VERSION}$"; then
+              echo "Already applied: $(basename "$file")"
+            else
+              echo "Applying: $(basename "$file")"
+              psql "$MIGRATION_DB_URL" -v ON_ERROR_STOP=1 -f "$file"
+              psql "$MIGRATION_DB_URL" -c \
+                "INSERT INTO supabase_migrations.schema_migrations(version, name, statements) VALUES ('${VERSION}', '$(basename "$file" .sql)', '{}');"
+              PENDING=$((PENDING + 1))
+            fi
+          done
+
+          if [ "$PENDING" -eq 0 ]; then
+            echo "No pending migrations."
+          else
+            echo "Applied $PENDING migration(s) successfully."
+          fi

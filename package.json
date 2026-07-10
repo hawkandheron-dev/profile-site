@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "cd timeline-scratch && npm install && npm run build",
+    "build": "npm run build:timeline && npm run build:worship",
+    "build:timeline": "cd timeline-scratch && npm install && npm run build",
+    "build:worship": "cd worship && npm install && npm run build",
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",

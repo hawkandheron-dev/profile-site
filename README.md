@@ -10,6 +10,7 @@ This repo is split into a few major areas that serve different purposes:
 - **`timeline-scratch/`**: the main React + Vite application for timeline/map experiences, integrated with Clerk auth and Supabase data.
 - **`pantheon-db/`**: a Next.js + Prisma Pantheons app that can run against Supabase (shared remote data) and also supports a local SQLite workflow.
 - **`supabase/`**: Supabase config and SQL migrations for schema, policies, and seed data.
+- **`worship/`**: standalone worship-scheduler admin app (Vite + React) with its own separate Supabase project — see `docs/worship-scheduler.md`.
 - **`functions/`**: Cloudflare Pages Functions used to provide runtime config for deployed static pages.
 
 If you are new to the repo, start with this file, then use `docs/REPO_MAP.md` for a deeper directory-level map.
