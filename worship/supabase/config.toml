@@ -1,7 +1,6 @@
 # Supabase project for the worship scheduler (separate from the windhover
-# project configured in /supabase). project_id is filled in once the
-# project is created — see docs/worship-scheduler.md.
-project_id = "WORSHIP_PROJECT_REF"
+# project configured in /supabase). See docs/worship-scheduler.md.
+project_id = "qtthlpncluzgekqsaewe"
 
 [api]
 port = 54331

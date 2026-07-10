@@ -29,6 +29,11 @@ Google Sheet and the songs Airtable.
   assigned for tomorrow, every Saturday at 9am ET, with roles, songs, and
   chord links. SMS via Twilio is wired but disabled until credentials exist.
 
+## Project
+
+- Supabase project ref: `qtthlpncluzgekqsaewe`
+  (`https://qtthlpncluzgekqsaewe.supabase.co`)
+
 ## One-time setup (after the Supabase project exists)
 
 1. **Apply migrations** in `worship/supabase/migrations/` (in filename order).
@@ -47,9 +52,10 @@ Google Sheet and the songs Airtable.
      domain, or use their onboarding sender to start.
    - `REMINDER_FROM_EMAIL` — e.g. `Worship <worship@yourdomain.org>`.
    - Later, for SMS: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`.
-6. **Vault secrets for the cron job** (SQL editor):
+6. **Vault secrets for the cron job** (SQL editor; paste the anon key from
+   Settings → API):
    ```sql
-   select vault.create_secret('https://<project-ref>.supabase.co/functions/v1', 'worship_functions_url');
+   select vault.create_secret('https://qtthlpncluzgekqsaewe.supabase.co/functions/v1', 'worship_functions_url');
    select vault.create_secret('<anon-key>', 'worship_anon_key');
    ```
 7. **Supabase Auth** — under Authentication → URL Configuration, set the site

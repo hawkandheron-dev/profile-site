@@ -44,6 +44,15 @@ jobs:
           # We read the Supabase migration history table to determine
           # which files are already applied, then run only new ones.
 
+          echo "=== Ensuring migration tracking table exists ==="
+          # This project may never have been touched by the Supabase CLI
+          # (it was created in the dashboard), so bootstrap the tracking
+          # table the CLI would normally create.
+          psql "$MIGRATION_DB_URL" -v ON_ERROR_STOP=1 -c \
+            "CREATE SCHEMA IF NOT EXISTS supabase_migrations;
+             CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations(
+               version text PRIMARY KEY, name text, statements text[]);"
+
           echo "=== Checking applied migrations ==="
           APPLIED=$(psql "$MIGRATION_DB_URL" -t -A -c \
             "SELECT version FROM supabase_migrations.schema_migrations ORDER BY version;" 2>/dev/null || echo "")
