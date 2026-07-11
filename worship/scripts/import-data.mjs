@@ -367,7 +367,8 @@ out.push('-- people');
 out.push(
   `insert into public.ws_people (first_name, last_name, display_name, email, phone, instruments, can_lead, location, active)\nvalues\n` +
   people.map((p) =>
-    `  (${q(p.firstName)}, ${q(p.lastName || '')}, ${q(p.displayName)}, ${q(p.email || null)}, ${q(p.phone || null)}, ${qArr(p.instruments)}, ${p.canLead}, ${q(p.location || null)}, ${p.active})`
+    // last_name is `text not null` — emit '' (q() would render '' as SQL null)
+    `  (${q(p.firstName)}, ${p.lastName ? q(p.lastName) : "''"}, ${q(p.displayName)}, ${q(p.email || null)}, ${q(p.phone || null)}, ${qArr(p.instruments)}, ${p.canLead}, ${q(p.location || null)}, ${p.active})`
   ).join(',\n') +
   `\non conflict (display_name) do update set\n` +
   `  email = coalesce(excluded.email, ws_people.email),\n` +
