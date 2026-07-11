@@ -22,7 +22,7 @@ export default function TeamsTab({ api }) {
 
   const peopleById = useMemo(() => new Map(people.map((p) => [p.id, p])), [people])
   const rolesById = useMemo(() => new Map(roles.map((r) => [r.id, r])), [roles])
-  const activePeople = people.filter((p) => p.active)
+  const activePeople = people.filter((p) => p.status !== 'inactive')
 
   async function createTeam() {
     try {

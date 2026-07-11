@@ -22,7 +22,7 @@ export default function PeopleTab({ api }) {
       phone: p?.phone || '',
       instruments: (p?.instruments || []).join(', '),
       can_lead: p?.can_lead || false,
-      active: p?.active !== false,
+      status: p?.status || 'active',
       notes: p?.notes || '',
     })
   }
@@ -37,7 +37,7 @@ export default function PeopleTab({ api }) {
         phone: editing.phone.replace(/\D/g, '') || null,
         instruments: editing.instruments.split(',').map((s) => s.trim()).filter(Boolean),
         can_lead: editing.can_lead,
-        active: editing.active,
+        status: editing.status,
         notes: editing.notes.trim() || null,
       }
       if (editing.id) payload.id = editing.id
@@ -61,7 +61,13 @@ export default function PeopleTab({ api }) {
         <label>Phone <input value={editing.phone} onChange={(e) => setEditing({ ...editing, phone: e.target.value })} /></label>
         <label>Instruments <input value={editing.instruments} placeholder="Vocals, Acoustic Guitar" onChange={(e) => setEditing({ ...editing, instruments: e.target.value })} /></label>
         <label><input type="checkbox" checked={editing.can_lead} onChange={(e) => setEditing({ ...editing, can_lead: e.target.checked })} /> Can lead</label>
-        <label><input type="checkbox" checked={editing.active} onChange={(e) => setEditing({ ...editing, active: e.target.checked })} /> Active</label>
+        <label>Status
+          <select value={editing.status} onChange={(e) => setEditing({ ...editing, status: e.target.value })}>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="guest">Guest</option>
+          </select>
+        </label>
         <label>Notes <input value={editing.notes} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} /></label>
         <div className="edit-actions">
           <button className="primary" onClick={save} disabled={!editing.first_name.trim()}>Save</button>
@@ -71,7 +77,7 @@ export default function PeopleTab({ api }) {
     )
   }
 
-  const list = people.filter((p) => showInactive || p.active)
+  const list = people.filter((p) => showInactive || p.status !== 'inactive')
 
   return (
     <div className="people">
@@ -83,16 +89,17 @@ export default function PeopleTab({ api }) {
       </div>
       <table className="people-table">
         <thead>
-          <tr><th>Name</th><th>Instruments</th><th>Phone</th><th>Email</th><th>Lead?</th><th></th></tr>
+          <tr><th>Name</th><th>Instruments</th><th>Phone</th><th>Email</th><th>Lead?</th><th>Status</th><th></th></tr>
         </thead>
         <tbody>
           {list.map((p) => (
-            <tr key={p.id} className={p.active ? '' : 'inactive'}>
+            <tr key={p.id} className={p.status === 'inactive' ? 'inactive' : ''}>
               <td>{p.display_name}</td>
               <td>{(p.instruments || []).join(', ')}</td>
               <td>{formatPhone(p.phone)}</td>
               <td>{p.email || ''}</td>
               <td>{p.can_lead ? '✓' : ''}</td>
+              <td className="status-cell">{p.status}</td>
               <td><button onClick={() => startEdit(p)}>Edit</button></td>
             </tr>
           ))}

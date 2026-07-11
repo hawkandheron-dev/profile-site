@@ -9,6 +9,18 @@ const STATUS_OPTIONS = [
   { value: 'available', label: 'Available' },
 ]
 
+const SORTS = [
+  { value: 'roster', label: 'Roster order' },
+  { value: 'last-asc', label: 'Last name A→Z' },
+  { value: 'last-desc', label: 'Last name Z→A' },
+  { value: 'availability', label: 'Availability' },
+]
+
+// availability sort: assigned (green) on top, blank in the middle,
+// unavailable at the bottom
+const AVAILABILITY_RANK = { assigned: 0, tentative: 1, available: 2, unavailable: 4 }
+const BLANK_RANK = 3
+
 export default function RosterTab({ api }) {
   const [people, setPeople] = useState([])
   const [roles, setRoles] = useState([])
@@ -17,6 +29,8 @@ export default function RosterTab({ api }) {
   const [startSunday, setStartSunday] = useState(() => addWeeks(nextSunday(), -1))
   const [status, setStatus] = useState('Loading…')
   const [copied, setCopied] = useState(null)
+  const [sort, setSort] = useState('roster')
+  const [anchorDate, setAnchorDate] = useState(() => toIso(nextSunday()))
 
   const dates = useMemo(() => sundayRange(startSunday, WINDOW_WEEKS), [startSunday])
 
@@ -43,8 +57,26 @@ export default function RosterTab({ api }) {
 
   const rolesById = useMemo(() => new Map(roles.map((r) => [r.id, r])), [roles])
   const peopleById = useMemo(() => new Map(people.map((p) => [p.id, p])), [people])
-  const activePeople = useMemo(() => people.filter((p) => p.active), [people])
   const serviceByDate = useMemo(() => new Map(services.map((s) => [s.service_date, s])), [services])
+
+  const activePeople = useMemo(() => {
+    const rows = people.filter((p) => p.status !== 'inactive')
+    const lastName = (p) => (p.last_name || p.display_name).toLowerCase()
+    if (sort === 'last-asc' || sort === 'last-desc') {
+      rows.sort((a, b) =>
+        lastName(a).localeCompare(lastName(b)) ||
+        (a.first_name || '').localeCompare(b.first_name || ''))
+      if (sort === 'last-desc') rows.reverse()
+    } else if (sort === 'availability') {
+      const svc = serviceByDate.get(anchorDate)
+      const rank = (p) => {
+        const a = svc?.assignments?.find((x) => x.person_id === p.id)
+        return a ? AVAILABILITY_RANK[a.status] ?? BLANK_RANK : BLANK_RANK
+      }
+      rows.sort((a, b) => rank(a) - rank(b) || lastName(a).localeCompare(lastName(b)))
+    }
+    return rows
+  }, [people, sort, anchorDate, serviceByDate])
 
   async function onCellChange(service, person, value) {
     try {
@@ -106,6 +138,12 @@ export default function RosterTab({ api }) {
         <span>{formatShort(dates[0])} – {formatShort(dates[dates.length - 1])}</span>
         <button onClick={() => setStartSunday((s) => addWeeks(s, 4))}>Later →</button>
         <button onClick={() => setStartSunday(addWeeks(nextSunday(), -1))}>Today</button>
+        <label>Sort:&nbsp;
+          <select value={sort} onChange={(e) => setSort(e.target.value)}>
+            {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
+        </label>
+        {sort === 'availability' && <span className="meta">by {formatShort(anchorDate)} — click a date to change</span>}
         {status && <span className="status">{status}</span>}
       </div>
       <div className="grid-scroll">
@@ -118,7 +156,13 @@ export default function RosterTab({ api }) {
                 const isNext = d === toIso(nextSunday())
                 return (
                   <th key={d} className={isNext ? 'next-sunday' : ''}>
-                    <div className="col-date">{formatShort(d)}</div>
+                    <div
+                      className={sort === 'availability' && d === anchorDate ? 'col-date sort-anchor' : 'col-date'}
+                      title="Click to sort by this week's availability"
+                      onClick={() => { setAnchorDate(d); setSort('availability') }}
+                    >
+                      {formatShort(d)}{sort === 'availability' && d === anchorDate ? ' ▼' : ''}
+                    </div>
                     {svc?.special && <div className="col-special">{svc.special}</div>}
                     {svc?.notes && <div className="col-note" title={svc.notes}>📝</div>}
                     {svc && (
@@ -151,6 +195,7 @@ export default function RosterTab({ api }) {
               <tr key={p.id}>
                 <td className="sticky-col person-cell" title={(p.instruments || []).join(', ')}>
                   {p.display_name}
+                  {p.status === 'guest' && <span className="guest-badge">guest</span>}
                 </td>
                 {dates.map((d) => {
                   const svc = serviceByDate.get(d)

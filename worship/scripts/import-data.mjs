@@ -14,6 +14,11 @@
  * The generated SQL is idempotent (natural-key upserts), so re-running the
  * migration or regenerating after tweaks is safe. ws_service_songs rows for
  * imported services are delete-and-reinserted on re-run.
+ *
+ * NOTE: the generated seed targets the pre-status schema (boolean ws_people
+ * .active); the 20260711130000_people_status migration converts it afterward.
+ * Don't run a regenerated seed against a database that has already applied
+ * that migration.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
