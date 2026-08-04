@@ -16,6 +16,7 @@ import { TimelineLegend } from './components/TimelineLegend.jsx';
 import { MobileTimeline } from './components/MobileTimeline.jsx';
 import { Icon } from './components/Icon.jsx';
 import { getYear, getYearRange } from './utils/dateUtils.js';
+import { applyFilters, buildInitialFilters } from './utils/filters.js';
 import bgManuscript from '../../assets/bg-manuscript.jpg';
 import './Timeline.css';
 
@@ -68,17 +69,13 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
   const containerRef = useRef(null);
   const wasDraggingRef = useRef(false);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  // False until the ResizeObserver reports the container's real size; the
+  // initial vertical placement waits for it (see below).
+  const [measured, setMeasured] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [filters, setFilters] = useState({
-    people: true,
-    emperors: true,
-    periods: true,
-    councils: true,
-    documents: true,
-    events: true
-  });
+  const [filters, setFilters] = useState(() => buildInitialFilters(config));
   // Cursor line and year summary state
   const [pinnedYear, setPinnedYear] = useState(null);
   const [yearSummaryOpen, setYearSummaryOpen] = useState(false);
@@ -99,11 +96,14 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     ...config
   };
 
-  // Parse initial viewport — keep zoom level from config, but center on year 1000
+  // Parse initial viewport — keep zoom level from config, and centre on year
+  // 1000 unless the config names its own centre. Datasets that don't span the
+  // middle ages (the heresies timeline stops at Chalcedon) need to say where
+  // to open, or they land on empty canvas.
   const initialStartYear = getYear(defaultConfig.initialViewport.startDate);
   const initialEndYear = getYear(defaultConfig.initialViewport.endDate);
   const initialYearsPerPixel = (initialEndYear - initialStartYear) / dimensions.width;
-  const initialCenterYear = 1000;
+  const initialCenterYear = defaultConfig.initialCenterYear ?? 1000;
   const centeredViewportStart = initialCenterYear - (dimensions.width / 2 * initialYearsPerPixel);
 
   // Derive min/max year from actual data extent (not just initial viewport)
@@ -164,31 +164,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
   });
 
   // Filter data based on active filters
-  const filteredData = useMemo(() => {
-    const { people = [], points = [], periods = [] } = data;
-
-    const filteredPeople = people.filter(person => {
-      if (person.isMonarch) {
-        return filters.emperors;
-      }
-      return filters.people;
-    });
-
-    const filteredPoints = points.filter(point => {
-      if (point.itemType === 'councils') return filters.councils;
-      if (point.itemType === 'documents') return filters.documents;
-      if (point.itemType === 'events') return filters.events;
-      return true; // Default show if no itemType
-    });
-
-    const filteredPeriods = filters.periods ? periods : [];
-
-    return {
-      people: filteredPeople,
-      points: filteredPoints,
-      periods: filteredPeriods
-    };
-  }, [data, filters]);
+  const filteredData = useMemo(() => applyFilters(data, filters), [data, filters]);
 
   const itemIndex = useMemo(() => {
     const map = new Map();
@@ -229,16 +205,47 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
     }
   );
 
-  // Center the axis vertically on initial load
+  // Center the axis vertically on initial load, then hold it steady.
+  //
+  // axisY is measured from the top of the virtual world, so it moves whenever
+  // the lanes above it change height — which happens every time a legend
+  // filter is toggled. Without the follow-up adjustment the whole world jumps
+  // by that delta and can leave the viewport entirely.
+  //
+  // The initial placement waits for `measured`: `dimensions` starts at a
+  // placeholder 800x600 and the ResizeObserver reports the real size a tick
+  // later. Placing the axis against the placeholder would apply the fraction
+  // to the wrong height — a 900px canvas would keep the 600px-derived offset,
+  // since the follow-up branch below only reacts to axisY, not to height.
   const initialCenterDone = useRef(false);
+  const lastAxisY = useRef(null);
   useEffect(() => {
-    if (!initialCenterDone.current && layout.axisY > 0 && dimensions.height > 0) {
+    if (!measured || layout.axisY <= 0 || dimensions.height <= 0) return;
+
+    const maxOffset = Math.max(0, layout.totalHeight - dimensions.height);
+
+    if (!initialCenterDone.current) {
       initialCenterDone.current = true;
-      const targetOffset = Math.max(0, layout.axisY - dimensions.height / 2);
-      const maxOffset = Math.max(0, layout.totalHeight - dimensions.height);
+      lastAxisY.current = layout.axisY;
+      // Where the axis sits on first paint, as a fraction of viewport height.
+      // Centre by default; datasets with a deep people lane (the heresies
+      // timeline) can push the axis down to give the figures more room.
+      const axisFraction = defaultConfig.initialAxisFraction ?? 0.5;
+      const targetOffset = Math.max(0, layout.axisY - dimensions.height * axisFraction);
       setVerticalOffset(Math.min(targetOffset, maxOffset));
+      return;
     }
-  }, [layout.axisY, layout.totalHeight, dimensions.height, setVerticalOffset]);
+
+    // Keep the axis where the user last had it as lanes grow and shrink.
+    const delta = layout.axisY - lastAxisY.current;
+    if (delta !== 0) {
+      lastAxisY.current = layout.axisY;
+      setVerticalOffset(prev => {
+        const next = (typeof prev === 'number' ? prev : 0) + delta;
+        return Math.max(0, Math.min(next, maxOffset));
+      });
+    }
+  }, [measured, layout.axisY, layout.totalHeight, dimensions.height, setVerticalOffset, defaultConfig.initialAxisFraction]);
 
   // Handle container resize
   useEffect(() => {
@@ -249,6 +256,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
         setDimensions({ width, height });
+        if (width > 0 && height > 0) setMeasured(true);
       }
     });
 

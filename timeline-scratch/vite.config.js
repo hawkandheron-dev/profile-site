@@ -22,6 +22,7 @@ export default defineConfig({
         // apps/church-history-supabase.html remains a (redirecting) page
         // rather than a 404 for existing bookmarks.
         'church-history-supabase': resolve(__dirname, 'church-history-supabase.html'),
+        'heresies': resolve(__dirname, 'heresies.html'),
         'historical-eras': resolve(__dirname, 'historical-eras.html'),
         'biblical-places': resolve(__dirname, 'biblical-places.html'),
         'african-kingdoms': resolve(__dirname, 'african-kingdoms.html'),

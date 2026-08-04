@@ -10,6 +10,7 @@ import { getYearLabelInterval } from '../utils/coordinates.js';
 import { Icon, ShapeIcon } from './Icon.jsx';
 import { TimelineModal } from './TimelineModal.jsx';
 import { YearSummaryModal } from './YearSummaryModal.jsx';
+import { applyFilters, buildInitialFilters } from '../utils/filters.js';
 import './MobileTimeline.css';
 
 const DEFAULT_PIXELS_PER_YEAR = 8;
@@ -39,14 +40,7 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
   const [yearSummaryOpen, setYearSummaryOpen] = useState(false);
   const [pinnedYear, setPinnedYear] = useState(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [filters, setFilters] = useState({
-    people: true,
-    emperors: true,
-    periods: true,
-    councils: true,
-    documents: true,
-    events: true
-  });
+  const [filters, setFilters] = useState(() => buildInitialFilters(config));
   // Search highlight state
   const [searchHighlight, setSearchHighlight] = useState(null);
 
@@ -58,6 +52,29 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
     legend: [],
     ...config
   }), [config]);
+
+  // Chain membership, keyed by person id.
+  //
+  // The desktop canvas draws config.chains as a connected line. This layout is
+  // a vertical swimlane with one column per person, where diagonal connectors
+  // across a scrolling container would read as clutter — so the succession is
+  // shown as an ordinal on each member instead ("3/8"), which keeps both the
+  // membership and its order without a second rendering path.
+  const chainMembership = useMemo(() => {
+    const map = new Map();
+    for (const chain of defaultConfig.chains || []) {
+      const members = chain.memberIds || [];
+      members.forEach((id, i) => {
+        map.set(id, {
+          color: chain.color || '#c9a227',
+          name: chain.name || 'Chain',
+          position: i + 1,
+          total: members.length,
+        });
+      });
+    }
+    return map;
+  }, [defaultConfig.chains]);
 
   const dataBounds = useMemo(() => {
     const { people = [], points = [], periods = [] } = data;
@@ -82,19 +99,7 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
     return { minYear: Math.floor(minYear - pad), maxYear: Math.ceil(maxYear + pad) };
   }, [data]);
 
-  const filteredData = useMemo(() => {
-    const { people = [], points = [], periods = [] } = data;
-    return {
-      people: people.filter(p => p.isMonarch ? filters.emperors : filters.people),
-      points: points.filter(p => {
-        if (p.itemType === 'councils') return filters.councils;
-        if (p.itemType === 'documents') return filters.documents;
-        if (p.itemType === 'events') return filters.events;
-        return true;
-      }),
-      periods: filters.periods ? periods : []
-    };
-  }, [data, filters]);
+  const filteredData = useMemo(() => applyFilters(data, filters), [data, filters]);
 
   const itemIndex = useMemo(() => {
     const map = new Map();
@@ -364,19 +369,33 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
               return (
                 <button
                   key={person.id}
-                  className={`mobile-person-lane${isHighlighted ? ' highlighted' : ''}${isCurrent ? ' current-highlight' : ''}`}
+                  className={`mobile-person-lane${isHighlighted ? ' highlighted' : ''}${isCurrent ? ' current-highlight' : ''}${person.emphasis ? ' emphasised' : ''}`}
                   style={{
                     top: `${topY}px`,
                     height: `${Math.max(height, 28)}px`,
                     left: `${x}px`,
                     width: `${LANE_WIDTH}px`,
-                    '--person-color': color
+                    '--person-color': color,
+                    '--emphasis-color': person.emphasisColor || color
                   }}
                   onClick={() => handleItemClick('person', person)}
                 >
                   <span className="mobile-person-header">
                     {person.isMonarch && <Icon name="crown" size={10} color="#ffd700" />}
                     <span className="mobile-person-name">{person.name}</span>
+                    {chainMembership.has(person.id) && (() => {
+                      const link = chainMembership.get(person.id);
+                      return (
+                        <span
+                          className="mobile-chain-badge"
+                          style={{ '--chain-color': link.color }}
+                          title={`${link.name}: ${link.position} of ${link.total}`}
+                          aria-label={`${link.name}, ${link.position} of ${link.total}`}
+                        >
+                          {link.position}/{link.total}
+                        </span>
+                      );
+                    })()}
                   </span>
                   <span className="mobile-person-dates">
                     {formatYear(start)} – {formatYear(end)}

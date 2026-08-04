@@ -45,6 +45,28 @@ export async function installSupabaseMock(page) {
   }));
 }
 
+/** Stubs Supabase REST endpoints per table.
+ *
+ *  `tables` maps a table name to the rows it should return, e.g.
+ *  { CH_People: [...], CH_Movements: [...] }. Any table not listed returns
+ *  an empty array, so a test only has to describe the rows it cares about.
+ *
+ *  Install this instead of installSupabaseMock when a test needs the app to
+ *  render actual content rather than just settle. */
+export async function installSupabaseTableMock(page, tables = {}) {
+  await page.route('**/*.supabase.co/**', (route) => {
+    const path = new URL(route.request().url()).pathname;
+    const name = decodeURIComponent(path.split('/rest/v1/')[1] || '').split('?')[0];
+    const rows = tables[name] ?? [];
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: { 'access-control-allow-origin': '*' },
+      body: JSON.stringify(rows),
+    });
+  });
+}
+
 /** Stubs the Clerk JS bundle. Provides the minimal surface that
  *  editable-content.js's loadClerkScript path expects: a window.Clerk
  *  with load(), user, signOut(), openSignIn(). */

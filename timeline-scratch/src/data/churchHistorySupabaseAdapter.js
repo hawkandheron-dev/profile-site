@@ -3,27 +3,15 @@
  * Fetches data from CH_ tables and transforms it into
  * the same format as churchHistoryData.js exports.
  */
-import { createClient } from '@supabase/supabase-js';
-
-// ── Supabase client ───────────────────────────────────────────────────────
-
-let supabaseClient = null;
-
-async function getSupabase() {
-  if (supabaseClient) return supabaseClient;
-
-  // Config is set on window by the <script src="/api/supabase-config"> tag
-  // in the HTML entry point before React boots.
-  const url = window.SUPABASE_URL || '';
-  const key = window.SUPABASE_ANON_KEY || '';
-
-  if (!url || !key) {
-    throw new Error('Supabase configuration not found. Ensure the config script has loaded.');
-  }
-
-  supabaseClient = createClient(url, key);
-  return supabaseClient;
-}
+import {
+  getSupabase,
+  formatReignYears,
+  yearToIsoDate,
+  buildConnectionMap,
+  buildSourceMap,
+  buildWorksMap,
+  buildEventConnectionMap
+} from './churchHistoryShared.js';
 
 // ── Color maps (same as JSON version) ─────────────────────────────────────
 
@@ -53,26 +41,6 @@ const shapeMap = {
   document: 'book',
   event: 'reference'
 };
-
-// ── Date helpers ──────────────────────────────────────────────────────────
-
-function formatReignYears(startYear, endYear) {
-  if (startYear === null || endYear === null) return '';
-
-  const startIsBC = startYear < 0;
-  const endIsBC = endYear < 0;
-  const hasBC = startIsBC || endIsBC;
-
-  const formatYear = (year, forceEra = false) => {
-    if (year < 0) return `${Math.abs(year)} BC`;
-    if (forceEra) return `${year} AD`;
-    return `${year}`;
-  };
-
-  const startStr = formatYear(startYear, hasBC && !startIsBC);
-  const endStr = formatYear(endYear, hasBC && !endIsBC);
-  return `Reigned ${startStr}-${endStr}`;
-}
 
 // ── Data fetching ─────────────────────────────────────────────────────────
 
@@ -137,62 +105,10 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
     eraInfoMap[era.era_id] = { name: era.name, start: era.start_year, end: era.end_year };
   });
 
-  // Build connection map (person_id → array of connected person ids)
-  const connectionMap = new Map();
-  dbConnections.forEach(conn => {
-    const add = (from, to, type) => {
-      if (!connectionMap.has(from)) connectionMap.set(from, []);
-      const entries = connectionMap.get(from);
-      if (!entries.some(e => e.id === to && e.type === type)) {
-        entries.push({ id: to, type: conn.connection_type || 'known' });
-      }
-    };
-    add(conn.person_id_1, conn.person_id_2, conn.connection_type);
-    add(conn.person_id_2, conn.person_id_1, conn.connection_type);
-  });
-
-  // Build source map (person_id → array of sources)
-  const sourceMap = new Map();
-  const sourceById = new Map();
-  dbSources.forEach(s => sourceById.set(s.source_id, s));
-  dbSourceFigures.forEach(sf => {
-    const src = sourceById.get(sf.source_id);
-    if (!src) return;
-    const key = sf.person_id || sf.event_id;
-    if (!key) return;
-    if (!sourceMap.has(key)) sourceMap.set(key, []);
-    const entries = sourceMap.get(key);
-    // Avoid duplicates
-    if (!entries.some(e => e.id === src.source_id)) {
-      entries.push({
-        id: src.source_id,
-        source: src.source_name,
-        title: src.title,
-        year: src.year,
-        url: src.url,
-        notes: src.notes
-      });
-    }
-  });
-
-  // Build works map (person_id → array of works)
-  const worksMap = new Map();
-  dbWorks.forEach(w => {
-    if (!w.person_id) return;
-    if (!worksMap.has(w.person_id)) worksMap.set(w.person_id, []);
-    worksMap.get(w.person_id).push({
-      name: w.name,
-      textUrl: w.text_url
-    });
-  });
-
-  // Build event-person connections map (event_id → array of person_ids)
-  const eventConnectionMap = new Map();
-  (dbEventConnections || []).forEach(ec => {
-    if (!ec.event_id || !ec.person_id) return;
-    if (!eventConnectionMap.has(ec.event_id)) eventConnectionMap.set(ec.event_id, []);
-    eventConnectionMap.get(ec.event_id).push(ec.person_id);
-  });
+  const connectionMap = buildConnectionMap(dbConnections);
+  const sourceMap = buildSourceMap(dbSources, dbSourceFigures);
+  const worksMap = buildWorksMap(dbWorks);
+  const eventConnectionMap = buildEventConnectionMap(dbEventConnections);
 
   // Helper: determine era for a date
   function getEraForBirthYear(year) {
@@ -291,12 +207,8 @@ function transformToTimelineFormat(eras, dbPeople, dbEvents, dbConnections, dbSo
 
   eras.forEach(era => {
     // Convert year integers to ISO date strings for the Timeline component
-    const startDate = era.start_year >= 0
-      ? `${String(era.start_year).padStart(4, '0')}-01-01`
-      : `-${String(Math.abs(era.start_year)).padStart(4, '0')}-01-01`;
-    const endDate = era.end_year >= 0
-      ? `${String(era.end_year).padStart(4, '0')}-01-01`
-      : `-${String(Math.abs(era.end_year)).padStart(4, '0')}-01-01`;
+    const startDate = yearToIsoDate(era.start_year);
+    const endDate = yearToIsoDate(era.end_year);
 
     timelinePeriods.push({
       id: era.era_id,
