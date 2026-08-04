@@ -171,6 +171,24 @@ test.describe('Heresies timeline', () => {
     await expect(page.locator('.timeline-search-option')).toHaveCount(0);
   });
 
+  test('mobile marks chain members with their position in the succession', async ({ page }) => {
+    await installConfigMock(page, { clerkKey: '' });
+    await installClerkMock(page);
+    await installSupabaseTableMock(page, TABLES);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/apps/heresies.html');
+
+    // The mobile layout is a DOM swimlane, not a canvas, so the desktop
+    // chain line can't be drawn; members carry their ordinal instead.
+    const badges = page.locator('.mobile-chain-badge');
+    await expect(badges.first()).toBeVisible({ timeout: 15_000 });
+
+    // Of the eight NICENE_LINE ids, this fixture contains Athanasius (2nd)
+    // and Leo (8th).
+    await expect(badges).toHaveCount(2);
+    expect((await badges.allTextContents()).sort()).toEqual(['2/8', '8/8']);
+  });
+
   test('legend checkboxes filter the canvas', async ({ page }) => {
     await loadPage(page);
     await page.waitForTimeout(500);

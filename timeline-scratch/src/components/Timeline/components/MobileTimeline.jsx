@@ -53,6 +53,29 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
     ...config
   }), [config]);
 
+  // Chain membership, keyed by person id.
+  //
+  // The desktop canvas draws config.chains as a connected line. This layout is
+  // a vertical swimlane with one column per person, where diagonal connectors
+  // across a scrolling container would read as clutter — so the succession is
+  // shown as an ordinal on each member instead ("3/8"), which keeps both the
+  // membership and its order without a second rendering path.
+  const chainMembership = useMemo(() => {
+    const map = new Map();
+    for (const chain of defaultConfig.chains || []) {
+      const members = chain.memberIds || [];
+      members.forEach((id, i) => {
+        map.set(id, {
+          color: chain.color || '#c9a227',
+          name: chain.name || 'Chain',
+          position: i + 1,
+          total: members.length,
+        });
+      });
+    }
+    return map;
+  }, [defaultConfig.chains]);
+
   const dataBounds = useMemo(() => {
     const { people = [], points = [], periods = [] } = data;
     let minYear = Infinity, maxYear = -Infinity;
@@ -360,6 +383,19 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
                   <span className="mobile-person-header">
                     {person.isMonarch && <Icon name="crown" size={10} color="#ffd700" />}
                     <span className="mobile-person-name">{person.name}</span>
+                    {chainMembership.has(person.id) && (() => {
+                      const link = chainMembership.get(person.id);
+                      return (
+                        <span
+                          className="mobile-chain-badge"
+                          style={{ '--chain-color': link.color }}
+                          title={`${link.name}: ${link.position} of ${link.total}`}
+                          aria-label={`${link.name}, ${link.position} of ${link.total}`}
+                        >
+                          {link.position}/{link.total}
+                        </span>
+                      );
+                    })()}
                   </span>
                   <span className="mobile-person-dates">
                     {formatYear(start)} – {formatYear(end)}

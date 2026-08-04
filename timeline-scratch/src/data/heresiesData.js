@@ -42,7 +42,12 @@ export const heresiesConfig = {
   laneOrder: ['people', 'points', 'periods'],
 
   chains: [
-    { id: 'nicene-line', color: NICENE_GOLD, memberIds: NICENE_LINE }
+    {
+      id: 'nicene-line',
+      name: 'The Nicene line',
+      color: NICENE_GOLD,
+      memberIds: NICENE_LINE
+    }
   ],
 
   legend: [

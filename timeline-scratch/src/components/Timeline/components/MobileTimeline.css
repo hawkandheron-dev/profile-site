@@ -182,6 +182,23 @@
   z-index: 1;
 }
 
+/* Ordinal for members of a configured chain (e.g. the Nicene line), standing
+   in for the connected line the desktop canvas draws. */
+.mobile-chain-badge {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 0 4px;
+  border: 1px solid var(--chain-color, #c9a227);
+  border-radius: 3px;
+  background: rgba(255, 250, 235, 0.9);
+  color: #3a2f10;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 13px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
 /* Figures the dataset marks as emphasised (e.g. defenders of orthodoxy).
    Search highlight rules follow and deliberately override this. */
 .mobile-person-lane.emphasised {
