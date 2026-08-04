@@ -22,6 +22,7 @@ import './SiteNavPanel.css';
 const NAV_ITEMS = [
   { key: 'home',                href: '../../index.html',                     label: 'Home' },
   { key: 'church-history',      href: './church-history-timeline.html',       label: 'CH Timeline' },
+  { key: 'heresies',            href: './heresies.html',                      label: 'Heresies & councils' },
   { key: 'pantheons',           href: '../../pantheons-supabase.html',        label: 'Pantheons' },
   { key: 'biblical-atlas',      href: './biblical-places.html',               label: 'Biblical atlas' },
   { key: 'timeline',            href: './index.html',                         label: 'Timeline component' },

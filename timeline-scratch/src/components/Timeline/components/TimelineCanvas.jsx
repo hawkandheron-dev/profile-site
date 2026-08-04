@@ -12,7 +12,8 @@ import {
   drawPersonBox,
   drawPeriodBracket,
   getCurlyBracePath,
-  drawPointMarker
+  drawPointMarker,
+  drawChainLink
 } from '../utils/rendering.js';
 
 export function TimelineCanvas({
@@ -112,6 +113,9 @@ export function TimelineCanvas({
     renderPeople(ctx, layout.stackedPeople);
     renderPoints(ctx, layout.stackedPoints);
 
+    // Draw configured chains (e.g. the Nicene line) over the people lane
+    renderChains(ctx, layout.stackedPeople);
+
     // Draw search highlights on top
     renderSearchHighlights(ctx, layout);
   }, [width, height, viewportStartYear, yearsPerPixel, panOffsetY, layout, config, hoveredItem, hoveredPeriod, highlightedItemIds, currentHighlightId, animatingIds, animProgress]);
@@ -158,6 +162,12 @@ export function TimelineCanvas({
         ctx.clip();
       }
 
+      // Figures the dataset marks as emphasised (e.g. the defenders of
+      // orthodoxy) get a ring in their own colour around the bar.
+      const emphasis = person.emphasis
+        ? { color: person.emphasisColor || color }
+        : null;
+
       // Monarchs: draw lifespan in lighter shade, reign in full color
       if (person.isMonarch && person.reignStartYear != null && person.reignEndYear != null) {
         const lifespanColor = lightenColor(color, 0.55);
@@ -171,10 +181,10 @@ export function TimelineCanvas({
         const reignWidth = Math.max(reignEndX - reignX, 4);
 
         // Draw reign segment in full color
-        drawPersonBox(ctx, reignX, reignWidth, y, boxHeight, color, isHovered);
+        drawPersonBox(ctx, reignX, reignWidth, y, boxHeight, color, isHovered, emphasis);
       } else {
         // Regular person or monarch without reign data: single color box
-        drawPersonBox(ctx, x, displayWidth, y, boxHeight, color, isHovered);
+        drawPersonBox(ctx, x, displayWidth, y, boxHeight, color, isHovered, emphasis);
       }
 
       // Restore context
@@ -187,6 +197,27 @@ export function TimelineCanvas({
         bounds: { x, y, width: displayWidth, height: boxHeight }
       });
     });
+  }
+
+  // Render chains — successions the config asks to be drawn as a continuous
+  // line through the people lane (config.chains). No-op when unconfigured, so
+  // timelines that don't use chains are unaffected.
+  function renderChains(ctx, people) {
+    const chains = config.chains;
+    if (!chains || chains.length === 0 || !people || people.length === 0) return;
+
+    for (const chain of chains) {
+      if (!chain?.memberIds?.length) continue;
+
+      // Only members that survived filtering are on screen; skip the rest, so
+      // toggling a category off takes its links out of the chain with it.
+      const boxes = chain.memberIds
+        .map(id => hitMapRef.current.get(id))
+        .filter(entry => entry && entry.type === 'person')
+        .map(entry => entry.bounds);
+
+      drawChainLink(ctx, boxes, chain.color || '#c9a227');
+    }
   }
 
   // Render periods

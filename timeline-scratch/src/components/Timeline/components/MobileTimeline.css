@@ -182,6 +182,14 @@
   z-index: 1;
 }
 
+/* Figures the dataset marks as emphasised (e.g. defenders of orthodoxy).
+   Search highlight rules follow and deliberately override this. */
+.mobile-person-lane.emphasised {
+  box-shadow:
+    0 0 0 2px var(--emphasis-color, #c9a227),
+    0 1px 4px rgba(60, 50, 30, 0.18);
+}
+
 /* Person lane search highlights */
 .mobile-person-lane.highlighted {
   box-shadow:

@@ -10,6 +10,7 @@ import { getYearLabelInterval } from '../utils/coordinates.js';
 import { Icon, ShapeIcon } from './Icon.jsx';
 import { TimelineModal } from './TimelineModal.jsx';
 import { YearSummaryModal } from './YearSummaryModal.jsx';
+import { applyFilters, buildInitialFilters } from '../utils/filters.js';
 import './MobileTimeline.css';
 
 const DEFAULT_PIXELS_PER_YEAR = 8;
@@ -39,14 +40,7 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
   const [yearSummaryOpen, setYearSummaryOpen] = useState(false);
   const [pinnedYear, setPinnedYear] = useState(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [filters, setFilters] = useState({
-    people: true,
-    emperors: true,
-    periods: true,
-    councils: true,
-    documents: true,
-    events: true
-  });
+  const [filters, setFilters] = useState(() => buildInitialFilters(config));
   // Search highlight state
   const [searchHighlight, setSearchHighlight] = useState(null);
 
@@ -82,19 +76,7 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
     return { minYear: Math.floor(minYear - pad), maxYear: Math.ceil(maxYear + pad) };
   }, [data]);
 
-  const filteredData = useMemo(() => {
-    const { people = [], points = [], periods = [] } = data;
-    return {
-      people: people.filter(p => p.isMonarch ? filters.emperors : filters.people),
-      points: points.filter(p => {
-        if (p.itemType === 'councils') return filters.councils;
-        if (p.itemType === 'documents') return filters.documents;
-        if (p.itemType === 'events') return filters.events;
-        return true;
-      }),
-      periods: filters.periods ? periods : []
-    };
-  }, [data, filters]);
+  const filteredData = useMemo(() => applyFilters(data, filters), [data, filters]);
 
   const itemIndex = useMemo(() => {
     const map = new Map();
@@ -364,13 +346,14 @@ export const MobileTimeline = forwardRef(function MobileTimeline({ data, config,
               return (
                 <button
                   key={person.id}
-                  className={`mobile-person-lane${isHighlighted ? ' highlighted' : ''}${isCurrent ? ' current-highlight' : ''}`}
+                  className={`mobile-person-lane${isHighlighted ? ' highlighted' : ''}${isCurrent ? ' current-highlight' : ''}${person.emphasis ? ' emphasised' : ''}`}
                   style={{
                     top: `${topY}px`,
                     height: `${Math.max(height, 28)}px`,
                     left: `${x}px`,
                     width: `${LANE_WIDTH}px`,
-                    '--person-color': color
+                    '--person-color': color,
+                    '--emphasis-color': person.emphasisColor || color
                   }}
                   onClick={() => handleItemClick('person', person)}
                 >

@@ -265,8 +265,10 @@ export function drawPeriodBracket(ctx, x, width, y, height, color) {
  * @param {number} height - Height
  * @param {string} color - Fill color
  * @param {boolean} isHovered - Whether this item is hovered
+ * @param {object} [emphasis] - Optional emphasis ring, e.g. the defenders of
+ *   orthodoxy on the heresies timeline: { color }. Omit for normal figures.
  */
-export function drawPersonBox(ctx, x, width, y, height, color, isHovered = false) {
+export function drawPersonBox(ctx, x, width, y, height, color, isHovered = false, emphasis = null) {
   ctx.save();
 
   // Shadow for hovered state
@@ -287,6 +289,107 @@ export function drawPersonBox(ctx, x, width, y, height, color, isHovered = false
   ctx.stroke();
 
   ctx.restore();
+
+  // Emphasis ring, drawn outside the box so it reads as a setting around it
+  if (emphasis) {
+    ctx.save();
+    ctx.shadowColor = emphasis.color;
+    ctx.shadowBlur = 6;
+    ctx.strokeStyle = emphasis.color;
+    ctx.lineWidth = 2;
+    drawRoundedRect(ctx, x - 2, y - 2, width + 4, height + 4, 4);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+/**
+ * Draw the connecting line of a "chain" of people — a succession the timeline
+ * wants to show as continuous, such as the line of Nicene defenders running
+ * from Alexander of Alexandria to Leo the Great.
+ *
+ * Members are joined right-edge to left-edge in the order given. Where two
+ * members overlap in time (the common case for a teacher and his pupil) the
+ * link is drawn between their midpoints instead, so the line never doubles
+ * back on itself.
+ *
+ * @param {CanvasRenderingContext2D} ctx - Canvas context
+ * @param {Array<{x:number,y:number,width:number,height:number}>} boxes -
+ *   Laid-out boxes of the chain members, already in draw order
+ * @param {string} color - Line colour
+ */
+export function drawChainLink(ctx, boxes, color) {
+  if (!boxes || boxes.length < 2) return;
+
+  // Chain members are usually emphasised in the same colour as the chain, so a
+  // plain line would be invisible where it crosses their bars. Draw a pale
+  // casing first, then a darker line on top — legible over the bars and over
+  // the parchment background alike.
+  const casing = 'rgba(255, 250, 235, 0.85)';
+  const line = darkenColor(color, 0.55);
+
+  const jointFor = (a, b, useA) => {
+    const overlaps = a.x + a.width > b.x;
+    const box = useA ? a : b;
+    let x;
+    if (useA) x = overlaps ? a.x + a.width / 2 : a.x + a.width;
+    else x = overlaps ? b.x + b.width / 2 : b.x;
+    return { x, y: box.y + box.height / 2 };
+  };
+
+  const segments = [];
+  for (let i = 0; i < boxes.length - 1; i++) {
+    segments.push([
+      jointFor(boxes[i], boxes[i + 1], true),
+      jointFor(boxes[i], boxes[i + 1], false)
+    ]);
+  }
+
+  // Two passes: casing underneath, then the dashed line on top.
+  const strokeSegments = (stroke, width, dash) => {
+    ctx.save();
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.setLineDash(dash);
+
+    for (const [from, to] of segments) {
+      const midX = (from.x + to.x) / 2;
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.bezierCurveTo(midX, from.y, midX, to.y, to.x, to.y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  };
+
+  strokeSegments(casing, 4.5, []);
+  strokeSegments(line, 1.8, [5, 4]);
+
+  // Node dots at every joint, cased the same way
+  const joints = [segments[0][0], ...segments.map(s => s[1])];
+  ctx.save();
+  for (const j of joints) {
+    ctx.beginPath();
+    ctx.arc(j.x, j.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = casing;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(j.x, j.y, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = line;
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/** Mix a hex colour towards black by `amount` (0–1). */
+function darkenColor(hex, amount) {
+  const h = String(hex).replace('#', '');
+  if (h.length !== 6) return hex;
+  const r = Math.round(parseInt(h.slice(0, 2), 16) * (1 - amount));
+  const g = Math.round(parseInt(h.slice(2, 4), 16) * (1 - amount));
+  const b = Math.round(parseInt(h.slice(4, 6), 16) * (1 - amount));
+  return `rgb(${r}, ${g}, ${b})`;
 }
 
 /**
