@@ -69,6 +69,9 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
   const containerRef = useRef(null);
   const wasDraggingRef = useRef(false);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  // False until the ResizeObserver reports the container's real size; the
+  // initial vertical placement waits for it (see below).
+  const [measured, setMeasured] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -208,10 +211,16 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
   // the lanes above it change height — which happens every time a legend
   // filter is toggled. Without the follow-up adjustment the whole world jumps
   // by that delta and can leave the viewport entirely.
+  //
+  // The initial placement waits for `measured`: `dimensions` starts at a
+  // placeholder 800x600 and the ResizeObserver reports the real size a tick
+  // later. Placing the axis against the placeholder would apply the fraction
+  // to the wrong height — a 900px canvas would keep the 600px-derived offset,
+  // since the follow-up branch below only reacts to axisY, not to height.
   const initialCenterDone = useRef(false);
   const lastAxisY = useRef(null);
   useEffect(() => {
-    if (layout.axisY <= 0 || dimensions.height <= 0) return;
+    if (!measured || layout.axisY <= 0 || dimensions.height <= 0) return;
 
     const maxOffset = Math.max(0, layout.totalHeight - dimensions.height);
 
@@ -236,7 +245,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
         return Math.max(0, Math.min(next, maxOffset));
       });
     }
-  }, [layout.axisY, layout.totalHeight, dimensions.height, setVerticalOffset, defaultConfig.initialAxisFraction]);
+  }, [measured, layout.axisY, layout.totalHeight, dimensions.height, setVerticalOffset, defaultConfig.initialAxisFraction]);
 
   // Handle container resize
   useEffect(() => {
@@ -247,6 +256,7 @@ const DesktopTimeline = forwardRef(function DesktopTimeline({ data, config, onVi
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
         setDimensions({ width, height });
+        if (width > 0 && height > 0) setMeasured(true);
       }
     });
 
