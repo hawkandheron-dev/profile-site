@@ -258,6 +258,29 @@ test.describe('CH Timeline 2.0', () => {
     await expect(page.locator('.timeline-search-option', { hasText: 'Arianism' }).first()).toBeVisible();
   });
 
+  // Every case above loads with `clerkKey: ''`, which renders the app's
+  // unauthenticated branch. The branch that actually ships is the other one,
+  // and it shipped broken: ChurchHistory2App calls useAuth whenever a key is
+  // present, but the entry point mounted it without a <ClerkProvider>. Nothing
+  // in the suite touched that path.
+  test('mounts under a ClerkProvider when a publishable key is present', async ({ page }) => {
+    const pageErrors = [];
+    page.on('pageerror', (e) => pageErrors.push(e.message));
+
+    await installConfigMock(page); // default fixture key — the shipping branch
+    await installClerkMock(page);
+    await installSupabaseTableMock(page, TABLES);
+    await page.setViewportSize({ width: 1400, height: 900 });
+
+    const response = await page.goto('/apps/church-history-2.html');
+    expect(response?.status()).toBe(200);
+
+    // Renders at all, and specifically not with a missing-provider throw.
+    await expect(page.locator('canvas').first()).toBeVisible({ timeout: 15_000 });
+    expect(pageErrors.filter(e => /ClerkProvider|useAuth/.test(e))).toEqual([]);
+    await expect(page.getByText(/^Error:/)).toHaveCount(0);
+  });
+
   test('mobile falls back to the 1.0 swimlane', async ({ page }) => {
     await loadPage(page, { viewport: { width: 390, height: 844 }, mobile: true });
 
