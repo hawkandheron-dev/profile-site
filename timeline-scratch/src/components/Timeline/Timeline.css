@@ -1,3 +1,16 @@
+/* Row shared by the timeline and its docked detail panel (CH Timeline 2.0). */
+.timeline-with-panel {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.timeline-with-panel > .timeline-container {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .timeline-container {
   width: 100%;
   height: 100%;
@@ -28,6 +41,36 @@
   inset: 0;
   background: var(--color-parchment, var(--color-parchment));
   opacity: 0.45;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── CH Timeline 2.0 depth stack ─────────────────────────────────────────
+   Painted bottom to top: the grey-rule parallax field, the watercolour
+   background layer, its focus overlay, then the foreground canvas and its
+   HTML overlay (which carry no z-index and so paint in DOM order above). */
+
+.ch2-parallax {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Oversized so a stratum's translate never exposes an edge. */
+.ch2-parallax-stratum {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  will-change: transform;
+}
+
+.ch2-layer {
+  position: absolute;
+  inset: 0;
   pointer-events: none;
   z-index: 0;
 }
@@ -102,6 +145,30 @@ body.modal-open .timeline-container {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* Depth control — the three resting states of the background layer */
+.depth-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--color-border-hover);
+  border-radius: 5px;
+  background: var(--color-parchment-light);
+}
+
+.depth-btn {
+  padding: 3px 8px;
+  font-size: 11px;
+  border: none;
+  background: transparent;
+  color: var(--color-ink-faded);
+}
+
+.depth-btn.active {
+  background: var(--color-accent);
+  color: #fff;
 }
 
 .zoom-info {

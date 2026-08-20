@@ -134,7 +134,15 @@ function linkifyDescription(description, itemIndex, currentItemId) {
   }
 }
 
-export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople, onItemDeleted, onDataChanged, adminContext, contributorContext, onEntityUpdated }) {
+/**
+ * @param {'modal'|'panel'} [variant] - 'modal' (default) is the centred
+ *   dialog every timeline has used: a backdrop, the page frozen behind it.
+ *   'panel' docks the same content down the right-hand side as a flex sibling
+ *   of the timeline, leaving it live — which is what CH Timeline 2.0 needs, so
+ *   a figure's background stays in focus while you read about them.
+ */
+export function TimelineModal({ isOpen, item, itemType, config, onClose, itemIndex, onSelectItem, authContext, allPeople, onItemDeleted, onDataChanged, adminContext, contributorContext, onEntityUpdated, variant = 'modal' }) {
+  const isPanel = variant === 'panel';
   // ── Delete confirmation state ──────────────────────────────────────────
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -178,15 +186,23 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
     }
 
     document.addEventListener('keydown', handleEscape);
-    document.body.style.overflow = 'hidden';
-    document.body.classList.add('modal-open');
+
+    // Only the centred variant takes the page hostage. The docked panel has
+    // its own scroll container and sits beside a timeline that must stay
+    // pannable, so it leaves the body alone.
+    if (!isPanel) {
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
+    }
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = '';
-      document.body.classList.remove('modal-open');
+      if (!isPanel) {
+        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open');
+      }
     };
-  }, [isOpen, onClose, deleteConfirm, editSection]);
+  }, [isOpen, onClose, deleteConfirm, editSection, isPanel]);
 
   const connections = useMemo(() => {
     if (itemType !== 'person' || !item?.connections?.length || !itemIndex) return [];
@@ -458,15 +474,17 @@ export function TimelineModal({ isOpen, item, itemType, config, onClose, itemInd
 
   return (
     <div
-      className="timeline-modal"
-      onClick={onClose}
+      className={isPanel ? 'timeline-modal timeline-modal--panel' : 'timeline-modal'}
+      // Clicking outside dismisses the centred dialog. The docked panel has no
+      // "outside" — it is part of the layout — so it closes from its own button.
+      onClick={isPanel ? undefined : onClose}
       onMouseDown={handleModalWheel}
       onMouseUp={handleModalWheel}
       onWheel={handleModalWheel}
       onTouchStart={handleModalWheel}
       onTouchMove={handleModalWheel}
     >
-      <div className="modal-backdrop" />
+      {!isPanel && <div className="modal-backdrop" />}
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <button
           className="modal-close"
