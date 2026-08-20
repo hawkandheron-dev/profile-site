@@ -21,7 +21,10 @@ export function TimelineOverlay({
   onItemClick,
   wasDraggingRef,
   animatingPointIds,
-  isTourMode
+  isTourMode,
+  // Optional colour overrides. Absent means the light-on-dark labels every
+  // timeline before CH 2.0 used; that page reads on a white ground instead.
+  palette = {},
 }) {
   // Get hovered period date range for highlighting
   const hoveredPeriodRange = hoveredPeriod ? getYearRange(hoveredPeriod.startDate, hoveredPeriod.endDate) : null;
@@ -186,8 +189,8 @@ export function TimelineOverlay({
             pointerEvents: 'none',
             fontSize: '14px',
             fontWeight: '600',
-            color: '#fff',
-            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            color: palette.labelText || '#fff',
+            backgroundColor: palette.labelBg || 'rgba(0, 0, 0, 0.75)',
             padding: '2px 6px',
             borderRadius: '3px',
             whiteSpace: 'nowrap',

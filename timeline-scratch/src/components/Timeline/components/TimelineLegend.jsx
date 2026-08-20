@@ -30,6 +30,16 @@ export function TimelineLegend({ legend, isVisible = true, filters = {}, onFilte
         {legend.map(item => {
           const isActive = item.filterKey ? filters[item.filterKey] !== false : true;
 
+          // A legend long enough to need sections can declare them. CH 2.0
+          // uses two — the eras in front, the background behind.
+          if (item.type === 'heading') {
+            return (
+              <div key={item.id} className="legend-section-heading">
+                {item.name}
+              </div>
+            );
+          }
+
           return (
             <div
               key={item.id}
